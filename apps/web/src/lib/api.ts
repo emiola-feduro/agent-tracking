@@ -1,8 +1,12 @@
 import type {
+  AgentEvent,
   BusinessRule,
+  CodeSymbol,
   DatabaseOption,
   DodItem,
   DodStatus,
+  Feature,
+  FileArtifact,
   Platform,
   Project,
   ProjectFile,
@@ -11,13 +15,20 @@ import type {
   SkillSource,
   StackOption,
   StackRecommendation,
+  TestCase,
+  TestIdea,
+  TestIdeaStatus,
 } from "@agent-tracking/core";
 
 export type {
+  AgentEvent,
   BusinessRule,
+  CodeSymbol,
   DatabaseOption,
   DodItem,
   DodStatus,
+  Feature,
+  FileArtifact,
   Platform,
   Project,
   ProjectFile,
@@ -25,6 +36,9 @@ export type {
   SkillSource,
   StackOption,
   StackRecommendation,
+  TestCase,
+  TestIdea,
+  TestIdeaStatus,
 };
 
 export type ProjectView = ProjectSnapshot & {
@@ -116,6 +130,13 @@ export const api = {
     request<DodItem>("PATCH", `${p(id)}/requirements/${reqId}/dod/${dodId}`, { status }),
   deleteDod: (id: string, reqId: string, dodId: string) =>
     request<void>("DELETE", `${p(id)}/requirements/${reqId}/dod/${dodId}`),
+
+  activity: (id: string, limit = 100) => request<AgentEvent[]>("GET", `${p(id)}/activity?limit=${limit}`),
+  addTestIdea: (id: string, data: { text: string; requirementId?: string | null; featureId?: string | null }) =>
+    request<TestIdea>("POST", `${p(id)}/test-ideas`, data),
+  setTestIdeaStatus: (id: string, ideaId: string, status: TestIdeaStatus) =>
+    request<TestIdea>("PATCH", `${p(id)}/test-ideas/${ideaId}`, { status }),
+  deleteTestIdea: (id: string, ideaId: string) => request<void>("DELETE", `${p(id)}/test-ideas/${ideaId}`),
 
   contextMarkdown: (id: string) => request<string>("GET", `${p(id)}/context.md`),
   writeRepoFiles: (id: string) => request<{ path: string }>("POST", `${p(id)}/context/write`),
