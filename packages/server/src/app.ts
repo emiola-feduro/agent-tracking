@@ -22,6 +22,7 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { z } from "zod";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
+import { repoRoutes } from "./repo-routes";
 
 export type AppEvent = { type: string; projectId: string; entity?: string; id?: string };
 export type Emit = (e: AppEvent) => void;
@@ -410,6 +411,9 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     await touch(projectId, "dod", dodId);
     return c.body(null, 204);
   });
+
+  // Branches, commits, checkout and code analysis (packages/git + packages/analyzer).
+  app.route("/", repoRoutes(db, { emit }));
 
   return app;
 }

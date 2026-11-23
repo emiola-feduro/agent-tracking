@@ -1,27 +1,10 @@
 import { readdir, stat } from "node:fs/promises";
 import { basename, isAbsolute, resolve } from "node:path";
+import { git } from "./run";
 
-export type GitResult = { ok: boolean; stdout: string; stderr: string };
-
-/** Runs git with an argument list (never through a shell). */
-export async function git(args: string[], cwd?: string, timeoutMs = 120_000): Promise<GitResult> {
-  const proc = Bun.spawn(["git", ...args], {
-    cwd,
-    stdout: "pipe",
-    stderr: "pipe",
-    stdin: "ignore",
-    // Never block waiting for credentials in a background server.
-    env: { ...process.env, GIT_TERMINAL_PROMPT: "0" },
-  });
-  const timer = setTimeout(() => proc.kill(), timeoutMs);
-  const [stdout, stderr, code] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-    proc.exited,
-  ]);
-  clearTimeout(timer);
-  return { ok: code === 0, stdout: stdout.trim(), stderr: stderr.trim() };
-}
+export { git, gitRaw, listRepoFiles, type GitResult } from "./run";
+export * from "./repo";
+export * from "./watch";
 
 export type RepoInfo = {
   /** Absolute path of the repository root (may differ from the path given). */
