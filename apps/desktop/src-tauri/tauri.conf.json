@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Agent Tracking",
+  "version": "0.1.0",
+  "identifier": "dev.agenttracking.app",
+  "build": {
+    "beforeBuildCommand": "cd ../web && bun run build",
+    "beforeDevCommand": "cd ../web && bun run build",
+    "frontendDist": "../../web/build"
+  },
+  "app": {
+    "windows": [
+      { "title": "Agent Tracking", "width": 1280, "height": 820, "url": "http://127.0.0.1:4317/" }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "externalBin": ["binaries/agent-tracking-server"],
+    "resources": { "../../web/build/": "web/" },
+    "icon": ["icons/icon.png"]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@agent-tracking/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@agent-tracking/core": "workspace:*",
+    "@agent-tracking/db": "workspace:*",
+    "@agent-tracking/skills": "workspace:*",
+    "drizzle-orm": "0.44",
+    "hono": "4",
+    "zod": "4",
+    "@agent-tracking/git": "workspace:*"
+  },
+  "scripts": {
+    "start": "bun src/index.ts",
+    "dev": "bun --watch src/index.ts"
+  }
+}
