@@ -50,8 +50,21 @@ export type NewProject = {
   repoUrl: string | null;
   rules: string[];
   skills: SkillInput[];
-  requirements: { title: string; description: string; dod: { criterion: string }[] }[];
+  requirements: { title: string; description: string; dod: { criterion: string; origin: "human" | "llm" }[] }[];
 };
+
+/** Project data the assistant reads; wizard drafts send what has been filled so far. */
+export type AssistantBrief = {
+  name?: string;
+  goal?: string;
+  platforms: Platform[];
+  stack?: string[];
+  databases?: string[];
+  rules?: string[];
+  requirements?: { title: string; description?: string }[];
+};
+export type StackSuggestion = { source: "assistant" | "default"; recommendation: StackRecommendation };
+export type SkillPick = { id: string; reason: string };
 
 export class ApiError extends Error {
   constructor(
@@ -110,12 +123,21 @@ export const api = {
   addRequirement: (id: string, title: string, description: string) =>
     request<{ id: string }>("POST", `${p(id)}/requirements`, { title, description }),
   deleteRequirement: (id: string, reqId: string) => request<void>("DELETE", `${p(id)}/requirements/${reqId}`),
-  addDod: (id: string, reqId: string, criterion: string) =>
-    request<DodItem>("POST", `${p(id)}/requirements/${reqId}/dod`, { criterion }),
+  addDod: (id: string, reqId: string, criterion: string, origin: "human" | "llm" = "human") =>
+    request<DodItem>("POST", `${p(id)}/requirements/${reqId}/dod`, { criterion, origin }),
   setDodStatus: (id: string, reqId: string, dodId: string, status: DodStatus) =>
     request<DodItem>("PATCH", `${p(id)}/requirements/${reqId}/dod/${dodId}`, { status }),
   deleteDod: (id: string, reqId: string, dodId: string) =>
     request<void>("DELETE", `${p(id)}/requirements/${reqId}/dod/${dodId}`),
+
+  assistantStatus: () => request<{ configured: boolean }>("GET", "/assistant"),
+  suggestStack: (brief: AssistantBrief) => request<StackSuggestion>("POST", "/assistant/stack", brief),
+  suggestDod: (project: AssistantBrief, requirement: { title: string; description?: string }, existing: string[]) =>
+    request<{ criteria: string[] }>("POST", "/assistant/dod", { project, requirement, existing }),
+  suggestSkills: (project: AssistantBrief, skills: { id: string; name: string; description: string }[]) =>
+    request<{ skills: SkillPick[] }>("POST", "/assistant/skills", { project, skills }),
+  suggestProjectDod: (id: string, reqId: string) =>
+    request<{ criteria: string[] }>("POST", `${p(id)}/requirements/${reqId}/dod/suggest`),
 
   contextMarkdown: (id: string) => request<string>("GET", `${p(id)}/context.md`),
   writeRepoFiles: (id: string) => request<{ path: string }>("POST", `${p(id)}/context/write`),

@@ -18,6 +18,7 @@ const NewProjectSkillList = ({ skills, label = "Skills instaladas" }: NewProject
   const [query, setQuery] = useState("");
   const selected = useWizardStore((s) => s.skills);
   const toggleSkill = useWizardStore((s) => s.toggleSkill);
+  const reasons = useWizardStore((s) => s.skillReasons);
   const visible = skills.filter((s) => matches(s, query));
   const count = skills.filter((s) => selected[s.key]).length;
 
@@ -38,8 +39,13 @@ const NewProjectSkillList = ({ skills, label = "Skills instaladas" }: NewProject
             checked={!!selected[skill.key]}
             onChange={() => toggleSkill(skill)}
             label={skill.name}
-            meta={<StatusPill>{skill.plugin ?? SOURCE_LABEL[skill.source]}</StatusPill>}
-            description={skill.description}
+            meta={
+              <>
+                <StatusPill>{skill.plugin ?? SOURCE_LABEL[skill.source]}</StatusPill>
+                {reasons[skill.key] !== undefined && <StatusPill tone="brand">Sugerida por IA</StatusPill>}
+              </>
+            }
+            description={reasons[skill.key] || skill.description}
           />
         ))}
       </div>

@@ -25,7 +25,7 @@ const NewProjectSummary = () => {
   const s = useWizardStore();
   const { name, platforms, stack, databases, repo, repoUrl, skills, goal, rules, requirements } = s;
   const filledRequirements = requirements.filter((r) => r.title.trim());
-  const criteria = filledRequirements.reduce((n, r) => n + r.dod.filter((d) => d.trim()).length, 0);
+  const criteria = filledRequirements.reduce((n, r) => n + r.dod.filter((d) => d.trim()).length + r.llmDod.length, 0);
   const skillNames = Object.values(skills).map((k) => k.name);
 
   return (

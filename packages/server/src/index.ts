@@ -1,3 +1,4 @@
+import { assistantConfigFromEnv } from "@agent-tracking/assistant";
 import { openDb } from "@agent-tracking/db";
 import { join, normalize } from "node:path";
 import { createApp, type AppEvent } from "./app";
@@ -8,7 +9,8 @@ const TOPIC = "events";
 const db = openDb();
 let server: ReturnType<typeof Bun.serve> | undefined;
 const emit = (e: AppEvent) => server?.publish(TOPIC, JSON.stringify(e));
-const app = createApp(db, { emit });
+const assistant = assistantConfigFromEnv();
+const app = createApp(db, { emit, assistant });
 
 /** SPA compilada (apps/web/build). En desktop la sirve Tauri; en web, este mismo proceso. */
 const webRoot = process.env.AGENT_TRACKING_WEB ?? join(import.meta.dir, "..", "..", "..", "apps", "web", "build");
@@ -40,3 +42,4 @@ server = Bun.serve({
 });
 
 console.log(`Agent Tracking API escuchando en http://${server.hostname}:${server.port}`);
+console.log(assistant ? "Asistente con Claude activo" : "Asistente con Claude desactivado (falta ANTHROPIC_API_KEY)");

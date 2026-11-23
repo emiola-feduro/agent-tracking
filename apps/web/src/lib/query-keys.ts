@@ -9,4 +9,5 @@ export const queryKeys = {
   installedSkills: (repoPath: string | null) => ["skills", "installed", repoPath ?? ""] as const,
   catalogSkills: ["skills", "catalog"] as const,
   cloneRoot: ["import", "clone-root"] as const,
+  assistant: ["assistant"] as const,
 };

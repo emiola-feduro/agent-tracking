@@ -1,3 +1,4 @@
+import AssistantSetupNote from "@/components/dynamic/assistant/assistant-setup-note";
 import Button from "@/components/ui/button/button";
 import useWizardStore from "@/stores/use-wizard-store";
 import NewProjectRequirementCard from "./new-project-requirement-card";
@@ -8,6 +9,7 @@ const NewProjectRequirements = () => {
 
   return (
     <div className="flex flex-col gap-4">
+      <AssistantSetupNote />
       {requirements.map((requirement, index) => (
         <NewProjectRequirementCard key={requirement.key} requirement={requirement} index={index} />
       ))}
