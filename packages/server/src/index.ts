@@ -1,4 +1,6 @@
 import { openDb } from "@agent-tracking/db";
+import { createMcpHttpHandler } from "@agent-tracking/mcp";
+import { createTracker } from "@agent-tracking/tracking";
 import { join, normalize } from "node:path";
 import { createApp, type AppEvent } from "./app";
 
@@ -8,7 +10,10 @@ const TOPIC = "events";
 const db = openDb();
 let server: ReturnType<typeof Bun.serve> | undefined;
 const emit = (e: AppEvent) => server?.publish(TOPIC, JSON.stringify(e));
-const app = createApp(db, { emit });
+const tracker = createTracker(db, { emit });
+const app = createApp(db, { tracker });
+/** MCP for agents (Streamable HTTP). stdio agents reach it through packages/mcp/src/stdio.ts. */
+const mcp = createMcpHttpHandler(tracker);
 
 /** SPA compilada (apps/web/build). En desktop la sirve Tauri; en web, este mismo proceso. */
 const webRoot = process.env.AGENT_TRACKING_WEB ?? join(import.meta.dir, "..", "..", "..", "apps", "web", "build");
@@ -29,6 +34,7 @@ server = Bun.serve({
       return srv.upgrade(req, { data: undefined }) ? undefined : new Response("Upgrade requerido", { status: 426 });
     }
     if (pathname.startsWith("/api/")) return app.fetch(req);
+    if (pathname === "/mcp") return mcp(req);
     return serveWeb(pathname);
   },
   websocket: {

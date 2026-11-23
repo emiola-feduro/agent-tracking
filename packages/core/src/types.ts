@@ -8,6 +8,11 @@ export type FeatureStatus = "pending" | "in_progress" | "done" | "needs_review" 
 export type TestType = "unit" | "integration" | "e2e" | "component" | "contract" | "performance" | "other";
 export type TestResult = "unknown" | "passing" | "failing" | "skipped";
 export type SkillSource = "user" | "repo" | "plugin" | "catalog" | "created";
+export const SYMBOL_KINDS = ["function", "class", "variable", "type", "constant"] as const;
+export type SymbolKind = (typeof SYMBOL_KINDS)[number];
+export type SymbolSource = "reported" | "inferred";
+export const TEST_IDEA_STATUSES = ["proposed", "accepted", "implemented", "discarded"] as const;
+export type TestIdeaStatus = (typeof TEST_IDEA_STATUSES)[number];
 
 export interface Project {
   id: string;
@@ -76,6 +81,55 @@ export interface TestCase {
   lastResult: TestResult;
 }
 
+/** A repository file that an agent created or touched. `path` is relative to the repo root. */
+export interface FileArtifact {
+  id: string;
+  projectId: string;
+  path: string;
+  purpose: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FeatureFile {
+  featureId: string;
+  fileId: string;
+}
+
+export interface CodeSymbol {
+  id: string;
+  fileId: string;
+  name: string;
+  kind: SymbolKind;
+  lineStart: number | null;
+  lineEnd: number | null;
+  purpose: string;
+  source: SymbolSource;
+}
+
+export interface TestIdea {
+  id: string;
+  projectId: string;
+  featureId: string | null;
+  requirementId: string | null;
+  text: string;
+  origin: "human" | "llm";
+  status: TestIdeaStatus;
+  createdBy: string;
+  createdAt: string;
+}
+
+/** One entry of the agent activity log. `actor` is "agent:<name>" or "user:<id>". */
+export interface AgentEvent {
+  id: string;
+  projectId: string;
+  actor: string;
+  type: string;
+  payload: Record<string, unknown>;
+  createdAt: string;
+}
+
 /** Vista agregada del proyecto que usan el cálculo de % y el generador de contexto. */
 export interface ProjectSnapshot {
   project: Project;
@@ -85,4 +139,8 @@ export interface ProjectSnapshot {
   dod: DodItem[];
   features: Feature[];
   tests: TestCase[];
+  files: FileArtifact[];
+  featureFiles: FeatureFile[];
+  symbols: CodeSymbol[];
+  testIdeas: TestIdea[];
 }
