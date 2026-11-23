@@ -8,7 +8,8 @@ const TOPIC = "events";
 const db = openDb();
 let server: ReturnType<typeof Bun.serve> | undefined;
 const emit = (e: AppEvent) => server?.publish(TOPIC, JSON.stringify(e));
-const app = createApp(db, { emit });
+// Background GitHub polling for projects open in the UI (GITHUB_POLL_MS=0 disables it).
+const app = createApp(db, { emit, github: { watcher: { intervalMs: Number(process.env.GITHUB_POLL_MS ?? 60_000) } } });
 
 /** SPA compilada (apps/web/build). En desktop la sirve Tauri; en web, este mismo proceso. */
 const webRoot = process.env.AGENT_TRACKING_WEB ?? join(import.meta.dir, "..", "..", "..", "apps", "web", "build");

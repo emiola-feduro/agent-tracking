@@ -21,6 +21,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { z } from "zod";
+import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 
 export type AppEvent = { type: string; projectId: string; entity?: string; id?: string };
@@ -82,6 +83,8 @@ export interface AppOptions {
   claudeHome?: string;
   /** Default parent folder for GitHub clones (defaults to ~/repos) */
   cloneRoot?: string;
+  /** GitHub client and background polling (see github-routes.ts). */
+  github?: GithubOptions;
 }
 
 export function createApp(db: Db, opts: AppOptions = {}) {
@@ -96,6 +99,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     console.error(err);
     return c.json({ error: "Error interno" }, 500);
   });
+
+  app.route("/", githubRoutes(db, emit, opts.github));
 
   const snapshotOr404 = async (id: string) => {
     const snap = await loadSnapshot(db, id);

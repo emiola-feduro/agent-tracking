@@ -63,7 +63,7 @@ export class ApiError extends Error {
   }
 }
 
-const request = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
+export const request = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
   const res = await fetch(`/api${path}`, {
     method,
     headers: body === undefined ? {} : { "Content-Type": "application/json" },
