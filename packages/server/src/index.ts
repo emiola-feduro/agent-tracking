@@ -11,7 +11,11 @@ const db = openDb();
 let server: ReturnType<typeof Bun.serve> | undefined;
 const emit = (e: AppEvent) => server?.publish(TOPIC, JSON.stringify(e));
 const tracker = createTracker(db, { emit });
-const app = createApp(db, { tracker });
+// Background GitHub polling for projects open in the UI (GITHUB_POLL_MS=0 disables it).
+const app = createApp(db, {
+  tracker,
+  github: { watcher: { intervalMs: Number(process.env.GITHUB_POLL_MS ?? 60_000) } },
+});
 /** MCP for agents (Streamable HTTP). stdio agents reach it through packages/mcp/src/stdio.ts. */
 const mcp = createMcpHttpHandler(tracker);
 
