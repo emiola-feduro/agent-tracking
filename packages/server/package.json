@@ -14,7 +14,8 @@
     "zod": "4",
     "@agent-tracking/git": "workspace:*",
     "@agent-tracking/tracking": "workspace:*",
-    "@agent-tracking/mcp": "workspace:*"
+    "@agent-tracking/mcp": "workspace:*",
+    "@agent-tracking/analyzer": "workspace:*"
   },
   "scripts": {
     "start": "bun src/index.ts",

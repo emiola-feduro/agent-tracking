@@ -24,6 +24,7 @@ import { z } from "zod";
 import { createTracker, LOCAL_USER, TrackingError, type Emit, type Tracker } from "@agent-tracking/tracking";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
+import { repoRoutes } from "./repo-routes";
 
 export type { AppEvent, Emit } from "@agent-tracking/tracking";
 
@@ -398,6 +399,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   });
 
   app.route("/", traceabilityRoutes(tracker));
+  // Branches, commits, checkout and code analysis (packages/git + packages/analyzer).
+  app.route("/", repoRoutes(db, { emit }));
 
   return app;
 }
