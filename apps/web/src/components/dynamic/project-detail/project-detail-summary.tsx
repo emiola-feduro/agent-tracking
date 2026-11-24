@@ -1,7 +1,9 @@
 import Alert from "@/components/ui/alert/alert";
 import Button from "@/components/ui/button/button";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
+import Skeleton from "@/components/ui/skeleton/skeleton";
 import StatusPill from "@/components/ui/status-pill/status-pill";
+import useCurrentBranch from "@/hooks/data/use-current-branch";
 import useProjectActions from "@/hooks/data/use-project-actions";
 import type { ProjectView } from "@/lib/api";
 import { platformList } from "@/lib/labels";
@@ -10,6 +12,7 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
   const { project, progress } = view;
   const { id, goal, platforms, stack, databases, repoPath, repoUrl } = project;
   const { sync } = useProjectActions(id);
+  const branch = useCurrentBranch(id, !!repoPath);
 
   return (
     <section className="flex flex-col gap-5 rounded-lg border border-line bg-surface p-5">
@@ -44,6 +47,20 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
               <Button size="sm" variant="ghost" isLoading={sync.isPending} onClick={() => sync.mutate()}>
                 Actualizar desde el repo
               </Button>
+            </dd>
+            <dt className="text-muted">Rama actual</dt>
+            <dd aria-live="polite">
+              {branch.isPending ? (
+                <Skeleton className="h-5 w-28 rounded-full" />
+              ) : branch.isError ? (
+                <span className="text-muted">No se pudo leer</span>
+              ) : branch.data?.current ? (
+                <StatusPill tone="brand">
+                  <span className="font-mono">{branch.data.current}</span>
+                </StatusPill>
+              ) : (
+                <span className="text-muted">Ninguna (HEAD separado)</span>
+              )}
             </dd>
           </>
         )}

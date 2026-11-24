@@ -103,6 +103,11 @@ Herramientas: `get_project_context`, `get_project_skills`, `list_requirements`, 
 `suggest_test_idea`.
 ## GitHub
 
+El wizard puede crear un **repositorio nuevo** (carpeta vacía con `git init` en `main`) y, para
+cualquier repo, una carpeta `.github` con un pipeline de CI (`workflows/ci.yml`, según el stack:
+Bun, Node.js, Python, Go, Rust, Flutter, .NET o Java) y una plantilla de pull request con el
+requerimiento y el checklist del Definition of Done. Los archivos que ya existen no se tocan.
+
 Las pestañas Pull requests, Ramas y Pipelines usan el `repoUrl` del proyecto. La autenticación se
 resuelve en este orden: la variable `GITHUB_TOKEN` del entorno del servidor, luego `gh auth token`
 si la CLI de GitHub está instalada y con sesión, y si no, acceso anónimo (solo repos públicos y un
@@ -119,11 +124,16 @@ vuelve a leer el token sin reiniciar. El estado de PRs y ejecuciones se sondea e
 
 ## Ver en vivo lo que hace Claude Code
 
-Dos capas:
+Tres capas:
 
+- **Paso a paso:** hooks de Claude Code (`UserPromptSubmit`, `PreToolUse`, `Stop`) envían cada
+  paso a `POST /api/agent/hook`. La ficha del proyecto muestra el panel "El agente está
+  trabajando" con el paso actual (lee, edita, ejecuta...), los anteriores y los archivos cambiados.
+  Se guarda solo en memoria, sin contenido de archivos, y la respuesta es vacía: no gasta tokens.
 - **Mientras el agente trabaja:** el servidor vigila el repo de cada proyecto y muestra en
   Trazabilidad la sección "Cambios sin reportar": archivos que cambian, con sus funciones, tipos y
-  tests detectados. Todavía sin ordenar.
+  tests detectados. Todavía sin ordenar. Sin hooks, el mismo panel aparece cuando hay archivos
+  cambiados en los últimos 2 minutos.
 - **Cuando termina:** el agente llama una vez a `submit_report` con todo lo que hizo, por
   requerimiento y feature: archivos con su propósito, símbolos relevantes, tests con resultado y
   criterios del DoD cumplidos con su evidencia. Entonces aparece ordenado. Se valida completo antes
@@ -148,6 +158,21 @@ servidor, con `--db` analiza el repo y lee la base directamente. Configuración 
   }
 }
 ```
+
+### Hooks de actividad en vivo
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "timeout": 5, "command": "curl -s -o /dev/null -m 1 -X POST -H content-type:application/json --data-binary @- http://127.0.0.1:4317/api/agent/hook || true" }] }],
+    "PreToolUse": [{ "hooks": [{ "type": "command", "timeout": 5, "command": "<el mismo comando>" }] }],
+    "Stop": [{ "hooks": [{ "type": "command", "timeout": 5, "command": "<el mismo comando>" }] }]
+  }
+}
+```
+
+Con el servidor apagado, `curl` falla al instante y el agente sigue normal. La ficha también
+muestra la rama actual del repo local y se actualiza al cambiarla, incluso desde una terminal.
 
 `sync_repo` (MCP) y `POST /api/projects/:id/repo/sync` con `{ "scope": "changes" | "all" }`
 fuerzan el análisis; `all` mapea todo el código sin marcarlo pendiente. `AGENT_TRACKING_WATCH=0`

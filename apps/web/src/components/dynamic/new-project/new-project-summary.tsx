@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { platformList } from "@/lib/labels";
+import { GITHUB_FILE_LABELS, platformList } from "@/lib/labels";
 import useWizardStore, { WIZARD_STEPS, type StepId } from "@/stores/use-wizard-store";
 
 const stepIndex = (id: StepId) => WIZARD_STEPS.findIndex((s) => s.id === id);
@@ -23,7 +23,7 @@ const Row = ({ label, step, children }: RowProps) => {
 
 const NewProjectSummary = () => {
   const s = useWizardStore();
-  const { name, platforms, stack, databases, repo, repoUrl, skills, goal, rules, requirements } = s;
+  const { name, platforms, stack, databases, repo, repoUrl, githubFiles, skills, goal, rules, requirements } = s;
   const filledRequirements = requirements.filter((r) => r.title.trim());
   const criteria = filledRequirements.reduce((n, r) => n + r.dod.filter((d) => d.trim()).length + r.llmDod.length, 0);
   const skillNames = Object.values(skills).map((k) => k.name);
@@ -35,6 +35,11 @@ const NewProjectSummary = () => {
       <Row label="Repositorio" step={repo ? "source" : "basics"}>
         {repo ? <code className="font-mono text-[13px]">{repo.repo.root}</code> : repoUrl || "Sin repositorio"}
       </Row>
+      {repo && (
+        <Row label="Carpeta .github" step="source">
+          {githubFiles.length ? githubFiles.map((k) => GITHUB_FILE_LABELS[k]).join(", ") : "Ninguno"}
+        </Row>
+      )}
       <Row label="Stack" step="stack">{stack.join(", ")}</Row>
       <Row label="Bases de datos" step="stack">{databases.join(", ") || "Sin definir"}</Row>
       <Row label="Skills" step="skills">{skillNames.length ? skillNames.join(", ") : "Ninguna"}</Row>

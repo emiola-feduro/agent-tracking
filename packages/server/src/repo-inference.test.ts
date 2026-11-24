@@ -192,4 +192,18 @@ describe("repo watchers", () => {
       watchers.closeAll();
     }
   });
+
+  test("switching branch, even from a terminal, is noticed", async () => {
+    const { repo, db, inference, projectId } = await setup();
+    const switched: string[] = [];
+    const watchers = createRepoWatchers(db, inference, { debounceMs: 100, onBranchChange: (id) => switched.push(id) });
+    try {
+      await watchers.startAll();
+      await git(["checkout", "-q", "-b", "feature/gastos"], repo);
+      for (let i = 0; i < 30 && switched.length === 0; i++) await Bun.sleep(100);
+      expect(switched).toEqual([projectId]);
+    } finally {
+      watchers.closeAll();
+    }
+  });
 });

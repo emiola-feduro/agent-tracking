@@ -47,6 +47,7 @@ export type ProjectView = ProjectSnapshot & {
 /** What the agent is doing right now (Claude Code hooks, kept in memory by the server). */
 export type LiveStep = { at: string; tool: string; label: string; target?: string };
 export type LiveState = { status: "working" | "idle"; startedAt: string | null; lastAt: string | null; steps: LiveStep[] };
+export type GithubFileKind = "ci" | "prTemplate";
 export type ProjectListItem = Project & { progress: number };
 export type DiscoveredSkill = { name: string; description: string; source: SkillSource; location: string; plugin?: string };
 export type RepoInfo = { root: string; name: string; branch: string | null; remoteUrl: string | null };
@@ -65,6 +66,7 @@ export type NewProject = {
   databases: string[];
   repoPath: string | null;
   repoUrl: string | null;
+  githubFiles: GithubFileKind[];
   rules: string[];
   skills: SkillInput[];
   requirements: { title: string; description: string; dod: { criterion: string; origin: "human" | "llm" }[] }[];
@@ -127,6 +129,7 @@ export const api = {
 
   inspectRepo: (path: string) => request<RepoInspection>("POST", "/import/inspect", { path }),
   cloneRoot: () => request<{ cloneRoot: string }>("GET", "/import/clone-root"),
+  initRepo: (path: string) => request<RepoInspection>("POST", "/import/init", { path }),
   cloneRepo: (url: string, dest: string) => request<RepoInspection>("POST", "/import/clone", { url, dest }),
   importRepo: (path: string) => request<ProjectView>("POST", "/import", { path }),
 
@@ -147,6 +150,7 @@ export const api = {
   deleteDod: (id: string, reqId: string, dodId: string) =>
     request<void>("DELETE", `${p(id)}/requirements/${reqId}/dod/${dodId}`),
 
+  repoBranch: (id: string) => request<{ current: string | null }>("GET", `${p(id)}/repo/branches`),
   live: (id: string) => request<LiveState>("GET", `${p(id)}/live`),
   activity: (id: string, limit = 100) => request<AgentEvent[]>("GET", `${p(id)}/activity?limit=${limit}`),
   addTestIdea: (id: string, data: { text: string; requirementId?: string | null; featureId?: string | null }) =>

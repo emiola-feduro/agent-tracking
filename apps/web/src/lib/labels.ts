@@ -1,4 +1,4 @@
-import type { DodStatus, Platform, TestIdeaStatus } from "./api";
+import type { DodStatus, GithubFileKind, Platform, TestIdeaStatus } from "./api";
 
 export const PLATFORM_LABEL: Record<Platform, string> = { web: "Web", desktop: "Escritorio", mobile: "Móvil" };
 
@@ -11,6 +11,11 @@ export const FEATURE_STATUS_LABEL: Record<string, string> = {
 };
 
 export const nextDodStatus = (status: DodStatus): DodStatus => (status === "done" ? "pending" : "done");
+
+export const GITHUB_FILE_LABELS: Record<GithubFileKind, string> = {
+  ci: "Pipeline de CI",
+  prTemplate: "Plantilla de pull request",
+};
 
 export const platformList = (platforms: Platform[]) => platforms.map((x) => PLATFORM_LABEL[x]).join(", ");
 

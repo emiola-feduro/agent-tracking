@@ -22,7 +22,10 @@ const tracker = createTracker(db, { emit });
 // Repository analysis: files, symbols and tests show up even when an agent does not report them
 // (AGENT_TRACKING_WATCH=0 disables the watchers; sync_repo and the API still work on demand).
 const inference = createRepoInference(db, tracker);
-repoWatchers = createRepoWatchers(db, inference);
+repoWatchers = createRepoWatchers(db, inference, {
+  // Branch switches (also from a terminal) refresh the branch shown in the UI.
+  onBranchChange: (projectId) => emit({ type: "changed", projectId, entity: "repo" }),
+});
 const syncRepo = (projectId: string, scope: "changes" | "all") => repoWatchers!.sync(projectId, scope);
 // An API key, or else the local Claude Code CLI with the person's own login (see README).
 const assistant = await resolveAssistantConfig();

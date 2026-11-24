@@ -5,6 +5,7 @@ export const queryKeys = {
   project: (id: string) => ["projects", id] as const,
   context: (id: string) => ["projects", id, "context"] as const,
   activity: (id: string) => ["projects", id, "activity"] as const,
+  branch: (id: string) => ["projects", id, "branch"] as const,
   // Outside the project prefix: hook events refresh only this, not the whole snapshot.
   live: (id: string) => ["live", id] as const,
   stackOptions: ["stack", "options"] as const,

@@ -1,6 +1,7 @@
 import {
   buildContextMarkdown,
   DATABASE_OPTIONS,
+  githubFiles,
   featureProgress,
   PLATFORMS,
   projectProgress,
@@ -22,7 +23,7 @@ import {
   type ProjectBrief,
 } from "@agent-tracking/assistant";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
-import { cloneGithub, inspectRepo } from "@agent-tracking/git";
+import { cloneGithub, initRepo, inspectRepo, writeNewFiles } from "@agent-tracking/git";
 import { discoverCatalogSkills, discoverSkills, skillTemplate } from "@agent-tracking/skills";
 import { and, eq, or } from "drizzle-orm";
 import { Hono, type Context } from "hono";
@@ -69,6 +70,8 @@ const projectFields = z.object({
   repoUrl: z.string().nullable().default(null),
 });
 const createProject = projectFields.extend({
+  /** Starter `.github` files written into the repository (existing files are never replaced). */
+  githubFiles: z.array(z.enum(["ci", "prTemplate"])).default([]),
   rules: z.array(z.string().min(1)).default([]),
   skills: z.array(skillInput).default([]),
   requirements: z.array(requirementInput).default([]),
@@ -290,6 +293,18 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.get("/import/clone-root", (c) => c.json({ cloneRoot }));
 
+  /** New empty repository for a project that starts from scratch. */
+  app.post("/import/init", async (c) => {
+    const { path } = await body(c, z.object({ path: z.string().min(1) }));
+    try {
+      const info = await initRepo(path.trim());
+      return c.json(await describeRepo(info.root), 201);
+    } catch (e) {
+      if (e instanceof HTTPException) throw e;
+      throw new HTTPException(400, { message: (e as Error).message });
+    }
+  });
+
   app.post("/import/clone", async (c) => {
     const { url, dest } = await body(c, z.object({ url: z.string().min(1), dest: z.string().min(1) }));
     try {
@@ -337,7 +352,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.post("/projects", async (c) => {
     const input = await body(c, createProject);
-    const { rules, skills, requirements, ...project } = input;
+    const { rules, skills, requirements, githubFiles: githubKinds, ...project } = input;
     if (project.repoPath) {
       const repo = await repoRootOr400(project.repoPath);
       const existing = await projectForRepo(repo.root);
@@ -357,6 +372,9 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       }
     });
     await writeRepoFiles(db, projectId);
+    if (project.repoPath && githubKinds.length > 0) {
+      await writeNewFiles(project.repoPath, githubFiles({ name: project.name, stack: project.stack, requirements }, githubKinds));
+    }
     emit({ type: "project.created", projectId });
     return c.json(withProgress(await snapshotOr404(projectId)), 201);
   });

@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import useWizardStore from "@/stores/use-wizard-store";
 
-/** Inspect a local repo, clone one from GitHub, or import a repo that already has a project file. */
+/** Inspect a local repo, create a new one, clone one from GitHub, or import a repo that already has a project file. */
 const useRepoSource = () => {
   const setRepo = useWizardStore((s) => s.setRepo);
   const queryClient = useQueryClient();
@@ -13,6 +13,8 @@ const useRepoSource = () => {
   const cloneRoot = useQuery({ queryKey: queryKeys.cloneRoot, queryFn: api.cloneRoot, staleTime: Infinity });
 
   const inspect = useMutation({ mutationFn: api.inspectRepo, onSuccess: setRepo, onMutate: () => setRepo(null) });
+
+  const init = useMutation({ mutationFn: api.initRepo, onSuccess: setRepo, onMutate: () => setRepo(null) });
 
   const clone = useMutation({
     mutationFn: ({ url, dest }: { url: string; dest: string }) => api.cloneRepo(url, dest),
@@ -29,7 +31,7 @@ const useRepoSource = () => {
     },
   });
 
-  return { cloneRoot: cloneRoot.data?.cloneRoot ?? null, inspect, clone, importRepo };
+  return { cloneRoot: cloneRoot.data?.cloneRoot ?? null, inspect, init, clone, importRepo };
 };
 
 export default useRepoSource;

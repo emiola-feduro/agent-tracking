@@ -1,5 +1,6 @@
 import { watch, type FSWatcher } from "node:fs";
 import { sep } from "node:path";
+import { git } from "./run";
 
 export type WatchOptions = {
   /** Quiet period before a batch of changes is delivered (default 300 ms). */
@@ -65,6 +66,31 @@ export function watchRepo(root: string, onChange: (paths: string[]) => void, opt
   });
   watcher.on("error", (err) => opts.onError?.(err));
 
+  return {
+    close() {
+      closed = true;
+      if (timer) clearTimeout(timer);
+      watcher.close();
+    },
+  };
+}
+
+/**
+ * Calls `onChange` when the repository switches branch (HEAD is rewritten by checkout, switch,
+ * rebase and friends). The recursive watcher skips `.git`, so HEAD gets its own small watcher.
+ */
+export async function watchHead(root: string, onChange: () => void, opts: { debounceMs?: number; onError?: (err: unknown) => void } = {}): Promise<RepoWatcher> {
+  const res = await git(["rev-parse", "--absolute-git-dir"], root);
+  if (!res.ok || !res.stdout) return { close() {} };
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let closed = false;
+  // Git replaces HEAD through HEAD.lock + rename, so watch the directory, not the file.
+  const watcher = watch(res.stdout, (_event, filename) => {
+    if (closed || filename?.toString() !== "HEAD") return;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => !closed && onChange(), opts.debounceMs ?? 200);
+  });
+  watcher.on("error", (err) => opts.onError?.(err));
   return {
     close() {
       closed = true;

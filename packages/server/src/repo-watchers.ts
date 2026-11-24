@@ -1,5 +1,5 @@
 import { schema as s, type Db } from "@agent-tracking/db";
-import { watchRepo, type RepoWatcher } from "@agent-tracking/git";
+import { watchHead, watchRepo, type RepoWatcher } from "@agent-tracking/git";
 import type { RepoInference } from "@agent-tracking/tracking";
 import { eq, isNotNull } from "drizzle-orm";
 
@@ -7,8 +7,12 @@ import { eq, isNotNull } from "drizzle-orm";
  * One file watcher per project with a local repository. Changes are analysed in the background
  * (see `createRepoInference`) and analyses of the same project never overlap.
  */
-export function createRepoWatchers(db: Db, inference: RepoInference, opts: { debounceMs?: number } = {}) {
-  const watchers = new Map<string, { root: string; watcher: RepoWatcher }>();
+export function createRepoWatchers(
+  db: Db,
+  inference: RepoInference,
+  opts: { debounceMs?: number; /** The repository switched branch. */ onBranchChange?: (projectId: string) => void } = {},
+) {
+  const watchers = new Map<string, { root: string; watcher: RepoWatcher; head?: RepoWatcher }>();
   const queues = new Map<string, Promise<unknown>>();
 
   /** Runs analyses of one project one after another. */
@@ -22,6 +26,7 @@ export function createRepoWatchers(db: Db, inference: RepoInference, opts: { deb
 
   const stop = (projectId: string) => {
     watchers.get(projectId)?.watcher.close();
+    watchers.get(projectId)?.head?.close();
     watchers.delete(projectId);
     inference.forgetProject(projectId);
   };
@@ -39,7 +44,15 @@ export function createRepoWatchers(db: Db, inference: RepoInference, opts: { deb
       filter: (p) => !p.startsWith(".agent-tracking/"),
       onError: (e) => console.error(`[repo] error vigilando ${root}:`, e instanceof Error ? e.message : e),
     });
-    watchers.set(projectId, { root, watcher });
+    const entry: { root: string; watcher: RepoWatcher; head?: RepoWatcher } = { root, watcher };
+    watchers.set(projectId, entry);
+    if (opts.onBranchChange) {
+      const notify = opts.onBranchChange;
+      const head = await watchHead(root, () => notify(projectId)).catch(() => undefined);
+      // The project may have been stopped or moved while git answered.
+      if (watchers.get(projectId) === entry) entry.head = head;
+      else head?.close();
+    }
     // Catch up with what changed while nobody was watching.
     await enqueue(projectId, () => inference.syncWorkingTree(projectId));
   };

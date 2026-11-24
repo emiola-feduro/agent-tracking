@@ -14,6 +14,7 @@ const buildPayload = (): NewProject => {
     databases: s.databases,
     repoPath: s.repo?.repo.root ?? null,
     repoUrl: s.repoUrl.trim() || null,
+    githubFiles: s.repo ? s.githubFiles : [],
     rules: s.rules.map((r) => r.trim()).filter(Boolean),
     skills: Object.values(s.skills).map(({ name, description, source, location }) => ({
       name,

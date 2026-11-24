@@ -1,6 +1,6 @@
 import { toggleStackOption } from "@agent-tracking/core";
 import { create } from "zustand";
-import type { AssistantBrief, DiscoveredSkill, Platform, RepoInspection } from "@/lib/api";
+import type { AssistantBrief, DiscoveredSkill, GithubFileKind, Platform, RepoInspection } from "@/lib/api";
 
 export const WIZARD_STEPS = [
   { id: "source", label: "Origen" },
@@ -13,7 +13,7 @@ export const WIZARD_STEPS = [
 ] as const;
 
 export type StepId = (typeof WIZARD_STEPS)[number]["id"];
-export type SourceKind = "scratch" | "local" | "github";
+export type SourceKind = "scratch" | "new" | "local" | "github";
 export type SelectedSkill = DiscoveredSkill & { key: string };
 export type RequirementDraft = {
   key: string;
@@ -31,6 +31,8 @@ type WizardData = {
   reached: number;
   source: SourceKind;
   repo: RepoInspection | null;
+  /** Starter `.github` files to write into the repo when the project is created. */
+  githubFiles: GithubFileKind[];
   name: string;
   platforms: Platform[];
   repoUrl: string;
@@ -50,6 +52,7 @@ type WizardActions = {
   goTo: (step: number) => void;
   setSource: (source: SourceKind) => void;
   setRepo: (repo: RepoInspection | null) => void;
+  toggleGithubFile: (kind: GithubFileKind) => void;
   patch: (data: Partial<WizardData>) => void;
   togglePlatform: (platform: Platform) => void;
   toggleIn: (field: "stack" | "databases", value: string) => void;
@@ -67,6 +70,7 @@ const initial = (): WizardData => ({
   reached: 0,
   source: "scratch",
   repo: null,
+  githubFiles: [],
   name: "",
   platforms: [],
   repoUrl: "",
@@ -86,7 +90,9 @@ const toggle = <T>(list: T[], value: T) => (list.includes(value) ? list.filter((
 const useWizardStore = create<WizardData & WizardActions>((set) => ({
   ...initial(),
   goTo: (step) => set((s) => ({ step, reached: Math.max(s.reached, step) })),
-  setSource: (source) => set({ source, repo: null }),
+  // A brand-new repo starts with CI and a PR template; existing repos opt in.
+  setSource: (source) => set({ source, repo: null, githubFiles: source === "new" ? ["ci", "prTemplate"] : [] }),
+  toggleGithubFile: (kind) => set((s) => ({ githubFiles: toggle(s.githubFiles, kind) })),
   setRepo: (repo) =>
     set((s) => ({
       repo,

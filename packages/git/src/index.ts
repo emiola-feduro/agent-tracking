@@ -1,5 +1,5 @@
-import { readdir, stat } from "node:fs/promises";
-import { basename, isAbsolute, resolve } from "node:path";
+import { mkdir, readdir, stat, writeFile } from "node:fs/promises";
+import { basename, dirname, isAbsolute, resolve, sep } from "node:path";
 import { git } from "./run";
 
 export { git, gitRaw, listRepoFiles, type GitResult } from "./run";
@@ -62,4 +62,42 @@ export async function cloneGithub(url: string, dest: string): Promise<RepoInfo> 
   const info = await inspectRepo(target);
   if (!info) throw new Error("El clon no es un repositorio válido");
   return info;
+}
+
+/**
+ * Creates a new repository in an empty (or missing) folder, on branch main. Nothing is committed:
+ * the first commit is the person's or the agent's.
+ */
+export async function initRepo(dest: string): Promise<RepoInfo> {
+  if (!isAbsolute(dest)) throw new Error("La carpeta debe ser una ruta absoluta");
+  const target = resolve(dest);
+  const entries = await readdir(target).catch(() => null);
+  if (entries && entries.length > 0) {
+    const existing = await inspectRepo(target);
+    throw new Error(
+      existing
+        ? `${target} ya es un repositorio git: elige "Repositorio local"`
+        : `La carpeta ${target} ya existe y no está vacía`,
+    );
+  }
+  await mkdir(target, { recursive: true });
+  const res = await git(["init", "-q", "-b", "main", target]);
+  if (!res.ok) throw new Error(res.stderr.split("\n").at(-1) || "No se pudo crear el repositorio");
+  const info = await inspectRepo(target);
+  if (!info) throw new Error("No se pudo crear el repositorio");
+  return info;
+}
+
+/** Writes files into a repository, skipping any that already exist. Returns the paths it wrote. */
+export async function writeNewFiles(root: string, files: { path: string; content: string }[]): Promise<string[]> {
+  const written: string[] = [];
+  for (const file of files) {
+    const target = resolve(root, file.path);
+    if (!target.startsWith(resolve(root) + sep)) throw new Error(`Ruta fuera del repositorio: ${file.path}`);
+    if (await stat(target).then(() => true, () => false)) continue;
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, file.content);
+    written.push(file.path);
+  }
+  return written;
 }
