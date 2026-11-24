@@ -1,9 +1,12 @@
 import { useState, type FormEvent } from "react";
+import AssistantCriteriaSuggestions from "@/components/dynamic/assistant/assistant-criteria-suggestions";
 import Button from "@/components/ui/button/button";
 import RemoveButton from "@/components/ui/remove-button/remove-button";
 import StatusPill from "@/components/ui/status-pill/status-pill";
+import useAssistantStatus from "@/hooks/data/use-assistant-status";
 import useProjectActions from "@/hooks/data/use-project-actions";
-import type { DodItem } from "@/lib/api";
+import useCriteriaSuggestions from "@/hooks/form/use-criteria-suggestions";
+import { api, type DodItem } from "@/lib/api";
 import { nextDodStatus } from "@/lib/labels";
 
 type ProjectDetailDodProps = {
@@ -14,7 +17,12 @@ type ProjectDetailDodProps = {
 
 const ProjectDetailDod = ({ projectId, requirementId, items }: ProjectDetailDodProps) => {
   const [draft, setDraft] = useState("");
-  const { setDodStatus, deleteDod, addDod } = useProjectActions(projectId);
+  const { setDodStatus, deleteDod, addDod, addLlmDod } = useProjectActions(projectId);
+  const { configured } = useAssistantStatus();
+  const suggestions = useCriteriaSuggestions({
+    fetch: () => api.suggestProjectDod(projectId, requirementId),
+    accept: (criteria) => addLlmDod.mutate({ reqId: requirementId, criteria }),
+  });
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -25,7 +33,14 @@ const ProjectDetailDod = ({ projectId, requirementId, items }: ProjectDetailDodP
 
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-sm font-semibold text-ink">Definition of Done</h3>
+      <div className="flex min-h-8 flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-ink">Definition of Done</h3>
+        {configured && (
+          <Button size="sm" onClick={suggestions.suggest} isLoading={suggestions.isLoading}>
+            Generar criterios
+          </Button>
+        )}
+      </div>
       <ul className="flex flex-col">
         {items.length === 0 && <li className="text-sm text-muted">Sin criterios.</li>}
         {items.map(({ id, criterion, status, origin }) => (
@@ -46,6 +61,15 @@ const ProjectDetailDod = ({ projectId, requirementId, items }: ProjectDetailDodP
           </li>
         ))}
       </ul>
+      <AssistantCriteriaSuggestions
+        pending={suggestions.pending}
+        isLoading={suggestions.isLoading}
+        error={suggestions.error}
+        onAccept={suggestions.acceptOne}
+        onDismiss={suggestions.dismissOne}
+        onAcceptAll={suggestions.acceptAll}
+        onDismissAll={suggestions.dismissAll}
+      />
       <form onSubmit={submit} className="flex gap-2">
         <input
           value={draft}

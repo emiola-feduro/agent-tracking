@@ -1,4 +1,6 @@
+import AssistantSetupNote from "@/components/dynamic/assistant/assistant-setup-note";
 import useStackDefaults from "@/hooks/form/use-stack-defaults";
+import NewProjectStackAssistant from "./new-project-stack-assistant";
 import NewProjectStackDatabases from "./new-project-stack-databases";
 import NewProjectStackError from "./new-project-stack-error";
 import NewProjectStackGroups from "./new-project-stack-groups";
@@ -14,6 +16,8 @@ const NewProjectStack = () => {
 
   return (
     <div className="flex flex-col gap-8">
+      <AssistantSetupNote />
+      <NewProjectStackAssistant onApply={apply} />
       <NewProjectStackRecommendation recommendation={data} onApply={apply} />
       <NewProjectStackGroups />
       <NewProjectStackDatabases />

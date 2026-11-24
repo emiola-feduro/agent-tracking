@@ -1,3 +1,4 @@
+import { assistantConfigFromEnv } from "@agent-tracking/assistant";
 import { openDb } from "@agent-tracking/db";
 import { createMcpHttpHandler } from "@agent-tracking/mcp";
 import { createTracker } from "@agent-tracking/tracking";
@@ -11,9 +12,11 @@ const db = openDb();
 let server: ReturnType<typeof Bun.serve> | undefined;
 const emit = (e: AppEvent) => server?.publish(TOPIC, JSON.stringify(e));
 const tracker = createTracker(db, { emit });
+const assistant = assistantConfigFromEnv();
 // Background GitHub polling for projects open in the UI (GITHUB_POLL_MS=0 disables it).
 const app = createApp(db, {
   tracker,
+  assistant,
   github: { watcher: { intervalMs: Number(process.env.GITHUB_POLL_MS ?? 60_000) } },
 });
 /** MCP for agents (Streamable HTTP). stdio agents reach it through packages/mcp/src/stdio.ts. */
@@ -50,3 +53,4 @@ server = Bun.serve({
 });
 
 console.log(`Agent Tracking API escuchando en http://${server.hostname}:${server.port}`);
+console.log(assistant ? "Asistente con Claude activo" : "Asistente con Claude desactivado (falta ANTHROPIC_API_KEY)");

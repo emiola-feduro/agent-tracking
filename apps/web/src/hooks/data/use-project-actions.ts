@@ -84,6 +84,14 @@ const useProjectActions = (projectId: string) => {
     onSettled: refresh,
   });
 
+  /** Accepted assistant suggestions, stored with origin "llm". */
+  const addLlmDod = useMutation({
+    mutationFn: async ({ reqId, criteria }: { reqId: string; criteria: string[] }) => {
+      for (const criterion of criteria) await api.addDod(projectId, reqId, criterion, "llm");
+    },
+    onSettled: refresh,
+  });
+
   const addRequirement = useMutation({
     mutationFn: ({ title, description }: { title: string; description: string }) =>
       api.addRequirement(projectId, title, description),
@@ -102,6 +110,7 @@ const useProjectActions = (projectId: string) => {
     deleteRequirement,
     addRule,
     addDod,
+    addLlmDod,
     addRequirement,
     sync,
     writeRepoFiles,

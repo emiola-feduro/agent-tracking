@@ -1,6 +1,6 @@
 import { toggleStackOption } from "@agent-tracking/core";
 import { create } from "zustand";
-import type { DiscoveredSkill, Platform, RepoInspection } from "@/lib/api";
+import type { AssistantBrief, DiscoveredSkill, Platform, RepoInspection } from "@/lib/api";
 
 export const WIZARD_STEPS = [
   { id: "source", label: "Origen" },
@@ -15,7 +15,15 @@ export const WIZARD_STEPS = [
 export type StepId = (typeof WIZARD_STEPS)[number]["id"];
 export type SourceKind = "scratch" | "local" | "github";
 export type SelectedSkill = DiscoveredSkill & { key: string };
-export type RequirementDraft = { key: string; title: string; description: string; dod: string[] };
+export type RequirementDraft = {
+  key: string;
+  title: string;
+  description: string;
+  /** Criteria written by the person. */
+  dod: string[];
+  /** Criteria suggested by the assistant and accepted; saved with origin "llm". */
+  llmDod: string[];
+};
 
 type WizardData = {
   step: number;
@@ -31,6 +39,8 @@ type WizardData = {
   stackTouched: boolean;
   skills: Record<string, SelectedSkill>;
   skillsPreselected: boolean;
+  /** Why the assistant preselected a skill, by skill key. */
+  skillReasons: Record<string, string>;
   goal: string;
   rules: string[];
   requirements: RequirementDraft[];
@@ -50,7 +60,7 @@ type WizardActions = {
   reset: () => void;
 };
 
-const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", dod: [""] });
+const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", dod: [""], llmDod: [] });
 
 const initial = (): WizardData => ({
   step: 0,
@@ -65,6 +75,7 @@ const initial = (): WizardData => ({
   stackTouched: false,
   skills: {},
   skillsPreselected: false,
+  skillReasons: {},
   goal: "",
   rules: [""],
   requirements: [newRequirement()],
@@ -106,6 +117,19 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
   removeRequirement: (key) => set((s) => ({ requirements: s.requirements.filter((r) => r.key !== key) })),
   reset: () => set(initial()),
 }));
+
+/** What the assistant gets to know about the project being created. */
+export const wizardBrief = (state: WizardData): AssistantBrief => ({
+  name: state.name.trim(),
+  goal: state.goal.trim(),
+  platforms: state.platforms,
+  stack: state.stack,
+  databases: state.databases,
+  rules: state.rules.map((r) => r.trim()).filter(Boolean),
+  requirements: state.requirements
+    .filter((r) => r.title.trim())
+    .map((r) => ({ title: r.title.trim(), description: r.description.trim() })),
+});
 
 /** Whether the data of a step is complete enough to move past it. */
 export const isStepValid = (state: WizardData, step: number): boolean => {

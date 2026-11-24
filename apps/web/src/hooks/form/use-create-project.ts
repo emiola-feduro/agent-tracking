@@ -27,7 +27,10 @@ const buildPayload = (): NewProject => {
       .map((r) => ({
         title: r.title.trim(),
         description: r.description.trim(),
-        dod: r.dod.map((d) => d.trim()).filter(Boolean).map((criterion) => ({ criterion })),
+        dod: [
+          ...r.dod.map((d) => d.trim()).filter(Boolean).map((criterion) => ({ criterion, origin: "human" as const })),
+          ...r.llmDod.map((criterion) => ({ criterion, origin: "llm" as const })),
+        ],
       })),
   };
 };

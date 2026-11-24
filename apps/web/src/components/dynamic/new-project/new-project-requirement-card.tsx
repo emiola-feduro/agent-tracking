@@ -1,8 +1,8 @@
-import ListEditor from "@/components/ui/list-editor/list-editor";
 import RemoveButton from "@/components/ui/remove-button/remove-button";
 import TextAreaField from "@/components/ui/text-area-field/text-area-field";
 import TextField from "@/components/ui/text-field/text-field";
 import useWizardStore, { type RequirementDraft } from "@/stores/use-wizard-store";
+import NewProjectRequirementDod from "./new-project-requirement-dod";
 
 type NewProjectRequirementCardProps = {
   requirement: RequirementDraft;
@@ -10,7 +10,7 @@ type NewProjectRequirementCardProps = {
 };
 
 const NewProjectRequirementCard = ({ requirement, index }: NewProjectRequirementCardProps) => {
-  const { key, title, description, dod } = requirement;
+  const { key, title, description } = requirement;
   const setRequirement = useWizardStore((s) => s.setRequirement);
   const removeRequirement = useWizardStore((s) => s.removeRequirement);
   const number = index + 1;
@@ -33,16 +33,7 @@ const NewProjectRequirementCard = ({ requirement, index }: NewProjectRequirement
         onChange={(v) => setRequirement(key, { description: v })}
         rows={2}
       />
-      <section className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium text-ink">Definition of Done</h3>
-        <ListEditor
-          values={dod}
-          onChange={(v) => setRequirement(key, { dod: v })}
-          itemLabel="Criterio"
-          placeholder="Criterio verificable"
-          addLabel="Agregar criterio"
-        />
-      </section>
+      <NewProjectRequirementDod requirement={requirement} />
     </article>
   );
 };

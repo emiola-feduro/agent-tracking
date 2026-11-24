@@ -10,6 +10,16 @@ import {
   toPercent,
   type ProjectSnapshot,
 } from "@agent-tracking/core";
+import {
+  AssistantError,
+  describeAssistantError,
+  MAX_SKILLS,
+  suggestDod,
+  suggestSkills,
+  suggestStack,
+  type AssistantConfig,
+  type ProjectBrief,
+} from "@agent-tracking/assistant";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
 import { cloneGithub, inspectRepo } from "@agent-tracking/git";
 import { discoverCatalogSkills, discoverSkills, skillTemplate } from "@agent-tracking/skills";
@@ -89,7 +99,31 @@ export interface AppOptions {
   tracker?: Tracker;
   /** GitHub client and background polling (see github-routes.ts). */
   github?: GithubOptions;
+  /** Claude assistant; null or missing keeps the deterministic behaviour (see assistantConfigFromEnv). */
+  assistant?: AssistantConfig | null;
 }
+
+const NOT_CONFIGURED = "El asistente no está configurado. Define ANTHROPIC_API_KEY en el entorno del servidor y reinícialo.";
+
+const briefInput = z.object({
+  name: z.string().max(200).optional(),
+  goal: z.string().max(4000).optional(),
+  platforms: platforms.min(1, "Elige al menos una plataforma"),
+  stack: z.array(z.string().max(100)).max(60).optional(),
+  databases: z.array(z.string().max(100)).max(30).optional(),
+  rules: z.array(z.string().max(1000)).max(50).optional(),
+  requirements: z.array(z.object({ title: z.string().max(300), description: z.string().max(2000).optional() })).max(50).optional(),
+});
+
+const briefFromSnapshot = (snap: ProjectSnapshot): ProjectBrief => ({
+  name: snap.project.name,
+  goal: snap.project.goal,
+  platforms: snap.project.platforms,
+  stack: snap.project.stack,
+  databases: snap.project.databases,
+  rules: snap.rules.map((r) => r.text),
+  requirements: snap.requirements.map((r) => ({ title: r.title, description: r.description })),
+});
 
 export function createApp(db: Db, opts: AppOptions = {}) {
   const tracker = opts.tracker ?? createTracker(db, { emit: opts.emit });
@@ -140,6 +174,69 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       existingProjectId: await projectForRepo(repo.root, fileProjectId),
     };
   };
+
+  // Claude assistant
+  const assistant = opts.assistant ?? null;
+  const assistantOr503 = () => {
+    if (!assistant) throw new HTTPException(503, { message: NOT_CONFIGURED, cause: { configured: false } });
+    return assistant;
+  };
+  /** Runs an assistant call; failures become a 502 without provider details. */
+  const assisted = async <T>(what: string, run: () => Promise<T>): Promise<T> => {
+    try {
+      return await run();
+    } catch (error) {
+      if (!(error instanceof AssistantError)) throw error;
+      console.error(`Asistente (${what}): ${describeAssistantError(error)}`);
+      throw new HTTPException(502, { message: "El asistente no pudo generar una sugerencia válida. Intenta de nuevo." });
+    }
+  };
+
+  app.get("/assistant", (c) => c.json({ configured: assistant !== null }));
+
+  app.post("/assistant/stack", async (c) => {
+    const config = assistantOr503();
+    const brief = await body(c, briefInput);
+    return c.json(await suggestStack(config, brief, (e) => console.error(`Asistente (stack): ${describeAssistantError(e)}`)));
+  });
+
+  app.post("/assistant/dod", async (c) => {
+    const config = assistantOr503();
+    const input = await body(
+      c,
+      z.object({
+        project: briefInput,
+        requirement: z.object({ title: z.string().min(1).max(300), description: z.string().max(2000).optional() }),
+        existing: z.array(z.string().max(1000)).max(50).default([]),
+      }),
+    );
+    return c.json({ criteria: await assisted("dod", () => suggestDod(config, input)) });
+  });
+
+  app.post("/assistant/skills", async (c) => {
+    const config = assistantOr503();
+    const { project, skills } = await body(
+      c,
+      z.object({
+        project: briefInput,
+        skills: z.array(z.object({ id: z.string().min(1), name: z.string(), description: z.string().max(2000) })).max(MAX_SKILLS),
+      }),
+    );
+    return c.json({ skills: await assisted("skills", () => suggestSkills(config, project, skills)) });
+  });
+
+  /** Same as /assistant/dod with the context read from the stored project. Nothing is saved. */
+  app.post("/projects/:id/requirements/:reqId/dod/suggest", async (c) => {
+    const config = assistantOr503();
+    const { id: projectId, reqId } = c.req.param();
+    const snap = await snapshotOr404(projectId);
+    const requirement = await requirementIn(projectId, reqId);
+    const existing = snap.dod.filter((d) => d.requirementId === reqId).map((d) => d.criterion);
+    const criteria = await assisted("dod", () =>
+      suggestDod(config, { project: briefFromSnapshot(snap), requirement, existing }),
+    );
+    return c.json({ criteria });
+  });
 
   // Wizard helpers
   app.get("/stack/options", (c) => c.json({ stack: STACK_OPTIONS, databases: DATABASE_OPTIONS }));
