@@ -30,13 +30,14 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 import { z } from "zod";
 import { createTracker, LOCAL_USER, TrackingError, type Emit, type Tracker } from "@agent-tracking/tracking";
 import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
 import { repoRoutes } from "./repo-routes";
+import { createLiveActivity, type HookPayload, type LiveActivity } from "./live-activity";
 
 export type { AppEvent, Emit } from "@agent-tracking/tracking";
 
@@ -104,6 +105,8 @@ export interface AppOptions {
   github?: GithubOptions;
   /** Claude assistant; null or missing keeps the deterministic behaviour (see assistantConfigFromEnv). */
   assistant?: AssistantConfig | null;
+  /** What agents are doing right now, fed by Claude Code hooks (see live-activity.ts). */
+  live?: LiveActivity;
 }
 
 const NOT_CONFIGURED = "El asistente no está configurado. Define ANTHROPIC_API_KEY en el entorno del servidor y reinícialo.";
@@ -523,6 +526,34 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     if (!project.repoPath) throw new HTTPException(400, { message: "El proyecto no tiene repositorio local" });
     const { scope } = await body(c, z.object({ scope: z.enum(["changes", "all"]).default("changes") }));
     return c.json(await opts.syncRepo(id, scope));
+  });
+
+  // Live agent activity. Claude Code hooks post their raw payload here (see README); the answer is
+  // always empty so nothing reaches the agent's context.
+  const live = opts.live ?? createLiveActivity();
+  const projectByCwd = new Map<string, { projectId: string | null; root: string | null; until: number }>();
+  const resolveCwd = async (cwd: string) => {
+    const hit = projectByCwd.get(cwd);
+    if (hit && hit.until > Date.now()) return hit;
+    const projectId = await tracker.resolveProject(cwd);
+    const project = projectId ? await db.query.projects.findFirst({ where: eq(s.projects.id, projectId), columns: { repoPath: true } }) : null;
+    const entry = { projectId, root: project?.repoPath ?? null, until: Date.now() + 30_000 };
+    projectByCwd.set(cwd, entry);
+    return entry;
+  };
+
+  app.post("/agent/hook", async (c) => {
+    const payload = (await c.req.json().catch(() => null)) as HookPayload | null;
+    if (!payload || typeof payload.cwd !== "string" || !isAbsolute(payload.cwd)) return c.body(null, 204);
+    const { projectId, root } = await resolveCwd(payload.cwd);
+    if (projectId && live.record(projectId, payload, root)) emit({ type: "live", projectId });
+    return c.body(null, 204);
+  });
+
+  app.get("/projects/:id/live", async (c) => {
+    const id = c.req.param("id");
+    await tracker.projectOr404(id);
+    return c.json(live.get(id));
   });
 
   app.route("/", traceabilityRoutes(tracker));

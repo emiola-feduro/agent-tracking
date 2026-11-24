@@ -44,6 +44,9 @@ export type {
 export type ProjectView = ProjectSnapshot & {
   progress: { project: number; requirements: Record<string, number>; features: Record<string, number> };
 };
+/** What the agent is doing right now (Claude Code hooks, kept in memory by the server). */
+export type LiveStep = { at: string; tool: string; label: string; target?: string };
+export type LiveState = { status: "working" | "idle"; startedAt: string | null; lastAt: string | null; steps: LiveStep[] };
 export type ProjectListItem = Project & { progress: number };
 export type DiscoveredSkill = { name: string; description: string; source: SkillSource; location: string; plugin?: string };
 export type RepoInfo = { root: string; name: string; branch: string | null; remoteUrl: string | null };
@@ -144,6 +147,7 @@ export const api = {
   deleteDod: (id: string, reqId: string, dodId: string) =>
     request<void>("DELETE", `${p(id)}/requirements/${reqId}/dod/${dodId}`),
 
+  live: (id: string) => request<LiveState>("GET", `${p(id)}/live`),
   activity: (id: string, limit = 100) => request<AgentEvent[]>("GET", `${p(id)}/activity?limit=${limit}`),
   addTestIdea: (id: string, data: { text: string; requirementId?: string | null; featureId?: string | null }) =>
     request<TestIdea>("POST", `${p(id)}/test-ideas`, data),

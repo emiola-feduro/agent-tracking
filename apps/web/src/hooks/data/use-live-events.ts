@@ -23,6 +23,11 @@ const useLiveEvents = () => {
         } catch {
           return;
         }
+        // Agent steps arrive many times a minute and change nothing stored.
+        if (event.type === "live") {
+          queryClient.invalidateQueries({ queryKey: queryKeys.live(event.projectId) });
+          return;
+        }
         queryClient.invalidateQueries({ queryKey: queryKeys.projects, exact: true });
         // A deleted project's page handles its own exit; refetching it would only produce a 404.
         if (event.type !== "project.deleted") {

@@ -6,6 +6,7 @@ import Tabs from "@/components/ui/tabs/tabs";
 import type { ProjectView } from "@/lib/api";
 import ProjectDetailActivity from "./project-detail-activity";
 import ProjectDetailContext from "./project-detail-context";
+import ProjectDetailLive from "./project-detail-live";
 import ProjectDetailRequirements from "./project-detail-requirements";
 import ProjectDetailRules from "./project-detail-rules";
 import ProjectDetailSkills from "./project-detail-skills";
@@ -40,6 +41,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
   return (
     <div className="flex animate-enter flex-col gap-6">
       <ProjectDetailSummary view={view} />
+      <ProjectDetailLive view={view} />
       <div className="flex flex-col gap-4">
         <Tabs label="Secciones del proyecto" items={items} value={tab} onChange={onTabChange} />
         <div key={tab} className="animate-enter" role="tabpanel">
