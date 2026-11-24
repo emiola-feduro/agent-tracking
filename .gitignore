@@ -6,3 +6,4 @@ dist
 *.db-*
 target
 .DS_Store
+*.tsbuildinfo
