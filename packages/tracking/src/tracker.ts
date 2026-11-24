@@ -45,6 +45,28 @@ export type TestReport = {
 };
 export type TestIdeaInput = { text: string; featureId?: string | null; requirementId?: string | null; origin?: "human" | "llm" };
 
+/** The single report an agent sends when it finishes, organised by requirement, feature and file. */
+export type WorkReport = {
+  summary?: string;
+  features: {
+    requirementId: string;
+    name: string;
+    featureId?: string;
+    description?: string;
+    status?: "in_progress" | "done" | "needs_review";
+    files?: {
+      path: string;
+      purpose?: string;
+      symbols?: { name: string; kind: SymbolKind; purpose?: string; lineStart?: number | null; lineEnd?: number | null }[];
+    }[];
+    tests?: { path: string; name: string; type?: TestType; result?: TestResult }[];
+  }[];
+  dod?: { id: string; status: "pending" | "done" | "failed"; evidence?: string | null }[];
+  testIdeas?: { text: string; requirementId?: string | null }[];
+};
+
+export type PendingFile = { path: string; changedAt: string; reportedAt: string | null; symbols: number };
+
 /**
  * Every write the API and the MCP server make goes through here, so both persist the same way:
  * the database row, the repository files (`project.json`, `CONTEXT.md`) and a live event.
@@ -52,8 +74,12 @@ export type TestIdeaInput = { text: string; featureId?: string | null; requireme
 export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
   const emit: Emit = opts.emit ?? (() => {});
 
+  /** While > 0 (inside submitReport), per-item writes are skipped and done once at the end. */
+  let batching = 0;
+
   /** Persists the shareable files into the repo and notifies live clients. */
   const touch = async (projectId: string, entity: string, id?: string) => {
+    if (batching > 0) return;
     await writeRepoFiles(db, projectId).catch((e) => console.error("No se pudo escribir en el repo:", e));
     emit({ type: "changed", projectId, entity, id });
   };
@@ -107,18 +133,22 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
     const existing = await db.query.fileArtifacts.findFirst({
       where: and(eq(s.fileArtifacts.projectId, projectId), eq(s.fileArtifacts.path, rel)),
     });
+    // Anything an agent says about a file counts as reporting it (see pendingChanges).
+    const reportedAt = nowIso();
     if (existing) {
-      if (purpose === undefined || purpose === existing.purpose) return existing;
       const [row] = await db
         .update(s.fileArtifacts)
-        .set({ purpose, updatedBy: actor, updatedAt: nowIso() })
+        .set({
+          reportedAt,
+          ...(purpose !== undefined && purpose !== existing.purpose ? { purpose, updatedBy: actor, updatedAt: reportedAt } : {}),
+        })
         .where(eq(s.fileArtifacts.id, existing.id))
         .returning();
       return row!;
     }
     const [row] = await db
       .insert(s.fileArtifacts)
-      .values({ id: newId(), projectId, path: rel, purpose: purpose ?? "", createdBy: actor, updatedBy: actor })
+      .values({ id: newId(), projectId, path: rel, purpose: purpose ?? "", reportedAt, createdBy: actor, updatedBy: actor })
       .returning();
     return row!;
   };
@@ -352,6 +382,100 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
     async deleteTestIdea(projectId: string, ideaId: string) {
       await db.delete(s.testIdeas).where(and(eq(s.testIdeas.id, ideaId), eq(s.testIdeas.projectId, projectId)));
       await touch(projectId, "test_idea", ideaId);
+    },
+
+    /**
+     * Files changed in the repository after the last report that covered them (or never reported).
+     * This is what an agent still owes in its final report.
+     */
+    async pendingChanges(projectId: string): Promise<PendingFile[]> {
+      await projectOr404(projectId);
+      const rows = await db
+        .select({
+          id: s.fileArtifacts.id,
+          path: s.fileArtifacts.path,
+          changedAt: s.fileArtifacts.changedAt,
+          reportedAt: s.fileArtifacts.reportedAt,
+          symbols: sql<number>`(select count(*) from ${s.symbols} where ${s.symbols.fileId} = ${s.fileArtifacts.id})`,
+        })
+        .from(s.fileArtifacts)
+        .where(
+          and(
+            eq(s.fileArtifacts.projectId, projectId),
+            sql`${s.fileArtifacts.changedAt} is not null and (${s.fileArtifacts.reportedAt} is null or ${s.fileArtifacts.changedAt} > ${s.fileArtifacts.reportedAt})`,
+          ),
+        )
+        .orderBy(desc(s.fileArtifacts.changedAt));
+      return rows.map(({ path, changedAt, reportedAt, symbols }) => ({ path, changedAt: changedAt!, reportedAt, symbols: Number(symbols) }));
+    },
+
+    /**
+     * Applies an agent's final report: features with their status, files with purpose and symbols,
+     * tests, Definition of Done items and test ideas. Everything is validated before anything is
+     * written, and the repo files and live clients are updated once at the end.
+     */
+    async submitReport(projectId: string, actor: string, report: WorkReport) {
+      const project = await projectOr404(projectId);
+      if (report.features.length === 0 && !report.dod?.length) throw new TrackingError("El reporte está vacío");
+      for (const f of report.features) {
+        await requirementIn(projectId, f.requirementId);
+        if (f.featureId) await featureIn(projectId, f.featureId);
+        if (!f.featureId && !f.name.trim()) throw new TrackingError("Cada feature necesita un nombre");
+        for (const file of f.files ?? []) repoRelative(project.repoPath, file.path);
+        for (const t of f.tests ?? []) repoRelative(project.repoPath, t.path);
+      }
+      for (const d of report.dod ?? []) {
+        const [row] = await db
+          .select({ id: s.dodItems.id })
+          .from(s.dodItems)
+          .innerJoin(s.requirements, eq(s.dodItems.requirementId, s.requirements.id))
+          .where(and(eq(s.dodItems.id, d.id), eq(s.requirements.projectId, projectId)))
+          .limit(1);
+        if (!row) throw new TrackingError(`Criterio no encontrado: ${d.id}`, 404);
+      }
+
+      batching++;
+      const counts = { features: 0, files: 0, symbols: 0, tests: 0, dod: 0, testIdeas: 0 };
+      const features: { featureId: string; name: string; status: string }[] = [];
+      try {
+        for (const f of report.features) {
+          const { feature } = await this.startFeature(projectId, actor, {
+            requirementId: f.requirementId,
+            featureId: f.featureId,
+            name: f.name,
+            description: f.description,
+          });
+          const status = f.status ?? "done";
+          if (status !== "in_progress") await this.completeFeature(projectId, actor, feature.id, status);
+          features.push({ featureId: feature.id, name: feature.name, status });
+          counts.features++;
+          for (const file of f.files ?? []) {
+            await this.reportFile(projectId, actor, { path: file.path, purpose: file.purpose, featureIds: [feature.id] });
+            counts.files++;
+            for (const sym of file.symbols ?? []) {
+              await this.reportSymbol(projectId, actor, { ...sym, path: file.path, source: "reported" });
+              counts.symbols++;
+            }
+          }
+          for (const t of f.tests ?? []) {
+            await this.reportTest(projectId, actor, { ...t, featureId: feature.id });
+            counts.tests++;
+          }
+        }
+        for (const d of report.dod ?? []) {
+          await this.updateDod(projectId, actor, d.id, { status: d.status, ...(d.evidence !== undefined ? { evidence: d.evidence } : {}) });
+          counts.dod++;
+        }
+        for (const idea of report.testIdeas ?? []) {
+          await this.addTestIdea(projectId, actor, { text: idea.text, requirementId: idea.requirementId ?? null, origin: "llm" });
+          counts.testIdeas++;
+        }
+      } finally {
+        batching--;
+      }
+      await touch(projectId, "report");
+      const pending = await this.pendingChanges(projectId);
+      return { features, counts, pending: pending.map((p) => p.path) };
     },
 
     snapshot: async (projectId: string) => {

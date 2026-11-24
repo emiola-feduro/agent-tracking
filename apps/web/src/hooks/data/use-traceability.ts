@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import type { CodeSymbol, FileArtifact, ProjectView } from "@/lib/api";
 
+/** Changed in the repository after the last agent report that covered it. */
+export const isPending = ({ changedAt, reportedAt }: FileArtifact) => !!changedAt && (!reportedAt || changedAt > reportedAt);
+
 /** Indexes files and symbols by feature and file so the trace tree renders without repeated scans. */
 const useTraceability = (view: ProjectView) => {
   const { files, featureFiles, symbols } = view;
@@ -23,7 +26,10 @@ const useTraceability = (view: ProjectView) => {
     return {
       filesOf: (featureId: string) => filesByFeature.get(featureId) ?? [],
       symbolsOf: (fileId: string) => symbolsByFile.get(fileId) ?? [],
-      unlinkedFiles: files.filter((f) => !linked.has(f.id)),
+      /** Live layer: what the agent changed and has not reported yet, newest first. */
+      pendingFiles: files.filter(isPending).sort((a, b) => (b.changedAt ?? "").localeCompare(a.changedAt ?? "")),
+      /** Reported or mapped code that no feature claims. */
+      unlinkedFiles: files.filter((f) => !linked.has(f.id) && !isPending(f)),
     };
   }, [files, featureFiles, symbols]);
 };

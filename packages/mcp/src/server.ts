@@ -14,14 +14,23 @@ import { z } from "zod";
 export const SERVER_INFO = { name: "agent-tracking", version: "0.2.0" };
 
 export const SERVER_INSTRUCTIONS = [
-  "Agent Tracking registra en tiempo real lo que construyes para que el equipo lo vea.",
-  "Al empezar, llama a get_project_context y lee las reglas de negocio, skills y requerimientos.",
-  "Antes de trabajar en algo llama a start_feature con el requerimiento que atiende.",
-  "Reporta cada archivo que crees o cambies con report_file (con su propósito y los features a los que sirve)",
-  "y sus funciones, clases, tipos, variables o constantes relevantes con report_symbol.",
-  "Reporta tus tests con report_test, marca criterios del DoD con mark_dod_item cuando tengas evidencia",
-  "y cierra con complete_feature. Usa suggest_test_idea para casos que convenga probar más adelante.",
+  "Agent Tracking muestra al equipo lo que construyes, ordenado por requerimiento, feature y archivo.",
+  "Al empezar una tarea, llama a get_project_context para leer reglas de negocio, skills, requerimientos y criterios del DoD.",
+  "Mientras trabajas no reportes nada: Agent Tracking ve los archivos que cambias por su cuenta.",
+  "Al terminar, antes de tu respuesta final, llama UNA vez a submit_report con todo lo que hiciste:",
+  "por cada feature, su requerimiento, sus archivos con propósito y sus funciones, clases o tipos relevantes,",
+  "sus tests con resultado, y los criterios del DoD que quedaron cumplidos con su evidencia.",
+  "pending_changes lista los archivos cambiados que aún no cubre ningún reporte: inclúyelos.",
+  "Las herramientas report_* y start_feature/complete_feature siguen disponibles para reportes parciales.",
 ].join(" ");
+
+/** Optional services the host provides (the HTTP server has a repository watcher, for example). */
+export type McpDeps = {
+  syncRepo?: (projectId: string, scope: "changes" | "all") => Promise<unknown>;
+};
+
+const TEST_TYPES = ["unit", "integration", "e2e", "component", "contract", "performance", "other"] as const;
+const TEST_RESULTS = ["unknown", "passing", "failing", "skipped"] as const;
 
 export type McpSession = {
   /** Default project: its id or any path inside its repository (the agent's cwd). */
@@ -59,7 +68,7 @@ const filesOf = (snap: ProjectSnapshot, featureId: string) => {
  * Builds an MCP server bound to one agent session. Every tool call resolves the project, runs
  * through the shared tracker (database, repo files, live event) and appends to the activity log.
  */
-export function createMcpServer(tracker: Tracker, session: McpSession = {}) {
+export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps: McpDeps = {}) {
   const server = new McpServer(SERVER_INFO, { instructions: SERVER_INSTRUCTIONS });
 
   const actor = () => session.actor ?? `agent:${server.server.getClientVersion()?.name ?? "desconocido"}`;
@@ -350,6 +359,116 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}) {
       return { result: { ideaId: idea.id }, event: { ideaId: idea.id, text: idea.text, featureId: idea.featureId } };
     },
   );
+
+  /** Brings repository analysis up to date first, so pending files include the latest edits. */
+  const refreshRepo = async (projectId: string) => {
+    if (deps.syncRepo) await deps.syncRepo(projectId, "changes").catch(() => {});
+  };
+
+  register(
+    "pending_changes",
+    {
+      title: "Cambios sin reportar",
+      description: "Archivos del repositorio que cambiaron después del último reporte que los cubrió. Inclúyelos en submit_report.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true },
+    },
+    async (projectId) => {
+      await refreshRepo(projectId);
+      const pending = await tracker.pendingChanges(projectId);
+      return { result: { pending }, event: { count: pending.length } };
+    },
+  );
+
+  register(
+    "submit_report",
+    {
+      title: "Reporte final del trabajo",
+      description:
+        "Llámalo una vez al terminar. Registra los features con su estado, sus archivos (propósito y símbolos relevantes), " +
+        "sus tests y los criterios del DoD cumplidos. Un feature con el mismo nombre en el mismo requerimiento se actualiza. " +
+        "Devuelve los archivos cambiados que siguen sin reportar.",
+      inputSchema: {
+        summary: z.string().optional().describe("Qué hiciste, en dos o tres frases"),
+        features: z
+          .array(
+            z.object({
+              requirementId: z.string().describe("Requerimiento al que sirve (ver get_project_context)"),
+              name: z.string().describe("Nombre corto del feature"),
+              featureId: z.string().optional().describe("Id de un feature existente, para actualizarlo"),
+              description: z.string().optional(),
+              status: z.enum(["in_progress", "done", "needs_review"]).optional().describe("Por defecto done"),
+              files: z
+                .array(
+                  z.object({
+                    path: z.string().describe("Ruta relativa a la raíz del repo"),
+                    purpose: z.string().optional().describe("Para qué existe el archivo, en una frase"),
+                    symbols: z
+                      .array(
+                        z.object({
+                          name: z.string(),
+                          kind: z.enum(SYMBOL_KINDS),
+                          purpose: z.string().optional(),
+                          lineStart: z.number().int().positive().optional(),
+                          lineEnd: z.number().int().positive().optional(),
+                        }),
+                      )
+                      .optional(),
+                  }),
+                )
+                .optional(),
+              tests: z
+                .array(
+                  z.object({
+                    path: z.string(),
+                    name: z.string(),
+                    type: z.enum(TEST_TYPES).optional(),
+                    result: z.enum(TEST_RESULTS).optional(),
+                  }),
+                )
+                .optional(),
+            }),
+          )
+          .describe("Lo que hiciste, por feature"),
+        dod: z
+          .array(
+            z.object({
+              id: z.string().describe("Id del criterio (ver get_project_context)"),
+              status: z.enum(["pending", "done", "failed"]),
+              evidence: z.string().optional().describe("Cómo se comprueba: test, archivo, comando"),
+            }),
+          )
+          .optional(),
+        testIdeas: z.array(z.object({ text: z.string(), requirementId: z.string().optional() })).optional(),
+      },
+    },
+    async (projectId, actor, args) => {
+      await refreshRepo(projectId);
+      const result = await tracker.submitReport(projectId, actor, args);
+      return {
+        result,
+        event: { summary: args.summary ?? "", ...result.counts, features: result.features.map((f) => f.name), pending: result.pending.length },
+      };
+    },
+  );
+
+  if (deps.syncRepo) {
+    const syncRepo = deps.syncRepo;
+    register(
+      "sync_repo",
+      {
+        title: "Analizar el repositorio",
+        description:
+          "Analiza ahora el código del repositorio: registra archivos, funciones, clases y tests detectados como inferidos. " +
+          "`changes` (por defecto) revisa los cambios sin commit y los liga al feature en curso; `all` recorre todo el repositorio.",
+        inputSchema: { scope: z.enum(["changes", "all"]).optional() },
+      },
+      async (projectId, _actor, args) => {
+        const result = await syncRepo(projectId, args.scope ?? "changes");
+        return { result, event: { scope: args.scope ?? "changes" } };
+      },
+    );
+  }
 
   return server;
 }

@@ -106,6 +106,10 @@ export const fileArtifacts = sqliteTable(
     /** Relative to the repository root, always with forward slashes. */
     path: text("path").notNull(),
     purpose: text("purpose").notNull().default(""),
+    /** Last time repository analysis saw the file change. */
+    changedAt: text("changed_at"),
+    /** Last time an agent's report covered the file. Pending when changedAt is later. */
+    reportedAt: text("reported_at"),
     ...audit,
   },
   (t) => [uniqueIndex("file_artifacts_project_path_unique").on(t.projectId, t.path)],

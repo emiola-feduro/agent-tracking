@@ -133,6 +133,7 @@
       "name": "@agent-tracking/tracking",
       "version": "0.1.0",
       "dependencies": {
+        "@agent-tracking/analyzer": "workspace:*",
         "@agent-tracking/core": "workspace:*",
         "@agent-tracking/db": "workspace:*",
         "@agent-tracking/git": "workspace:*",

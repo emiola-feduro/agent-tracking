@@ -98,6 +98,8 @@ export interface AppOptions {
   cloneRoot?: string;
   /** Shared with the MCP server so both write and notify the same way. */
   tracker?: Tracker;
+  /** Analyses a project's repository now (see repo-watchers.ts). */
+  syncRepo?: (projectId: string, scope: "changes" | "all") => Promise<unknown>;
   /** GitHub client and background polling (see github-routes.ts). */
   github?: GithubOptions;
   /** Claude assistant; null or missing keeps the deterministic behaviour (see assistantConfigFromEnv). */
@@ -501,6 +503,26 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     await db.delete(s.dodItems).where(and(eq(s.dodItems.id, dodId), eq(s.dodItems.requirementId, reqId)));
     await touch(projectId, "dod", dodId);
     return c.body(null, 204);
+  });
+
+  /** Files changed after the last agent report that covered them; `path` finds the project by its repo. */
+  app.get("/report/pending", async (c) => {
+    const path = c.req.query("path");
+    const ref = c.req.query("project") ?? path;
+    if (!ref) throw new HTTPException(400, { message: "Indica project o path" });
+    const projectId = await tracker.resolveProject(ref);
+    if (!projectId) return c.json({ projectId: null, pending: [] });
+    if (opts.syncRepo) await opts.syncRepo(projectId, "changes").catch(() => {});
+    return c.json({ projectId, pending: await tracker.pendingChanges(projectId) });
+  });
+
+  app.post("/projects/:id/repo/sync", async (c) => {
+    if (!opts.syncRepo) throw new HTTPException(503, { message: "El análisis del repositorio no está disponible" });
+    const id = c.req.param("id");
+    const project = await tracker.projectOr404(id);
+    if (!project.repoPath) throw new HTTPException(400, { message: "El proyecto no tiene repositorio local" });
+    const { scope } = await body(c, z.object({ scope: z.enum(["changes", "all"]).default("changes") }));
+    return c.json(await opts.syncRepo(id, scope));
   });
 
   app.route("/", traceabilityRoutes(tracker));

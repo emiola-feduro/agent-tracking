@@ -87,6 +87,10 @@ export interface FileArtifact {
   projectId: string;
   path: string;
   purpose: string;
+  /** Last change seen by repository analysis. */
+  changedAt: string | null;
+  /** Last agent report that covered the file; pending while changedAt is later. */
+  reportedAt: string | null;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

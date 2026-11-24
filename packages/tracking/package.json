@@ -9,7 +9,8 @@
     "@agent-tracking/core": "workspace:*",
     "@agent-tracking/db": "workspace:*",
     "@agent-tracking/git": "workspace:*",
-    "drizzle-orm": "0.44"
+    "drizzle-orm": "0.44",
+    "@agent-tracking/analyzer": "workspace:*"
   },
   "exports": {
     ".": "./src/index.ts",

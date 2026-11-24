@@ -1,6 +1,6 @@
 import type { Tracker } from "@agent-tracking/tracking";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { createMcpServer } from "./server";
+import { createMcpServer, type McpDeps } from "./server";
 
 const LOCAL_ORIGIN = /^(https?|tauri):\/\/(localhost|127\.0\.0\.1|\[::1\]|tauri\.localhost)(:\d+)?$/;
 
@@ -12,7 +12,7 @@ const jsonError = (status: number, message: string) =>
  * agent's name from the handshake is known on every call. The default project comes from
  * `?project=<id|path>` or the `X-Agent-Tracking-Project` header; `?agent=<name>` overrides the actor.
  */
-export function createMcpHttpHandler(tracker: Tracker) {
+export function createMcpHttpHandler(tracker: Tracker, deps: McpDeps = {}) {
   const sessions = new Map<string, WebStandardStreamableHTTPServerTransport>();
 
   return async (req: Request): Promise<Response> => {
@@ -33,7 +33,7 @@ export function createMcpHttpHandler(tracker: Tracker) {
     const server = createMcpServer(tracker, {
       project: url.searchParams.get("project") ?? req.headers.get("x-agent-tracking-project") ?? undefined,
       actor: agent ? `agent:${agent}` : undefined,
-    });
+    }, deps);
     const transport = new WebStandardStreamableHTTPServerTransport({
       sessionIdGenerator: () => crypto.randomUUID(),
       enableJsonResponse: true,

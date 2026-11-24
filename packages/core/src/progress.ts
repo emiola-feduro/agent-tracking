@@ -18,7 +18,8 @@ const ratio = (done: number, total: number): Progress => ({
  * Su progreso parcial: estado (in_progress = 0.5) ajustado por los tests que pasan.
  */
 export function featureProgress(feature: Feature, tests: TestCase[]): Progress {
-  const own = tests.filter((t) => t.featureId === feature.id);
+  // Only tests with a known result count: one that was detected but never run says nothing yet.
+  const own = tests.filter((t) => t.featureId === feature.id && (t.lastResult === "passing" || t.lastResult === "failing"));
   const passing = own.filter((t) => t.lastResult === "passing").length;
   const failing = own.some((t) => t.lastResult === "failing");
   const statusScore =

@@ -9,7 +9,7 @@
  * straight to the database; the UI then catches up the next time it loads.
  */
 import { openDb } from "@agent-tracking/db";
-import { createTracker } from "@agent-tracking/tracking";
+import { createRepoInference, createTracker } from "@agent-tracking/tracking";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -63,8 +63,15 @@ async function runProxy() {
 }
 
 async function runLocal() {
-  const tracker = createTracker(openDb(dbPath));
-  const server = createMcpServer(tracker, { project: projectRef, actor: flags.agent ? `agent:${flags.agent}` : undefined });
+  const db = openDb(dbPath);
+  const tracker = createTracker(db);
+  // Without the server there is no watcher, but sync_repo can still analyse on demand.
+  const inference = createRepoInference(db, tracker);
+  const server = createMcpServer(
+    tracker,
+    { project: projectRef, actor: flags.agent ? `agent:${flags.agent}` : undefined },
+    { syncRepo: (id, scope) => (scope === "all" ? inference.syncAll(id) : inference.syncWorkingTree(id)) },
+  );
   await server.connect(new StdioServerTransport());
 }
 

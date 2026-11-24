@@ -59,4 +59,8 @@ export const FEATURE_STATUS_TONE = {
 } as const;
 
 /** "agent:claude-code" shows as "claude-code"; the local user as "Tú". */
-export const actorLabel = (actor: string) => (actor === "user:local" ? "Tú" : actor.replace(/^(agent|user):/, ""));
+/** Actor of what repository analysis found (same value as INFERRED_ACTOR in packages/tracking). */
+export const INFERRED_ACTOR = "repo:analysis";
+
+export const actorLabel = (actor: string) =>
+  actor === "user:local" ? "Tú" : actor === INFERRED_ACTOR ? "Análisis del repo" : actor.replace(/^(agent|user):/, "");

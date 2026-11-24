@@ -117,6 +117,42 @@ vuelve a leer el token sin reiniciar. El estado de PRs y ejecuciones se sondea e
 | `GET /api/projects/:id/github/branches` | Ramas remotas con último commit y PR asociado |
 | `GET /api/projects/:id/github/workflows`, `/runs` y `/runs/:runId` | Workflows, ejecuciones y jobs con sus pasos |
 
+## Ver en vivo lo que hace Claude Code
+
+Dos capas:
+
+- **Mientras el agente trabaja:** el servidor vigila el repo de cada proyecto y muestra en
+  Trazabilidad la sección "Cambios sin reportar": archivos que cambian, con sus funciones, tipos y
+  tests detectados. Todavía sin ordenar.
+- **Cuando termina:** el agente llama una vez a `submit_report` con todo lo que hizo, por
+  requerimiento y feature: archivos con su propósito, símbolos relevantes, tests con resultado y
+  criterios del DoD cumplidos con su evidencia. Entonces aparece ordenado. Se valida completo antes
+  de escribir nada, y lo detectado nunca pisa lo reportado.
+
+Un archivo está pendiente cuando su fecha de modificación es posterior al último reporte que lo
+cubrió (`pending_changes` por MCP, `GET /api/report/pending?path=<ruta>` por API).
+
+### Hook de cierre para Claude Code
+
+`packages/mcp/src/stop-hook.ts` es un hook `Stop`: si en el turno el agente cambió archivos de un
+proyecto y quedan sin reportar, bloquea el cierre una vez y le pide `submit_report`. Fuera de un
+proyecto, en turnos sin cambios, en el segundo intento o ante cualquier error, no hace nada. Sin
+servidor, con `--db` analiza el repo y lee la base directamente. Configuración en
+`~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [{ "hooks": [{ "type": "command", "timeout": 30,
+      "command": "bun /ruta/a/agent-tracking/packages/mcp/src/stop-hook.ts --db /ruta/a/agent-tracking.db" }] }]
+  }
+}
+```
+
+`sync_repo` (MCP) y `POST /api/projects/:id/repo/sync` con `{ "scope": "changes" | "all" }`
+fuerzan el análisis; `all` mapea todo el código sin marcarlo pendiente. `AGENT_TRACKING_WATCH=0`
+desactiva la vigilancia.
+
 ## Análisis del repositorio
 
 Para proyectos con repositorio local (`packages/server/src/repo-routes.ts`):

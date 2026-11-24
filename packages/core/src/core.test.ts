@@ -79,6 +79,17 @@ describe("progress", () => {
     expect(requirementProgress(s, "r2").ratio).toBeLessThan(1);
   });
 
+  test("tests without a result do not lower a done feature", () => {
+    const s = base();
+    s.features = [s.features[0]!];
+    s.tests = [
+      { id: "t1", featureId: "f1", requirementId: "r2", path: "a", name: "a", type: "unit", lastResult: "passing" },
+      { id: "t2", featureId: "f1", requirementId: "r2", path: "a", name: "b", type: "unit", lastResult: "unknown" },
+      { id: "t3", featureId: "f1", requirementId: "r2", path: "a", name: "c", type: "unit", lastResult: "skipped" },
+    ];
+    expect(toPercent(requirementProgress(s, "r2"))).toBe(100);
+  });
+
   test("empty project is 0%", () => {
     const s = base();
     s.requirements = [];
@@ -126,7 +137,7 @@ describe("project file", () => {
   test("carries files, symbols and test ideas", () => {
     const s = base();
     s.files = [
-      { id: "fa", projectId: "p1", path: "src/list.ts", purpose: "Listado", createdBy: "agent:x", createdAt: "", updatedAt: "" },
+      { id: "fa", projectId: "p1", path: "src/list.ts", purpose: "Listado", changedAt: null, reportedAt: null, createdBy: "agent:x", createdAt: "", updatedAt: "" },
     ];
     s.featureFiles = [{ featureId: "f1", fileId: "fa" }];
     s.symbols = [
