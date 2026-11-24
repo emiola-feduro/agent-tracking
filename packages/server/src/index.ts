@@ -1,4 +1,4 @@
-import { assistantConfigFromEnv } from "@agent-tracking/assistant";
+import { providerOf, resolveAssistantConfig } from "@agent-tracking/assistant";
 import { openDb } from "@agent-tracking/db";
 import { createMcpHttpHandler } from "@agent-tracking/mcp";
 import { createTracker } from "@agent-tracking/tracking";
@@ -12,7 +12,8 @@ const db = openDb();
 let server: ReturnType<typeof Bun.serve> | undefined;
 const emit = (e: AppEvent) => server?.publish(TOPIC, JSON.stringify(e));
 const tracker = createTracker(db, { emit });
-const assistant = assistantConfigFromEnv();
+// An API key, or else the local Claude Code CLI with the person's own login (see README).
+const assistant = await resolveAssistantConfig();
 // Background GitHub polling for projects open in the UI (GITHUB_POLL_MS=0 disables it).
 const app = createApp(db, {
   tracker,
@@ -53,4 +54,10 @@ server = Bun.serve({
 });
 
 console.log(`Agent Tracking API escuchando en http://${server.hostname}:${server.port}`);
-console.log(assistant ? "Asistente con Claude activo" : "Asistente con Claude desactivado (falta ANTHROPIC_API_KEY)");
+console.log(
+  !assistant
+    ? "Asistente con Claude desactivado (sin ANTHROPIC_API_KEY ni sesión de Claude Code)"
+    : providerOf(assistant) === "api"
+      ? "Asistente con Claude activo (API key)"
+      : "Asistente con Claude activo (tu Claude Code instalado)",
+);

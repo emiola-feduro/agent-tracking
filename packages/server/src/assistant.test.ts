@@ -49,7 +49,7 @@ describe("without an API key", () => {
 describe("with the assistant", () => {
   test("status says configured", async () => {
     const { call } = setup(() => "{}");
-    expect((await call("GET", "/assistant")).data).toEqual({ configured: true });
+    expect((await call("GET", "/assistant")).data).toEqual({ configured: true, provider: "api" });
   });
 
   test("stack: valid answer comes back marked as assistant", async () => {

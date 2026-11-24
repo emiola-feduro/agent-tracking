@@ -38,21 +38,33 @@ cd apps/desktop && bun run dev
 
 ## Asistente con Claude
 
-Opcional. Sin clave todo funciona con los valores deterministas y la UI oculta las acciones de IA.
+Opcional. Sin asistente todo funciona con los valores deterministas y la UI oculta las acciones de IA.
+Al arrancar, el servidor elige cómo llegar a Claude:
+
+1. **API key** (`ANTHROPIC_API_KEY`): pago por uso en Claude Console. Es la vía para instalaciones
+   que usan otras personas: cada una con su propia key.
+2. **Tu Claude Code instalado**: si no hay key y el comando `claude` tiene una sesión iniciada
+   (`claude auth status`), cada sugerencia se ejecuta con `claude -p` y la cubre tu suscripción
+   Pro o Max, compartiendo su cupo de uso. Pensado para uso personal en tu propio equipo. Corre
+   sin herramientas ni servidores MCP, desde una carpeta vacía, y las peticiones van de una en una.
 
 ```bash
-export ANTHROPIC_API_KEY=...   # en el entorno del proceso del servidor, nunca en archivos del repo
-bun run start
+export ANTHROPIC_API_KEY=...   # opcional; en el entorno del servidor, nunca en archivos del repo
+bun run start                  # el log dice qué proveedor quedó activo
 ```
 
 | Variable | Por defecto | Uso |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | sin definir | Activa el asistente |
+| `AGENT_TRACKING_ASSISTANT_PROVIDER` | `auto` | `auto` (key y si no Claude Code), `api`, `claude-code` u `off` |
+| `ANTHROPIC_API_KEY` | sin definir | Activa el proveedor de API |
+| `AGENT_TRACKING_CLAUDE_BIN` | `claude` | Ruta al CLI de Claude Code |
 | `AGENT_TRACKING_ASSISTANT_MODEL` | `claude-sonnet-5-5` | Criterios de DoD y selección de skills |
 | `AGENT_TRACKING_ASSISTANT_HEAVY_MODEL` | `claude-opus-5-5` | Recomendación de stack |
 
+Si inicias sesión en Claude Code o cambias la key, reinicia el servidor para que lo detecte.
+
 Endpoints: `GET /api/assistant` (estado), `POST /api/assistant/stack`, `POST /api/assistant/dod`,
-`POST /api/assistant/skills` y `POST /api/projects/:id/requirements/:reqId/dod/suggest`. Sin clave
+`POST /api/assistant/skills` y `POST /api/projects/:id/requirements/:reqId/dod/suggest`. Sin asistente
 responden 503. La recomendación de stack pasa por las reglas de `packages/core` y, si la respuesta no
 es válida, devuelve `recommendStack` con `source: "default"`.
 

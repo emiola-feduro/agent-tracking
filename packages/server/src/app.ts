@@ -14,6 +14,7 @@ import {
   AssistantError,
   describeAssistantError,
   MAX_SKILLS,
+  providerOf,
   suggestDod,
   suggestSkills,
   suggestStack,
@@ -192,7 +193,9 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     }
   };
 
-  app.get("/assistant", (c) => c.json({ configured: assistant !== null }));
+  app.get("/assistant", (c) =>
+    c.json(assistant ? { configured: true, provider: providerOf(assistant) } : { configured: false }),
+  );
 
   app.post("/assistant/stack", async (c) => {
     const config = assistantOr503();

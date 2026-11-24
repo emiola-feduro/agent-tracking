@@ -150,7 +150,7 @@ export const api = {
   setTestIdeaStatus: (id: string, ideaId: string, status: TestIdeaStatus) =>
     request<TestIdea>("PATCH", `${p(id)}/test-ideas/${ideaId}`, { status }),
   deleteTestIdea: (id: string, ideaId: string) => request<void>("DELETE", `${p(id)}/test-ideas/${ideaId}`),
-  assistantStatus: () => request<{ configured: boolean }>("GET", "/assistant"),
+  assistantStatus: () => request<{ configured: boolean; provider?: "api" | "claude-code" }>("GET", "/assistant"),
   suggestStack: (brief: AssistantBrief) => request<StackSuggestion>("POST", "/assistant/stack", brief),
   suggestDod: (project: AssistantBrief, requirement: { title: string; description?: string }, existing: string[]) =>
     request<{ criteria: string[] }>("POST", "/assistant/dod", { project, requirement, existing }),
