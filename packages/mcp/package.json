@@ -1,0 +1,21 @@
+{
+  "name": "@agent-tracking/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "agent-tracking-mcp": "src/stdio.ts"
+  },
+  "dependencies": {
+    "@agent-tracking/core": "workspace:*",
+    "@agent-tracking/db": "workspace:*",
+    "@agent-tracking/tracking": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "4"
+  },
+  "devDependencies": {
+    "@agent-tracking/git": "workspace:*"
+  }
+}

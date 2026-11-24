@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PLATFORMS, type ProjectSnapshot } from "./types";
+import { PLATFORMS, SYMBOL_KINDS, TEST_IDEA_STATUSES, type ProjectSnapshot } from "./types";
 
 /** Path of the shareable project file, relative to the repository root. */
 export const PROJECT_FILE_PATH = ".agent-tracking/project.json";
@@ -77,6 +77,43 @@ export const projectFileSchema = z.object({
       }),
     )
     .default([]),
+  // Added in phase 2. Optional so version 1 files written before them still parse.
+  files: z
+    .array(
+      z.object({
+        id,
+        path: z.string().min(1),
+        purpose: z.string().default(""),
+        createdBy: z.string().default("user:local"),
+        featureIds: z.array(z.string()).default([]),
+        symbols: z
+          .array(
+            z.object({
+              id,
+              name: z.string().min(1),
+              kind: z.enum(SYMBOL_KINDS),
+              lineStart: z.number().int().nullable().default(null),
+              lineEnd: z.number().int().nullable().default(null),
+              purpose: z.string().default(""),
+              source: z.enum(["reported", "inferred"]).default("reported"),
+            }),
+          )
+          .default([]),
+      }),
+    )
+    .default([]),
+  testIdeas: z
+    .array(
+      z.object({
+        id,
+        featureId: z.string().nullable().default(null),
+        requirementId: z.string().nullable().default(null),
+        text: z.string().min(1),
+        origin: z.enum(["human", "llm"]).default("human"),
+        status: z.enum(TEST_IDEA_STATUSES).default("proposed"),
+      }),
+    )
+    .default([]),
 });
 
 export type ProjectFile = z.infer<typeof projectFileSchema>;
@@ -128,6 +165,35 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       name,
       type,
       lastResult,
+    })),
+    files: s.files.map((f) => ({
+      id: f.id,
+      path: f.path,
+      purpose: f.purpose,
+      createdBy: f.createdBy,
+      featureIds: s.featureFiles
+        .filter((l) => l.fileId === f.id)
+        .map((l) => l.featureId)
+        .sort(),
+      symbols: s.symbols
+        .filter((y) => y.fileId === f.id)
+        .map(({ id, name, kind, lineStart, lineEnd, purpose, source }) => ({
+          id,
+          name,
+          kind,
+          lineStart,
+          lineEnd,
+          purpose,
+          source,
+        })),
+    })),
+    testIdeas: s.testIdeas.map(({ id, featureId, requirementId, text, origin, status }) => ({
+      id,
+      featureId,
+      requirementId,
+      text,
+      origin,
+      status,
     })),
   };
 }

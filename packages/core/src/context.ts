@@ -55,16 +55,30 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
     const features = s.features.filter((f) => f.requirementId === r.id);
     if (features.length) {
       out.push("**Features:**", "");
-      for (const f of features) out.push(`- ${f.name} — _${f.status}_ (\`${f.id}\`)`);
+      for (const f of features) {
+        out.push(`- ${f.name} — _${f.status}_ (\`${f.id}\`)`);
+        const fileIds = new Set(s.featureFiles.filter((l) => l.featureId === f.id).map((l) => l.fileId));
+        for (const file of s.files.filter((x) => fileIds.has(x.id))) {
+          out.push(`  - \`${file.path}\`${file.purpose ? `: ${file.purpose}` : ""}`);
+        }
+      }
       out.push("");
     }
+  }
+
+  const pending = s.testIdeas.filter((t) => t.status === "proposed" || t.status === "accepted");
+  if (pending.length) {
+    out.push("## Ideas de tests pendientes", "");
+    for (const t of pending) out.push(`- ${t.text} (\`${t.id}\`)`);
+    out.push("");
   }
 
   out.push("## Cómo reportar tu trabajo", "");
   out.push(
     "Este proyecto se rastrea vía el servidor MCP de Agent Tracking. Antes de empezar un feature llama a `start_feature`;",
     "reporta cada archivo con `report_file`, sus funciones/variables con `report_symbol`, los tests con `report_test`",
-    "y marca los criterios del DoD con `mark_dod_item` cuando tengas evidencia.",
+    "y marca los criterios del DoD con `mark_dod_item` cuando tengas evidencia. Al terminar llama a `complete_feature`.",
+    "Si se te ocurre un caso que valga la pena probar y no vas a escribirlo ahora, regístralo con `suggest_test_idea`.",
     "",
   );
   return out.join("\n");

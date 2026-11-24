@@ -21,10 +21,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { z } from "zod";
+import { createTracker, LOCAL_USER, TrackingError, type Emit, type Tracker } from "@agent-tracking/tracking";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
+import { traceabilityRoutes } from "./traceability-routes";
 
-export type AppEvent = { type: string; projectId: string; entity?: string; id?: string };
-export type Emit = (e: AppEvent) => void;
+export type { AppEvent, Emit } from "@agent-tracking/tracking";
 
 const newId = () => crypto.randomUUID();
 const nowIso = () => new Date().toISOString();
@@ -82,16 +83,20 @@ export interface AppOptions {
   claudeHome?: string;
   /** Default parent folder for GitHub clones (defaults to ~/repos) */
   cloneRoot?: string;
+  /** Shared with the MCP server so both write and notify the same way. */
+  tracker?: Tracker;
 }
 
 export function createApp(db: Db, opts: AppOptions = {}) {
-  const emit: Emit = opts.emit ?? (() => {});
+  const tracker = opts.tracker ?? createTracker(db, { emit: opts.emit });
+  const emit: Emit = tracker.emit;
   const claudeHome = opts.claudeHome ?? join(homedir(), ".claude");
   const cloneRoot = opts.cloneRoot ?? join(homedir(), "repos");
   const app = new Hono().basePath("/api");
   app.use("*", cors());
 
   app.onError((err, c) => {
+    if (err instanceof TrackingError) return c.json({ error: err.message }, err.status);
     if (err instanceof HTTPException) return c.json({ error: err.message, ...((err.cause as object | undefined) ?? {}) }, err.status);
     console.error(err);
     return c.json({ error: "Error interno" }, 500);
@@ -103,19 +108,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     return snap;
   };
 
-  /** Persists the shareable files into the repo and notifies live clients. */
-  const touch = async (projectId: string, entity: string, id?: string) => {
-    await writeRepoFiles(db, projectId).catch((e) => console.error("No se pudo escribir en el repo:", e));
-    emit({ type: "changed", projectId, entity, id });
-  };
-
-  const requirementIn = async (projectId: string, reqId: string) => {
-    const r = await db.query.requirements.findFirst({
-      where: and(eq(s.requirements.id, reqId), eq(s.requirements.projectId, projectId)),
-    });
-    if (!r) throw new HTTPException(404, { message: "Requerimiento no encontrado" });
-    return r;
-  };
+  const { touch, requirementIn } = tracker;
 
   /** Resolves a path to its git root; rejects anything that is not a repository. */
   const repoRootOr400 = async (path: string) => {
@@ -394,14 +387,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
         })
         .partial(),
     );
-    const [row] = await db
-      .update(s.dodItems)
-      .set({ ...input, updatedAt: nowIso() })
-      .where(and(eq(s.dodItems.id, dodId), eq(s.dodItems.requirementId, reqId)))
-      .returning();
-    if (!row) throw new HTTPException(404, { message: "Criterio no encontrado" });
-    await touch(projectId, "dod", dodId);
-    return c.json(row);
+    return c.json(await tracker.updateDod(projectId, LOCAL_USER, dodId, input, reqId));
   });
   app.delete("/projects/:id/requirements/:reqId/dod/:dodId", async (c) => {
     const { id: projectId, reqId, dodId } = c.req.param();
@@ -410,6 +396,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     await touch(projectId, "dod", dodId);
     return c.body(null, 204);
   });
+
+  app.route("/", traceabilityRoutes(tracker));
 
   return app;
 }

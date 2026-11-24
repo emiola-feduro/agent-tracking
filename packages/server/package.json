@@ -12,7 +12,9 @@
     "drizzle-orm": "0.44",
     "hono": "4",
     "zod": "4",
-    "@agent-tracking/git": "workspace:*"
+    "@agent-tracking/git": "workspace:*",
+    "@agent-tracking/tracking": "workspace:*",
+    "@agent-tracking/mcp": "workspace:*"
   },
   "scripts": {
     "start": "bun src/index.ts",

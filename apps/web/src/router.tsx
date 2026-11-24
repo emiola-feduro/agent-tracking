@@ -8,7 +8,7 @@ import NewProjectPage from "@/pages/new-project-page";
 import ProjectPage from "@/pages/project-page";
 import ProjectsPage from "@/pages/projects-page";
 
-const TABS: ProjectTab[] = ["requirements", "rules", "skills", "context"];
+const TABS: ProjectTab[] = ["requirements", "traceability", "activity", "tests", "rules", "skills", "context"];
 
 const rootRoute = createRootRoute({ component: AppShell });
 

@@ -50,6 +50,10 @@ const base = (): ProjectSnapshot => ({
     { id: "f2", requirementId: "r2", name: "Filtros", description: "", status: "pending", agent: null },
   ],
   tests: [],
+  files: [],
+  featureFiles: [],
+  symbols: [],
+  testIdeas: [],
 });
 
 describe("progress", () => {
@@ -117,6 +121,33 @@ describe("project file", () => {
     expect(JSON.stringify(file)).not.toContain("/repo\"");
     const parsed = parseProjectFile(serializeProjectFile(file));
     expect(parsed).toEqual({ ok: true, file });
+  });
+
+  test("carries files, symbols and test ideas", () => {
+    const s = base();
+    s.files = [
+      { id: "fa", projectId: "p1", path: "src/list.ts", purpose: "Listado", createdBy: "agent:x", createdAt: "", updatedAt: "" },
+    ];
+    s.featureFiles = [{ featureId: "f1", fileId: "fa" }];
+    s.symbols = [
+      { id: "y1", fileId: "fa", name: "list", kind: "function", lineStart: 1, lineEnd: 9, purpose: "", source: "reported" },
+    ];
+    s.testIdeas = [
+      { id: "i1", projectId: "p1", featureId: "f1", requirementId: null, text: "Lista vacía", origin: "llm", status: "proposed", createdBy: "", createdAt: "" },
+    ];
+    const file = toProjectFile(s);
+    expect(file.files[0]).toMatchObject({ path: "src/list.ts", featureIds: ["f1"], symbols: [{ name: "list" }] });
+    expect(parseProjectFile(serializeProjectFile(file))).toEqual({ ok: true, file });
+    const md = buildContextMarkdown(s);
+    expect(md).toContain("`src/list.ts`: Listado");
+    expect(md).toContain("Lista vacía (`i1`)");
+  });
+
+  test("accepts version 1 files written before files and test ideas existed", () => {
+    const legacy = { version: 1, project: { id: "x", name: "Viejo" } };
+    const parsed = parseProjectFile(JSON.stringify(legacy));
+    expect(parsed.ok && parsed.file.files).toEqual([]);
+    expect(parsed.ok && parsed.file.testIdeas).toEqual([]);
   });
 
   test("rejects invalid files with a readable error", () => {

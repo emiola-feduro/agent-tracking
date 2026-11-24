@@ -1,0 +1,365 @@
+import type { SymbolKind, TestIdeaStatus, TestResult, TestType } from "@agent-tracking/core";
+import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
+import { inspectRepo } from "@agent-tracking/git";
+import { and, desc, eq, lt, sql } from "drizzle-orm";
+import { isAbsolute, relative, resolve, sep } from "node:path";
+import { writeRepoFiles } from "./repo-sync";
+
+export type AppEvent = { type: string; projectId: string; entity?: string; id?: string };
+export type Emit = (e: AppEvent) => void;
+
+/** Domain error with the HTTP status it maps to. MCP tools report its message to the agent. */
+export class TrackingError extends Error {
+  constructor(
+    message: string,
+    readonly status: 400 | 404 | 409 = 400,
+  ) {
+    super(message);
+  }
+}
+
+export const LOCAL_USER = "user:local";
+const newId = () => crypto.randomUUID();
+const nowIso = () => new Date().toISOString();
+/** "agent:claude-code" becomes "claude-code" for the feature's `agent` column. */
+const actorName = (actor: string) => actor.replace(/^(agent|user):/, "");
+
+export type FeatureStart = { requirementId: string; featureId?: string; name?: string; description?: string };
+export type FileReport = { path: string; purpose?: string; featureIds?: string[] };
+export type SymbolReport = {
+  path: string;
+  name: string;
+  kind: SymbolKind;
+  lineStart?: number | null;
+  lineEnd?: number | null;
+  purpose?: string;
+  source?: "reported" | "inferred";
+};
+export type TestReport = {
+  path: string;
+  name: string;
+  type?: TestType;
+  result?: TestResult;
+  featureId?: string | null;
+  requirementId?: string | null;
+};
+export type TestIdeaInput = { text: string; featureId?: string | null; requirementId?: string | null; origin?: "human" | "llm" };
+
+/**
+ * Every write the API and the MCP server make goes through here, so both persist the same way:
+ * the database row, the repository files (`project.json`, `CONTEXT.md`) and a live event.
+ */
+export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
+  const emit: Emit = opts.emit ?? (() => {});
+
+  /** Persists the shareable files into the repo and notifies live clients. */
+  const touch = async (projectId: string, entity: string, id?: string) => {
+    await writeRepoFiles(db, projectId).catch((e) => console.error("No se pudo escribir en el repo:", e));
+    emit({ type: "changed", projectId, entity, id });
+  };
+
+  const projectOr404 = async (projectId: string) => {
+    const p = await db.query.projects.findFirst({ where: eq(s.projects.id, projectId) });
+    if (!p) throw new TrackingError("Proyecto no encontrado", 404);
+    return p;
+  };
+
+  const requirementIn = async (projectId: string, reqId: string) => {
+    const r = await db.query.requirements.findFirst({
+      where: and(eq(s.requirements.id, reqId), eq(s.requirements.projectId, projectId)),
+    });
+    if (!r) throw new TrackingError(`Requerimiento no encontrado: ${reqId}`, 404);
+    return r;
+  };
+
+  const featureIn = async (projectId: string, featureId: string) => {
+    const [row] = await db
+      .select({ feature: s.features })
+      .from(s.features)
+      .innerJoin(s.requirements, eq(s.features.requirementId, s.requirements.id))
+      .where(and(eq(s.features.id, featureId), eq(s.requirements.projectId, projectId)))
+      .limit(1);
+    if (!row) throw new TrackingError(`Feature no encontrado: ${featureId}`, 404);
+    return row.feature;
+  };
+
+  /** Normalizes a reported path to repo-relative with forward slashes; rejects paths outside the repo. */
+  const repoRelative = (repoPath: string | null, path: string) => {
+    const trimmed = path.trim();
+    if (!trimmed) throw new TrackingError("La ruta del archivo está vacía");
+    let rel = trimmed;
+    if (isAbsolute(trimmed)) {
+      if (!repoPath) throw new TrackingError("El proyecto no tiene repositorio local: usa una ruta relativa");
+      rel = relative(repoPath, trimmed);
+    } else if (repoPath) {
+      rel = relative(repoPath, resolve(repoPath, trimmed));
+    }
+    rel = rel.split(sep).join("/").replace(/^\.\//, "");
+    if (!rel || rel === "." || rel.startsWith("../") || rel === ".." || isAbsolute(rel)) {
+      throw new TrackingError(`La ruta queda fuera del repositorio: ${path}`);
+    }
+    return rel;
+  };
+
+  const upsertFile = async (projectId: string, actor: string, path: string, purpose?: string) => {
+    const project = await projectOr404(projectId);
+    const rel = repoRelative(project.repoPath, path);
+    const existing = await db.query.fileArtifacts.findFirst({
+      where: and(eq(s.fileArtifacts.projectId, projectId), eq(s.fileArtifacts.path, rel)),
+    });
+    if (existing) {
+      if (purpose === undefined || purpose === existing.purpose) return existing;
+      const [row] = await db
+        .update(s.fileArtifacts)
+        .set({ purpose, updatedBy: actor, updatedAt: nowIso() })
+        .where(eq(s.fileArtifacts.id, existing.id))
+        .returning();
+      return row!;
+    }
+    const [row] = await db
+      .insert(s.fileArtifacts)
+      .values({ id: newId(), projectId, path: rel, purpose: purpose ?? "", createdBy: actor, updatedBy: actor })
+      .returning();
+    return row!;
+  };
+
+  return {
+    emit,
+    touch,
+    projectOr404,
+    requirementIn,
+    featureIn,
+
+    /**
+     * Finds a project by id or by a path inside its repository (an agent's cwd, for example).
+     * Returns null when nothing matches.
+     */
+    async resolveProject(ref: string): Promise<string | null> {
+      const value = ref.trim();
+      if (!value) return null;
+      const byId = await db.query.projects.findFirst({ where: eq(s.projects.id, value), columns: { id: true } });
+      if (byId) return byId.id;
+      if (!isAbsolute(value)) return null;
+      const repo = await inspectRepo(value).catch(() => null);
+      if (repo) {
+        const byRoot = await db.query.projects.findFirst({ where: eq(s.projects.repoPath, repo.root), columns: { id: true } });
+        if (byRoot) return byRoot.id;
+      }
+      // Paths that do not exist yet (or are not inside a git checkout): the deepest repo that contains them.
+      const target = resolve(value);
+      const rows = await db.select({ id: s.projects.id, repoPath: s.projects.repoPath }).from(s.projects);
+      const match = rows
+        .filter((p): p is { id: string; repoPath: string } => !!p.repoPath)
+        .filter((p) => target === p.repoPath || target.startsWith(p.repoPath.endsWith(sep) ? p.repoPath : p.repoPath + sep))
+        .sort((x, y) => y.repoPath.length - x.repoPath.length)[0];
+      return match?.id ?? null;
+    },
+
+    /** Appends to the activity log and tells live clients right away. */
+    async recordEvent(projectId: string, actor: string, type: string, payload: Record<string, unknown> = {}) {
+      const row = { id: newId(), projectId, actor, type, payload, createdAt: nowIso() };
+      await db.insert(s.agentEvents).values(row);
+      emit({ type: "activity", projectId, entity: "event", id: row.id });
+      return row;
+    },
+
+    async listEvents(projectId: string, opts: { limit?: number; before?: string } = {}) {
+      const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200);
+      const where = opts.before
+        ? and(eq(s.agentEvents.projectId, projectId), lt(s.agentEvents.createdAt, opts.before))
+        : eq(s.agentEvents.projectId, projectId);
+      return db.select().from(s.agentEvents).where(where).orderBy(desc(s.agentEvents.createdAt)).limit(limit);
+    },
+
+    /** Creates the feature (or resumes an existing one with the same name) and marks it in progress. */
+    async startFeature(projectId: string, actor: string, input: FeatureStart) {
+      await requirementIn(projectId, input.requirementId);
+      let feature = input.featureId ? await featureIn(projectId, input.featureId) : undefined;
+      if (feature && feature.requirementId !== input.requirementId) {
+        throw new TrackingError("El feature pertenece a otro requerimiento");
+      }
+      const name = input.name?.trim();
+      if (!feature && !name) throw new TrackingError("Indica featureId o name");
+      if (!feature && name) {
+        feature = await db.query.features.findFirst({
+          where: and(eq(s.features.requirementId, input.requirementId), sql`lower(${s.features.name}) = lower(${name})`),
+        });
+      }
+      const patch = { status: "in_progress" as const, agent: actorName(actor), updatedBy: actor, updatedAt: nowIso() };
+      let created = false;
+      if (feature) {
+        const description = input.description?.trim();
+        [feature] = await db
+          .update(s.features)
+          .set({ ...patch, ...(description ? { description } : {}) })
+          .where(eq(s.features.id, feature.id))
+          .returning();
+      } else {
+        created = true;
+        [feature] = await db
+          .insert(s.features)
+          .values({
+            id: newId(),
+            requirementId: input.requirementId,
+            name: name!,
+            description: input.description?.trim() ?? "",
+            createdBy: actor,
+            ...patch,
+          })
+          .returning();
+      }
+      await touch(projectId, "feature", feature!.id);
+      return { feature: feature!, created };
+    },
+
+    async completeFeature(projectId: string, actor: string, featureId: string, status: "done" | "needs_review" = "done") {
+      await featureIn(projectId, featureId);
+      const [feature] = await db
+        .update(s.features)
+        .set({ status, updatedBy: actor, updatedAt: nowIso() })
+        .where(eq(s.features.id, featureId))
+        .returning();
+      await touch(projectId, "feature", featureId);
+      return feature!;
+    },
+
+    /** Records a file and links it to the given features. Reporting it again updates the purpose and adds links. */
+    async reportFile(projectId: string, actor: string, input: FileReport) {
+      const featureIds = [...new Set(input.featureIds ?? [])];
+      for (const featureId of featureIds) await featureIn(projectId, featureId);
+      const file = await upsertFile(projectId, actor, input.path, input.purpose);
+      for (const featureId of featureIds) {
+        await db.insert(s.featureFiles).values({ featureId, fileId: file.id, createdBy: actor }).onConflictDoNothing();
+      }
+      await touch(projectId, "file", file.id);
+      return { file, featureIds };
+    },
+
+    /** Records a function, class, variable, type or constant. The file is registered if it was not yet. */
+    async reportSymbol(projectId: string, actor: string, input: SymbolReport) {
+      const file = await upsertFile(projectId, actor, input.path);
+      const values = {
+        lineStart: input.lineStart ?? null,
+        lineEnd: input.lineEnd ?? null,
+        purpose: input.purpose ?? "",
+        source: input.source ?? ("reported" as const),
+        updatedBy: actor,
+        updatedAt: nowIso(),
+      };
+      const [symbol] = await db
+        .insert(s.symbols)
+        .values({ id: newId(), fileId: file.id, name: input.name, kind: input.kind, createdBy: actor, ...values })
+        .onConflictDoUpdate({ target: [s.symbols.fileId, s.symbols.name, s.symbols.kind], set: values })
+        .returning();
+      await touch(projectId, "symbol", symbol!.id);
+      return { file, symbol: symbol! };
+    },
+
+    /** Upserts a test by path and name. A test linked to a feature inherits its requirement. */
+    async reportTest(projectId: string, actor: string, input: TestReport) {
+      const project = await projectOr404(projectId);
+      const path = repoRelative(project.repoPath, input.path);
+      let requirementId = input.requirementId ?? null;
+      if (input.featureId) {
+        const feature = await featureIn(projectId, input.featureId);
+        requirementId ??= feature.requirementId;
+      }
+      if (requirementId) await requirementIn(projectId, requirementId);
+      const existing = await db.query.tests.findFirst({
+        where: and(eq(s.tests.projectId, projectId), eq(s.tests.path, path), eq(s.tests.name, input.name)),
+      });
+      const values = {
+        ...(input.type ? { type: input.type } : {}),
+        ...(input.result ? { lastResult: input.result } : {}),
+        ...(input.featureId !== undefined ? { featureId: input.featureId } : {}),
+        ...(requirementId ? { requirementId } : {}),
+        updatedBy: actor,
+        updatedAt: nowIso(),
+      };
+      const [test] = existing
+        ? await db.update(s.tests).set(values).where(eq(s.tests.id, existing.id)).returning()
+        : await db
+            .insert(s.tests)
+            .values({ id: newId(), projectId, path, name: input.name, createdBy: actor, ...values })
+            .returning();
+      await touch(projectId, "test", test!.id);
+      return test!;
+    },
+
+    /** Updates a Definition of Done item. Used by the UI checkboxes and by agents with evidence. */
+    async updateDod(
+      projectId: string,
+      actor: string,
+      dodId: string,
+      input: { criterion?: string; status?: "pending" | "done" | "failed"; evidence?: string | null },
+      requirementId?: string,
+    ) {
+      const [row] = await db
+        .select({ dod: s.dodItems })
+        .from(s.dodItems)
+        .innerJoin(s.requirements, eq(s.dodItems.requirementId, s.requirements.id))
+        .where(
+          and(
+            eq(s.dodItems.id, dodId),
+            eq(s.requirements.projectId, projectId),
+            requirementId ? eq(s.dodItems.requirementId, requirementId) : undefined,
+          ),
+        )
+        .limit(1);
+      if (!row) throw new TrackingError(`Criterio no encontrado: ${dodId}`, 404);
+      const [dod] = await db
+        .update(s.dodItems)
+        .set({ ...input, updatedBy: actor, updatedAt: nowIso() })
+        .where(eq(s.dodItems.id, dodId))
+        .returning();
+      await touch(projectId, "dod", dodId);
+      return dod!;
+    },
+
+    async addTestIdea(projectId: string, actor: string, input: TestIdeaInput) {
+      await projectOr404(projectId);
+      let requirementId = input.requirementId ?? null;
+      if (input.featureId) requirementId ??= (await featureIn(projectId, input.featureId)).requirementId;
+      if (requirementId) await requirementIn(projectId, requirementId);
+      const [idea] = await db
+        .insert(s.testIdeas)
+        .values({
+          id: newId(),
+          projectId,
+          featureId: input.featureId ?? null,
+          requirementId,
+          text: input.text.trim(),
+          origin: input.origin ?? (actor.startsWith("agent:") ? "llm" : "human"),
+          createdBy: actor,
+          updatedBy: actor,
+        })
+        .returning();
+      await touch(projectId, "test_idea", idea!.id);
+      return idea!;
+    },
+
+    async updateTestIdea(projectId: string, actor: string, ideaId: string, input: { status?: TestIdeaStatus; text?: string }) {
+      const [idea] = await db
+        .update(s.testIdeas)
+        .set({ ...input, updatedBy: actor, updatedAt: nowIso() })
+        .where(and(eq(s.testIdeas.id, ideaId), eq(s.testIdeas.projectId, projectId)))
+        .returning();
+      if (!idea) throw new TrackingError("Idea de test no encontrada", 404);
+      await touch(projectId, "test_idea", ideaId);
+      return idea;
+    },
+
+    async deleteTestIdea(projectId: string, ideaId: string) {
+      await db.delete(s.testIdeas).where(and(eq(s.testIdeas.id, ideaId), eq(s.testIdeas.projectId, projectId)));
+      await touch(projectId, "test_idea", ideaId);
+    },
+
+    snapshot: async (projectId: string) => {
+      const snap = await loadSnapshot(db, projectId);
+      if (!snap) throw new TrackingError("Proyecto no encontrado", 404);
+      return snap;
+    },
+  };
+}
+
+export type Tracker = ReturnType<typeof createTracker>;
