@@ -9,8 +9,8 @@ const AssistantSetupNote = () => {
   return (
     <Alert tone="info">
       Las sugerencias con IA están desactivadas. Para activarlas, inicia sesión en Claude Code en este equipo
-      (<code className="font-mono text-[13px]">claude</code>, usa tu suscripción) o define{" "}
-      <code className="font-mono text-[13px]">ANTHROPIC_API_KEY</code>, y reinicia el servidor.
+      (<code className="font-mono text-[0.8125rem]">claude</code>, usa tu suscripción) o define{" "}
+      <code className="font-mono text-[0.8125rem]">ANTHROPIC_API_KEY</code>, y reinicia el servidor.
     </Alert>
   );
 };

@@ -6,6 +6,25 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <link rel="preload" href="/fonts/arima/arima-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>Agent Tracking</title>
+    <script>
+      // Starts in the saved theme before the bundle loads, instead of flashing the default one.
+      (function () {
+        try {
+          var boot = JSON.parse(localStorage.getItem("agent-tracking:boot") || "null");
+          if (!boot || !boot.vars) return;
+          var root = document.documentElement;
+          for (var name in boot.vars) if (/^--t-/.test(name)) root.style.setProperty(name, String(boot.vars[name]));
+          root.style.colorScheme = boot.dark ? "dark" : "light";
+          (boot.fonts || []).forEach(function (family) {
+            if (!/^[A-Za-z0-9+:;@,.]+$/.test(family)) return;
+            var link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = "https://fonts.googleapis.com/css2?family=" + family + "&display=swap";
+            document.head.appendChild(link);
+          });
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

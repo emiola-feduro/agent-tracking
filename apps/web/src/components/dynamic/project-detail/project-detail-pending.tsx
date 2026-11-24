@@ -28,11 +28,11 @@ const ProjectDetailPending = ({ files, symbolsOf }: ProjectDetailPendingProps) =
           return (
             <li key={id} className="flex animate-enter flex-col gap-0.5 py-2 first:pt-0 last:pb-0">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                <code className="font-mono text-[13px] text-ink break-all">{path}</code>
+                <code className="font-mono text-[0.8125rem] text-ink break-all">{path}</code>
                 {changedAt && <span className="text-sm text-muted tabular-nums">{formatRelative(changedAt)}</span>}
               </div>
               {names.length > 0 && (
-                <p className="font-mono text-[13px] text-ink-soft break-words">
+                <p className="font-mono text-[0.8125rem] text-ink-soft break-words">
                   {names.slice(0, 8).join(", ")}
                   {names.length > 8 && <span className="font-sans text-muted"> y {names.length - 8} más</span>}
                 </p>

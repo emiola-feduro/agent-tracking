@@ -31,8 +31,8 @@ const GithubPullRow = ({ projectId, pull }: GithubPullRowProps) => {
           </span>
           <span className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted">
             <span>
-              <code className="font-mono text-[13px] text-ink-soft">{headRef}</code> hacia{" "}
-              <code className="font-mono text-[13px] text-ink-soft">{baseRef}</code>
+              <code className="font-mono text-[0.8125rem] text-ink-soft">{headRef}</code> hacia{" "}
+              <code className="font-mono text-[0.8125rem] text-ink-soft">{baseRef}</code>
             </span>
             {author && <span>{author.login}</span>}
             <span>actualizado {relativeTime(updatedAt)}</span>

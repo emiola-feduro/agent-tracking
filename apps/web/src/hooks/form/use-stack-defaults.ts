@@ -2,12 +2,13 @@ import { useEffect } from "react";
 import useStackRecommendation from "@/hooks/data/use-stack-recommendation";
 import useWizardStore from "@/stores/use-wizard-store";
 
-/** Applies the recommendation for the chosen platforms until the person edits the stack by hand. */
+/** Applies the recommendation for the kind of project until the person edits the stack by hand. */
 const useStackDefaults = () => {
+  const kind = useWizardStore((s) => s.kind);
   const platforms = useWizardStore((s) => s.platforms);
   const stackTouched = useWizardStore((s) => s.stackTouched);
   const patch = useWizardStore((s) => s.patch);
-  const recommendation = useStackRecommendation(platforms);
+  const recommendation = useStackRecommendation(kind, platforms);
   const { data } = recommendation;
 
   useEffect(() => {

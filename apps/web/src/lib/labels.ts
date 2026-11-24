@@ -1,4 +1,5 @@
-import type { DodStatus, GithubFileKind, Platform, TestIdeaStatus } from "./api";
+import { PROJECT_KIND_INFO } from "@agent-tracking/core";
+import type { DodStatus, GithubFileKind, Platform, ProjectKind, TestIdeaStatus } from "./api";
 
 export const PLATFORM_LABEL: Record<Platform, string> = { web: "Web", desktop: "Escritorio", mobile: "Móvil" };
 
@@ -18,6 +19,12 @@ export const GITHUB_FILE_LABELS: Record<GithubFileKind, string> = {
 };
 
 export const platformList = (platforms: Platform[]) => platforms.map((x) => PLATFORM_LABEL[x]).join(", ");
+
+/** "Aplicación completa (Web, Móvil)", or just the kind when its platforms say nothing new. */
+export const kindLabel = (kind: ProjectKind | undefined, platforms: Platform[]) => {
+  const info = PROJECT_KIND_INFO[kind ?? "fullstack"];
+  return info.platforms === null && platforms.length ? `${info.label} (${platformList(platforms)})` : info.label;
+};
 
 export const SYMBOL_KIND_LABEL: Record<string, string> = {
   function: "función",

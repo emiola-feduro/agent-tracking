@@ -1,9 +1,11 @@
-import type { Platform } from "@agent-tracking/core";
+import { PROJECT_KIND_INFO, type Platform, type ProjectKind } from "@agent-tracking/core";
 
 /** What the assistant knows about the project. Wizard drafts send partial data. */
 export type ProjectBrief = {
   name?: string;
   goal?: string;
+  /** What is being built; "fullstack" when missing. */
+  kind?: ProjectKind;
   platforms: Platform[];
   stack?: string[];
   databases?: string[];
@@ -17,7 +19,9 @@ const clean = (list: string[] | undefined) => (list ?? []).map((s) => s.trim()).
 
 /** Project description as plain text, leaving out what is empty. User text goes inside tags. */
 export function projectBrief(brief: ProjectBrief): string {
-  const parts = [`<platforms>${brief.platforms.map((p) => PLATFORM_LABEL[p]).join(", ")}</platforms>`];
+  const kind = PROJECT_KIND_INFO[brief.kind ?? "fullstack"];
+  const parts = [`<project_kind>${kind.label}: ${kind.description}</project_kind>`];
+  if (brief.platforms.length) parts.push(`<platforms>${brief.platforms.map((p) => PLATFORM_LABEL[p]).join(", ")}</platforms>`);
   if (brief.name?.trim()) parts.push(`<project_name>${brief.name.trim()}</project_name>`);
   if (brief.goal?.trim()) parts.push(`<goal>${brief.goal.trim()}</goal>`);
   const stack = clean(brief.stack);

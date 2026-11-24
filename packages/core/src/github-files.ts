@@ -67,6 +67,9 @@ function toolchain(stack: string[]): Toolchain | null {
   return null;
 }
 
+/** Which toolchain the CI pipeline is built for ("Bun", "Python"...), or null when the stack has none known. */
+export const ciToolchainLabel = (stack: string[]) => toolchain(stack)?.label ?? null;
+
 const indent = (lines: string[], spaces: number) => lines.map((l) => " ".repeat(spaces) + l).join("\n");
 
 export function ciWorkflow({ stack }: GithubFilesInput): string {

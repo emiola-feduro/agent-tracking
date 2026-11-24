@@ -1,3 +1,4 @@
+import { PROJECT_KIND_INFO } from "./project-kind";
 import { projectProgress, requirementProgress, toPercent } from "./progress";
 import type { ProjectSnapshot } from "./types";
 
@@ -22,7 +23,8 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
   out.push("## Objetivo", "", p.goal.trim() || "_Sin definir._", "");
 
   out.push("## Ficha técnica", "");
-  out.push(`- **Plataformas:** ${p.platforms.map((x) => PLATFORM_LABEL[x]).join(", ") || "_Sin definir_"}`);
+  out.push(`- **Tipo de proyecto:** ${PROJECT_KIND_INFO[p.kind ?? "fullstack"].label}`);
+  if (p.platforms.length) out.push(`- **Plataformas:** ${p.platforms.map((x) => PLATFORM_LABEL[x]).join(", ")}`);
   out.push(`- **Stack:** ${p.stack.length ? p.stack.join(", ") : "_Sin definir_"}`);
   out.push(`- **Bases de datos:** ${p.databases.length ? p.databases.join(", ") : "_Sin definir_"}`);
   if (p.repoUrl) out.push(`- **Repositorio:** ${p.repoUrl}`);

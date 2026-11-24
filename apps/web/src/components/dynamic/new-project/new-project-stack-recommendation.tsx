@@ -12,7 +12,7 @@ const NewProjectStackRecommendation = ({ recommendation, onApply }: NewProjectSt
 
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="font-semibold text-ink">Propuestas para estas plataformas</h3>
+      <h3 className="font-semibold text-ink">Propuestas para este proyecto</h3>
       <ul className="flex flex-col divide-y divide-line rounded-md border border-line">
         {options.map((option, index) => (
           <li key={index} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">

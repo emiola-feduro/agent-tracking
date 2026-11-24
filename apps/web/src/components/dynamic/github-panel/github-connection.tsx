@@ -33,8 +33,8 @@ const GithubConnection = () => {
         <p className="font-medium">Sin cuenta de GitHub conectada</p>
         <p className="mt-1 text-ink-soft">
           Solo se ven repositorios públicos, con 60 consultas por hora. Para conectar tu cuenta ejecuta{" "}
-          <code className="font-mono text-[13px]">gh auth login</code> o define la variable{" "}
-          <code className="font-mono text-[13px]">GITHUB_TOKEN</code> antes de iniciar el servidor.
+          <code className="font-mono text-[0.8125rem]">gh auth login</code> o define la variable{" "}
+          <code className="font-mono text-[0.8125rem]">GITHUB_TOKEN</code> antes de iniciar el servidor.
         </p>
         {quota && <p className="mt-1 text-ink-soft">{quota}</p>}
       </Alert>

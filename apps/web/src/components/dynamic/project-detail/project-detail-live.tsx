@@ -49,7 +49,7 @@ const ProjectDetailLive = ({ view }: { view: ProjectView }) => {
       {current && (
         <p className="flex flex-wrap items-baseline gap-x-2 text-ink">
           <span className="font-medium">{current.label}</span>
-          {current.target && <code className="font-mono text-[13px] break-all">{current.target}</code>}
+          {current.target && <code className="font-mono text-[0.8125rem] break-all">{current.target}</code>}
         </p>
       )}
       {working && !current && <p className="text-ink-soft">Leyendo tu pedido y preparando el trabajo.</p>}
@@ -65,7 +65,7 @@ const ProjectDetailLive = ({ view }: { view: ProjectView }) => {
                     {formatEventTime(step.at)}
                   </time>
                   <span className="shrink-0 text-ink-soft">{step.label}</span>
-                  {step.target && <code className="truncate font-mono text-[13px] text-ink">{step.target}</code>}
+                  {step.target && <code className="truncate font-mono text-[0.8125rem] text-ink">{step.target}</code>}
                 </li>
               ))}
             </ol>
@@ -80,7 +80,7 @@ const ProjectDetailLive = ({ view }: { view: ProjectView }) => {
             <ul className="flex flex-col gap-1">
               {pending.slice(0, MAX_FILES).map(({ id, path, changedAt }) => (
                 <li key={id} className="flex min-w-0 animate-enter items-baseline justify-between gap-3 text-sm">
-                  <code className="truncate font-mono text-[13px] text-ink">{path}</code>
+                  <code className="truncate font-mono text-[0.8125rem] text-ink">{path}</code>
                   {changedAt && <span className="shrink-0 text-xs text-muted tabular-nums">{relativeTime(changedAt, now)}</span>}
                 </li>
               ))}

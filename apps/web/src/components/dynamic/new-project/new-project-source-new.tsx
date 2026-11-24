@@ -37,8 +37,8 @@ const NewProjectSourceNew = () => {
       {init.isError && <Alert>{init.error.message}</Alert>}
       {repo && (
         <Alert tone="info">
-          Repositorio creado en <code className="font-mono text-[13px] break-all">{repo.repo.root}</code>, rama{" "}
-          <code className="font-mono text-[13px]">{repo.repo.branch ?? "main"}</code>.
+          Repositorio creado en <code className="font-mono text-[0.8125rem] break-all">{repo.repo.root}</code>, rama{" "}
+          <code className="font-mono text-[0.8125rem]">{repo.repo.branch ?? "main"}</code>.
         </Alert>
       )}
     </div>

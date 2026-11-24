@@ -10,8 +10,10 @@ import type {
   Platform,
   Project,
   ProjectFile,
+  ProjectKind,
   ProjectSkill,
   ProjectSnapshot,
+  Requirement,
   SkillSource,
   StackOption,
   StackRecommendation,
@@ -32,7 +34,9 @@ export type {
   Platform,
   Project,
   ProjectFile,
+  ProjectKind,
   ProjectSkill,
+  Requirement,
   SkillSource,
   StackOption,
   StackRecommendation,
@@ -61,12 +65,15 @@ export type SkillInput = Omit<ProjectSkill, "id" | "projectId">;
 export type NewProject = {
   name: string;
   goal: string;
+  kind: ProjectKind;
   platforms: Platform[];
   stack: string[];
   databases: string[];
   repoPath: string | null;
   repoUrl: string | null;
   githubFiles: GithubFileKind[];
+  /** The pull request template as edited in the wizard; the server generates one when missing. */
+  prTemplate?: string;
   rules: string[];
   skills: SkillInput[];
   requirements: { title: string; description: string; dod: { criterion: string; origin: "human" | "llm" }[] }[];
@@ -76,6 +83,7 @@ export type NewProject = {
 export type AssistantBrief = {
   name?: string;
   goal?: string;
+  kind: ProjectKind;
   platforms: Platform[];
   stack?: string[];
   databases?: string[];
@@ -119,8 +127,8 @@ export const api = {
   syncProject: (id: string) => request<ProjectView>("POST", `${p(id)}/sync`),
 
   stackOptions: () => request<{ stack: StackOption[]; databases: DatabaseOption[] }>("GET", "/stack/options"),
-  recommendStack: (platforms: Platform[]) =>
-    request<StackRecommendation>("GET", `/stack/recommend?platforms=${platforms.join(",")}`),
+  recommendStack: (kind: ProjectKind, platforms: Platform[]) =>
+    request<StackRecommendation>("GET", `/stack/recommend?kind=${kind}&platforms=${platforms.join(",")}`),
   discoverSkills: (repoPath?: string | null) =>
     request<DiscoveredSkill[]>("GET", `/skills/discover${repoPath ? `?repoPath=${encodeURIComponent(repoPath)}` : ""}`),
   catalogSkills: () => request<DiscoveredSkill[]>("GET", "/skills/catalog"),

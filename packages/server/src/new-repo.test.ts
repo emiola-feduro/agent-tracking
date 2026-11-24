@@ -68,4 +68,39 @@ describe("new repository from the wizard", () => {
     expect(await readFile(join(repo, ".github/pull_request_template.md"), "utf8")).toBe("mío");
     expect(await readFile(join(repo, ".github/workflows/ci.yml"), "utf8")).toContain("name: CI");
   });
+
+  test("the pull request template is written as the person edited it", async () => {
+    const repo = join(tmp, "plantilla");
+    await git(["init", "-q", "-b", "main", repo]);
+    const created = await call("POST", "/projects", {
+      name: "P",
+      kind: "api",
+      repoPath: repo,
+      githubFiles: ["prTemplate"],
+      prTemplate: "## Cambios\n\n- [ ] Probado\n\n\n",
+    });
+    expect(created.status).toBe(201);
+    expect(await readFile(join(repo, ".github/pull_request_template.md"), "utf8")).toBe("## Cambios\n\n- [ ] Probado\n");
+  });
+});
+
+describe("kind of project", () => {
+  test("an API needs no platforms; a full app does", async () => {
+    const api = await call("POST", "/projects", { name: "API", kind: "api", stack: ["TypeScript", "Bun", "Hono"] });
+    expect(api.status).toBe(201);
+    expect(api.data.project).toMatchObject({ kind: "api", platforms: [] });
+
+    const mobile = await call("POST", "/projects", { name: "M", kind: "mobile", platforms: ["web"] });
+    expect(mobile.data.project.platforms).toEqual(["mobile"]);
+
+    expect((await call("POST", "/projects", { name: "F", kind: "fullstack" })).status).toBe(400);
+    expect((await call("POST", "/projects", { name: "F", platforms: ["web"] })).data.project.kind).toBe("fullstack");
+  });
+
+  test("the default recommendation follows the kind", async () => {
+    const api = await call("GET", "/stack/recommend?kind=api");
+    expect(api.data.stack).toContain("Hono");
+    expect(api.data.stack).not.toContain("React");
+    expect((await call("GET", "/stack/recommend?kind=nope")).status).toBe(400);
+  });
 });

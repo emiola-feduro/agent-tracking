@@ -9,17 +9,19 @@ type CheckOptionProps = {
   /** radio: one per `name` group; clicking the selected one clears it. */
   type?: "checkbox" | "radio";
   name?: string;
+  disabled?: boolean;
 };
 
-const CheckOption = ({ checked, onChange, label, description, meta, type = "checkbox", name }: CheckOptionProps) => {
+const CheckOption = ({ checked, onChange, label, description, meta, type = "checkbox", name, disabled = false }: CheckOptionProps) => {
   return (
     <label
-      className={`flex min-h-10 cursor-pointer items-start gap-3 rounded-md px-3 py-2 transition-colors duration-150 ${checked ? "bg-brand-soft" : "hover:bg-subtle"}`}
+      className={`flex min-h-10 items-start gap-3 rounded-md px-3 py-2 transition-colors duration-150 ${disabled ? "cursor-not-allowed opacity-55" : `cursor-pointer ${checked ? "bg-brand-soft" : "hover:bg-subtle"}`}`}
     >
       <input
         type={type}
         name={name}
         checked={checked}
+        disabled={disabled}
         // Radios only fire change when becoming checked; click also lets the selected one be cleared.
         onChange={type === "checkbox" ? onChange : () => {}}
         onClick={type === "radio" ? onChange : undefined}

@@ -19,7 +19,7 @@ const NewProjectRepoResult = ({ inspection, importRepo }: NewProjectRepoResultPr
         <dt className="text-muted">Repositorio</dt>
         <dd className="font-medium">{name}</dd>
         <dt className="text-muted">Ruta</dt>
-        <dd className="font-mono text-[13px] break-all">{root}</dd>
+        <dd className="font-mono text-[0.8125rem] break-all">{root}</dd>
         <dt className="text-muted">Rama actual</dt>
         <dd>{branch ?? "Sin rama"}</dd>
         <dt className="text-muted">Remoto</dt>

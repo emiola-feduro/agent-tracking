@@ -1,6 +1,6 @@
-import { toggleStackOption } from "@agent-tracking/core";
+import { kindPlatforms, PROJECT_KIND_INFO, toggleStackOption } from "@agent-tracking/core";
 import { create } from "zustand";
-import type { AssistantBrief, DiscoveredSkill, GithubFileKind, Platform, RepoInspection } from "@/lib/api";
+import type { AssistantBrief, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection } from "@/lib/api";
 
 export const WIZARD_STEPS = [
   { id: "source", label: "Origen" },
@@ -33,7 +33,11 @@ type WizardData = {
   repo: RepoInspection | null;
   /** Starter `.github` files to write into the repo when the project is created. */
   githubFiles: GithubFileKind[];
+  /** Pull request template as edited in the summary; null until edited (then it follows the requirements). */
+  prTemplate: string | null;
   name: string;
+  kind: ProjectKind;
+  /** Only chosen for a full app; other kinds have fixed platforms (see PROJECT_KIND_INFO). */
   platforms: Platform[];
   repoUrl: string;
   stack: string[];
@@ -53,6 +57,7 @@ type WizardActions = {
   setSource: (source: SourceKind) => void;
   setRepo: (repo: RepoInspection | null) => void;
   toggleGithubFile: (kind: GithubFileKind) => void;
+  setKind: (kind: ProjectKind) => void;
   patch: (data: Partial<WizardData>) => void;
   togglePlatform: (platform: Platform) => void;
   toggleIn: (field: "stack" | "databases", value: string) => void;
@@ -71,7 +76,9 @@ const initial = (): WizardData => ({
   source: "scratch",
   repo: null,
   githubFiles: [],
+  prTemplate: null,
   name: "",
+  kind: "fullstack",
   platforms: [],
   repoUrl: "",
   stack: [],
@@ -93,6 +100,8 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
   // A brand-new repo starts with CI and a PR template; existing repos opt in.
   setSource: (source) => set({ source, repo: null, githubFiles: source === "new" ? ["ci", "prTemplate"] : [] }),
   toggleGithubFile: (kind) => set((s) => ({ githubFiles: toggle(s.githubFiles, kind) })),
+  // Another kind of project brings another recommendation, so the stack follows it again.
+  setKind: (kind) => set((s) => (s.kind === kind ? {} : { kind, stackTouched: false })),
   setRepo: (repo) =>
     set((s) => ({
       repo,
@@ -128,7 +137,8 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
 export const wizardBrief = (state: WizardData): AssistantBrief => ({
   name: state.name.trim(),
   goal: state.goal.trim(),
-  platforms: state.platforms,
+  kind: state.kind,
+  platforms: kindPlatforms(state.kind, state.platforms),
   stack: state.stack,
   databases: state.databases,
   rules: state.rules.map((r) => r.trim()).filter(Boolean),
@@ -147,7 +157,7 @@ export const isStepValid = (state: WizardData, step: number): boolean => {
         (state.repo !== null && !state.repo.existingProjectId && !state.repo.projectFile)
       );
     case "basics":
-      return state.name.trim() !== "" && state.platforms.length > 0;
+      return state.name.trim() !== "" && (PROJECT_KIND_INFO[state.kind].platforms !== null || state.platforms.length > 0);
     case "stack":
       return state.stack.length > 0;
     case "goal":

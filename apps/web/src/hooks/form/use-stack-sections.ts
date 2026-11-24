@@ -1,4 +1,4 @@
-import { CATEGORY_PLATFORM, STACK_CATEGORY_LABEL, STACK_OPTIONS, type StackCategory, type StackGroup, type StackOption } from "@agent-tracking/core";
+import { STACK_CATEGORY_LABEL, STACK_OPTIONS, stackOptionsFor, type StackCategory, type StackGroup, type StackOption } from "@agent-tracking/core";
 import { useMemo } from "react";
 import useWizardStore from "@/stores/use-wizard-store";
 
@@ -8,22 +8,22 @@ export type StackSection = {
   loose: StackOption[];
 };
 
+/** Language and runtime first: most other choices depend on them. */
+const ORDER: StackCategory[] = ["language", "frontend", "desktop", "mobile", "backend", "orm", "testing"];
+
 /**
- * Categories and options that apply to the chosen platforms. Anything already selected stays
- * visible so it can be removed after changing platforms.
+ * Categories and options that apply to the kind of project and its platforms. Anything already
+ * selected stays visible so it can be removed after changing the kind or the platforms.
  */
 const useStackSections = (): StackSection[] => {
+  const kind = useWizardStore((s) => s.kind);
   const platforms = useWizardStore((s) => s.platforms);
   const stack = useWizardStore((s) => s.stack);
 
   return useMemo(() => {
-    const visible = STACK_OPTIONS.filter((o) => {
-      if (stack.includes(o.name)) return true;
-      const categoryPlatform = CATEGORY_PLATFORM[o.category];
-      if (categoryPlatform && !platforms.includes(categoryPlatform)) return false;
-      return o.platforms.some((p) => platforms.includes(p));
-    });
-    return (Object.keys(STACK_CATEGORY_LABEL) as StackCategory[])
+    const applies = new Set(stackOptionsFor(kind, platforms).map((o) => o.name));
+    const visible = STACK_OPTIONS.filter((o) => applies.has(o.name) || stack.includes(o.name));
+    return ORDER.filter((c) => c in STACK_CATEGORY_LABEL)
       .map((category) => {
         const options = visible.filter((o) => o.category === category);
         const groups: StackSection["groups"] = [];
@@ -36,7 +36,7 @@ const useStackSections = (): StackSection[] => {
         return { category, groups, loose: options.filter((o) => !o.group) };
       })
       .filter((s) => s.groups.length > 0 || s.loose.length > 0);
-  }, [platforms, stack]);
+  }, [kind, platforms, stack]);
 };
 
 export default useStackSections;

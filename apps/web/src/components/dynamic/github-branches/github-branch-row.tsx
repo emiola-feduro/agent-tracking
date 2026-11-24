@@ -10,7 +10,7 @@ const GithubBranchRow = ({ branch }: { branch: BranchSummary }) => {
     <li className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="flex flex-wrap items-center gap-2">
-          <a href={url} target="_blank" rel="noreferrer" className="font-mono text-[14px] font-medium text-ink underline-offset-2 hover:underline">
+          <a href={url} target="_blank" rel="noreferrer" className="font-mono text-sm font-medium text-ink underline-offset-2 hover:underline">
             {name}
           </a>
           {isDefault && <StatusPill tone="brand">Principal</StatusPill>}
@@ -26,7 +26,7 @@ const GithubBranchRow = ({ branch }: { branch: BranchSummary }) => {
               {commit.date && <span>{relativeTime(commit.date)}</span>}
             </>
           ) : (
-            <code className="font-mono text-[13px]">{sha.slice(0, 7)}</code>
+            <code className="font-mono text-[0.8125rem]">{sha.slice(0, 7)}</code>
           )}
         </span>
       </div>

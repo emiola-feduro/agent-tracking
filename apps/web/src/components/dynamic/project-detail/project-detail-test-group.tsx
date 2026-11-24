@@ -24,7 +24,7 @@ const ProjectDetailTestGroup = ({ label, tests }: ProjectDetailTestGroupProps) =
             <span className="flex min-w-0 flex-col">
               <span className="text-ink">{name}</span>
               <span className="flex flex-wrap gap-x-2 text-sm text-muted">
-                <code className="font-mono text-[12px] break-all">{path}</code>
+                <code className="font-mono text-xs break-all">{path}</code>
                 <span>{TEST_TYPE_LABEL[type]}</span>
               </span>
             </span>

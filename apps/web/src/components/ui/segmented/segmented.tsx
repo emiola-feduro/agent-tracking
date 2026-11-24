@@ -18,7 +18,7 @@ const Segmented = <T extends string>({ label, items, value, onChange }: Segmente
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(item.value)}
-            className={`min-h-8 rounded-[6px] px-3 text-sm font-medium transition-colors duration-150 ${selected ? "bg-brand-soft text-brand" : "text-ink-soft hover:bg-subtle hover:text-ink"}`}
+            className={`min-h-8 rounded-sm px-3 text-sm font-medium transition-colors duration-150 ${selected ? "bg-brand-soft text-brand" : "text-ink-soft hover:bg-subtle hover:text-ink"}`}
           >
             {item.label}
           </button>

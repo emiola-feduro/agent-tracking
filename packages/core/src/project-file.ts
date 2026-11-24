@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROJECT_KINDS } from "./project-kind";
 import { PLATFORMS, SYMBOL_KINDS, TEST_IDEA_STATUSES, type ProjectSnapshot } from "./types";
 
 /** Path of the shareable project file, relative to the repository root. */
@@ -14,6 +15,7 @@ export const projectFileSchema = z.object({
     id,
     name: z.string().min(1),
     goal: z.string().default(""),
+    kind: z.enum(PROJECT_KINDS).default("fullstack"),
     platforms: z.array(z.enum(PLATFORMS)).default([]),
     stack: z.array(z.string()).default([]),
     databases: z.array(z.string()).default([]),
@@ -130,6 +132,7 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       id: p.id,
       name: p.name,
       goal: p.goal,
+      kind: p.kind,
       platforms: p.platforms,
       stack: p.stack,
       databases: p.databases,

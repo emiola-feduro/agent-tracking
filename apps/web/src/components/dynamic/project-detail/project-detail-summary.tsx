@@ -6,11 +6,11 @@ import StatusPill from "@/components/ui/status-pill/status-pill";
 import useCurrentBranch from "@/hooks/data/use-current-branch";
 import useProjectActions from "@/hooks/data/use-project-actions";
 import type { ProjectView } from "@/lib/api";
-import { platformList } from "@/lib/labels";
+import { kindLabel } from "@/lib/labels";
 
 const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
   const { project, progress } = view;
-  const { id, goal, platforms, stack, databases, repoPath, repoUrl } = project;
+  const { id, goal, kind, platforms, stack, databases, repoPath, repoUrl } = project;
   const { sync } = useProjectActions(id);
   const branch = useCurrentBranch(id, !!repoPath);
 
@@ -19,8 +19,8 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
       <ProgressBar value={progress.project} label="Avance del proyecto" size="lg" />
       {goal && <p className="max-w-[70ch] text-ink-soft">{goal}</p>}
       <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[max-content_1fr]">
-        <dt className="text-muted">Plataformas</dt>
-        <dd>{platformList(platforms)}</dd>
+        <dt className="text-muted">Tipo de proyecto</dt>
+        <dd>{kindLabel(kind, platforms)}</dd>
         <dt className="text-muted">Stack</dt>
         <dd className="flex flex-wrap gap-1.5">
           {stack.map((s) => (
@@ -43,7 +43,7 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
           <>
             <dt className="text-muted">Repositorio local</dt>
             <dd className="flex flex-wrap items-center gap-3">
-              <code className="font-mono text-[13px] break-all">{repoPath}</code>
+              <code className="font-mono text-[0.8125rem] break-all">{repoPath}</code>
               <Button size="sm" variant="ghost" isLoading={sync.isPending} onClick={() => sync.mutate()}>
                 Actualizar desde el repo
               </Button>

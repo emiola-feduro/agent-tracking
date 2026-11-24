@@ -14,7 +14,7 @@ const GithubPullComments = ({ comments }: { comments: PullDetail["comments"] }) 
                 {author?.login ?? "Usuario eliminado"}
               </a>
               <span>{relativeTime(createdAt)}</span>
-              {path && <code className="font-mono text-[12px]">{path}</code>}
+              {path && <code className="font-mono text-xs">{path}</code>}
             </span>
             <p className="line-clamp-4 whitespace-pre-wrap break-words text-ink-soft">{body}</p>
           </li>

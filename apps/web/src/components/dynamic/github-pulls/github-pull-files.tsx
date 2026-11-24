@@ -17,7 +17,7 @@ const GithubPullFiles = ({ files, total, url }: GithubPullFilesProps) => {
       <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto">
         {files.map(({ filename, additions, deletions }) => (
           <li key={filename} className="flex items-center justify-between gap-3 text-sm">
-            <code className="min-w-0 truncate font-mono text-[13px] text-ink-soft" title={filename}>
+            <code className="min-w-0 truncate font-mono text-[0.8125rem] text-ink-soft" title={filename}>
               {filename}
             </code>
             <span className="shrink-0 tabular-nums">

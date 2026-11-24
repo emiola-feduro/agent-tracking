@@ -1,3 +1,4 @@
+import { kindPlatforms } from "@agent-tracking/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { api, type NewProject } from "@/lib/api";
@@ -9,12 +10,14 @@ const buildPayload = (): NewProject => {
   return {
     name: s.name.trim(),
     goal: s.goal.trim(),
-    platforms: s.platforms,
+    kind: s.kind,
+    platforms: kindPlatforms(s.kind, s.platforms),
     stack: s.stack,
     databases: s.databases,
     repoPath: s.repo?.repo.root ?? null,
     repoUrl: s.repoUrl.trim() || null,
     githubFiles: s.repo ? s.githubFiles : [],
+    prTemplate: s.repo && s.githubFiles.includes("prTemplate") && s.prTemplate !== null ? s.prTemplate : undefined,
     rules: s.rules.map((r) => r.trim()).filter(Boolean),
     skills: Object.values(s.skills).map(({ name, description, source, location }) => ({
       name,

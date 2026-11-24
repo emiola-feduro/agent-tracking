@@ -46,7 +46,7 @@ const ProjectDetailContext = ({ view }: { view: ProjectView }) => {
       )}
       {status === "error" && <Alert>No se pudo generar el contexto.</Alert>}
       {status === "success" && (
-        <pre className="max-h-[560px] animate-enter overflow-auto rounded-md bg-subtle p-4 font-mono text-[13px] leading-relaxed whitespace-pre-wrap">
+        <pre className="max-h-[560px] animate-enter overflow-auto rounded-md bg-subtle p-4 font-mono text-[0.8125rem] leading-relaxed whitespace-pre-wrap">
           {data}
         </pre>
       )}

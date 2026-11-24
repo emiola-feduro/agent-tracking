@@ -3,7 +3,10 @@ import {
   DATABASE_OPTIONS,
   githubFiles,
   featureProgress,
+  kindPlatforms,
   PLATFORMS,
+  PROJECT_KIND_INFO,
+  PROJECT_KINDS,
   projectProgress,
   recommendStack,
   requirementProgress,
@@ -45,6 +48,13 @@ export type { AppEvent, Emit } from "@agent-tracking/tracking";
 const newId = () => crypto.randomUUID();
 const nowIso = () => new Date().toISOString();
 const platforms = z.array(z.enum(PLATFORMS));
+const projectKind = z.enum(PROJECT_KINDS);
+/** Kinds with fixed platforms (an API, a CLI) take them; the rest need at least one chosen. */
+const withKindPlatforms = <T extends { kind: z.infer<typeof projectKind>; platforms: z.infer<typeof platforms> }>(value: T, ctx: z.RefinementCtx) => {
+  if (PROJECT_KIND_INFO[value.kind].platforms === null && value.platforms.length === 0) {
+    ctx.addIssue({ code: "custom", path: ["platforms"], message: "Elige al menos una plataforma" });
+  }
+};
 
 const dodInput = z.object({ criterion: z.string().min(1), origin: z.enum(["human", "llm"]).default("human") });
 const requirementInput = z.object({
@@ -63,19 +73,26 @@ const skillInput = z.object({
 const projectFields = z.object({
   name: z.string().min(1),
   goal: z.string().default(""),
+  kind: projectKind,
   platforms: platforms.min(1, "Elige al menos una plataforma"),
   stack: z.array(z.string()).default([]),
   databases: z.array(z.string()).default([]),
   repoPath: z.string().nullable().default(null),
   repoUrl: z.string().nullable().default(null),
 });
-const createProject = projectFields.extend({
-  /** Starter `.github` files written into the repository (existing files are never replaced). */
-  githubFiles: z.array(z.enum(["ci", "prTemplate"])).default([]),
-  rules: z.array(z.string().min(1)).default([]),
-  skills: z.array(skillInput).default([]),
-  requirements: z.array(requirementInput).default([]),
-});
+const createProject = projectFields
+  .extend({
+    kind: projectKind.default("fullstack"),
+    platforms: platforms.default([]),
+    /** Starter `.github` files written into the repository (existing files are never replaced). */
+    githubFiles: z.array(z.enum(["ci", "prTemplate"])).default([]),
+    /** The pull request template as the person wrote it; generated when missing. */
+    prTemplate: z.string().max(20_000).optional(),
+    rules: z.array(z.string().min(1)).default([]),
+    skills: z.array(skillInput).default([]),
+    requirements: z.array(requirementInput).default([]),
+  })
+  .superRefine(withKindPlatforms);
 
 async function body<T extends z.ZodType>(c: Context, schema: T): Promise<z.infer<T>> {
   const parsed = schema.safeParse(await c.req.json().catch(() => ({})));
@@ -117,16 +134,18 @@ const NOT_CONFIGURED = "El asistente no está configurado. Define ANTHROPIC_API_
 const briefInput = z.object({
   name: z.string().max(200).optional(),
   goal: z.string().max(4000).optional(),
-  platforms: platforms.min(1, "Elige al menos una plataforma"),
+  kind: projectKind.default("fullstack"),
+  platforms: platforms.default([]),
   stack: z.array(z.string().max(100)).max(60).optional(),
   databases: z.array(z.string().max(100)).max(30).optional(),
   rules: z.array(z.string().max(1000)).max(50).optional(),
   requirements: z.array(z.object({ title: z.string().max(300), description: z.string().max(2000).optional() })).max(50).optional(),
-});
+}).superRefine(withKindPlatforms);
 
 const briefFromSnapshot = (snap: ProjectSnapshot): ProjectBrief => ({
   name: snap.project.name,
   goal: snap.project.goal,
+  kind: snap.project.kind,
   platforms: snap.project.platforms,
   stack: snap.project.stack,
   databases: snap.project.databases,
@@ -253,8 +272,9 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   app.get("/stack/options", (c) => c.json({ stack: STACK_OPTIONS, databases: DATABASE_OPTIONS }));
   app.get("/stack/recommend", (c) => {
     const parsed = platforms.safeParse((c.req.query("platforms") ?? "").split(",").filter(Boolean));
-    if (!parsed.success) throw new HTTPException(400, { message: "Plataformas inválidas" });
-    return c.json(recommendStack(parsed.data));
+    const kind = projectKind.default("fullstack").safeParse(c.req.query("kind") || undefined);
+    if (!parsed.success || !kind.success) throw new HTTPException(400, { message: "Tipo de proyecto o plataformas inválidas" });
+    return c.json(recommendStack(parsed.data, kind.data));
   });
 
   app.get("/skills/discover", async (c) =>
@@ -352,7 +372,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.post("/projects", async (c) => {
     const input = await body(c, createProject);
-    const { rules, skills, requirements, githubFiles: githubKinds, ...project } = input;
+    const { rules, skills, requirements, githubFiles: githubKinds, prTemplate, ...project } = input;
+    project.platforms = kindPlatforms(project.kind, project.platforms);
     if (project.repoPath) {
       const repo = await repoRootOr400(project.repoPath);
       const existing = await projectForRepo(repo.root);
@@ -373,7 +394,10 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     });
     await writeRepoFiles(db, projectId);
     if (project.repoPath && githubKinds.length > 0) {
-      await writeNewFiles(project.repoPath, githubFiles({ name: project.name, stack: project.stack, requirements }, githubKinds));
+      const files = githubFiles({ name: project.name, stack: project.stack, requirements }, githubKinds).map((f) =>
+        f.kind === "prTemplate" && prTemplate?.trim() ? { ...f, content: `${prTemplate.trimEnd()}\n` } : f,
+      );
+      await writeNewFiles(project.repoPath, files);
     }
     emit({ type: "project.created", projectId });
     return c.json(withProgress(await snapshotOr404(projectId)), 201);

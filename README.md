@@ -107,6 +107,24 @@ El wizard puede crear un **repositorio nuevo** (carpeta vacía con `git init` en
 cualquier repo, una carpeta `.github` con un pipeline de CI (`workflows/ci.yml`, según el stack:
 Bun, Node.js, Python, Go, Rust, Flutter, .NET o Java) y una plantilla de pull request con el
 requerimiento y el checklist del Definition of Done. Los archivos que ya existen no se tocan.
+Ambos se eligen en el Resumen, cuando ya se conocen el stack y los requerimientos; la plantilla
+de pull request se puede editar en Markdown con vista previa.
+
+### Tipo de proyecto y stack
+
+En el paso Proyecto se elige el tipo: aplicación completa, sitio o app web, API o servicio, app
+de escritorio, app móvil, herramienta de terminal o librería. El tipo decide qué partes del stack
+aplican (una API no ofrece frameworks de interfaz, una librería no ofrece backend) y la
+recomendación por defecto. Algunas tecnologías dependen de otras: Tailwind necesita un framework
+web, un runtime de JavaScript necesita TypeScript o un framework de JavaScript, Vitest o un ORM
+de JavaScript necesitan TypeScript o un runtime. Sin esa base aparecen deshabilitadas y se quitan
+solas si se quita lo que necesitan.
+
+### Apariencia
+
+El botón Apariencia del encabezado ofrece los mismos temas que ER Studio (claros, oscuros, alto
+contraste, brutalistas y otros), unas 50 fuentes para la interfaz y para el código, y tres tamaños
+de texto. La elección se guarda en el navegador.
 
 Las pestañas Pull requests, Ramas y Pipelines usan el `repoUrl` del proyecto. La autenticación se
 resuelve en este orden: la variable `GITHUB_TOKEN` del entorno del servidor, luego `gh auth token`

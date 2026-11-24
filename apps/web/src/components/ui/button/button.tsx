@@ -13,7 +13,7 @@ const variantClasses = {
   danger: "bg-surface text-danger border-line-strong hover:bg-danger-soft hover:border-danger",
 };
 
-const sizeClasses = { md: "min-h-10 px-4 text-[15px]", sm: "min-h-8 px-3 text-sm" };
+const sizeClasses = { md: "min-h-10 px-4 text-[0.9375rem]", sm: "min-h-8 px-3 text-sm" };
 
 const Button = ({
   variant = "secondary",

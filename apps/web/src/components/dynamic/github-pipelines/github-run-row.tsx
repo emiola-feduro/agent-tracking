@@ -32,7 +32,7 @@ const GithubRunRow = ({ projectId, run }: GithubRunRowProps) => {
             <span>
               {name} #{runNumber}
             </span>
-            {branch && <code className="font-mono text-[13px] text-ink-soft">{branch}</code>}
+            {branch && <code className="font-mono text-[0.8125rem] text-ink-soft">{branch}</code>}
             <span>{event}</span>
             {actor && <span>{actor.login}</span>}
             <span>{relativeTime(createdAt)}</span>

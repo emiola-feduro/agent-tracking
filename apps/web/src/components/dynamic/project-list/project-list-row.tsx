@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
 import type { ProjectListItem } from "@/lib/api";
-import { platformList } from "@/lib/labels";
+import { kindLabel } from "@/lib/labels";
 
 const ProjectListRow = ({ project }: { project: ProjectListItem }) => {
-  const { id, name, goal, platforms, repoUrl, progress } = project;
+  const { id, name, goal, kind, platforms, repoUrl, progress } = project;
 
   return (
     <li>
@@ -16,7 +16,7 @@ const ProjectListRow = ({ project }: { project: ProjectListItem }) => {
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-3">
             <span className="font-semibold text-ink">{name}</span>
-            <span className="text-sm text-muted">{platformList(platforms)}</span>
+            <span className="text-sm text-muted">{kindLabel(kind, platforms)}</span>
           </div>
           <p className="truncate text-sm text-ink-soft">{goal || repoUrl || "Sin objetivo definido"}</p>
         </div>

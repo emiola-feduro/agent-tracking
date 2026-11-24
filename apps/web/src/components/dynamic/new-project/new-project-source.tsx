@@ -1,7 +1,6 @@
 import ChoiceCard from "@/components/ui/choice-card/choice-card";
 import useWizardStore, { type SourceKind } from "@/stores/use-wizard-store";
 import NewProjectSourceGithub from "./new-project-source-github";
-import NewProjectGithubFiles from "./new-project-github-files";
 import NewProjectSourceLocal from "./new-project-source-local";
 import NewProjectSourceNew from "./new-project-source-new";
 
@@ -15,7 +14,6 @@ const SOURCES: { id: SourceKind; title: string; description: string }[] = [
 const NewProjectSource = () => {
   const source = useWizardStore((s) => s.source);
   const setSource = useWizardStore((s) => s.setSource);
-  const repo = useWizardStore((s) => s.repo);
 
   return (
     <div className="flex flex-col gap-6">
@@ -34,7 +32,6 @@ const NewProjectSource = () => {
       {source === "new" && <NewProjectSourceNew />}
       {source === "local" && <NewProjectSourceLocal />}
       {source === "github" && <NewProjectSourceGithub />}
-      {repo && !repo.existingProjectId && !repo.projectFile && <NewProjectGithubFiles />}
     </div>
   );
 };

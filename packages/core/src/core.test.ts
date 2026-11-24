@@ -3,7 +3,11 @@ import {
   buildContextMarkdown,
   parseProjectFile,
   projectProgress,
+  buildStack,
+  canSelectStackOption,
+  PROJECT_KINDS,
   recommendStack,
+  stackOptionsFor,
   suggestDatabases,
   suggestTechnologies,
   STACK_OPTIONS,
@@ -21,6 +25,7 @@ const base = (): ProjectSnapshot => ({
     id: "p1",
     name: "Tienda",
     goal: "Vender en línea",
+    kind: "fullstack",
     platforms: ["web", "mobile"],
     stack: ["SvelteKit", "Bun"],
     databases: ["PostgreSQL"],
@@ -169,8 +174,8 @@ describe("project file", () => {
 });
 
 describe("recommendStack", () => {
-  test("only includes what the chosen platforms need", () => {
-    const desktop = recommendStack(["desktop"]);
+  test("only includes what the kind of project and its platforms need", () => {
+    const desktop = recommendStack([], "desktop");
     expect(desktop.stack).toContain("Tauri");
     expect(desktop.stack).not.toContain("React Native");
     expect(desktop.stack).not.toContain("Hono");
@@ -185,29 +190,78 @@ describe("recommendStack", () => {
     expect(recommendStack([]).stack).toEqual([]);
   });
 
-  test("every recommendation is already consistent", () => {
-    for (const platforms of [["web"], ["desktop"], ["mobile"], ["web", "desktop"], ["web", "mobile"], ["web", "desktop", "mobile"]] as const) {
-      const rec = recommendStack([...platforms]);
+  test("an API gets no UI, a CLI or library no server", () => {
+    const api = recommendStack([], "api");
+    expect(api.stack).toEqual(expect.arrayContaining(["TypeScript", "Bun", "Hono"]));
+    for (const ui of ["React", "Tailwind CSS", "Playwright"]) expect(api.stack).not.toContain(ui);
+    expect(api.databases).toEqual(["PostgreSQL"]);
+
+    for (const kind of ["cli", "library"] as const) {
+      const rec = recommendStack([], kind);
+      expect(rec.stack).not.toContain("Hono");
+      expect(rec.databases).toEqual([]);
+    }
+    const frontend = recommendStack([], "frontend");
+    expect(frontend.stack).toContain("React");
+    expect(frontend.stack).not.toContain("Hono");
+  });
+
+  test("every recommendation is already consistent and fits its catalog", () => {
+    const cases = [
+      ...(["web", "desktop", "mobile"] as const).map((p) => ["fullstack", [p]] as const),
+      ["fullstack", ["web", "desktop", "mobile"]] as const,
+      ...PROJECT_KINDS.filter((k) => k !== "fullstack").map((k) => [k, []] as const),
+    ];
+    for (const [kind, platforms] of cases) {
+      const rec = recommendStack([...platforms], kind);
+      expect(rec.stack.length).toBeGreaterThan(0);
+      const catalog = new Set(stackOptionsFor(kind, [...platforms]).map((o) => o.name));
       for (const option of [rec, ...rec.alternatives]) {
-        // Re-adding each option must not drop anything.
-        const rebuilt = option.stack.reduce<string[]>((acc, n) => (acc.includes(n) ? acc : toggleStackOption(acc, n)), []);
-        expect(rebuilt.sort()).toEqual([...option.stack].sort());
+        expect(buildStack(option.stack).sort()).toEqual([...option.stack].sort());
+        for (const name of option.stack) expect(catalog.has(name)).toBe(true);
       }
     }
+  });
+});
+
+describe("stackOptionsFor", () => {
+  test("the kind decides which parts of the stack apply", () => {
+    const names = (kind: (typeof PROJECT_KINDS)[number], platforms: ("web" | "desktop" | "mobile")[] = []) =>
+      stackOptionsFor(kind, platforms).map((o) => o.name);
+    const api = names("api");
+    expect(api).toEqual(expect.arrayContaining(["Hono", "FastAPI", "Bun", "Drizzle ORM", "Vitest", "Pytest"]));
+    for (const n of ["React", "Tailwind CSS", "Playwright", "Tauri", "Detox"]) expect(api).not.toContain(n);
+    const cli = names("cli");
+    expect(cli).toEqual(expect.arrayContaining(["TypeScript", "Rust", "Go", "Bun", "Vitest"]));
+    for (const n of ["Hono", "Drizzle ORM", "React"]) expect(cli).not.toContain(n);
+    expect(names("frontend")).not.toContain("Hono");
+    expect(names("fullstack", ["mobile"])).not.toContain("React");
   });
 });
 
 describe("toggleStackOption", () => {
   test("only one option per exclusive group", () => {
     expect(toggleStackOption(["Next.js", "Tailwind CSS"], "Angular").sort()).toEqual(["Angular", "Tailwind CSS"]);
-    expect(toggleStackOption(["Bun"], "Node.js")).toEqual(["Node.js"]);
+    expect(toggleStackOption(["TypeScript", "Bun"], "Node.js")).toEqual(["TypeScript", "Node.js"]);
   });
 
   test("requirements are added and dependants removed with them", () => {
     expect(toggleStackOption([], "Expo").sort()).toEqual(["Expo", "React Native"]);
     expect(toggleStackOption(["React Native", "Expo"], "React Native")).toEqual([]);
-    expect(toggleStackOption(["Bun", "Hono"], "FastAPI").sort()).toEqual(["FastAPI", "Python"]);
+    expect(toggleStackOption(["TypeScript", "Bun", "Hono"], "FastAPI").sort()).toEqual(["FastAPI", "Python", "TypeScript"]);
     expect(toggleStackOption(["FastAPI", "Python", "Pytest"], "Python")).toEqual([]);
+  });
+
+  test("options that only make sense next to others", () => {
+    // Tailwind needs a web framework, a JS runtime needs TypeScript or a JS framework.
+    expect(toggleStackOption([], "Tailwind CSS")).toEqual([]);
+    expect(toggleStackOption(["FastAPI", "Python"], "Bun")).toEqual(["FastAPI", "Python"]);
+    expect(toggleStackOption(["React"], "Tailwind CSS")).toEqual(["React", "Tailwind CSS"]);
+    expect(toggleStackOption(["React", "Tailwind CSS", "Playwright"], "React")).toEqual([]);
+    expect(toggleStackOption(["TypeScript", "Bun", "Vitest"], "TypeScript")).toEqual([]);
+    // Another JS framework keeps the runtime alive.
+    expect(toggleStackOption(["TypeScript", "Hono", "Bun"], "TypeScript")).toEqual(["Hono", "Bun"]);
+    expect(buildStack(["Tailwind CSS", "Bun", "React"]).sort()).toEqual(["Bun", "React", "Tailwind CSS"]);
   });
 
   test("native mobile and cross-platform frameworks exclude each other", () => {
@@ -259,5 +313,14 @@ describe("suggestTechnologies", () => {
     expect(suggestTechnologies("graphql", ["web"], ["GraphQL"]).map((t) => t.name)).not.toContain("GraphQL");
     const names = new Set(STACK_OPTIONS.map((o) => o.name));
     expect(TECH_SUGGESTIONS.filter((t) => names.has(t.name))).toEqual([]);
+  });
+});
+
+describe("canSelectStackOption", () => {
+  test("follows what an option requires", () => {
+    expect(canSelectStackOption("Bun test", ["Python", "FastAPI"])).toBe(false);
+    expect(canSelectStackOption("Bun test", ["TypeScript"])).toBe(true);
+    expect(canSelectStackOption("Tailwind CSS", ["Vue"])).toBe(true);
+    expect(canSelectStackOption("Tailwind CSS", [])).toBe(false);
   });
 });

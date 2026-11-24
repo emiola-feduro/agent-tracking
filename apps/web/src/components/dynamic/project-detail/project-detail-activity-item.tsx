@@ -8,7 +8,7 @@ const ProjectDetailActivityItem = ({ event }: { event: AgentEvent }) => {
 
   return (
     <li className="grid animate-enter grid-cols-[auto_1fr] gap-x-4 gap-y-0.5 py-2.5 first:pt-0 last:pb-0 sm:grid-cols-[7.5rem_1fr]">
-      <time dateTime={createdAt} className="row-span-2 font-mono text-[13px] text-muted tabular-nums">
+      <time dateTime={createdAt} className="row-span-2 font-mono text-[0.8125rem] text-muted tabular-nums">
         {formatEventTime(createdAt)}
       </time>
       <p className="text-ink">
@@ -16,7 +16,7 @@ const ProjectDetailActivityItem = ({ event }: { event: AgentEvent }) => {
         {subject && (
           <>
             {" "}
-            {code ? <code className="font-mono text-[13px] break-all">{subject}</code> : <span>{subject}</span>}
+            {code ? <code className="font-mono text-[0.8125rem] break-all">{subject}</code> : <span>{subject}</span>}
           </>
         )}
       </p>
