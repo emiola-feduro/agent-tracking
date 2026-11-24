@@ -1,9 +1,13 @@
+import { useState } from "react";
+import Segmented from "@/components/ui/segmented/segmented";
 import StatusPill from "@/components/ui/status-pill/status-pill";
 import type { FileLink } from "@/hooks/data/use-traceability";
 import type { CodeSymbol, FileArtifact } from "@/lib/api";
 import { formatRelative } from "@/lib/activity";
 import { INFERRED_ACTOR } from "@/lib/labels";
+import ProjectDetailTraceCode from "./project-detail-trace-code";
 import ProjectDetailTraceSymbols from "./project-detail-trace-symbols";
+import { useTraceContext } from "./trace-context";
 
 type ProjectDetailTraceFileProps = {
   file: FileArtifact;
@@ -31,8 +35,11 @@ const ProjectDetailTraceFile = ({ file, symbols, open, onToggle, links, pending 
   const { dir, base } = splitPath(path);
   const ext = extension(base);
   const panelId = `trace-file-${id}`;
-  // A file without functions or types has nothing more to show.
-  const expandable = symbols.length > 0;
+  const { canPreview } = useTraceContext();
+  const [tab, setTab] = useState<"symbols" | "code">(symbols.length > 0 ? "symbols" : "code");
+  const [mark, setMark] = useState<{ start: number; end: number } | null>(null);
+  // Without symbols nor a readable repository there is nothing more to show.
+  const expandable = symbols.length > 0 || canPreview;
   const Header = expandable ? "button" : "div";
 
   return (
@@ -69,7 +76,7 @@ const ProjectDetailTraceFile = ({ file, symbols, open, onToggle, links, pending 
           {pending && <StatusPill tone="warn">Sin reportar{changedAt ? `, ${formatRelative(changedAt)}` : ""}</StatusPill>}
           {!pending && links && links.length === 0 && <StatusPill>Sin feature</StatusPill>}
           {createdBy === INFERRED_ACTOR && !purpose && <StatusPill>Detectado</StatusPill>}
-          {expandable && (
+          {symbols.length > 0 && (
             <span className="hidden text-xs text-muted tabular-nums sm:inline">
               {symbols.length === 1 ? "1 símbolo" : `${symbols.length} símbolos`}
             </span>
@@ -92,7 +99,34 @@ const ProjectDetailTraceFile = ({ file, symbols, open, onToggle, links, pending 
       </Header>
       {expandable && open && (
         <div id={panelId} className="animate-enter border-t border-line bg-canvas/50">
-          <ProjectDetailTraceSymbols symbols={symbols} />
+          {canPreview && symbols.length > 0 && (
+            <div className="border-b border-line px-3 py-2 sm:px-4">
+              <Segmented
+                label={`Ver ${path}`}
+                value={tab}
+                onChange={(v) => (setTab(v), v === "symbols" && setMark(null))}
+                items={[
+                  { value: "symbols", label: `Símbolos (${symbols.length})` },
+                  { value: "code", label: "Código" },
+                ]}
+              />
+            </div>
+          )}
+          {tab === "symbols" && symbols.length > 0 ? (
+            <ProjectDetailTraceSymbols
+              symbols={symbols}
+              onShow={
+                canPreview
+                  ? (s) => {
+                      setMark({ start: s.lineStart!, end: s.lineEnd ?? s.lineStart! });
+                      setTab("code");
+                    }
+                  : undefined
+              }
+            />
+          ) : (
+            <ProjectDetailTraceCode path={path} highlight={mark} />
+          )}
         </div>
       )}
     </li>

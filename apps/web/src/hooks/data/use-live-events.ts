@@ -12,10 +12,17 @@ const useLiveEvents = () => {
     let socket: WebSocket | undefined;
     let retry: ReturnType<typeof setTimeout>;
     let closed = false;
+    let dropped = false;
 
     const connect = () => {
       const protocol = location.protocol === "https:" ? "wss" : "ws";
       socket = new WebSocket(`${protocol}://${location.host}/ws`);
+      // Back after a drop (the server restarted, the tunnel reconnected): events may have been
+      // missed and requests may have failed meanwhile, so everything is fetched again.
+      socket.onopen = () => {
+        if (dropped) queryClient.invalidateQueries();
+        dropped = false;
+      };
       socket.onmessage = (message) => {
         let event: LiveEvent;
         try {
@@ -35,6 +42,7 @@ const useLiveEvents = () => {
         }
       };
       socket.onclose = () => {
+        dropped = true;
         if (!closed) retry = setTimeout(connect, 2000);
       };
     };

@@ -1,6 +1,6 @@
-import type { Platform, ProjectKind, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
+import type { AttachmentKind, Platform, ProjectKind, RequirementArea, RequirementType, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
 import { sql } from "drizzle-orm";
-import { index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { blob, index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const id = () => text("id").primaryKey();
 const now = sql`(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`;
@@ -54,6 +54,8 @@ export const requirements = sqliteTable("requirements", {
   projectId: projectRef(),
   title: text("title").notNull(),
   description: text("description").notNull().default(""),
+  type: text("type").$type<RequirementType>().notNull().default("functional"),
+  area: text("area").$type<RequirementArea>().notNull().default("general"),
   weight: real("weight").notNull().default(1),
   ...audit,
 });
@@ -178,3 +180,51 @@ export const testIdeas = sqliteTable("test_ideas", {
     .default("proposed"),
   ...audit,
 });
+
+/** Images kept with the project: references for requirements and criteria, and screens of the app. */
+export const attachments = sqliteTable(
+  "attachments",
+  {
+    id: id(),
+    projectId: projectRef(),
+    kind: text("kind").$type<AttachmentKind>().notNull().default("reference"),
+    requirementId: text("requirement_id").references(() => requirements.id, { onDelete: "cascade" }),
+    dodItemId: text("dod_item_id").references(() => dodItems.id, { onDelete: "cascade" }),
+    featureId: text("feature_id").references(() => features.id, { onDelete: "set null" }),
+    title: text("title").notNull().default(""),
+    route: text("route").notNull().default(""),
+    filename: text("filename").notNull(),
+    mime: text("mime").notNull(),
+    size: integer("size").notNull(),
+    data: blob("data", { mode: "buffer" }).$type<Buffer>().notNull(),
+    createdBy: audit.createdBy,
+    createdAt: audit.createdAt,
+  },
+  (t) => [index("attachments_project_idx").on(t.projectId)],
+);
+
+/** One request to an agent, from the prompt to its final answer, with what it changed. */
+export const agentTurns = sqliteTable(
+  "agent_turns",
+  {
+    id: id(),
+    projectId: projectRef(),
+    sessionId: text("session_id"),
+    cwd: text("cwd").notNull().default(""),
+    branch: text("branch"),
+    /** Start of the request, as typed (clipped). */
+    prompt: text("prompt").notNull().default(""),
+    /** The agent's last message: its own summary of the turn (clipped). */
+    summary: text("summary").notNull().default(""),
+    steps: text("steps", { mode: "json" }).$type<{ at: string; tool: string; label: string; target?: string }[]>().notNull().default(sql`'[]'`),
+    files: text("files", { mode: "json" }).$type<{ path: string; insertions: number; deletions: number; binary: boolean }[]>().notNull().default(sql`'[]'`),
+    patch: text("patch").notNull().default(""),
+    patchTruncated: integer("patch_truncated", { mode: "boolean" }).notNull().default(false),
+    /** Working tree at the start (see snapshotWorkingTree), to diff against at the end. */
+    baseCommit: text("base_commit"),
+    baseUntracked: text("base_untracked", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
+    startedAt: text("started_at").notNull(),
+    endedAt: text("ended_at"),
+  },
+  (t) => [index("agent_turns_project_started_idx").on(t.projectId, t.startedAt)],
+);

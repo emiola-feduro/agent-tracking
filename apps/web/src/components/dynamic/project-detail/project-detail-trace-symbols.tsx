@@ -8,7 +8,13 @@ const lines = ({ lineStart, lineEnd }: CodeSymbol) =>
   lineStart == null ? null : lineEnd != null && lineEnd !== lineStart ? `${lineStart} a ${lineEnd}` : `${lineStart}`;
 
 /** One row per function, type or constant in a file: name, kind, lines and what it is for. */
-const ProjectDetailTraceSymbols = ({ symbols }: { symbols: CodeSymbol[] }) => {
+type ProjectDetailTraceSymbolsProps = {
+  symbols: CodeSymbol[];
+  /** Opens the code at the symbol's lines; missing when the code cannot be read here. */
+  onShow?: (symbol: CodeSymbol) => void;
+};
+
+const ProjectDetailTraceSymbols = ({ symbols, onShow }: ProjectDetailTraceSymbolsProps) => {
   if (symbols.length === 0) return <p className="px-4 py-3 text-sm text-muted">Sin funciones ni tipos reportados en este archivo.</p>;
 
   return (
@@ -25,7 +31,18 @@ const ProjectDetailTraceSymbols = ({ symbols }: { symbols: CodeSymbol[] }) => {
         {symbols.map((symbol) => (
           <tr key={symbol.id} className="flex animate-enter flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2 sm:table-row sm:p-0">
             <td className="sm:px-4 sm:py-2">
-              <code className="font-mono text-[0.8125rem] font-medium break-all text-brand">{symbol.name}</code>
+              {onShow && symbol.lineStart != null ? (
+                <button
+                  type="button"
+                  onClick={() => onShow(symbol)}
+                  title="Ver en el código"
+                  className="rounded-sm text-left font-mono text-[0.8125rem] font-medium break-all text-brand underline decoration-brand/30 underline-offset-2 hover:decoration-brand"
+                >
+                  {symbol.name}
+                </button>
+              ) : (
+                <code className="font-mono text-[0.8125rem] font-medium break-all text-brand">{symbol.name}</code>
+              )}
             </td>
             <td className="sm:px-2 sm:py-2">
               <StatusPill tone={KIND_TONE[symbol.kind as keyof typeof KIND_TONE] ?? "neutral"}>{SYMBOL_KIND_LABEL[symbol.kind]}</StatusPill>

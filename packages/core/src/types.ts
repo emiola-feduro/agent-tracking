@@ -55,11 +55,20 @@ export interface DodItem {
   evidence: string | null;
 }
 
+/** Functional: what the system does. Non functional: how well it does it (speed, security...). */
+export const REQUIREMENT_TYPES = ["functional", "non_functional"] as const;
+export type RequirementType = (typeof REQUIREMENT_TYPES)[number];
+/** Part of the system a requirement is mostly about. */
+export const REQUIREMENT_AREAS = ["general", "frontend", "backend", "data", "infra", "security", "performance", "ux"] as const;
+export type RequirementArea = (typeof REQUIREMENT_AREAS)[number];
+
 export interface Requirement {
   id: string;
   projectId: string;
   title: string;
   description: string;
+  type: RequirementType;
+  area: RequirementArea;
   /** Peso relativo para el % global del proyecto (por defecto 1). */
   weight: number;
 }
@@ -149,4 +158,25 @@ export interface ProjectSnapshot {
   featureFiles: FeatureFile[];
   symbols: CodeSymbol[];
   testIdeas: TestIdea[];
+  /** Images: references attached to requirements and criteria, and screens of the app. */
+  attachments: Attachment[];
+}
+
+export type AttachmentKind = "reference" | "screen";
+/** Metadata only; the bytes are served by GET /api/attachments/:id. */
+export interface Attachment {
+  id: string;
+  projectId: string;
+  kind: AttachmentKind;
+  requirementId: string | null;
+  dodItemId: string | null;
+  featureId: string | null;
+  /** For screens: the view's name ("Lista de gastos") and its route or where it lives. */
+  title: string;
+  route: string;
+  filename: string;
+  mime: string;
+  size: number;
+  createdBy: string;
+  createdAt: string;
 }

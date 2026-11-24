@@ -1,4 +1,5 @@
 import { PROJECT_KIND_INFO } from "./project-kind";
+import { attachmentRepoPath, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL } from "./requirements";
 import { projectProgress, requirementProgress, toPercent } from "./progress";
 import type { ProjectSnapshot } from "./types";
 
@@ -48,7 +49,15 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
   for (const r of s.requirements) {
     out.push(`### ${r.title} — ${toPercent(requirementProgress(s, r.id))}%`, "");
     out.push(`ID: \`${r.id}\``, "");
+    out.push(`**Tipo:** ${REQUIREMENT_TYPE_LABEL[r.type ?? "functional"]}, área ${REQUIREMENT_AREA_LABEL[r.area ?? "general"].toLowerCase()}`, "");
     if (r.description.trim()) out.push(r.description.trim(), "");
+    const dodIds = new Set(s.dod.filter((d) => d.requirementId === r.id).map((d) => d.id));
+    const refs = (s.attachments ?? []).filter((a) => a.kind === "reference" && (a.requirementId === r.id || (a.dodItemId && dodIds.has(a.dodItemId))));
+    if (refs.length) {
+      out.push("**Referencias visuales** (así debería verse; ábrelas antes de implementar):", "");
+      for (const a of refs) out.push(`- \`${attachmentRepoPath(a)}\`${a.title ? `: ${a.title}` : ""}`);
+      out.push("");
+    }
     const dod = s.dod.filter((d) => d.requirementId === r.id);
     out.push("**Definition of Done:**", "");
     if (dod.length === 0) out.push("_Sin criterios._");
@@ -66,6 +75,13 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
       }
       out.push("");
     }
+  }
+
+  const screens = (s.attachments ?? []).filter((a) => a.kind === "screen");
+  if (screens.length) {
+    out.push("## Vistas de la app", "");
+    for (const a of screens) out.push(`- ${a.title || a.filename}${a.route ? ` (\`${a.route}\`)` : ""}: \`${attachmentRepoPath(a)}\``);
+    out.push("");
   }
 
   const pending = s.testIdeas.filter((t) => t.status === "proposed" || t.status === "accepted");

@@ -9,6 +9,7 @@ import ProjectDetailPending from "./project-detail-pending";
 import ProjectDetailTraceByFile from "./project-detail-trace-by-file";
 import ProjectDetailTraceFile from "./project-detail-trace-file";
 import ProjectDetailTraceRequirement from "./project-detail-trace-requirement";
+import { TraceContext } from "./trace-context";
 
 type Mode = "requirements" | "files";
 
@@ -37,84 +38,86 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
   const allOpen = shownFiles.length > 0 && shownFiles.every((f) => expanded.isOpen(f.id));
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-3 sm:flex-row sm:items-end sm:justify-between sm:p-4">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-ink">Ver por</span>
-          <Segmented
-            label="Ver la trazabilidad por"
-            value={mode}
-            onChange={setMode}
-            items={[
-              { value: "requirements", label: "Requerimiento" },
-              { value: "files", label: `Archivo (${allFiles.length})` },
-            ]}
-          />
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <TextField
-            label="Buscar archivo o símbolo"
-            type="search"
-            value={query}
-            onChange={setQuery}
-            placeholder="app.ts, createApp..."
-            className="sm:w-72"
-          />
-          <Button
-            variant="secondary"
-            disabled={shownFiles.length === 0}
-            onClick={() => expanded.setAll(allOpen ? [] : shownFiles.map((f) => f.id))}
-          >
-            {allOpen ? "Contraer todo" : "Expandir todo"}
-          </Button>
-        </div>
-      </div>
-
-      {searching && shownFiles.length === 0 && <p className="text-muted">Ningún archivo ni símbolo coincide con “{query.trim()}”.</p>}
-
-      {mode === "files" ? (
-        allFiles.length === 0 ? (
-          <p className="text-muted">Todavía no hay archivos reportados ni detectados.</p>
-        ) : (
-          <ProjectDetailTraceByFile files={shownFiles} trace={trace} expanded={expanded} />
-        )
-      ) : (
-        <>
-          {pendingFiles.length > 0 && !searching && <ProjectDetailPending files={pendingFiles} symbolsOf={symbolsOf} />}
-          {requirements.length === 0 && <p className="text-muted">Este proyecto aún no tiene requerimientos.</p>}
-          {shownRequirements.map((requirement) => (
-            <ProjectDetailTraceRequirement
-              key={requirement.id}
-              requirement={requirement}
-              features={features.filter((f) => f.requirementId === requirement.id && (!searching || visibleFiles(f.id).length > 0))}
-              progress={progress}
-              trace={trace}
-              visibleFiles={visibleFiles}
-              expanded={expanded}
+    <TraceContext.Provider value={{ projectId: view.project.id, canPreview: !!view.project.repoPath }}>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-3 sm:flex-row sm:items-end sm:justify-between sm:p-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-ink">Ver por</span>
+            <Segmented
+              label="Ver la trazabilidad por"
+              value={mode}
+              onChange={setMode}
+              items={[
+                { value: "requirements", label: "Requerimiento" },
+                { value: "files", label: `Archivo (${allFiles.length})` },
+              ]}
             />
-          ))}
-          {shownUnlinked.length > 0 && (
-            <section className="flex animate-enter flex-col gap-3 rounded-lg border border-line bg-surface p-4 sm:p-5">
-              <header>
-                <h2 className="font-semibold text-ink">Código sin feature</h2>
-                <p className="text-sm text-muted">Archivos que ningún feature reclama todavía.</p>
-              </header>
-              <ul className="flex flex-col gap-2">
-                {shownUnlinked.map((file) => (
-                  <ProjectDetailTraceFile
-                    key={file.id}
-                    file={file}
-                    symbols={symbolsOf(file.id)}
-                    open={expanded.isOpen(file.id)}
-                    onToggle={() => expanded.toggle(file.id)}
-                  />
-                ))}
-              </ul>
-            </section>
-          )}
-        </>
-      )}
-    </div>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <TextField
+              label="Buscar archivo o símbolo"
+              type="search"
+              value={query}
+              onChange={setQuery}
+              placeholder="app.ts, createApp..."
+              className="sm:w-72"
+            />
+            <Button
+              variant="secondary"
+              disabled={shownFiles.length === 0}
+              onClick={() => expanded.setAll(allOpen ? [] : shownFiles.map((f) => f.id))}
+            >
+              {allOpen ? "Contraer todo" : "Expandir todo"}
+            </Button>
+          </div>
+        </div>
+
+        {searching && shownFiles.length === 0 && <p className="text-muted">Ningún archivo ni símbolo coincide con “{query.trim()}”.</p>}
+
+        {mode === "files" ? (
+          allFiles.length === 0 ? (
+            <p className="text-muted">Todavía no hay archivos reportados ni detectados.</p>
+          ) : (
+            <ProjectDetailTraceByFile files={shownFiles} trace={trace} expanded={expanded} />
+          )
+        ) : (
+          <>
+            {pendingFiles.length > 0 && !searching && <ProjectDetailPending files={pendingFiles} symbolsOf={symbolsOf} />}
+            {requirements.length === 0 && <p className="text-muted">Este proyecto aún no tiene requerimientos.</p>}
+            {shownRequirements.map((requirement) => (
+              <ProjectDetailTraceRequirement
+                key={requirement.id}
+                requirement={requirement}
+                features={features.filter((f) => f.requirementId === requirement.id && (!searching || visibleFiles(f.id).length > 0))}
+                progress={progress}
+                trace={trace}
+                visibleFiles={visibleFiles}
+                expanded={expanded}
+              />
+            ))}
+            {shownUnlinked.length > 0 && (
+              <section className="flex animate-enter flex-col gap-3 rounded-lg border border-line bg-surface p-4 sm:p-5">
+                <header>
+                  <h2 className="font-semibold text-ink">Código sin feature</h2>
+                  <p className="text-sm text-muted">Archivos que ningún feature reclama todavía.</p>
+                </header>
+                <ul className="flex flex-col gap-2">
+                  {shownUnlinked.map((file) => (
+                    <ProjectDetailTraceFile
+                      key={file.id}
+                      file={file}
+                      symbols={symbolsOf(file.id)}
+                      open={expanded.isOpen(file.id)}
+                      onToggle={() => expanded.toggle(file.id)}
+                    />
+                  ))}
+                </ul>
+              </section>
+            )}
+          </>
+        )}
+      </div>
+    </TraceContext.Provider>
   );
 };
 

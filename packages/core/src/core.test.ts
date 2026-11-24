@@ -43,8 +43,8 @@ const base = (): ProjectSnapshot => ({
     { id: "s2", projectId: "p1", name: "off", description: "x", source: "user", location: "", enabled: false },
   ],
   requirements: [
-    { id: "r1", projectId: "p1", title: "Checkout", description: "", weight: 1 },
-    { id: "r2", projectId: "p1", title: "Catálogo", description: "", weight: 3 },
+    { id: "r1", projectId: "p1", title: "Checkout", description: "", type: "functional", area: "backend", weight: 1 },
+    { id: "r2", projectId: "p1", title: "Catálogo", description: "", type: "non_functional", area: "performance", weight: 3 },
   ],
   dod: [
     { id: "d1", requirementId: "r1", criterion: "Paga con tarjeta", origin: "human", status: "done", evidence: null },
@@ -59,6 +59,7 @@ const base = (): ProjectSnapshot => ({
   featureFiles: [],
   symbols: [],
   testIdeas: [],
+  attachments: [],
 });
 
 describe("progress", () => {

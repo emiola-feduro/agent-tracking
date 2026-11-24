@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type DodStatus, type ProjectView } from "@/lib/api";
+import { api, type DodStatus, type ProjectView, type RequirementArea, type RequirementType } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 
 /**
@@ -93,15 +93,45 @@ const useProjectActions = (projectId: string) => {
   });
 
   const addRequirement = useMutation({
-    mutationFn: ({ title, description }: { title: string; description: string }) =>
-      api.addRequirement(projectId, title, description),
+    mutationFn: (data: { title: string; description: string; type: RequirementType; area: RequirementArea }) =>
+      api.addRequirement(projectId, data),
     onSettled: refresh,
+  });
+
+  /** Type and area change instantly; the server confirms afterwards. */
+  const updateRequirement = useMutation({
+    mutationFn: ({ reqId, ...data }: { reqId: string; type?: RequirementType; area?: RequirementArea; title?: string; description?: string }) =>
+      api.updateRequirement(projectId, reqId, data),
+    ...optimistic<{ reqId: string; type?: RequirementType; area?: RequirementArea; title?: string; description?: string }>((view, { reqId, ...data }) => ({
+      ...view,
+      requirements: view.requirements.map((r) => (r.id === reqId ? { ...r, ...data } : r)),
+    })),
+  });
+
+  const uploadImages = useMutation({
+    mutationFn: async ({ files, ...meta }: { files: File[]; kind?: "reference" | "screen"; requirementId?: string; dodItemId?: string; title?: string; route?: string }) => {
+      for (const file of files) await api.uploadAttachment(projectId, file, meta);
+    },
+    onSettled: refresh,
+  });
+  const updateImage = useMutation({
+    mutationFn: ({ attachmentId, ...data }: { attachmentId: string; title?: string; route?: string; featureId?: string | null }) =>
+      api.updateAttachment(projectId, attachmentId, data),
+    onSettled: refresh,
+  });
+  const deleteImage = useMutation({
+    mutationFn: (attachmentId: string) => api.deleteAttachment(projectId, attachmentId),
+    ...optimistic<string>((view, attachmentId) => ({ ...view, attachments: view.attachments.filter((a) => a.id !== attachmentId) })),
   });
 
   const sync = useMutation({ mutationFn: () => api.syncProject(projectId), onSettled: refresh });
   const writeRepoFiles = useMutation({ mutationFn: () => api.writeRepoFiles(projectId) });
 
   return {
+    updateRequirement,
+    uploadImages,
+    updateImage,
+    deleteImage,
     setDodStatus,
     toggleSkill,
     removeSkill,

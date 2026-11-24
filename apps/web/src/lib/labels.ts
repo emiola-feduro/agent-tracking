@@ -1,4 +1,4 @@
-import { PROJECT_KIND_INFO } from "@agent-tracking/core";
+import { PROJECT_KIND_INFO, REQUIREMENT_AREA_LABEL, REQUIREMENT_AREAS, REQUIREMENT_TYPE_LABEL, REQUIREMENT_TYPES } from "@agent-tracking/core";
 import type { DodStatus, GithubFileKind, Platform, ProjectKind, TestIdeaStatus } from "./api";
 
 export const PLATFORM_LABEL: Record<Platform, string> = { web: "Web", desktop: "Escritorio", mobile: "Móvil" };
@@ -76,3 +76,7 @@ export const INFERRED_ACTOR = "repo:analysis";
 
 export const actorLabel = (actor: string) =>
   actor === "user:local" ? "Tú" : actor === INFERRED_ACTOR ? "Análisis del repo" : actor.replace(/^(agent|user):/, "");
+
+export { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL };
+export const REQUIREMENT_TYPE_OPTIONS = REQUIREMENT_TYPES.map((value) => ({ value, label: REQUIREMENT_TYPE_LABEL[value] }));
+export const REQUIREMENT_AREA_OPTIONS = REQUIREMENT_AREAS.map((value) => ({ value, label: REQUIREMENT_AREA_LABEL[value] }));

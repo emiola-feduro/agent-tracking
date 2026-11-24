@@ -79,6 +79,7 @@ describe("MCP tools over an SDK client", () => {
         "mark_dod_item",
         "pending_changes",
         "report_file",
+        "report_screen",
         "report_symbol",
         "report_test",
         "submit_report",
@@ -87,6 +88,23 @@ describe("MCP tools over an SDK client", () => {
       ].sort(),
     );
     expect(tools.find((t) => t.name === "report_symbol")!.inputSchema.properties).toHaveProperty("project");
+  });
+
+  test("report_screen adds a capture from the repo to the gallery and exports it for agents", async () => {
+    const png = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]);
+    await Bun.write(join(repo, "shots/lista.png"), png);
+    const ok = await call(client, "report_screen", { title: "Lista de gastos", route: "/gastos", imagePath: "shots/lista.png" });
+    expect(ok.isError).toBe(false);
+    const snap = await loadSnapshot(db, PROJECT);
+    const screen = snap!.attachments.find((a) => a.id === ok.data.screenId)!;
+    expect(screen).toMatchObject({ kind: "screen", title: "Lista de gastos", route: "/gastos", mime: "image/png" });
+    const context = await readFile(join(repo, ".agent-tracking/CONTEXT.md"), "utf8");
+    expect(context).toContain("## Vistas de la app");
+    expect(await Bun.file(join(repo, ".agent-tracking/attachments", `${screen.id.slice(0, 8)}-lista.png`)).exists()).toBe(true);
+
+    expect((await call(client, "report_screen", { title: "x", imagePath: "../fuera.png" })).isError).toBe(true);
+    await Bun.write(join(repo, "notes.txt"), "hola");
+    expect((await call(client, "report_screen", { title: "x", imagePath: "notes.txt" })).data).toContain("Solo se aceptan");
   });
 
   test("get_project_context returns CONTEXT.md resolved from the repo path", async () => {

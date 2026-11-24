@@ -1,6 +1,7 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
 import AppearanceDialog from "@/components/dynamic/appearance/appearance-dialog";
+import ProjectSwitcher from "@/components/dynamic/project-switcher/project-switcher";
 import useLiveEvents from "@/hooks/data/use-live-events";
 import useApplyAppearance from "@/hooks/ui/use-apply-appearance";
 
@@ -13,10 +14,13 @@ const AppShell = () => {
     <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-line bg-surface/80 backdrop-blur-md supports-[not(backdrop-filter:blur(0))]:bg-surface">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
-          <Link to="/" className="flex items-center gap-2 rounded-md font-semibold text-ink">
-            <img src="/logo.svg" alt="" width={26} height={26} />
-            Agent Tracking
-          </Link>
+          <div className="flex min-w-0 items-center gap-3">
+            <Link to="/" className="flex shrink-0 items-center gap-2 rounded-md font-semibold text-ink">
+              <img src="/logo.svg" alt="" width={26} height={26} />
+              <span className="hidden sm:inline">Agent Tracking</span>
+            </Link>
+            <ProjectSwitcher />
+          </div>
           <button
             type="button"
             onClick={() => setAppearanceOpen(true)}

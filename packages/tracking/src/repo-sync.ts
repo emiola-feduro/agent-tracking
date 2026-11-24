@@ -1,4 +1,6 @@
 import {
+  ATTACHMENTS_DIR,
+  attachmentRepoPath,
   buildContextMarkdown,
   CONTEXT_FILE_PATH,
   parseProjectFile,
@@ -10,7 +12,7 @@ import {
 } from "@agent-tracking/core";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
 import { eq } from "drizzle-orm";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join } from "node:path";
 
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
@@ -33,7 +35,26 @@ export async function writeRepoFiles(db: Db, projectId: string): Promise<string 
   const root = snap.project.repoPath;
   await writeIfChanged(join(root, PROJECT_FILE_PATH), serializeProjectFile(toProjectFile(snap)));
   await writeIfChanged(join(root, CONTEXT_FILE_PATH), buildContextMarkdown(snap));
+  await exportAttachments(db, root, snap.attachments);
   return join(root, PROJECT_FILE_PATH);
+}
+
+/**
+ * Copies the project's images into `.agent-tracking/attachments` so agents can open the ones
+ * CONTEXT.md points to. The folder is owned by Agent Tracking: images removed here are removed there.
+ */
+async function exportAttachments(db: Db, root: string, list: { id: string; filename: string }[]) {
+  const dir = join(root, ATTACHMENTS_DIR);
+  const wanted = new Map(list.map((a) => [attachmentRepoPath(a).slice(ATTACHMENTS_DIR.length + 1), a.id]));
+  const present = await readdir(dir).catch(() => [] as string[]);
+  for (const name of present) if (!wanted.has(name)) await rm(join(dir, name), { force: true });
+  const missing = [...wanted].filter(([name]) => !present.includes(name));
+  if (missing.length === 0) return;
+  await mkdir(dir, { recursive: true });
+  for (const [name, id] of missing) {
+    const row = await db.query.attachments.findFirst({ where: eq(s.attachments.id, id), columns: { data: true } });
+    if (row) await writeFile(join(dir, name), row.data);
+  }
 }
 
 /** Reads the project file from a repository. Returns null when the repo has none. */

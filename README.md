@@ -120,6 +120,39 @@ web, un runtime de JavaScript necesita TypeScript o un framework de JavaScript, 
 de JavaScript necesitan TypeScript o un runtime. Sin esa base aparecen deshabilitadas y se quitan
 solas si se quita lo que necesitan.
 
+### Requerimientos, imágenes y vistas
+
+Cada requerimiento es funcional o no funcional y tiene un área (frontend, backend, datos,
+infraestructura, seguridad, rendimiento, experiencia de uso o general). La pestaña Requerimientos
+los agrupa por tipo y filtra por tipo, área y texto.
+
+A un requerimiento o a un criterio del Definition of Done se le pueden adjuntar imágenes de
+referencia (arrastrar, elegir o pegar con Ctrl+V; PNG, JPEG, WebP, GIF o AVIF de hasta 10 MB).
+Se guardan en la base de datos y se copian a `.agent-tracking/attachments/`, y `CONTEXT.md` las
+lista para que el agente las abra antes de implementar.
+
+La pestaña Vistas es la galería de pantallas de la app: capturas subidas a mano o reportadas por
+el agente con la herramienta MCP `report_screen` (una imagen guardada dentro del repositorio).
+
+### Ramas, worktrees y turnos del agente
+
+- **Ramas y worktrees** lista cada checkout del repositorio (`git worktree list`) con cuántos commits
+  lleva frente a `main`, lo que tiene sin commit, el diff y el último turno de un agente ahí. También
+  permite cambiar la rama del checkout principal. Los hooks que llegan desde un worktree cuentan para
+  el proyecto del repositorio principal.
+- **Lo último que hizo el agente**: con los hooks `UserPromptSubmit` y `Stop`, cada turno queda
+  registrado con el pedido, los pasos, el mensaje final del agente (leído del transcript en
+  `~/.claude`), la hora, la duración, la rama y el diff exacto de ese turno. El diff compara contra una
+  foto del árbol de trabajo tomada al empezar (`git stash create`, sin tocar el repo), así que los
+  cambios previos sin commit no aparecen. Los turnos anteriores están a un clic.
+- En Trazabilidad, cada archivo se puede abrir en la pestaña Código; hacer clic en una función o tipo
+  marca sus líneas.
+- El selector del encabezado (o Ctrl+K) cambia de proyecto desde cualquier pantalla.
+
+Si usas `bun run dev:server`, cada cambio en el código del servidor lo reinicia. Para usar la app sin
+esos reinicios (y sin que el reenvío de puertos de VS Code se quede apuntando al proceso anterior),
+usa `bun run start`.
+
 ### Apariencia
 
 El botón Apariencia del encabezado ofrece los mismos temas que ER Studio (claros, oscuros, alto

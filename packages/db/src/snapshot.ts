@@ -2,6 +2,7 @@ import type { ProjectSnapshot } from "@agent-tracking/core";
 import { eq, inArray } from "drizzle-orm";
 import type { Db } from "./index";
 import {
+  attachments,
   businessRules,
   dodItems,
   featureFiles,
@@ -19,13 +20,33 @@ import {
 export async function loadSnapshot(db: Db, projectId: string): Promise<ProjectSnapshot | null> {
   const project = await db.query.projects.findFirst({ where: eq(projects.id, projectId) });
   if (!project) return null;
-  const [rules, skills, reqs, projectTests, files, ideas] = await Promise.all([
+  const [rules, skills, reqs, projectTests, files, ideas, images] = await Promise.all([
     db.select().from(businessRules).where(eq(businessRules.projectId, projectId)),
     db.select().from(projectSkills).where(eq(projectSkills.projectId, projectId)),
     db.select().from(requirements).where(eq(requirements.projectId, projectId)).orderBy(requirements.createdAt),
     db.select().from(tests).where(eq(tests.projectId, projectId)),
     db.select().from(fileArtifacts).where(eq(fileArtifacts.projectId, projectId)).orderBy(fileArtifacts.path),
     db.select().from(testIdeas).where(eq(testIdeas.projectId, projectId)).orderBy(testIdeas.createdAt),
+    // Metadata only: the image bytes are served one by one.
+    db
+      .select({
+        id: attachments.id,
+        projectId: attachments.projectId,
+        kind: attachments.kind,
+        requirementId: attachments.requirementId,
+        dodItemId: attachments.dodItemId,
+        featureId: attachments.featureId,
+        title: attachments.title,
+        route: attachments.route,
+        filename: attachments.filename,
+        mime: attachments.mime,
+        size: attachments.size,
+        createdBy: attachments.createdBy,
+        createdAt: attachments.createdAt,
+      })
+      .from(attachments)
+      .where(eq(attachments.projectId, projectId))
+      .orderBy(attachments.createdAt),
   ]);
   const reqIds = reqs.map((r) => r.id);
   const fileIds = files.map((f) => f.id);
@@ -56,5 +77,6 @@ export async function loadSnapshot(db: Db, projectId: string): Promise<ProjectSn
     featureFiles: links,
     symbols: syms,
     testIdeas: ideas,
+    attachments: images,
   };
 }

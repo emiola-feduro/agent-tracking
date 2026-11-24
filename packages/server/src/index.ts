@@ -43,9 +43,15 @@ const mcp = createMcpHttpHandler(tracker, { syncRepo });
 const webRoot = process.env.AGENT_TRACKING_WEB ?? join(import.meta.dir, "..", "..", "..", "apps", "web", "build");
 async function serveWeb(pathname: string): Promise<Response> {
   const file = Bun.file(join(webRoot, normalize(pathname).replace(/^(\.\.[/\\])+/, "")));
-  if (pathname !== "/" && (await file.exists())) return new Response(file);
+  // Hashed bundles never change; index.html always revalidates so a new build is picked up on reload.
+  if (pathname !== "/" && pathname !== "/index.html" && (await file.exists())) {
+    const immutable = pathname.startsWith("/assets/");
+    return new Response(file, { headers: { "Cache-Control": immutable ? "public, max-age=31536000, immutable" : "no-cache" } });
+  }
   const index = Bun.file(join(webRoot, "index.html"));
-  return (await index.exists()) ? new Response(index) : new Response("UI no compilada: bun run build:web", { status: 404 });
+  return (await index.exists())
+    ? new Response(index, { headers: { "Cache-Control": "no-cache" } })
+    : new Response("UI no compilada: bun run build:web", { status: 404 });
 }
 
 server = Bun.serve({

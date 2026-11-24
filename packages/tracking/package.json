@@ -6,11 +6,12 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
+    "@agent-tracking/analyzer": "workspace:*",
     "@agent-tracking/core": "workspace:*",
     "@agent-tracking/db": "workspace:*",
     "@agent-tracking/git": "workspace:*",
     "drizzle-orm": "0.44",
-    "@agent-tracking/analyzer": "workspace:*"
+    "zod": "4"
   },
   "exports": {
     ".": "./src/index.ts",

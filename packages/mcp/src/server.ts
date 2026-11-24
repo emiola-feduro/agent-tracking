@@ -6,7 +6,9 @@ import {
   toPercent,
   type ProjectSnapshot,
 } from "@agent-tracking/core";
-import { TrackingError, type Tracker } from "@agent-tracking/tracking";
+import { saveAttachment, TrackingError, type Tracker } from "@agent-tracking/tracking";
+import { readFile } from "node:fs/promises";
+import { isAbsolute, join, relative, resolve as resolvePath } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
@@ -22,6 +24,7 @@ export const SERVER_INSTRUCTIONS = [
   "sus tests con resultado, y los criterios del DoD que quedaron cumplidos con su evidencia.",
   "pending_changes lista los archivos cambiados que aún no cubre ningún reporte: inclúyelos.",
   "Las herramientas report_* y start_feature/complete_feature siguen disponibles para reportes parciales.",
+  "Si el proyecto tiene interfaz y creaste o cambiaste una vista, guarda una captura en el repositorio y repórtala con report_screen para la galería.",
 ].join(" ");
 
 /** Optional services the host provides (the HTTP server has a repository watcher, for example). */
@@ -357,6 +360,40 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     async (projectId, actor, args) => {
       const idea = await tracker.addTestIdea(projectId, actor, { ...args, origin: "llm" });
       return { result: { ideaId: idea.id }, event: { ideaId: idea.id, text: idea.text, featureId: idea.featureId } };
+    },
+  );
+
+  register(
+    "report_screen",
+    {
+      title: "Reportar una vista",
+      description:
+        "Agrega a la galería del proyecto una captura de una vista de la app (PNG, JPEG o WebP guardada dentro del repositorio, por ejemplo con Playwright). Repórtala otra vez cuando cambie.",
+      inputSchema: {
+        title: z.string().min(1).max(200).describe("Nombre de la vista, por ejemplo 'Lista de gastos'"),
+        imagePath: z.string().min(1).describe("Ruta de la captura, relativa al repositorio o absoluta dentro de él"),
+        route: z.string().max(300).optional().describe("Ruta o pantalla donde vive, por ejemplo /gastos"),
+        featureId: z.string().optional(),
+      },
+    },
+    async (projectId, actor, args) => {
+      const snap = await tracker.snapshot(projectId);
+      const root = snap.project.repoPath;
+      if (!root) throw new TrackingError("El proyecto no tiene repositorio local: no puedo leer la captura");
+      const path = resolvePath(root, args.imagePath);
+      const rel = relative(root, path);
+      if (!rel || rel.startsWith("..") || isAbsolute(rel)) throw new TrackingError("La captura debe estar dentro del repositorio del proyecto");
+      const bytes = await readFile(join(root, rel)).catch(() => null);
+      if (!bytes) throw new TrackingError(`No encuentro la captura ${rel}`, 404);
+      const screen = await saveAttachment(tracker.db, tracker, projectId, actor, {
+        kind: "screen",
+        title: args.title,
+        route: args.route ?? "",
+        featureId: args.featureId ?? null,
+        filename: rel.split("/").pop() ?? "captura.png",
+        bytes: new Uint8Array(bytes),
+      });
+      return { result: { screenId: screen.id }, event: { screenId: screen.id, title: args.title } };
     },
   );
 

@@ -1,23 +1,27 @@
 import { useState, type FormEvent } from "react";
 import AssistantCriteriaSuggestions from "@/components/dynamic/assistant/assistant-criteria-suggestions";
+import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
+import AttachmentThumbs from "@/components/dynamic/attachments/attachment-thumbs";
 import Button from "@/components/ui/button/button";
 import RemoveButton from "@/components/ui/remove-button/remove-button";
 import StatusPill from "@/components/ui/status-pill/status-pill";
 import useAssistantStatus from "@/hooks/data/use-assistant-status";
 import useProjectActions from "@/hooks/data/use-project-actions";
 import useCriteriaSuggestions from "@/hooks/form/use-criteria-suggestions";
-import { api, type DodItem } from "@/lib/api";
+import { api, type Attachment, type DodItem } from "@/lib/api";
 import { nextDodStatus } from "@/lib/labels";
 
 type ProjectDetailDodProps = {
   projectId: string;
   requirementId: string;
   items: DodItem[];
+  /** Reference images attached to criteria (any of this project; filtered per item). */
+  images: Attachment[];
 };
 
-const ProjectDetailDod = ({ projectId, requirementId, items }: ProjectDetailDodProps) => {
+const ProjectDetailDod = ({ projectId, requirementId, items, images }: ProjectDetailDodProps) => {
   const [draft, setDraft] = useState("");
-  const { setDodStatus, deleteDod, addDod, addLlmDod } = useProjectActions(projectId);
+  const { setDodStatus, deleteDod, addDod, addLlmDod, uploadImages, deleteImage } = useProjectActions(projectId);
   const { configured } = useAssistantStatus();
   const suggestions = useCriteriaSuggestions({
     fetch: () => api.suggestProjectDod(projectId, requirementId),
@@ -44,20 +48,33 @@ const ProjectDetailDod = ({ projectId, requirementId, items }: ProjectDetailDodP
       <ul className="flex flex-col">
         {items.length === 0 && <li className="text-sm text-muted">Sin criterios.</li>}
         {items.map(({ id, criterion, status, origin }) => (
-          <li key={id} className="group flex items-start gap-1">
-            <label className="flex min-h-9 flex-1 cursor-pointer items-start gap-3 rounded-md px-2 py-1.5 transition-colors duration-150 hover:bg-subtle">
-              <input
-                type="checkbox"
-                checked={status === "done"}
-                onChange={() => setDodStatus.mutate({ reqId: requirementId, dodId: id, status: nextDodStatus(status) })}
-                className="mt-1 size-4 shrink-0 accent-ok"
-              />
-              <span className={`transition-colors duration-200 ${status === "done" ? "text-muted line-through" : "text-ink"}`}>
-                {criterion}
-              </span>
-              {origin === "llm" && <StatusPill tone="brand">LLM</StatusPill>}
-            </label>
-            <RemoveButton label={`Quitar criterio ${criterion}`} onClick={() => deleteDod.mutate({ reqId: requirementId, dodId: id })} />
+          <li key={id} className="group flex flex-col">
+            <div className="flex items-start gap-1">
+              <label className="flex min-h-9 flex-1 cursor-pointer items-start gap-3 rounded-md px-2 py-1.5 transition-colors duration-150 hover:bg-subtle">
+                <input
+                  type="checkbox"
+                  checked={status === "done"}
+                  onChange={() => setDodStatus.mutate({ reqId: requirementId, dodId: id, status: nextDodStatus(status) })}
+                  className="mt-1 size-4 shrink-0 accent-ok"
+                />
+                <span className={`transition-colors duration-200 ${status === "done" ? "text-muted line-through" : "text-ink"}`}>
+                  {criterion}
+                </span>
+                {origin === "llm" && <StatusPill tone="brand">LLM</StatusPill>}
+              </label>
+              <RemoveButton label={`Quitar criterio ${criterion}`} onClick={() => deleteDod.mutate({ reqId: requirementId, dodId: id })} />
+            </div>
+            <div className="-mt-1 flex flex-col gap-1.5 pb-1 pl-9">
+              <AttachmentThumbs size="sm" images={images.filter((a) => a.dodItemId === id)} onDelete={(a) => deleteImage.mutate(a.id)} />
+              <div className="flex flex-wrap gap-2 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:hover)]:opacity-0">
+                <AttachmentDrop
+                  compact
+                  label="Adjuntar imagen"
+                  busy={uploadImages.isPending && uploadImages.variables?.dodItemId === id}
+                  onFiles={(files) => uploadImages.mutate({ files, dodItemId: id })}
+                />
+              </div>
+            </div>
           </li>
         ))}
       </ul>

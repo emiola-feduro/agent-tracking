@@ -1,6 +1,6 @@
 import type { SymbolKind, TestIdeaStatus, TestResult, TestType } from "@agent-tracking/core";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
-import { inspectRepo } from "@agent-tracking/git";
+import { inspectRepo, mainWorktreeOf } from "@agent-tracking/git";
 import { and, desc, eq, lt, sql } from "drizzle-orm";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 import { writeRepoFiles } from "./repo-sync";
@@ -154,6 +154,7 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
   };
 
   return {
+    db,
     emit,
     touch,
     projectOr404,
@@ -174,6 +175,12 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
       if (repo) {
         const byRoot = await db.query.projects.findFirst({ where: eq(s.projects.repoPath, repo.root), columns: { id: true } });
         if (byRoot) return byRoot.id;
+        // An agent working in a worktree (git worktree add) belongs to the project of the main checkout.
+        const main = await mainWorktreeOf(repo.root).catch(() => null);
+        if (main && main !== repo.root) {
+          const byMain = await db.query.projects.findFirst({ where: eq(s.projects.repoPath, main), columns: { id: true } });
+          if (byMain) return byMain.id;
+        }
       }
       // Paths that do not exist yet (or are not inside a git checkout): the deepest repo that contains them.
       const target = resolve(value);

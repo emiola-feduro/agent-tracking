@@ -1,6 +1,6 @@
 import { kindPlatforms, PROJECT_KIND_INFO, toggleStackOption } from "@agent-tracking/core";
 import { create } from "zustand";
-import type { AssistantBrief, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection } from "@/lib/api";
+import type { AssistantBrief, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
 
 export const WIZARD_STEPS = [
   { id: "source", label: "Origen" },
@@ -19,6 +19,8 @@ export type RequirementDraft = {
   key: string;
   title: string;
   description: string;
+  type: RequirementType;
+  area: RequirementArea;
   /** Criteria written by the person. */
   dod: string[];
   /** Criteria suggested by the assistant and accepted; saved with origin "llm". */
@@ -68,7 +70,7 @@ type WizardActions = {
   reset: () => void;
 };
 
-const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", dod: [""], llmDod: [] });
+const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", type: "functional", area: "general", dod: [""], llmDod: [] });
 
 const initial = (): WizardData => ({
   step: 0,

@@ -31,6 +31,8 @@ const buildPayload = (): NewProject => {
       .map((r) => ({
         title: r.title.trim(),
         description: r.description.trim(),
+        type: r.type,
+        area: r.area,
         dod: [
           ...r.dod.map((d) => d.trim()).filter(Boolean).map((criterion) => ({ criterion, origin: "human" as const })),
           ...r.llmDod.map((criterion) => ({ criterion, origin: "llm" as const })),

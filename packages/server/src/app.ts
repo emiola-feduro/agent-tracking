@@ -8,6 +8,8 @@ import {
   PROJECT_KIND_INFO,
   PROJECT_KINDS,
   projectProgress,
+  REQUIREMENT_AREAS,
+  REQUIREMENT_TYPES,
   recommendStack,
   requirementProgress,
   STACK_OPTIONS,
@@ -41,7 +43,9 @@ import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
 import { repoRoutes } from "./repo-routes";
-import { createLiveActivity, type HookPayload, type LiveActivity } from "./live-activity";
+import { createAgentTurns, type TurnHookPayload } from "./agent-turns";
+import { attachmentRoutes } from "./attachment-routes";
+import { createLiveActivity, type LiveActivity } from "./live-activity";
 
 export type { AppEvent, Emit } from "@agent-tracking/tracking";
 
@@ -60,6 +64,8 @@ const dodInput = z.object({ criterion: z.string().min(1), origin: z.enum(["human
 const requirementInput = z.object({
   title: z.string().min(1),
   description: z.string().default(""),
+  type: z.enum(REQUIREMENT_TYPES).default("functional"),
+  area: z.enum(REQUIREMENT_AREAS).default("general"),
   weight: z.number().positive().default(1),
   dod: z.array(dodInput).default([]),
 });
@@ -98,6 +104,18 @@ async function body<T extends z.ZodType>(c: Context, schema: T): Promise<z.infer
   const parsed = schema.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) throw new HTTPException(400, { message: z.prettifyError(parsed.error) });
   return parsed.data;
+}
+
+/**
+ * For PATCH: only the fields the request sent. Zod fills defaults even in `.partial()` objects,
+ * which would silently reset fields that were not part of the change.
+ */
+async function patchBody<T extends z.ZodType>(c: Context, schema: T): Promise<Partial<z.infer<T>>> {
+  const raw = await c.req.json().catch(() => ({}));
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) throw new HTTPException(400, { message: z.prettifyError(parsed.error) });
+  const sent = raw && typeof raw === "object" ? Object.keys(raw) : [];
+  return Object.fromEntries(Object.entries(parsed.data as object).filter(([k]) => sent.includes(k))) as Partial<z.infer<T>>;
 }
 
 function withProgress(snap: ProjectSnapshot) {
@@ -408,7 +426,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   app.patch("/projects/:id", async (c) => {
     const id = c.req.param("id");
     await snapshotOr404(id);
-    const input = await body(c, projectFields.partial());
+    const input = await patchBody(c, projectFields.partial());
     if (input.repoPath) input.repoPath = (await repoRootOr400(input.repoPath)).root;
     await db.update(s.projects).set({ ...input, updatedAt: nowIso() }).where(eq(s.projects.id, id));
     await touch(id, "project", id);
@@ -446,7 +464,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   });
   app.patch("/projects/:id/rules/:ruleId", async (c) => {
     const { id: projectId, ruleId } = c.req.param();
-    const input = await body(c, ruleInput.partial());
+    const input = await patchBody(c, ruleInput.partial());
     const [row] = await db
       .update(s.businessRules)
       .set({ ...input, updatedAt: nowIso() })
@@ -507,7 +525,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   app.patch("/projects/:id/requirements/:reqId", async (c) => {
     const { id: projectId, reqId } = c.req.param();
     await requirementIn(projectId, reqId);
-    const input = await body(c, requirementInput.omit({ dod: true }).partial());
+    const input = await patchBody(c, requirementInput.omit({ dod: true }).partial());
     await db.update(s.requirements).set({ ...input, updatedAt: nowIso() }).where(eq(s.requirements.id, reqId));
     await touch(projectId, "requirement", reqId);
     return c.json({ id: reqId });
@@ -584,13 +602,40 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     return entry;
   };
 
+  const turns = createAgentTurns(db, { claudeHome });
+  /** Turn bookkeeping runs after answering (the hook gives up after a second), one event at a time per project. */
+  const turnQueue = new Map<string, Promise<unknown>>();
+
   app.post("/agent/hook", async (c) => {
-    const payload = (await c.req.json().catch(() => null)) as HookPayload | null;
+    const payload = (await c.req.json().catch(() => null)) as TurnHookPayload | null;
     if (!payload || typeof payload.cwd !== "string" || !isAbsolute(payload.cwd)) return c.body(null, 204);
     const { projectId, root } = await resolveCwd(payload.cwd);
-    if (projectId && live.record(projectId, payload, root)) emit({ type: "live", projectId });
+    if (!projectId) return c.body(null, 204);
+    if (live.record(projectId, payload, root)) emit({ type: "live", projectId });
+    const steps = () => [...live.get(projectId).steps].reverse();
+    const next = (turnQueue.get(projectId) ?? Promise.resolve())
+      .then(() => turns.record(projectId, payload, steps))
+      .then((changed) => changed && emit({ type: "changed", projectId, entity: "turn" }))
+      .catch((e) => console.error("No se pudo registrar el turno del agente:", e));
+    turnQueue.set(projectId, next);
+    // The starting snapshot must be taken before the agent edits anything; it takes milliseconds.
+    if (payload.hook_event_name === "UserPromptSubmit") await next;
     return c.body(null, 204);
   });
+
+  app.get("/projects/:id/turns", async (c) => {
+    const id = c.req.param("id");
+    await tracker.projectOr404(id);
+    return c.json(await turns.list(id, Math.min(Number(c.req.query("limit")) || 20, 100)));
+  });
+  app.get("/projects/:id/turns/:turnId", async (c) => {
+    const { id, turnId } = c.req.param();
+    const turn = await turns.get(id, turnId);
+    if (!turn) throw new HTTPException(404, { message: "Turno no encontrado" });
+    return c.json(turn);
+  });
+
+  app.route("/", attachmentRoutes(db, tracker));
 
   app.get("/projects/:id/live", async (c) => {
     const id = c.req.param("id");

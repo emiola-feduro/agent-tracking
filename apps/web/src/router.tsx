@@ -11,6 +11,8 @@ import ProjectsPage from "@/pages/projects-page";
 const TABS: ProjectTab[] = [
   "requirements",
   "traceability",
+  "screens",
+  "worktrees",
   "activity",
   "tests",
   "pulls",

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PROJECT_KINDS } from "./project-kind";
-import { PLATFORMS, SYMBOL_KINDS, TEST_IDEA_STATUSES, type ProjectSnapshot } from "./types";
+import { PLATFORMS, REQUIREMENT_AREAS, REQUIREMENT_TYPES, SYMBOL_KINDS, TEST_IDEA_STATUSES, type ProjectSnapshot } from "./types";
 
 /** Path of the shareable project file, relative to the repository root. */
 export const PROJECT_FILE_PATH = ".agent-tracking/project.json";
@@ -40,6 +40,8 @@ export const projectFileSchema = z.object({
         id,
         title: z.string().min(1),
         description: z.string().default(""),
+        type: z.enum(REQUIREMENT_TYPES).default("functional"),
+        area: z.enum(REQUIREMENT_AREAS).default("general"),
         weight: z.number().positive().default(1),
         dod: z
           .array(
@@ -152,6 +154,8 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       id: r.id,
       title: r.title,
       description: r.description,
+      type: r.type,
+      area: r.area,
       weight: r.weight,
       dod: s.dod
         .filter((d) => d.requirementId === r.id)

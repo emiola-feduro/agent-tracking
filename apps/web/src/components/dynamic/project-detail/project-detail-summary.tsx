@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import Alert from "@/components/ui/alert/alert";
 import Button from "@/components/ui/button/button";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
@@ -49,7 +50,7 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
               </Button>
             </dd>
             <dt className="text-muted">Rama actual</dt>
-            <dd aria-live="polite">
+            <dd aria-live="polite" className="flex flex-wrap items-center gap-2">
               {branch.isPending ? (
                 <Skeleton className="h-5 w-28 rounded-full" />
               ) : branch.isError ? (
@@ -61,6 +62,9 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
               ) : (
                 <span className="text-muted">Ninguna (HEAD separado)</span>
               )}
+              <Link to="/projects/$projectId" params={{ projectId: id }} search={{ tab: "worktrees" }} className="rounded-sm text-sm font-medium text-brand hover:underline">
+                Cambiar de rama o ver worktrees
+              </Link>
             </dd>
           </>
         )}

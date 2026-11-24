@@ -1,7 +1,12 @@
 import { AnalysisCache, analyzeFile, analyzeRepo, type RepoAnalysis } from "@agent-tracking/analyzer";
 import { schema as s, type Db } from "@agent-tracking/db";
 import {
+  branchProgress,
   changedFilesBetween,
+  diffSince,
+  git,
+  listWorktrees,
+  readRepoFile,
   checkoutBranch,
   commitLog,
   currentBranch,
@@ -52,6 +57,9 @@ const intParam = (v: string | undefined, def: number) => {
  *   GET  /projects/:id/repo/changes?from&to               → { files }  (no `from`: working tree)
  *   GET  /projects/:id/repo/analysis/file?path=           → FileAnalysis
  *   GET  /projects/:id/repo/analysis                      → RepoAnalysis (incremental, cached by content hash)
+ *   GET  /projects/:id/repo/file?path&worktree            → FileContent (preview; `worktree` reads another checkout)
+ *   GET  /projects/:id/repo/worktrees                     → { base, worktrees: Worktree & { progress } }
+ *   GET  /projects/:id/repo/worktree-diff?worktree        → TurnDiff against where it left the base branch
  */
 export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
   const emit: Emit = opts.emit ?? (() => {});
@@ -71,6 +79,53 @@ export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
   };
 
   const app = new Hono();
+
+  /** The branch the others are compared with: main, else master, else whatever the main checkout has. */
+  const baseBranch = async (root: string) => {
+    for (const name of ["main", "master"]) {
+      if ((await git(["show-ref", "--verify", "--quiet", `refs/heads/${name}`], root)).ok) return name;
+    }
+    return (await currentBranch(root)) ?? null;
+  };
+
+  /** A checkout path from the client must be one of the repository's worktrees. */
+  const checkoutOf = async (root: string, worktree: string | undefined) => {
+    if (!worktree) return root;
+    const list = await guard(() => listWorktrees(root));
+    const found = list.find((w) => w.path === worktree);
+    if (!found) throw new HTTPException(400, { message: "Ese worktree no pertenece al repositorio del proyecto" });
+    return found.path;
+  };
+
+  app.get("/projects/:id/repo/file", async (c) => {
+    const root = await repoOf(c.req.param("id"));
+    const path = c.req.query("path");
+    if (!path) throw new HTTPException(400, { message: "Falta el parámetro 'path'" });
+    const checkout = await checkoutOf(root, c.req.query("worktree"));
+    return c.json(await guard(() => readRepoFile(checkout, path)));
+  });
+
+  app.get("/projects/:id/repo/worktrees", async (c) => {
+    const root = await repoOf(c.req.param("id"));
+    const [list, base] = await Promise.all([guard(() => listWorktrees(root)), baseBranch(root)]);
+    const worktrees = await Promise.all(
+      list.map(async (w) => ({
+        ...w,
+        progress: w.prunable ? null : await branchProgress(w.path, w.branch === base ? null : base).catch(() => null),
+      })),
+    );
+    return c.json({ base, worktrees });
+  });
+
+  app.get("/projects/:id/repo/worktree-diff", async (c) => {
+    const root = await repoOf(c.req.param("id"));
+    const checkout = await checkoutOf(root, c.req.query("worktree"));
+    const base = await baseBranch(root);
+    const mergeBase = base ? await git(["merge-base", base, "HEAD"], checkout) : null;
+    const head = await git(["rev-parse", "--verify", "-q", "HEAD"], checkout);
+    const from = mergeBase?.ok && mergeBase.stdout ? mergeBase.stdout : head.ok ? head.stdout : null;
+    return c.json(await guard(() => diffSince(checkout, { commit: from, untracked: [] })));
+  });
 
   app.get("/projects/:id/repo/branches", async (c) => {
     const root = await repoOf(c.req.param("id"));

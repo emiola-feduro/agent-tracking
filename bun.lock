@@ -138,6 +138,7 @@
         "@agent-tracking/db": "workspace:*",
         "@agent-tracking/git": "workspace:*",
         "drizzle-orm": "0.44",
+        "zod": "4",
       },
     },
   },
