@@ -13,7 +13,27 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Plataformas:** Web, Escritorio
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
+- **Repositorio:** https://github.com/emiola-feduro/agent-tracking
 - **Avance global:** 85%
+
+## Convenciones de commits y ramas
+
+_No se definieron convenciones: se usan Conventional Commits por defecto._
+
+- **Formato del mensaje:** `<tipo>(<alcance opcional>): <descripción>`, en español, en imperativo y sin punto final.
+- **Ramas:** `<tipo>/<tema-corto>`, por ejemplo `feat/busqueda-por-fecha`. No se trabaja directo en main.
+- **Tipos permitidos:**
+  - `feat`: Una funcionalidad nueva
+  - `fix`: Corrige un error
+  - `docs`: Solo documentación
+  - `style`: Formato, espacios o punto y coma, sin cambiar la lógica
+  - `refactor`: Cambia el código sin corregir errores ni agregar funciones
+  - `perf`: Mejora el rendimiento
+  - `test`: Agrega o corrige tests
+  - `build`: Build o dependencias
+  - `ci`: Configuración de integración continua
+  - `chore`: Tareas de mantenimiento que no tocan el código de la app
+  - `revert`: Revierte un commit anterior
 
 ## Reglas de negocio
 
@@ -65,7 +85,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/index.ts`: Exporta el núcleo, ahora con planes.
   - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/server/src/app.ts`: Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.
+  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
 - Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
@@ -149,7 +169,7 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `apps/web/src/components/dynamic/project-detail/project-detail-trace-file.tsx`: Tarjeta de archivo con pestañas Símbolos y Código
   - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad: plegado, búsqueda y vista de worktree.
   - `apps/web/src/components/ui/code-view/code-view.tsx`: Código con números de línea y rango marcado
-  - `packages/git/src/worktrees.ts`: Foto del árbol con blobs de archivos sin commit y diff del turno.
+  - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
 - Búsqueda con sugerencias y autocompletado con Tab — _done_ (`8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad: plegado, búsqueda y vista de worktree.
   - `apps/web/src/components/ui/suggest-input/suggest-input.tsx`: Campo de búsqueda con lista de sugerencias y completado gris que Tab acepta.
@@ -187,9 +207,9 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
 - Resumen tras cada trabajo del agente — _done_ (`d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-turn-toast.tsx`: Aviso de trabajo terminado con enlace al resumen.
   - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
-  - `packages/git/src/worktrees.ts`: Foto del árbol con blobs de archivos sin commit y diff del turno.
+  - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/app.ts`: Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.
+  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
   - `packages/server/src/live-activity.ts`: Pasos en vivo; un mensaje a mitad de turno no los borra.
 
@@ -209,15 +229,24 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 **Features:**
 
 - Pestaña Ramas y worktrees — _done_ (`fcec5305-a2d0-4043-a3ed-05b381b633f7`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Worktrees con progreso y diff, y cambio de rama local
-  - `packages/git/src/repo.ts`: resolveRepoPath valida rutas dentro del repo siguiendo enlaces
-  - `packages/server/src/repo-routes.ts`: Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
+  - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
+  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 - Menú de rama y worktree — _done_ (`3eb20a0d-6864-4eba-ac5a-88e24ff870b0`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-checkout-menu.tsx`: Menú desplegable de ramas y worktrees.
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktree-banner.tsx`: Aviso y diff del worktree que se está viendo.
   - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Página del proyecto con menú, aviso y secciones.
   - `apps/web/src/hooks/ui/use-checkout-view.ts`: Worktree que se mira, guardado en la URL.
   - `apps/web/src/router.tsx`: Rutas; parámetro wt.
+- Borrar ramas locales — _done_ (`1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
+  - `apps/web/src/hooks/data/use-worktrees.ts`: Consultas y mutaciones de ramas y worktrees.
+  - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
+  - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
+  - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
+  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
+  - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
+  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 
 ### Integración con GitHub — 100%
 
@@ -237,8 +266,8 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
 
 - Pull requests, ramas y pipelines de GitHub — _done_ (`88321b05-2eeb-4232-8bce-97b07a1d66cf`)
   - `packages/github/src/auth.ts`: Token desde GITHUB_TOKEN, gh o acceso anónimo
-  - `packages/github/src/client.ts`: Cliente de la API de GitHub
-  - `packages/server/src/github-routes.ts`: Rutas de PRs, ramas y ejecuciones
+  - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
+  - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
   - `packages/server/src/github-watcher.ts`: Sondeo en segundo plano
 - Crear el repositorio en GitHub — _done_ (`8c5456a5-9aa0-46c3-9471-175fde0ba9c1`)
   - `apps/web/src/components/dynamic/github-publish/github-publish-fields.tsx`: Campos de cuenta, nombre y visibilidad.
@@ -248,7 +277,16 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/stores/use-notice-store.ts`: Avisos de una sola vez para la página del proyecto.
   - `packages/git/src/github-publish.ts`: Cuenta de GitHub y publicación del repo con gh.
   - `packages/server/src/github-publish.test.ts`: Tests con un gh simulado.
-  - `packages/server/src/repo-routes.ts`: Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.
+  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
+- Borrar ramas en GitHub — _done_ (`18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1`)
+  - `apps/web/src/components/dynamic/github-branches/github-branch-row.tsx`: Fila de rama remota con botón de borrar y motivo cuando no se puede.
+  - `apps/web/src/components/dynamic/github-branches/github-branches.tsx`: Lista de ramas en GitHub.
+  - `apps/web/src/hooks/data/use-github-branches.ts`: Lista y borrado de ramas con doble confirmación.
+  - `apps/web/src/lib/github-api.ts`: Cliente web de las rutas de GitHub.
+  - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
+  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
+  - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
+  - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
 
 ### Asistente con Claude — 100%
 
@@ -323,7 +361,7 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
   - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
   - `apps/web/src/hooks/data/use-project-actions.ts`: Mutaciones del proyecto, incluida la importación.
-  - `apps/web/src/lib/api.ts`: Cliente de la API.
+  - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
@@ -333,7 +371,7 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
 
 ID: `f66fb380-a480-42a5-b45f-433928f2a081`
 
-**Tipo:** No funcional, área experiencia de uso
+**Tipo:** No funcional, área usabilidad
 
 Temas, fuentes y tamaño de texto como en ER Studio.
 
@@ -354,7 +392,7 @@ Temas, fuentes y tamaño de texto como en ER Studio.
 
 ID: `308a7bc8-83d9-46e1-a443-745d4fef719d`
 
-**Tipo:** No funcional, área experiencia de uso
+**Tipo:** No funcional, área usabilidad
 
 Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 390 px.
 
@@ -393,7 +431,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: Cliente de la API.
+  - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 
 ### Seguridad de rutas y datos locales — 100%
@@ -412,8 +450,8 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
 **Features:**
 
 - Validación de rutas y worktrees — _done_ (`229342a4-9fb9-48b6-9ad5-3532951f1d1b`)
-  - `packages/git/src/repo.ts`: resolveRepoPath valida rutas dentro del repo siguiendo enlaces
-  - `packages/server/src/repo-routes.ts`: Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.
+  - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
+  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 
 ### Gestión de cambios y detección de conflictos — 0%
 
@@ -460,7 +498,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
-  - `apps/web/src/lib/api.ts`: Cliente de la API.
+  - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
   - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
   - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
   - `packages/core/src/core.test.ts`: Fixtures de skills con su origen
@@ -469,7 +507,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
   - `packages/db/src/schema.ts`: Columna commit_conventions.
-  - `packages/server/src/app.ts`: Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.
+  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Exporta las funciones para llevar skills entre equipos

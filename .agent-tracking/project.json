@@ -5,6 +5,7 @@
     "name": "Agent Tracking",
     "goal": "Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimientos y Definition of Done, features, archivos, símbolos y tests, ramas, pull requests y pipelines, con un CONTEXT.md para que cualquier agente se sume al proyecto.",
     "kind": "fullstack",
+    "commitConventions": null,
     "platforms": [
       "web",
       "desktop"
@@ -28,7 +29,7 @@
     "databases": [
       "SQLite"
     ],
-    "repoUrl": null
+    "repoUrl": "https://github.com/emiola-feduro/agent-tracking"
   },
   "rules": [
     {
@@ -359,6 +360,13 @@
           "description": "Cambiar de rama con aviso de cambios sin commit, o mirar otro worktree con su código, diff y último turno.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+          "name": "Borrar ramas locales",
+          "description": "Con las reglas de git y sin tocar ramas donde trabaja un agente.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -404,6 +412,13 @@
           "id": "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
           "name": "Crear el repositorio en GitHub",
           "description": "Con gh: cuenta u organización, nombre y visibilidad; conecta origin y sube; desde el wizard o el Resumen.",
+          "status": "done",
+          "agent": "claude-code"
+        },
+        {
+          "id": "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
+          "name": "Borrar ramas en GitHub",
+          "description": "Con la sesión de GitHub del servidor y dos confirmaciones cuando se perdería trabajo.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -3045,6 +3060,24 @@
       "name": "commit conventions are saved and written into CONTEXT.md",
       "type": "integration",
       "lastResult": "passing"
+    },
+    {
+      "id": "dda61d7b-0a9c-4512-ab61-59dcb026651f",
+      "featureId": "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+      "path": "packages/server/src/delete-branch.test.ts",
+      "name": "deleting branches",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "8100cbcf-b50e-45ec-8ec0-7198b9cea1c8",
+      "featureId": "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
+      "requirementId": "d48566db-3202-417a-a0ff-2fa359fdc596",
+      "path": "packages/server/src/github-delete-branch.test.ts",
+      "name": "deleting branches on GitHub",
+      "type": "integration",
+      "lastResult": "passing"
     }
   ],
   "files": [
@@ -3344,9 +3377,11 @@
     {
       "id": "a74e5148-0391-4971-b5e9-4fe3c17790bc",
       "path": "apps/web/src/components/dynamic/github-branches/github-branch-row.tsx",
-      "purpose": "",
+      "purpose": "Fila de rama remota con botón de borrar y motivo cuando no se puede.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+      ],
       "symbols": [
         {
           "id": "0f2a5421-e983-4028-8768-1aa8a20f9844",
@@ -3407,9 +3442,11 @@
     {
       "id": "29b165c2-e4f0-4f24-9266-0587866ed2bd",
       "path": "apps/web/src/components/dynamic/github-branches/github-branches.tsx",
-      "purpose": "",
+      "purpose": "Lista de ramas en GitHub.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+      ],
       "symbols": [
         {
           "id": "664dcddc-6fb1-4631-9238-945f3d248782",
@@ -5881,9 +5918,10 @@
     {
       "id": "bb23008e-198d-48d7-be5a-ce6c94b49c88",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx",
-      "purpose": "Worktrees con progreso y diff, y cambio de rama local",
+      "purpose": "Lista de ramas con botón de borrar y motivo cuando no se puede.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
         "fcec5305-a2d0-4043-a3ed-05b381b633f7"
       ],
       "symbols": [
@@ -6983,10 +7021,21 @@
     {
       "id": "b43ad40e-a146-4be6-aa6c-654642df16cc",
       "path": "apps/web/src/hooks/data/use-github-branches.ts",
-      "purpose": "",
+      "purpose": "Lista y borrado de ramas con doble confirmación.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+      ],
       "symbols": [
+        {
+          "id": "203c8e38-3ff9-4ee9-8a14-5081e7c1f70f",
+          "name": "useDeleteGithubBranch",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Borra tras confirmar, y otra vez si se pierde trabajo",
+          "source": "reported"
+        },
         {
           "id": "64b1bee7-3127-4613-a779-cac824140206",
           "name": "useGithubBranches",
@@ -7457,9 +7506,11 @@
     {
       "id": "5d0e4712-6d2f-4aad-840e-680a906a5f6d",
       "path": "apps/web/src/hooks/data/use-worktrees.ts",
-      "purpose": "",
+      "purpose": "Consultas y mutaciones de ramas y worktrees.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351"
+      ],
       "symbols": [
         {
           "id": "d472d0a1-c79d-40f3-b0b0-d421bf7df18c",
@@ -8079,10 +8130,11 @@
     {
       "id": "0bb13765-2920-4330-9abf-7981824d2dfc",
       "path": "apps/web/src/lib/api.ts",
-      "purpose": "Cliente de la API.",
+      "purpose": "Cliente de la API con deleteBranch.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
         "4e182ef9-9a67-474a-81f0-7b4b51e2a032",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
       ],
@@ -8674,9 +8726,11 @@
     {
       "id": "b8c15250-0069-4885-8965-65dc910decb9",
       "path": "apps/web/src/lib/github-api.ts",
-      "purpose": "",
+      "purpose": "Cliente web de las rutas de GitHub.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+      ],
       "symbols": [
         {
           "id": "d25d71ad-e5b8-4fe9-9b6a-3a460a164782",
@@ -13398,9 +13452,10 @@
     {
       "id": "9df43ee7-a614-4b46-8a6d-bb54a4b13da3",
       "path": "packages/git/src/repo.ts",
-      "purpose": "resolveRepoPath valida rutas dentro del repo siguiendo enlaces",
+      "purpose": "Errores de git con códigos unmerged e in_use.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
         "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
         "fcec5305-a2d0-4043-a3ed-05b381b633f7"
       ],
@@ -13701,13 +13756,23 @@
     {
       "id": "63f2907c-eab9-4526-a699-534c4e707384",
       "path": "packages/git/src/worktrees.ts",
-      "purpose": "Foto del árbol con blobs de archivos sin commit y diff del turno.",
+      "purpose": "Worktrees, diffs de turno y borrado de ramas.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
         "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
         "ffddc27b-124c-442f-bfb1-788daca31510"
       ],
       "symbols": [
+        {
+          "id": "daa6d5dc-d43f-4ac4-ac12-326f35a78e5f",
+          "name": "deleteBranch",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Borra una rama local con mensajes claros",
+          "source": "reported"
+        },
         {
           "id": "c791eb25-3a13-440f-b5cc-c5c26f8fb759",
           "name": "diffSince",
@@ -14012,12 +14077,31 @@
     {
       "id": "21d0c4d3-c4a3-4a4c-a4fb-d1def5746b98",
       "path": "packages/github/src/client.ts",
-      "purpose": "Cliente de la API de GitHub",
+      "purpose": "Cliente de GitHub; commits adelante y borrado de ramas.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
         "88321b05-2eeb-4232-8bce-97b07a1d66cf"
       ],
       "symbols": [
+        {
+          "id": "ead908d0-f3a5-4191-8c35-ff1419674131",
+          "name": "commitsAhead",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Commits que la rama tiene y la principal no",
+          "source": "reported"
+        },
+        {
+          "id": "901c25dc-ea4f-4d32-a2e8-978b6d505567",
+          "name": "deleteBranch",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Borra la rama en GitHub y limpia la caché",
+          "source": "reported"
+        },
         {
           "id": "507f8b65-b378-4886-a9fc-94f18bc741be",
           "name": "GithubClientOptions",
@@ -14931,9 +15015,11 @@
     {
       "id": "553410b3-6c29-4e18-924c-ed3654f5d583",
       "path": "packages/server/src/app.ts",
-      "purpose": "Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.",
+      "purpose": "agentOnBranch compartido por las rutas de repo y de GitHub.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
         "d5c72587-3bd9-487f-bab5-74e76b919371",
         "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
@@ -15132,6 +15218,16 @@
       ]
     },
     {
+      "id": "39138bdd-4803-4aa1-ade9-1938bdb70083",
+      "path": "packages/server/src/delete-branch.test.ts",
+      "purpose": "Tests del borrado de ramas.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351"
+      ],
+      "symbols": []
+    },
+    {
       "id": "a64c946e-5d1a-4c9c-a311-d2e23cb13186",
       "path": "packages/server/src/features-v3.test.ts",
       "purpose": "Tests de turnos, imágenes, worktrees e importación.",
@@ -15139,6 +15235,16 @@
       "featureIds": [
         "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
         "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "54470f7c-d7b7-4c04-ba01-3cd758547d8f",
+      "path": "packages/server/src/github-delete-branch.test.ts",
+      "purpose": "Tests del borrado de ramas en GitHub con fetch simulado.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
       ],
       "symbols": []
     },
@@ -15163,9 +15269,10 @@
     {
       "id": "c498e525-65fd-4091-bb13-6052278f61f2",
       "path": "packages/server/src/github-routes.ts",
-      "purpose": "Rutas de PRs, ramas y ejecuciones",
+      "purpose": "Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
         "88321b05-2eeb-4232-8bce-97b07a1d66cf"
       ],
       "symbols": [
@@ -15563,9 +15670,10 @@
     {
       "id": "c6a93253-0783-406e-8978-77b8e689815f",
       "path": "packages/server/src/repo-routes.ts",
-      "purpose": "Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.",
+      "purpose": "DELETE de ramas y conteo de commits sin fusionar.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
         "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
         "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
         "fcec5305-a2d0-4043-a3ed-05b381b633f7"
@@ -16643,5 +16751,6 @@
       "origin": "llm",
       "status": "proposed"
     }
-  ]
+  ],
+  "attachments": []
 }
