@@ -106,8 +106,16 @@ export async function readRepoFile(root: string, path: string): Promise<FileCont
   return { path: relative, content, lines: content.split("\n").length, truncated, binary: false };
 }
 
-/** What the working tree looked like at a moment, without touching it (no stash entry, no index change). */
+/**
+ * What the working tree looked like at a moment, without touching it (no stash entry, no index
+ * change). Untracked files are kept as "<blob> <path>" so later edits to them show up too; their
+ * contents go into git's object store as loose objects that nothing references.
+ */
 export type TreeSnapshot = { commit: string | null; untracked: string[] };
+
+const MAX_UNTRACKED = 500;
+const MAX_UNTRACKED_BYTES = 1_000_000;
+const BLOB_ENTRY = /^([0-9a-f]{40,64}) (.+)$/;
 
 export async function snapshotWorkingTree(root: string): Promise<TreeSnapshot> {
   // `stash create` builds a commit of tracked changes and prints nothing when the tree is clean.
@@ -117,7 +125,15 @@ export async function snapshotWorkingTree(root: string): Promise<TreeSnapshot> {
     git(["ls-files", "-z", "--others", "--exclude-standard"], root),
   ]);
   const commit = stash.ok && stash.stdout ? stash.stdout : head.ok && head.stdout ? head.stdout : null;
-  return { commit, untracked: untracked.ok ? untracked.stdout.split("\0").filter(Boolean) : [] };
+  const paths = untracked.ok ? untracked.stdout.split("\0").filter(Boolean) : [];
+  const small: string[] = [];
+  for (const p of paths.slice(0, MAX_UNTRACKED)) {
+    const size = await stat(join(root, p)).then((x) => (x.isFile() ? x.size : -1)).catch(() => -1);
+    if (size >= 0 && size <= MAX_UNTRACKED_BYTES) small.push(p);
+  }
+  const hashes = small.length ? await git(["hash-object", "-w", "--", ...small], root) : null;
+  const blobs = hashes?.ok ? hashes.stdout.split("\n") : [];
+  return { commit, untracked: paths.map((p) => (small.includes(p) && blobs[small.indexOf(p)] ? `${blobs[small.indexOf(p)]} ${p}` : p)) };
 }
 
 export type DiffFile = { path: string; insertions: number; deletions: number; binary: boolean };
@@ -133,10 +149,20 @@ const NOT_OWN = `:(exclude)${OWN_FILES}`;
  * meanwhile. Pre-existing uncommitted work is part of the snapshot, so it does not show up again.
  */
 export async function diffSince(root: string, since: TreeSnapshot): Promise<TurnDiff> {
-  const created = (await git(["ls-files", "-z", "--others", "--exclude-standard"], root)).stdout
-    .split("\0")
-    .filter((p) => p && !since.untracked.includes(p) && !p.startsWith(OWN_FILES))
-    .slice(0, 200);
+  const before = new Map(since.untracked.map((e) => {
+    const m = BLOB_ENTRY.exec(e);
+    return m ? [m[2]!, m[1]!] : [e, null];
+  }));
+  const nowUntracked = (await git(["ls-files", "-z", "--others", "--exclude-standard"], root)).stdout.split("\0").filter(Boolean);
+  const created = nowUntracked.filter((p) => !before.has(p) && !p.startsWith(OWN_FILES)).slice(0, 200);
+  // Untracked before and still untracked, but edited since: compare against the stored blob.
+  const edited: { path: string; blob: string }[] = [];
+  for (const p of nowUntracked) {
+    const blob = before.get(p);
+    if (!blob || p.startsWith(OWN_FILES)) continue;
+    const now = await git(["hash-object", "--", p], root);
+    if (now.ok && now.stdout !== blob) edited.push({ path: p, blob });
+  }
   const parts: string[] = [];
   const files: DiffFile[] = [];
   if (since.commit) {
@@ -157,6 +183,19 @@ export async function diffSince(root: string, since: TreeSnapshot): Promise<Turn
     parts.push(patch);
     const binary = /^Binary files/m.test(patch);
     files.push({ path, insertions: binary ? 0 : (patch.match(/^\+(?!\+\+)/gm) ?? []).length, deletions: 0, binary });
+  }
+  for (const { path, blob } of edited.slice(0, 200)) {
+    const fresh = await git(["hash-object", "-w", "--", path], root);
+    if (!fresh.ok) continue;
+    const res = await gitRaw(["diff", "--no-color", blob, fresh.stdout], root);
+    const body = res.stdout.replace(/^diff --git a\/\S+ b\/\S+$/m, `diff --git a/${path} b/${path}`).replace(/^--- a\/\S+$/m, `--- a/${path}`).replace(/^\+\+\+ b\/\S+$/m, `+++ b/${path}`);
+    parts.push(body);
+    files.push({
+      path,
+      insertions: (body.match(/^\+(?!\+\+)/gm) ?? []).length,
+      deletions: (body.match(/^-(?!--)/gm) ?? []).length,
+      binary: /^Binary files/m.test(body),
+    });
   }
   const patch = parts.join("");
   return { files, patch: patch.slice(0, MAX_PATCH), truncated: patch.length > MAX_PATCH };

@@ -76,3 +76,16 @@ describe("own files", () => {
     expect(diff.files.map((f) => f.path)).toEqual(["real.ts"]);
   });
 });
+
+describe("untracked files", () => {
+  test("an untracked file edited during the turn shows up with only its new lines", async () => {
+    await Bun.write(join(repo, "nuevo-sin-commit.ts"), "uno\n");
+    const before = await snapshotWorkingTree(repo);
+    await Bun.write(join(repo, "nuevo-sin-commit.ts"), "uno\ndos\n");
+    const diff = await diffSince(repo, before);
+    expect(diff.files.find((f) => f.path === "nuevo-sin-commit.ts")).toEqual({ path: "nuevo-sin-commit.ts", insertions: 1, deletions: 0, binary: false });
+    expect(diff.patch).toContain("+++ b/nuevo-sin-commit.ts");
+    expect(diff.patch).toContain("+dos");
+    expect((await git(["status", "--porcelain"], repo)).stdout).toContain("?? nuevo-sin-commit.ts");
+  });
+});
