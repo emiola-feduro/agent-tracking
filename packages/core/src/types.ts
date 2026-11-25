@@ -65,8 +65,12 @@ export interface DodItem {
 /** Functional: what the system does. Non functional: how well it does it (speed, security...). */
 export const REQUIREMENT_TYPES = ["functional", "non_functional"] as const;
 export type RequirementType = (typeof REQUIREMENT_TYPES)[number];
-/** Part of the system a requirement is mostly about. */
-export const REQUIREMENT_AREAS = ["general", "frontend", "backend", "data", "infra", "security", "performance", "ux"] as const;
+/** Where a functional requirement lives in the system. */
+export const FUNCTIONAL_AREAS = ["general", "frontend", "backend", "data", "integration", "infra"] as const;
+/** Which quality a non functional requirement is about. "ux" is usability (kept for stored data). */
+export const QUALITY_AREAS = ["performance", "security", "ux", "accessibility", "reliability", "scalability", "maintainability", "compatibility"] as const;
+/** Area of a requirement: a part of the system when functional, a quality attribute when not. */
+export const REQUIREMENT_AREAS = [...FUNCTIONAL_AREAS, ...QUALITY_AREAS] as const;
 export type RequirementArea = (typeof REQUIREMENT_AREAS)[number];
 
 export interface Requirement {

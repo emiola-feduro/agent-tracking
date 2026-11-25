@@ -1,4 +1,4 @@
-import { PROJECT_KIND_INFO, REQUIREMENT_AREA_LABEL, REQUIREMENT_AREAS, REQUIREMENT_TYPE_LABEL, REQUIREMENT_TYPES } from "@agent-tracking/core";
+import { areasFor, PROJECT_KIND_INFO, REQUIREMENT_AREA_LABEL, REQUIREMENT_AREAS, REQUIREMENT_TYPE_LABEL, REQUIREMENT_TYPES } from "@agent-tracking/core";
 import type { DodStatus, GithubFileKind, Platform, ProjectKind, TestIdeaStatus } from "./api";
 
 export const PLATFORM_LABEL: Record<Platform, string> = { web: "Web", desktop: "Escritorio", mobile: "Móvil" };
@@ -80,3 +80,5 @@ export const actorLabel = (actor: string) =>
 export { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL };
 export const REQUIREMENT_TYPE_OPTIONS = REQUIREMENT_TYPES.map((value) => ({ value, label: REQUIREMENT_TYPE_LABEL[value] }));
 export const REQUIREMENT_AREA_OPTIONS = REQUIREMENT_AREAS.map((value) => ({ value, label: REQUIREMENT_AREA_LABEL[value] }));
+/** The areas that make sense for a type: parts of the system, or quality attributes. */
+export const areaOptionsFor = (type: (typeof REQUIREMENT_TYPES)[number]) => areasFor(type).map((value) => ({ value, label: REQUIREMENT_AREA_LABEL[value] }));

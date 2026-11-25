@@ -27,7 +27,8 @@ type Panel = "summary" | "diff" | "steps";
  */
 const ProjectDetailLastTurn = ({ projectId }: { projectId: string }) => {
   const { data: turns } = useAgentTurns(projectId);
-  const finished = (turns ?? []).filter((t) => t.endedAt);
+  // Only turns that changed the repository deserve a summary (questions do not).
+  const finished = (turns ?? []).filter((t) => t.endedAt && t.files.length > 0);
   const [index, setIndex] = useState(0);
   const [panel, setPanel] = useState<Panel>("summary");
   const turn = finished[Math.min(index, finished.length - 1)] ?? null;

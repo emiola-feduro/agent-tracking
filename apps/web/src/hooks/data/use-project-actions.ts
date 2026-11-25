@@ -93,7 +93,7 @@ const useProjectActions = (projectId: string) => {
   });
 
   const addRequirement = useMutation({
-    mutationFn: (data: { title: string; description: string; type: RequirementType; area: RequirementArea }) =>
+    mutationFn: (data: { title: string; description: string; type?: RequirementType; area?: RequirementArea }) =>
       api.addRequirement(projectId, data),
     onSettled: refresh,
   });
@@ -107,6 +107,8 @@ const useProjectActions = (projectId: string) => {
       requirements: view.requirements.map((r) => (r.id === reqId ? { ...r, ...data } : r)),
     })),
   });
+
+  const importRequirements = useMutation({ mutationFn: (text: string) => api.importRequirements(projectId, text), onSettled: refresh });
 
   const uploadImages = useMutation({
     mutationFn: async ({ files, ...meta }: { files: File[]; kind?: "reference" | "screen"; requirementId?: string; dodItemId?: string; title?: string; route?: string }) => {
@@ -128,6 +130,7 @@ const useProjectActions = (projectId: string) => {
   const writeRepoFiles = useMutation({ mutationFn: () => api.writeRepoFiles(projectId) });
 
   return {
+    importRequirements,
     updateRequirement,
     uploadImages,
     updateImage,

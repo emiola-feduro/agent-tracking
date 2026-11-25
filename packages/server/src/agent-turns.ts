@@ -50,7 +50,10 @@ export async function lastAssistantMessage(transcriptPath: string | undefined, c
   }
 }
 
-/** Records each agent turn: what was asked, the steps, the final answer and the diff it left. */
+/**
+ * Records each agent turn that changed the repository: what was asked, the steps, the final answer
+ * and the diff it left. Turns without changes (a question, an explanation) are dropped when they end.
+ */
 export function createAgentTurns(db: Db, opts: { claudeHome: string }) {
   const openTurn = (projectId: string, sessionId: string | null) =>
     db.query.agentTurns.findFirst({
@@ -92,6 +95,11 @@ export function createAgentTurns(db: Db, opts: { claudeHome: string }) {
       const root = turn.cwd || cwd;
       const diff =
         root && turn.baseCommit !== null ? await diffSince(root, { commit: turn.baseCommit, untracked: turn.baseUntracked }).catch(() => null) : null;
+      // Questions and answers that did not touch the repository are not worth a summary.
+      if (!diff || diff.files.length === 0) {
+        await db.delete(s.agentTurns).where(eq(s.agentTurns.id, turn.id));
+        return false;
+      }
       const summary = payload.last_assistant_message?.trim() || (await lastAssistantMessage(payload.transcript_path, opts.claudeHome));
       await db
         .update(s.agentTurns)

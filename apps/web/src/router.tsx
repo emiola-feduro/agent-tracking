@@ -9,6 +9,7 @@ import ProjectPage from "@/pages/project-page";
 import ProjectsPage from "@/pages/projects-page";
 
 const TABS: ProjectTab[] = [
+  "overview",
   "requirements",
   "traceability",
   "screens",
@@ -48,7 +49,7 @@ const projectRoute = createRoute({
   component: function ProjectRouteComponent() {
     const { projectId } = projectRoute.useParams();
     const { tab } = projectRoute.useSearch();
-    return <ProjectPage projectId={projectId} tab={tab ?? "requirements"} />;
+    return <ProjectPage projectId={projectId} tab={tab ?? "overview"} />;
   },
 });
 

@@ -1,5 +1,5 @@
+import TokenButton from "@/components/ui/token-button/token-button";
 import AssistantCriteriaSuggestions from "@/components/dynamic/assistant/assistant-criteria-suggestions";
-import Button from "@/components/ui/button/button";
 import ListEditor from "@/components/ui/list-editor/list-editor";
 import RemoveButton from "@/components/ui/remove-button/remove-button";
 import StatusPill from "@/components/ui/status-pill/status-pill";
@@ -28,9 +28,9 @@ const NewProjectRequirementDod = ({ requirement }: { requirement: RequirementDra
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-medium text-ink">Definition of Done</h3>
         {configured && (
-          <Button size="sm" onClick={suggestions.suggest} isLoading={suggestions.isLoading} disabled={!title.trim()}>
+          <TokenButton size="sm" onClick={suggestions.suggest} isLoading={suggestions.isLoading} disabled={!title.trim()}>
             Sugerir con IA
-          </Button>
+          </TokenButton>
         )}
       </div>
       {llmDod.length > 0 && (

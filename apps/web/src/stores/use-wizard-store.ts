@@ -19,8 +19,9 @@ export type RequirementDraft = {
   key: string;
   title: string;
   description: string;
-  type: RequirementType;
-  area: RequirementArea;
+  /** null: deduced from the text when the project is created. */
+  type: RequirementType | null;
+  area: RequirementArea | null;
   /** Criteria written by the person. */
   dod: string[];
   /** Criteria suggested by the assistant and accepted; saved with origin "llm". */
@@ -67,10 +68,12 @@ type WizardActions = {
   setRequirement: (key: string, data: Partial<RequirementDraft>) => void;
   addRequirement: () => void;
   removeRequirement: (key: string) => void;
+  /** Adds imported requirements, replacing the empty draft the step starts with. */
+  importRequirements: (list: { title: string; description: string; type: RequirementType; area: RequirementArea; dod: string[] }[]) => void;
   reset: () => void;
 };
 
-const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", type: "functional", area: "general", dod: [""], llmDod: [] });
+const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", type: null, area: null, dod: [""], llmDod: [] });
 
 const initial = (): WizardData => ({
   step: 0,
@@ -132,6 +135,13 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
     set((s) => ({ requirements: s.requirements.map((r) => (r.key === key ? { ...r, ...data } : r)) })),
   addRequirement: () => set((s) => ({ requirements: [...s.requirements, newRequirement()] })),
   removeRequirement: (key) => set((s) => ({ requirements: s.requirements.filter((r) => r.key !== key) })),
+  importRequirements: (list) =>
+    set((s) => ({
+      requirements: [
+        ...s.requirements.filter((r) => r.title.trim() || r.description.trim() || r.dod.some((d) => d.trim())),
+        ...list.map((r) => ({ ...newRequirement(), title: r.title, description: r.description, type: r.type, area: r.area, dod: r.dod.length ? r.dod : [""] })),
+      ],
+    })),
   reset: () => set(initial()),
 }));
 

@@ -31,8 +31,8 @@ const buildPayload = (): NewProject => {
       .map((r) => ({
         title: r.title.trim(),
         description: r.description.trim(),
-        type: r.type,
-        area: r.area,
+        type: r.type ?? undefined,
+        area: r.area ?? undefined,
         dod: [
           ...r.dod.map((d) => d.trim()).filter(Boolean).map((criterion) => ({ criterion, origin: "human" as const })),
           ...r.llmDod.map((criterion) => ({ criterion, origin: "llm" as const })),
@@ -50,7 +50,7 @@ const useCreateProject = () => {
     onSuccess: (view) => {
       queryClient.setQueryData(queryKeys.project(view.project.id), view);
       queryClient.invalidateQueries({ queryKey: queryKeys.projects, exact: true });
-      navigate({ to: "/projects/$projectId", params: { projectId: view.project.id }, search: { tab: "requirements" } });
+      navigate({ to: "/projects/$projectId", params: { projectId: view.project.id }, search: { tab: "overview" } });
     },
   });
 };

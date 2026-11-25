@@ -7,7 +7,10 @@ import {
   PLATFORMS,
   PROJECT_KIND_INFO,
   PROJECT_KINDS,
+  parseRequirements,
   projectProgress,
+  settleClassification,
+  isAreaOf,
   REQUIREMENT_AREAS,
   REQUIREMENT_TYPES,
   recommendStack,
@@ -38,7 +41,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join } from "node:path";
 import { z } from "zod";
-import { createTracker, LOCAL_USER, TrackingError, type Emit, type Tracker } from "@agent-tracking/tracking";
+import { createProject as createProjectRecord, createTracker, LOCAL_USER, TrackingError, type Emit, type Tracker } from "@agent-tracking/tracking";
 import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
@@ -65,8 +68,9 @@ const dodInput = z.object({ criterion: z.string().min(1), origin: z.enum(["human
 const requirementInput = z.object({
   title: z.string().min(1),
   description: z.string().default(""),
-  type: z.enum(REQUIREMENT_TYPES).default("functional"),
-  area: z.enum(REQUIREMENT_AREAS).default("general"),
+  /** Inferred from the text when missing. */
+  type: z.enum(REQUIREMENT_TYPES).optional(),
+  area: z.enum(REQUIREMENT_AREAS).optional(),
   weight: z.number().positive().default(1),
   dod: z.array(dodInput).default([]),
 });
@@ -400,26 +404,15 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       project.repoPath = repo.root;
       project.repoUrl ??= repo.remoteUrl;
     }
-    const projectId = newId();
     const origins = await Promise.all(skills.map((k) => originFor(k, claudeHome)));
-    db.transaction((tx) => {
-      tx.insert(s.projects).values({ id: projectId, ...project }).run();
-      rules.forEach((text, i) => tx.insert(s.businessRules).values({ id: newId(), projectId, text, priority: i + 1 }).run());
-      skills.forEach((k, i) => tx.insert(s.projectSkills).values({ id: newId(), projectId, ...k, ...origins[i] }).run());
-      for (const { dod, ...r } of requirements) {
-        const requirementId = newId();
-        tx.insert(s.requirements).values({ id: requirementId, projectId, ...r }).run();
-        dod.forEach((d) => tx.insert(s.dodItems).values({ id: newId(), requirementId, ...d }).run());
-      }
+    const projectId = await createProjectRecord(db, emit, {
+      ...project,
+      rules,
+      skills: skills.map((k, i) => ({ ...k, ...origins[i] })),
+      requirements,
+      githubFiles: githubKinds,
+      prTemplate,
     });
-    await writeRepoFiles(db, projectId);
-    if (project.repoPath && githubKinds.length > 0) {
-      const files = githubFiles({ name: project.name, stack: project.stack, requirements }, githubKinds).map((f) =>
-        f.kind === "prTemplate" && prTemplate?.trim() ? { ...f, content: `${prTemplate.trimEnd()}\n` } : f,
-      );
-      await writeNewFiles(project.repoPath, files);
-    }
-    emit({ type: "project.created", projectId });
     return c.json(withProgress(await snapshotOr404(projectId)), 201);
   });
 
@@ -522,7 +515,9 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   app.post("/projects/:id/requirements", async (c) => {
     const projectId = c.req.param("id");
     await snapshotOr404(projectId);
-    const { dod, ...r } = await body(c, requirementInput);
+    const { dod, ...input } = await body(c, requirementInput);
+    const { kind } = (await snapshotOr404(projectId)).project;
+    const r = { ...input, ...settleClassification({ type: input.type, area: input.area }, input.title, input.description, kind) };
     const requirementId = newId();
     db.transaction((tx) => {
       tx.insert(s.requirements).values({ id: requirementId, projectId, ...r }).run();
@@ -531,10 +526,37 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     await touch(projectId, "requirement", requirementId);
     return c.json({ id: requirementId }, 201);
   });
+  /** Requirements with their DoD pasted or uploaded as Markdown or JSON (see packages/core/src/plan.ts). */
+  app.post("/projects/:id/requirements/import", async (c) => {
+    const projectId = c.req.param("id");
+    const { kind } = (await snapshotOr404(projectId)).project;
+    const { text } = await body(c, z.object({ text: z.string().min(1).max(200_000) }));
+    const parsed = parseRequirements(text, kind);
+    if (!parsed.ok) throw new HTTPException(400, { message: parsed.error });
+    const ids: string[] = [];
+    db.transaction((tx) => {
+      for (const { dod, ...r } of parsed.value) {
+        const requirementId = newId();
+        ids.push(requirementId);
+        tx.insert(s.requirements).values({ id: requirementId, projectId, ...r }).run();
+        dod.forEach((criterion) => tx.insert(s.dodItems).values({ id: newId(), requirementId, criterion }).run());
+      }
+    });
+    await touch(projectId, "requirement");
+    return c.json({ created: ids.length, ids, warnings: parsed.warnings }, 201);
+  });
   app.patch("/projects/:id/requirements/:reqId", async (c) => {
     const { id: projectId, reqId } = c.req.param();
     await requirementIn(projectId, reqId);
     const input = await patchBody(c, requirementInput.omit({ dod: true }).partial());
+    // Changing the type keeps the area only if it still makes sense (a quality for non functional ones).
+    if (input.type && !input.area) {
+      const current = (await db.query.requirements.findFirst({ where: eq(s.requirements.id, reqId) }))!;
+      if (!isAreaOf(input.type, current.area)) {
+        const { kind } = (await snapshotOr404(projectId)).project;
+        input.area = settleClassification({ type: input.type }, current.title, current.description, kind).area;
+      }
+    }
     await db.update(s.requirements).set({ ...input, updatedAt: nowIso() }).where(eq(s.requirements.id, reqId));
     await touch(projectId, "requirement", reqId);
     return c.json({ id: reqId });

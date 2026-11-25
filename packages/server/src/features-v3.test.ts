@@ -119,10 +119,19 @@ describe("agent turns", () => {
     expect(turn.patch).not.toContain("a = 2");
   });
 
+  test("a turn that changed nothing (just a question) leaves no summary", async () => {
+    const before = (await call("GET", `/projects/${projectId}/turns`)).data.length;
+    await call("POST", "/agent/hook", { cwd: repo, session_id: "s3", hook_event_name: "UserPromptSubmit", prompt: "¿Qué hace createApp?" });
+    await call("POST", "/agent/hook", { cwd: repo, session_id: "s3", hook_event_name: "Stop", last_assistant_message: "Crea la app." });
+    await Bun.sleep(300);
+    expect((await call("GET", `/projects/${projectId}/turns`)).data.length).toBe(before);
+  });
+
   test("transcripts outside the Claude folder are never read", async () => {
     const outside = join(tmp, "secret.jsonl");
     await writeFile(outside, JSON.stringify({ type: "assistant", message: { content: [{ type: "text", text: "secreto" }] } }));
     await call("POST", "/agent/hook", { cwd: repo, session_id: "s2", hook_event_name: "UserPromptSubmit", prompt: "x" });
+    await writeFile(join(repo, "otro.ts"), "export {};\n");
     await call("POST", "/agent/hook", { cwd: repo, session_id: "s2", hook_event_name: "Stop", transcript_path: outside });
     await Bun.sleep(300);
     expect((await call("GET", `/projects/${projectId}/turns`)).data[0].summary).toBe("");
@@ -150,5 +159,27 @@ describe("worktrees and previews", () => {
     expect(file.content).toBe("export const n = 1;\n");
     expect((await call("GET", `/projects/${projectId}/repo/file?path=x&worktree=${encodeURIComponent(tmp)}`)).status).toBe(400);
     expect((await call("GET", `/projects/${projectId}/repo/file?path=../secret.jsonl`)).status).toBe(400);
+  });
+});
+
+describe("importing requirements", () => {
+  test("markdown with criteria becomes requirements; missing type and area are inferred", async () => {
+    const res = await call("POST", `/projects/${projectId}/requirements/import`, {
+      text: "## Exportar gastos a CSV\n- [ ] Descarga un archivo\n\n## Cifrar los datos en reposo\n",
+    });
+    expect(res.status).toBe(201);
+    expect(res.data.created).toBe(2);
+    const reqs = (await call("GET", `/projects/${projectId}`)).data.requirements;
+    expect(reqs.find((r: any) => r.title === "Cifrar los datos en reposo")).toMatchObject({ type: "non_functional", area: "security" });
+    expect((await call("POST", `/projects/${projectId}/requirements/import`, { text: "nada" })).status).toBe(400);
+  });
+
+  test("switching type picks an area that fits", async () => {
+    const r = (await call("POST", `/projects/${projectId}/requirements`, { title: "Pantalla de resumen" })).data;
+    const view = async () => (await call("GET", `/projects/${projectId}`)).data.requirements.find((x: any) => x.id === r.id);
+    expect(await view()).toMatchObject({ type: "functional", area: "backend" });
+    await call("PATCH", `/projects/${projectId}/requirements/${r.id}`, { type: "non_functional" });
+    expect((await view()).type).toBe("non_functional");
+    expect(["performance", "security", "ux", "accessibility", "reliability", "scalability", "maintainability", "compatibility"]).toContain((await view()).area);
   });
 });

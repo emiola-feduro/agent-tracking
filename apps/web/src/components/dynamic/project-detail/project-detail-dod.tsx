@@ -1,3 +1,4 @@
+import TokenButton from "@/components/ui/token-button/token-button";
 import { useState, type FormEvent } from "react";
 import AssistantCriteriaSuggestions from "@/components/dynamic/assistant/assistant-criteria-suggestions";
 import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
@@ -40,9 +41,9 @@ const ProjectDetailDod = ({ projectId, requirementId, items, images }: ProjectDe
       <div className="flex min-h-8 flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-ink">Definition of Done</h3>
         {configured && (
-          <Button size="sm" onClick={suggestions.suggest} isLoading={suggestions.isLoading}>
+          <TokenButton size="sm" onClick={suggestions.suggest} isLoading={suggestions.isLoading}>
             Generar criterios
-          </Button>
+          </TokenButton>
         )}
       </div>
       <ul className="flex flex-col">

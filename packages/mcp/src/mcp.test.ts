@@ -72,6 +72,8 @@ describe("MCP tools over an SDK client", () => {
     expect(tools.map((t) => t.name).sort()).toEqual(
       [
         "complete_feature",
+        "create_project",
+        "get_plan_format",
         "get_project_context",
         "get_project_skills",
         "get_requirement",
@@ -286,5 +288,34 @@ describe("stdio entrypoint", () => {
 
     const snap = (await loadSnapshot(fileDb, "p-stdio"))!;
     expect(snap.features[0]).toMatchObject({ name: "Desde stdio", agent: "codex" });
+  });
+});
+
+describe("creating a project from a plan", () => {
+  test("asks for what is missing, then creates it with inferred classification", async () => {
+    const client = await connect({});
+    const fresh = join(tmp, "nuevo");
+    await git(["init", "-q", "-b", "main", fresh]);
+    const format = await call(client, "get_plan_format");
+    expect(format.data).toContain("## Requerimientos");
+
+    const partial = await call(client, "create_project", { plan: "# Agenda\n\n## Requerimientos\n\n### Ver citas del día\n- [ ] Lista ordenada por hora\n" });
+    expect(partial.data.created).toBe(false);
+    expect(partial.data.questions.map((q: { field: string }) => q.field)).toEqual(["kind", "goal"]);
+
+    const done = await call(client, "create_project", {
+      repoPath: fresh,
+      plan: "# Agenda\nTipo: api\n\n## Objetivo\nCitas de un consultorio\n\n## Requerimientos\n\n### Ver citas del día\n- [ ] Lista ordenada por hora\n\n### Responde en menos de 100 ms\n",
+    });
+    expect(done.data.created).toBe(true);
+    expect(done.data.followUp.map((q: { field: string }) => q.field)).toEqual(["dod"]);
+    const snap = await loadSnapshot(db, done.data.projectId);
+    expect(snap!.project).toMatchObject({ name: "Agenda", kind: "api", repoPath: fresh });
+    expect(snap!.requirements.map((r) => [r.title, r.type, r.area])).toEqual([
+      ["Ver citas del día", "functional", "backend"],
+      ["Responde en menos de 100 ms", "non_functional", "performance"],
+    ]);
+    expect(snap!.dod.map((d) => d.criterion)).toEqual(["Lista ordenada por hora"]);
+    expect((await call(client, "create_project", { repoPath: fresh, plan: "# X\nTipo: cli\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n" })).isError).toBe(true);
   });
 });

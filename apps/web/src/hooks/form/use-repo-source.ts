@@ -27,7 +27,7 @@ const useRepoSource = () => {
     onSuccess: (view) => {
       queryClient.setQueryData(queryKeys.project(view.project.id), view);
       queryClient.invalidateQueries({ queryKey: queryKeys.projects, exact: true });
-      navigate({ to: "/projects/$projectId", params: { projectId: view.project.id }, search: { tab: "requirements" } });
+      navigate({ to: "/projects/$projectId", params: { projectId: view.project.id }, search: { tab: "overview" } });
     },
   });
 

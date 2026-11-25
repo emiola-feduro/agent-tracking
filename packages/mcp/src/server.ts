@@ -1,12 +1,23 @@
 import {
   buildContextMarkdown,
+  missingPlanFields,
+  parseProjectPlan,
+  PLAN_TEMPLATE,
+  PLATFORMS,
+  PROJECT_KIND_INFO,
+  PROJECT_KINDS,
+  REQUIREMENT_AREA_LABEL,
+  REQUIREMENT_AREAS,
+  REQUIREMENT_TYPES,
+  STACK_OPTIONS,
+  type ProjectPlan,
   featureProgress,
   requirementProgress,
   SYMBOL_KINDS,
   toPercent,
   type ProjectSnapshot,
 } from "@agent-tracking/core";
-import { saveAttachment, TrackingError, type Tracker } from "@agent-tracking/tracking";
+import { createProject, saveAttachment, TrackingError, type Tracker } from "@agent-tracking/tracking";
 import { readFile } from "node:fs/promises";
 import { isAbsolute, join, relative, resolve as resolvePath } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -24,6 +35,7 @@ export const SERVER_INSTRUCTIONS = [
   "sus tests con resultado, y los criterios del DoD que quedaron cumplidos con su evidencia.",
   "pending_changes lista los archivos cambiados que aún no cubre ningún reporte: inclúyelos.",
   "Las herramientas report_* y start_feature/complete_feature siguen disponibles para reportes parciales.",
+  "Para crear un proyecto a partir de un plan usa get_plan_format y luego create_project; si create_project devuelve preguntas, házselas al usuario y vuelve a llamarla con sus respuestas.",
   "Si el proyecto tiene interfaz y creaste o cambiaste una vista, guarda una captura en el repositorio y repórtala con report_screen para la galería.",
 ].join(" ");
 
@@ -506,6 +518,99 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       },
     );
   }
+
+  server.registerTool(
+    "get_plan_format",
+    {
+      title: "Formato de un plan de proyecto",
+      description:
+        "Explica cómo escribir un plan para create_project: el formato Markdown (o JSON), los valores permitidos y lo que Agent Tracking necesita sí o sí. Llámala antes de create_project.",
+      inputSchema: {},
+      annotations: readOnly,
+    },
+    async () =>
+      text(
+        [
+          "Un plan es Markdown como este (también se acepta JSON con los mismos campos):",
+          "",
+          PLAN_TEMPLATE,
+          "Obligatorio: nombre (# Título), Tipo, Objetivo y al menos un requerimiento. Plataformas solo si el tipo es aplicación completa.",
+          "Cada requerimiento debería tener criterios del Definition of Done (lista o checklist debajo de su título).",
+          `Tipos de proyecto: ${PROJECT_KINDS.map((k) => `${k} (${PROJECT_KIND_INFO[k].label})`).join(", ")}.`,
+          `Plataformas: ${PLATFORMS.join(", ")}.`,
+          `Tipos de requerimiento: ${REQUIREMENT_TYPES.join(", ")} (funcional = lo que hace; no funcional = qué tan bien lo hace).`,
+          `Áreas: ${REQUIREMENT_AREAS.map((a) => `${a} (${REQUIREMENT_AREA_LABEL[a]})`).join(", ")}. Las de calidad (rendimiento, seguridad...) son para no funcionales; si falta, se deduce del texto.`,
+          `Stack sugerido del catálogo: ${STACK_OPTIONS.map((o) => o.name).join(", ")}. Se aceptan otras tecnologías.`,
+          "No inventes lo que el usuario no dijo: si falta algo obligatorio, create_project devolverá las preguntas para hacérselas.",
+        ].join("\n"),
+      ),
+  );
+
+  server.registerTool(
+    "create_project",
+    {
+      title: "Crear proyecto desde un plan",
+      description:
+        "Crea un proyecto en Agent Tracking a partir de un plan (Markdown o JSON, ver get_plan_format). Si falta algo que el wizard pide sí o sí, no crea nada y devuelve `questions`: házselas al usuario (por ejemplo con AskUserQuestion), agrega las respuestas al plan y vuelve a llamarla.",
+      inputSchema: {
+        plan: z.string().min(1).describe("El plan en Markdown o JSON"),
+        repoPath: z.string().optional().describe("Ruta absoluta del repositorio git del proyecto (normalmente tu directorio de trabajo). Opcional."),
+        githubFiles: z
+          .array(z.enum(["ci", "prTemplate"]))
+          .optional()
+          .describe("Archivos iniciales de .github a escribir en el repo, solo si el usuario los pidió"),
+      },
+    },
+    (async ({ plan, repoPath, githubFiles }: { plan: string; repoPath?: string; githubFiles?: ("ci" | "prTemplate")[] }): Promise<CallToolResult> => {
+      try {
+        const parsed = parseProjectPlan(plan);
+        if (!parsed.ok) return { isError: true, content: [{ type: "text", text: parsed.error }] };
+        const value: ProjectPlan = parsed.value;
+        const missing = missingPlanFields(value);
+        const blocking = missing.filter((m) => m.field !== "dod");
+        if (blocking.length > 0) {
+          return text({
+            created: false,
+            message: "Faltan datos que el usuario debe dar. Pregúntaselos y vuelve a llamar a create_project con el plan completo.",
+            questions: missing,
+            understood: { ...value, requirements: value.requirements.map((r) => ({ title: r.title, type: r.type, area: r.area, criteria: r.dod.length })) },
+            warnings: parsed.warnings,
+          });
+        }
+        const projectId = await createProject(
+          tracker.db,
+          tracker.emit,
+          {
+            name: value.name,
+            goal: value.goal,
+            kind: value.kind!,
+            platforms: value.platforms,
+            stack: value.stack,
+            databases: value.databases,
+            repoPath: repoPath ?? null,
+            rules: value.rules,
+            requirements: value.requirements.map((r) => ({ ...r, dod: r.dod.map((criterion) => ({ criterion })) })),
+            githubFiles,
+          },
+          actor(),
+        );
+        await tracker.recordEvent(projectId, actor(), "create_project", { name: value.name, requirements: value.requirements.length });
+        session.project ??= projectId;
+        return text({
+          created: true,
+          projectId,
+          requirements: value.requirements.length,
+          warnings: parsed.warnings,
+          followUp: missing.length ? missing : undefined,
+          next: "Revisa el proyecto en Agent Tracking. Si quedaron requerimientos sin criterios del DoD, pregúntale al usuario por ellos.",
+        });
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        if (!(e instanceof TrackingError)) console.error("[mcp] create_project:", e);
+        return { isError: true, content: [{ type: "text", text: message }] };
+      }
+    }) as never,
+  );
 
   return server;
 }

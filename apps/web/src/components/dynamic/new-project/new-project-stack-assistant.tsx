@@ -1,6 +1,6 @@
+import TokenButton from "@/components/ui/token-button/token-button";
 import AssistantSuggestionsSkeleton from "@/components/dynamic/assistant/assistant-suggestions-skeleton";
 import Alert from "@/components/ui/alert/alert";
-import Button from "@/components/ui/button/button";
 import useAssistantStatus from "@/hooks/data/use-assistant-status";
 import useStackSuggestion from "@/hooks/form/use-stack-suggestion";
 import NewProjectStackChoice from "./new-project-stack-choice";
@@ -18,9 +18,9 @@ const NewProjectStackAssistant = ({ onApply }: NewProjectStackAssistantProps) =>
     <section className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-semibold text-ink">Sugerencia con IA</h3>
-        <Button size="sm" onClick={suggest} isLoading={isLoading}>
+        <TokenButton size="sm" onClick={suggest} isLoading={isLoading}>
           {choices.length ? "Sugerir otra vez" : "Sugerir con IA"}
-        </Button>
+        </TokenButton>
       </div>
       {isLoading && <AssistantSuggestionsSkeleton rows={2} />}
       {!isLoading && error && <Alert>{error.message}</Alert>}

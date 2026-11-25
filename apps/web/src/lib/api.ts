@@ -112,7 +112,7 @@ export type NewProject = {
   prTemplate?: string;
   rules: string[];
   skills: SkillInput[];
-  requirements: { title: string; description: string; type: RequirementType; area: RequirementArea; dod: { criterion: string; origin: "human" | "llm" }[] }[];
+  requirements: { title: string; description: string; type?: RequirementType; area?: RequirementArea; dod: { criterion: string; origin: "human" | "llm" }[] }[];
 };
 
 /** Project data the assistant reads; wizard drafts send what has been filled so far. */
@@ -198,8 +198,10 @@ export const api = {
   skillStatus: (id: string) => request<SkillAvailability[]>("GET", `${p(id)}/skills/status`),
   installSkill: (id: string, skillId: string) => request<SkillAvailability>("POST", `${p(id)}/skills/${skillId}/install`),
 
-  addRequirement: (id: string, data: { title: string; description: string; type: RequirementType; area: RequirementArea }) =>
+  addRequirement: (id: string, data: { title: string; description: string; type?: RequirementType; area?: RequirementArea }) =>
     request<{ id: string }>("POST", `${p(id)}/requirements`, data),
+  importRequirements: (id: string, text: string) =>
+    request<{ created: number; ids: string[]; warnings: string[] }>("POST", `${p(id)}/requirements/import`, { text }),
   updateRequirement: (id: string, reqId: string, data: Partial<{ title: string; description: string; type: RequirementType; area: RequirementArea }>) =>
     request<{ id: string }>("PATCH", `${p(id)}/requirements/${reqId}`, data),
   deleteRequirement: (id: string, reqId: string) => request<void>("DELETE", `${p(id)}/requirements/${reqId}`),

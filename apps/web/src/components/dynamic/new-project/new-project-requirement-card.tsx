@@ -1,7 +1,5 @@
 import RemoveButton from "@/components/ui/remove-button/remove-button";
-import SelectField from "@/components/ui/select-field/select-field";
-import type { RequirementArea, RequirementType } from "@/lib/api";
-import { REQUIREMENT_AREA_OPTIONS, REQUIREMENT_TYPE_OPTIONS } from "@/lib/labels";
+import ClassificationFields from "@/components/dynamic/requirement-classification/classification-fields";
 import TextAreaField from "@/components/ui/text-area-field/text-area-field";
 import TextField from "@/components/ui/text-field/text-field";
 import useWizardStore, { type RequirementDraft } from "@/stores/use-wizard-store";
@@ -16,6 +14,7 @@ const NewProjectRequirementCard = ({ requirement, index }: NewProjectRequirement
   const { key, title, description, type, area } = requirement;
   const setRequirement = useWizardStore((s) => s.setRequirement);
   const removeRequirement = useWizardStore((s) => s.removeRequirement);
+  const kind = useWizardStore((s) => s.kind);
   const number = index + 1;
 
   return (
@@ -36,10 +35,13 @@ const NewProjectRequirementCard = ({ requirement, index }: NewProjectRequirement
         onChange={(v) => setRequirement(key, { description: v })}
         rows={2}
       />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <SelectField label="Tipo" value={type} onChange={(v) => setRequirement(key, { type: v as RequirementType })} options={REQUIREMENT_TYPE_OPTIONS} />
-        <SelectField label="Área" value={area} onChange={(v) => setRequirement(key, { area: v as RequirementArea })} options={REQUIREMENT_AREA_OPTIONS} />
-      </div>
+      <ClassificationFields
+        value={{ type, area }}
+        onChange={(c) => setRequirement(key, c)}
+        title={title}
+        description={description}
+        kind={kind}
+      />
       <NewProjectRequirementDod requirement={requirement} />
     </article>
   );

@@ -49,7 +49,7 @@ const ProjectSwitcher = () => {
 
   const go = (id: string) => {
     setOpen(false);
-    navigate({ to: "/projects/$projectId", params: { projectId: id }, search: (prev: { tab?: string }) => ({ tab: prev.tab ?? "requirements" }) as never });
+    navigate({ to: "/projects/$projectId", params: { projectId: id }, search: (prev: { tab?: string }) => ({ tab: prev.tab ?? "overview" }) as never });
   };
 
   return (

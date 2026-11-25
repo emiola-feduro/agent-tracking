@@ -153,13 +153,32 @@ Las skills del proyecto muestran en su pestaña si están en este equipo:
   confirmación. Estas no se copian al repo.
 - **Del repo** (`.claude/skills`): ya viajan con git.
 
+### Clasificar e importar requerimientos
+
+Un requerimiento **funcional** dice qué hace el sistema y su área es la parte del sistema (frontend,
+backend, datos, integraciones, infraestructura). Uno **no funcional** dice qué tan bien lo hace y su
+área es un atributo de calidad (rendimiento, seguridad, usabilidad, accesibilidad, confiabilidad,
+escalabilidad, mantenibilidad, compatibilidad). Si no se indican, se deducen del texto; la app avisa
+cuando el texto sugiere otra clasificación.
+
+Los requerimientos se pueden importar pegando o abriendo Markdown o JSON (en la pestaña
+Requerimientos y en el wizard). En Markdown, un título por requerimiento con `[tipo, área]` opcional
+al final y sus criterios del Definition of Done como lista o checklist debajo.
+
+Un agente puede crear un proyecto completo desde un plan con las herramientas MCP `get_plan_format` y
+`create_project`. Si al plan le falta algo que el wizard pide sí o sí (nombre, tipo, plataformas en
+una app completa, objetivo, requerimientos), `create_project` no crea nada y devuelve las preguntas
+para que el agente se las haga a la persona.
+
+Los botones que llaman a Claude y gastan tokens tienen un brillo y una chispa sutiles.
+
 ### Ramas, worktrees y turnos del agente
 
 - **Ramas y worktrees** lista cada checkout del repositorio (`git worktree list`) con cuántos commits
   lleva frente a `main`, lo que tiene sin commit, el diff y el último turno de un agente ahí. También
   permite cambiar la rama del checkout principal. Los hooks que llegan desde un worktree cuentan para
   el proyecto del repositorio principal.
-- **Lo último que hizo el agente**: con los hooks `UserPromptSubmit` y `Stop`, cada turno queda
+- **Lo último que hizo el agente** (en Resumen, solo para turnos que cambiaron archivos): con los hooks `UserPromptSubmit` y `Stop`, cada turno queda
   registrado con el pedido, los pasos, el mensaje final del agente (leído del transcript en
   `~/.claude`), la hora, la duración, la rama y el diff exacto de ese turno. El diff compara contra una
   foto del árbol de trabajo tomada al empezar (`git stash create`, sin tocar el repo), así que los

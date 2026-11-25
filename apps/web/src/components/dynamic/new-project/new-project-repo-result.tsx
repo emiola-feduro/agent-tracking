@@ -30,7 +30,7 @@ const NewProjectRepoResult = ({ inspection, importRepo }: NewProjectRepoResultPr
         <Alert
           tone="warn"
           action={
-            <Link to="/projects/$projectId" params={{ projectId: existingProjectId }} search={{ tab: "requirements" }} className="font-medium underline">
+            <Link to="/projects/$projectId" params={{ projectId: existingProjectId }} search={{ tab: "overview" }} className="font-medium underline">
               Abrir proyecto
             </Link>
           }

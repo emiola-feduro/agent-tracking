@@ -1,6 +1,7 @@
 import Button from "@/components/ui/button/button";
 import Segmented from "@/components/ui/segmented/segmented";
-import TextField from "@/components/ui/text-field/text-field";
+import SuggestInput from "@/components/ui/suggest-input/suggest-input";
+import useTraceSuggestions from "@/hooks/ui/use-trace-suggestions";
 import useTraceability, { fileMatches } from "@/hooks/data/use-traceability";
 import useExpanded from "@/hooks/ui/use-expanded";
 import type { ProjectView } from "@/lib/api";
@@ -22,6 +23,7 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
   const { pendingFiles, unlinkedFiles, symbolsOf, allFiles } = trace;
   const [mode, setMode] = useState<Mode>("requirements");
   const [query, setQuery] = useState("");
+  const suggestions = useTraceSuggestions(view, query);
   const expanded = useExpanded(allFiles.length <= OPEN_BY_DEFAULT ? allFiles.map((f) => f.id) : []);
 
   const matches = (fileId: string) => {
@@ -54,13 +56,14 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
             />
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-            <TextField
+            <SuggestInput
               label="Buscar archivo o símbolo"
-              type="search"
               value={query}
               onChange={setQuery}
-              placeholder="app.ts, createApp..."
-              className="sm:w-72"
+              suggestions={suggestions}
+              emptyTitle="Para empezar"
+              placeholder="Escribe o elige: app.ts, createApp..."
+              className="sm:w-80"
             />
             <Button
               variant="secondary"
