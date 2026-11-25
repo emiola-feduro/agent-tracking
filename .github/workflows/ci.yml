@@ -1,0 +1,62 @@
+# Agent Tracking CI: types, tests and the web build on every push to main and every pull request.
+# Agent Tracking itself shows these runs in the project's Pipelines section.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  types:
+    name: Tipos (servidor y web)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      - name: Typecheck de los paquetes
+        run: bun run typecheck
+      - name: Typecheck de la web
+        run: bun run check:web
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      # Many tests create throwaway git repositories and commit in them.
+      - name: Identidad de git para los tests
+        run: |
+          git config --global user.name "Agent Tracking CI"
+          git config --global user.email "ci@agent-tracking.invalid"
+          git config --global init.defaultBranch main
+      - run: bun test
+
+  web:
+    name: Build de la web
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      - run: bun run build:web
