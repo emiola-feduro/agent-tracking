@@ -9,3 +9,4 @@ export * from "./project-kind";
 export * from "./requirements";
 export * from "./plan";
 export * from "./conventions";
+export * from "./agent-context";

@@ -1,7 +1,8 @@
 import { PROJECT_KIND_INFO, PROJECT_KINDS } from "@agent-tracking/core";
+import CheckOption from "@/components/ui/check-option/check-option";
 import ChoiceCard from "@/components/ui/choice-card/choice-card";
 import TextField from "@/components/ui/text-field/text-field";
-import type { Platform } from "@/lib/api";
+import type { AgentKind, Platform } from "@/lib/api";
 import useWizardStore from "@/stores/use-wizard-store";
 
 const PLATFORM_CHOICES: { id: Platform; title: string; description: string }[] = [
@@ -10,11 +11,18 @@ const PLATFORM_CHOICES: { id: Platform; title: string; description: string }[] =
   { id: "mobile", title: "Móvil", description: "iOS y Android" },
 ];
 
+const AGENT_CHOICES: { kind: AgentKind; label: string; file: string }[] = [
+  { kind: "claude-code", label: "Claude Code", file: "CLAUDE.md" },
+  { kind: "codex", label: "Codex CLI", file: "AGENTS.md" },
+  { kind: "gemini-cli", label: "Gemini CLI", file: "GEMINI.md" },
+];
+
 const NewProjectBasics = () => {
   const name = useWizardStore((s) => s.name);
   const kind = useWizardStore((s) => s.kind);
   const platforms = useWizardStore((s) => s.platforms);
   const repoUrl = useWizardStore((s) => s.repoUrl);
+  const agents = useWizardStore((s) => s.agents);
   const hasLocalRepo = useWizardStore((s) => s.repo !== null);
   const patch = useWizardStore((s) => s.patch);
   const setKind = useWizardStore((s) => s.setKind);
@@ -55,6 +63,25 @@ const NewProjectBasics = () => {
           </div>
         </fieldset>
       )}
+      <fieldset className="flex flex-col gap-1">
+        <legend className="mb-1 text-sm font-medium text-ink">Agentes que van a trabajar en el proyecto</legend>
+        <p className="mb-1 text-sm text-muted">
+          {hasLocalRepo
+            ? "A cada uno se le deja, en su archivo de instrucciones del repositorio, cómo leer el contexto y reportar."
+            : "Elige un repositorio en Origen para dejarles instrucciones en el repo."}
+        </p>
+        <div className="grid gap-x-4 sm:grid-cols-3">
+          {AGENT_CHOICES.map(({ kind, label, file }) => (
+            <CheckOption
+              key={kind}
+              checked={agents.includes(kind)}
+              onChange={() => patch({ agents: agents.includes(kind) ? agents.filter((a) => a !== kind) : [...agents, kind] })}
+              label={label}
+              meta={<code className="font-mono text-xs font-normal text-muted">{file}</code>}
+            />
+          ))}
+        </div>
+      </fieldset>
       <TextField
         label="Repositorio en GitHub"
         type="url"

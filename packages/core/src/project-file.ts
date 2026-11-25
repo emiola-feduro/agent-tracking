@@ -16,6 +16,7 @@ export const projectFileSchema = z.object({
     name: z.string().min(1),
     goal: z.string().default(""),
     kind: z.enum(PROJECT_KINDS).default("fullstack"),
+    agents: z.array(z.string()).default([]),
     commitConventions: z
       .object({
         types: z.array(z.string()),
@@ -166,6 +167,7 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       name: p.name,
       goal: p.goal,
       kind: p.kind,
+      agents: p.agents ?? [],
       commitConventions: p.commitConventions ?? null,
       platforms: p.platforms,
       stack: p.stack,

@@ -1,6 +1,6 @@
 import { readdir, readFile, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join, sep } from "node:path";
+import { dirname, join, sep } from "node:path";
 import type { SkillSource } from "@agent-tracking/core";
 
 export interface DiscoveredSkill {
@@ -124,9 +124,14 @@ export async function discoverSkills(opts: DiscoverOptions = {}): Promise<Discov
   const claudeHome = opts.claudeHome ?? join(homedir(), ".claude");
   const maxDepth = opts.maxPluginDepth ?? 6;
   const plugins = join(claudeHome, "plugins");
+  // Other agents use the same SKILL.md format: .agents/skills is shared (Gemini CLI reads it, among
+  // others) and Gemini CLI also has its own folder.
+  const home = dirname(claudeHome);
+  const repoDirs = opts.repoPath ? [join(opts.repoPath, ".claude", "skills"), join(opts.repoPath, ".agents", "skills"), join(opts.repoPath, ".gemini", "skills")] : [];
+  const userDirs = [join(claudeHome, "skills"), join(home, ".agents", "skills"), join(home, ".gemini", "skills")];
   return collect([
-    { source: "repo", files: opts.repoPath ? await scanSkillsDir(join(opts.repoPath, ".claude", "skills")) : [] },
-    { source: "user", files: await scanSkillsDir(join(claudeHome, "skills")) },
+    { source: "repo", files: (await Promise.all(repoDirs.map(scanSkillsDir))).flat() },
+    { source: "user", files: (await Promise.all(userDirs.map(scanSkillsDir))).flat() },
     { source: "plugin", files: await scanPluginsDir(plugins, maxDepth, [join(plugins, "marketplaces")]), isPlugin: true },
     { source: "plugin", files: await scanPluginsDir(join(claudeHome, "remote", "plugins"), maxDepth), isPlugin: true },
   ]);

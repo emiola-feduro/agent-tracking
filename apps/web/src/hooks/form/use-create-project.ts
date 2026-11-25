@@ -13,6 +13,7 @@ const buildPayload = (): NewProject => {
     goal: s.goal.trim(),
     kind: s.kind,
     commitConventions: s.commitConventions,
+    agents: s.repo ? s.agents : [],
     platforms: kindPlatforms(s.kind, s.platforms),
     stack: s.stack,
     databases: s.databases,

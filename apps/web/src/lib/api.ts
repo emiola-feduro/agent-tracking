@@ -69,6 +69,20 @@ export type LiveState = {
   sessions: LiveSession[];
 };
 export type GithubFileKind = "ci" | "prTemplate";
+export type AgentKind = "claude-code" | "codex" | "gemini-cli";
+export type AgentInfo = {
+  kind: AgentKind;
+  label: string;
+  installed: boolean;
+  mcp: boolean;
+  hooks: boolean;
+  configPath: string;
+  contextFile: string;
+  lastSeen: string | null;
+};
+export type ConfigChange =
+  | { type: "file"; path: string; description: string; before: string | null; after: string }
+  | { type: "command"; argv: string[]; description: string };
 export type GithubPublish = { owner: string; name: string; visibility: "private" | "public"; description?: string };
 /** Whether a project skill is on this machine and how to get it if not. */
 export type SkillAvailability = { skillId: string; installed: boolean; install: "shared" | "plugin" | null; commands: string[] | null };
@@ -127,6 +141,7 @@ export type NewProject = {
   name: string;
   goal: string;
   commitConventions: CommitConventions | null;
+  agents: AgentKind[];
   kind: ProjectKind;
   platforms: Platform[];
   stack: string[];
@@ -197,7 +212,11 @@ export const api = {
   getProject: (id: string) => request<ProjectView>("GET", p(id)),
   createProject: (data: NewProject) => request<ProjectView>("POST", "/projects", data),
   deleteProject: (id: string) => request<void>("DELETE", p(id)),
-  updateProject: (id: string, data: { commitConventions?: CommitConventions | null }) => request<ProjectView>("PATCH", p(id), data),
+  updateProject: (id: string, data: { commitConventions?: CommitConventions | null; agents?: AgentKind[] }) => request<ProjectView>("PATCH", p(id), data),
+  agents: () => request<AgentInfo[]>("GET", "/agents"),
+  agentPlan: (kind: AgentKind, action: "connect" | "disconnect") => request<ConfigChange[]>("GET", `/agents/${kind}/${action}-plan`),
+  applyAgentPlan: (kind: AgentKind, action: "connect" | "disconnect", plan: ConfigChange[]) =>
+    request<{ done: string[] }>("POST", `/agents/${kind}/${action}`, { plan }),
   syncProject: (id: string) => request<ProjectView>("POST", `${p(id)}/sync`),
 
   stackOptions: () => request<{ stack: StackOption[]; databases: DatabaseOption[] }>("GET", "/stack/options"),

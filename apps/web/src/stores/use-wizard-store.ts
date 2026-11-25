@@ -1,6 +1,6 @@
 import { type CommitConventions, kindPlatforms, PROJECT_KIND_INFO, toggleStackOption } from "@agent-tracking/core";
 import { create } from "zustand";
-import type { AssistantBrief, GithubPublish, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
+import type { AgentKind, AssistantBrief, GithubPublish, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
 
 export const WIZARD_STEPS = [
   { id: "source", label: "Origen" },
@@ -40,6 +40,8 @@ type WizardData = {
   publish: (GithubPublish & { enabled: boolean }) | null;
   /** null: the default conventions (Conventional Commits). */
   commitConventions: CommitConventions | null;
+  /** Agents that will work on the project; their instruction files get the Agent Tracking block. */
+  agents: AgentKind[];
   /** Pull request template as edited in the summary; null until edited (then it follows the requirements). */
   prTemplate: string | null;
   name: string;
@@ -87,6 +89,7 @@ const initial = (): WizardData => ({
   githubFiles: [],
   publish: null,
   commitConventions: null,
+  agents: [],
   prTemplate: null,
   name: "",
   kind: "fullstack",

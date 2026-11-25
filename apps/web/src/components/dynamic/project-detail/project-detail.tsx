@@ -5,6 +5,7 @@ import GithubPulls from "@/components/dynamic/github-pulls/github-pulls";
 import Tabs from "@/components/ui/tabs/tabs";
 import type { ProjectView } from "@/lib/api";
 import ProjectDetailActivity from "./project-detail-activity";
+import ProjectDetailAgents from "./project-detail-agents";
 import ProjectDetailCheckoutMenu from "./project-detail-checkout-menu";
 import ProjectDetailWorktreeBanner from "./project-detail-worktree-banner";
 import ProjectDetailContext from "./project-detail-context";
@@ -34,7 +35,8 @@ export type ProjectTab =
   | GithubTab
   | "rules"
   | "skills"
-  | "context";
+  | "context"
+  | "agents";
 
 type ProjectDetailProps = {
   view: ProjectView;
@@ -76,6 +78,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
         { value: "rules", label: "Reglas y convenciones", count: rules.length, icon: NAV_ICONS.rules },
         { value: "skills", label: "Skills", count: skills.filter((k) => k.enabled).length, icon: NAV_ICONS.skills },
         { value: "context", label: "Contexto", icon: NAV_ICONS.context },
+        { value: "agents", label: "Agentes", count: (project.agents ?? []).length || undefined, icon: NAV_ICONS.agents },
       ],
     },
   ];
@@ -124,6 +127,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
           )}
           {current === "skills" && <ProjectDetailSkills view={view} />}
           {current === "context" && <ProjectDetailContext view={view} />}
+          {current === "agents" && <ProjectDetailAgents view={view} />}
           {(current === "pulls" || current === "branches" || current === "pipelines") && (
             <GithubPanel project={project}>
               {current === "pulls" && <GithubPulls projectId={project.id} />}

@@ -25,6 +25,7 @@ export const NAV_ICONS = {
   rules: icon("M4 4h12v12H4zM7 8h6M7 12h4"),
   skills: icon("M10 2l2.2 4.6 5 .7-3.6 3.5.9 5L10 13.5 5.5 15.8l.9-5L2.8 7.3l5-.7z"),
   context: icon("M5 3h7l3 3v11H5zM12 3v3h3M8 10h4M8 13h4"),
+  agents: icon("M7 4h6v4H7zM4 8h12v8H4zM8 12h.01M12 12h.01M10 2v2"),
 };
 
 type ProjectDetailNavProps = { projectId: string; groups: NavGroup[]; active: ProjectTab };

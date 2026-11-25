@@ -17,6 +17,8 @@ export const projects = sqliteTable("projects", {
   name: text("name").notNull(),
   goal: text("goal").notNull().default(""),
   kind: text("kind").$type<ProjectKind>().notNull().default("fullstack"),
+  /** Agents that work on it; their instruction files get the Agent Tracking block (see core/agent-context.ts). */
+  agents: text("agents", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
   /** null: the default conventions (see packages/core/src/conventions.ts). */
   commitConventions: text("commit_conventions", { mode: "json" }).$type<CommitConventions | null>(),
   platforms: text("platforms", { mode: "json" }).$type<Platform[]>().notNull().default(sql`'[]'`),

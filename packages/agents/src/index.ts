@@ -21,3 +21,4 @@ export const agentForClient = (clientName: string | undefined | null): AgentKind
 
 /** Spanish-friendly name of an agent kind, or the raw name for agents Agent Tracking does not know. */
 export const agentLabel = (agent: string | null | undefined) => (agent && isAgentKind(agent) ? AGENTS[agent].label : agent || "Agente");
+export * from "./connect";

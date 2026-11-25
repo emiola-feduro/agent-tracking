@@ -18,6 +18,8 @@ export interface Project {
   id: string;
   name: string;
   goal: string;
+  /** Agents that work on the project (claude-code, codex, gemini-cli): their instruction files get the Agent Tracking block. */
+  agents?: string[];
   /** How commits and branches are written; null means the defaults (Conventional Commits). */
   commitConventions?: import("./conventions").CommitConventions | null;
   /** What is being built; see PROJECT_KIND_INFO. Older projects are "fullstack". */

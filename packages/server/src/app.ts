@@ -46,8 +46,9 @@ import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
 import { repoRoutes } from "./repo-routes";
-import { adapterFor } from "@agent-tracking/agents";
+import { adapterFor, AGENT_KINDS } from "@agent-tracking/agents";
 import { createAgentTurns, type TurnHookPayload } from "@agent-tracking/tracking";
+import { agentRoutes } from "./agent-routes";
 import { attachmentRoutes } from "./attachment-routes";
 import { originFor, sharedPatch, skillRoutes } from "./skill-routes";
 import { createLiveActivity, type LiveActivity } from "./live-activity";
@@ -94,6 +95,8 @@ const projectFields = z.object({
   name: z.string().min(1),
   /** null or missing: the default conventions. */
   commitConventions: commitConventions.optional(),
+  /** Agents that work on the project; their instruction files get the Agent Tracking block. */
+  agents: z.array(z.enum(AGENT_KINDS)).max(10).optional(),
   goal: z.string().default(""),
   kind: projectKind,
   platforms: platforms.min(1, "Elige al menos una plataforma"),
@@ -719,6 +722,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   });
 
   app.route("/", attachmentRoutes(db, tracker));
+  app.route("/", agentRoutes(db));
   app.route("/", skillRoutes(db, tracker, { claudeHome }));
 
   app.get("/projects/:id/live", async (c) => {

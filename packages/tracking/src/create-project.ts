@@ -41,6 +41,7 @@ export type NewProjectInput = {
   githubFiles?: GithubFileKind[];
   prTemplate?: string;
   commitConventions?: CommitConventions | null;
+  agents?: string[];
 };
 
 /**
@@ -75,6 +76,7 @@ export async function createProject(db: Db, emit: Emit, input: NewProjectInput, 
         goal: input.goal?.trim() ?? "",
         kind,
         commitConventions: input.commitConventions ?? null,
+        agents: input.agents ?? [],
         platforms,
         stack: input.stack ?? [],
         databases: input.databases ?? [],
