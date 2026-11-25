@@ -1,0 +1,10 @@
+{
+  "path": "packages/core/src/index.ts",
+  "purpose": "Exporta los módulos de core.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+    "d5c72587-3bd9-487f-bab5-74e76b919371"
+  ],
+  "symbols": []
+}

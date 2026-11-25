@@ -1,0 +1,33 @@
+{
+  "path": "packages/mcp/src/mcp.test.ts",
+  "tests": [
+    {
+      "featureId": "a8021746-6f16-480d-af64-7d9a91068c3e",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "agents without hooks",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "40490b16-9821-49bc-a246-7d81b01eb54a",
+      "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
+      "name": "creating a project from a plan",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
+      "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
+      "name": "herramientas MCP sobre un cliente del SDK",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "e7d7a963-cd1a-43a3-995d-b5ab4e76cca4",
+      "requirementId": "f497fa5f-cde3-4420-bd49-ee7c7832680f",
+      "name": "report_screen",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

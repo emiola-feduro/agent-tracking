@@ -1,0 +1,9 @@
+{
+  "path": "packages/analyzer/src/analyze.ts",
+  "purpose": "Análisis incremental del repo con caché por contenido",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "cfe72313-771d-4396-913d-07fddbe38666"
+  ],
+  "symbols": []
+}

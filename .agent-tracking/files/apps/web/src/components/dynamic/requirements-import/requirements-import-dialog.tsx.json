@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/requirements-import/requirements-import-dialog.tsx",
+  "purpose": "Diálogo para pegar o abrir Markdown o JSON con vista previa de lo entendido.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d5c72587-3bd9-487f-bab5-74e76b919371"
+  ],
+  "symbols": []
+}

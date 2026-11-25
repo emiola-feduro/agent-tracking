@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/github-branches/github-branches.tsx",
+  "purpose": "Lista de ramas en GitHub.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+  ],
+  "symbols": []
+}

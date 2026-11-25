@@ -1,0 +1,75 @@
+{
+  "path": "packages/server/src/features-v3.test.ts",
+  "tests": [
+    {
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "a message sent while the agent works joins the same turn",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "a session started outside the repo is tracked from the first file it touches",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "a turn whose Stop never came is summarized when the next request arrives",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "d5c72587-3bd9-487f-bab5-74e76b919371",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "importing requirements",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "e7d7a963-cd1a-43a3-995d-b5ab4e76cca4",
+      "requirementId": "f497fa5f-cde3-4420-bd49-ee7c7832680f",
+      "name": "imágenes de referencia",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+      "requirementId": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
+      "name": "switching type picks an area that fits",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "e20e7af5-350b-42e3-9997-73c58a0975ad",
+      "requirementId": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
+      "name": "tipo, área y edición parcial",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "turnos del agente",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "ffddc27b-124c-442f-bfb1-788daca31510",
+      "requirementId": "10bb951b-b30e-402d-bbeb-6906eac77592",
+      "name": "vista previa de archivos dentro del repo",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
+      "requirementId": "d9d9a456-5385-4793-918a-de1ab104db5e",
+      "name": "worktrees y vista previa",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

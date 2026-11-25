@@ -1,0 +1,9 @@
+{
+  "path": "packages/mcp/src/http.ts",
+  "purpose": "Transporte Streamable HTTP en /mcp",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
+  ],
+  "symbols": []
+}

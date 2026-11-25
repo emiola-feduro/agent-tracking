@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx",
+  "purpose": "Editor de convenciones del wizard y del proyecto.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+  ],
+  "symbols": []
+}

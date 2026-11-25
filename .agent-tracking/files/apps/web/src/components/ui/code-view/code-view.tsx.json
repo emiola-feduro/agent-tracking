@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/ui/code-view/code-view.tsx",
+  "purpose": "Código con números de línea y rango marcado",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "ffddc27b-124c-442f-bfb1-788daca31510"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,9 @@
+{
+  "path": "packages/github/src/auth.ts",
+  "purpose": "Token desde GITHUB_TOKEN, gh o acceso anónimo",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "88321b05-2eeb-4232-8bce-97b07a1d66cf"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,18 @@
+{
+  "path": "packages/mcp/src/server.ts",
+  "purpose": "MCP: turnos para agentes sin hooks.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "a8021746-6f16-480d-af64-7d9a91068c3e",
+    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
+  ],
+  "symbols": [
+    {
+      "name": "createMcpServer",
+      "kind": "function",
+      "purpose": "Registra las herramientas del agente",
+      "source": "reported"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+  "title": "Wizard de creación de proyectos",
+  "description": "Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con dependencias, skills, objetivo, reglas, requerimientos con DoD y carpeta .github al final.",
+  "type": "functional",
+  "area": "frontend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.681Z",
+  "dod": [
+    {
+      "id": "57167353-1627-4151-8858-323090f874cb",
+      "criterion": "El tipo de proyecto decide qué partes del stack se ofrecen y la recomendación",
+      "origin": "human",
+      "status": "done",
+      "evidence": "core.test.ts: stackOptionsFor y recommendStack por tipo",
+      "createdAt": "2026-11-25T13:33:02.681Z"
+    },
+    {
+      "id": "8d6809eb-906a-4d6a-b69e-49ebc5194271",
+      "criterion": "Se puede crear un proyecto desde cero, desde un repo local, clonando de GitHub o creando un repo nuevo",
+      "origin": "human",
+      "status": "done",
+      "evidence": "packages/server/src/new-repo.test.ts y pruebas en el navegador",
+      "createdAt": "2026-11-25T13:33:02.681Z"
+    },
+    {
+      "id": "255bd75a-edb5-4f9f-910d-306569a2a5a9",
+      "criterion": "Las tecnologías dependientes (Tailwind, runtimes, ORM) se deshabilitan sin su base",
+      "origin": "human",
+      "status": "done",
+      "evidence": "core.test.ts: options that only make sense next to others",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "af6cce67-e226-47ae-8fe5-c15715b74adf",
+      "criterion": "El pipeline de CI y la plantilla de PR se eligen en el Resumen y la plantilla se edita en Markdown",
+      "origin": "human",
+      "status": "done",
+      "evidence": "new-repo.test.ts: plantilla editada; e2e del wizard",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+      "name": "Wizard de nuevo proyecto",
+      "description": "Siete pasos: origen, proyecto con tipo, stack, skills, objetivo y reglas, requerimientos y resumen con carpeta .github.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:20.871Z"
+    },
+    {
+      "id": "d5c72587-3bd9-487f-bab5-74e76b919371",
+      "name": "Importar requerimientos y planes desde Markdown o JSON",
+      "description": "Parser de requerimientos y de planes completos, diálogo de importación con vista previa en el wizard y en el proyecto.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T15:04:52.453Z"
+    },
+    {
+      "id": "855fbd27-5249-4b67-8a41-e7b18f0856ca",
+      "name": "Convenciones de commits",
+      "description": "Categorías, alcance, idioma y reglas propias, o Conventional Commits por defecto.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T16:49:01.599Z"
+    }
+  ]
+}

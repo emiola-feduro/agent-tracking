@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/lib/github-api.ts",
+  "purpose": "Cliente web de las rutas de GitHub.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,19 @@
+{
+  "path": "packages/server/src/assistant.test.ts",
+  "tests": [
+    {
+      "featureId": "cd9f791e-6d22-496a-933c-50a50921b753",
+      "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
+      "name": "assistant routes",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "eb414879-3201-4d99-9b1e-a3043e0aed50",
+      "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
+      "name": "rutas del asistente",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

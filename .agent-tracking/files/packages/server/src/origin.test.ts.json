@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/origin.test.ts",
+  "purpose": "Tests de orígenes permitidos.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "2643a8cc-df59-4ebb-a845-e574b2b3ebc7"
+  ],
+  "symbols": []
+}

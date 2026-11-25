@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/ui/tabs/tabs.tsx",
+  "purpose": "Pestañas desplazables sin barra vertical",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "bc892359-fa8e-49bf-9e13-6d988fa6f21b"
+  ],
+  "symbols": []
+}

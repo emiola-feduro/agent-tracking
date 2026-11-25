@@ -1,0 +1,69 @@
+{
+  "id": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+  "title": "Actividad en vivo y turnos del agente",
+  "description": "Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno con pedido, mensaje final y diff.",
+  "type": "functional",
+  "area": "backend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.683Z",
+  "dod": [
+    {
+      "id": "052ef931-df84-4412-9e76-7e205b9010ab",
+      "criterion": "Cada turno guarda pedido, pasos, mensaje final, rama, duración y su diff exacto",
+      "origin": "human",
+      "status": "done",
+      "evidence": "features-v3.test.ts: agent turns",
+      "createdAt": "2026-11-25T13:33:02.683Z"
+    },
+    {
+      "id": "6e749177-f5c5-47b4-9832-49970cd2621b",
+      "criterion": "Solo se leen transcripts dentro de ~/.claude",
+      "origin": "human",
+      "status": "done",
+      "evidence": "features-v3.test.ts: transcripts outside the Claude folder are never read",
+      "createdAt": "2026-11-25T13:33:02.683Z"
+    },
+    {
+      "id": "84bf366b-e5c9-4357-9612-b72ce884009e",
+      "criterion": "El panel en vivo muestra el paso actual y los anteriores",
+      "origin": "human",
+      "status": "done",
+      "evidence": "project-detail-live.tsx con hooks reales",
+      "createdAt": "2026-11-25T13:33:02.683Z"
+    },
+    {
+      "id": "c73d3bc7-f455-4e23-b4d8-77e8e647b749",
+      "criterion": "Los hooks responden 204 sin salida, así que no gastan tokens",
+      "origin": "human",
+      "status": "done",
+      "evidence": "live-activity.test.ts: the answer is always empty",
+      "createdAt": "2026-11-25T13:33:02.683Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+      "name": "Hooks en vivo y resumen de turnos",
+      "description": "Los turnos sin cambios en el repo ya no dejan resumen.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.039Z"
+    },
+    {
+      "id": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "name": "Resumen tras cada trabajo del agente",
+      "description": "Mensajes a mitad de turno se suman al turno, un Stop perdido se resuelve en el siguiente pedido, sesiones fuera del repo empiezan al tocar un archivo, ediciones a archivos sin commit cuentan, y un aviso anuncia el trabajo terminado.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T16:49:01.446Z"
+    },
+    {
+      "id": "a8021746-6f16-480d-af64-7d9a91068c3e",
+      "name": "Seguimiento de Codex CLI y Gemini CLI",
+      "description": "Adaptadores por agente, actividad en vivo por sesión, turnos con agente y respaldo por MCP.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T19:03:37.765Z"
+    }
+  ]
+}

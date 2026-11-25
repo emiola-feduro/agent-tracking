@@ -1,0 +1,10 @@
+{
+  "path": "apps/web/src/components/ui/token-button/token-button.tsx",
+  "purpose": "Dice de quién son los tokens que gasta.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "abd40f70-d2b9-4a69-bedd-08d4841a629d",
+    "cd9f791e-6d22-496a-933c-50a50921b753"
+  ],
+  "symbols": []
+}

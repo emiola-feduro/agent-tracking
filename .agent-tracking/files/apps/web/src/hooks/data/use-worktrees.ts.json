@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/hooks/data/use-worktrees.ts",
+  "purpose": "Consultas y mutaciones de ramas y worktrees.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351"
+  ],
+  "symbols": []
+}

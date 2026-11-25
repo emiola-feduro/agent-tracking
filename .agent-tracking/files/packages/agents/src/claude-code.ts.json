@@ -1,0 +1,9 @@
+{
+  "path": "packages/agents/src/claude-code.ts",
+  "purpose": "Adaptador de Claude Code y lectura del último mensaje del transcript.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "a8021746-6f16-480d-af64-7d9a91068c3e"
+  ],
+  "symbols": []
+}

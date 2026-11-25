@@ -1,0 +1,10 @@
+{
+  "path": "packages/skills/src/index.ts",
+  "purpose": "Skills también en .agents/skills y en la carpeta de Gemini.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": []
+}

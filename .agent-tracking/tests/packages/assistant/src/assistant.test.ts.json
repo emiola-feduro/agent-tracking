@@ -1,0 +1,12 @@
+{
+  "path": "packages/assistant/src/assistant.test.ts",
+  "tests": [
+    {
+      "featureId": "eb414879-3201-4d99-9b1e-a3043e0aed50",
+      "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
+      "name": "asistente",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

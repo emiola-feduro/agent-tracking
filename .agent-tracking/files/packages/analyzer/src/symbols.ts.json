@@ -1,0 +1,9 @@
+{
+  "path": "packages/analyzer/src/symbols.ts",
+  "purpose": "Extrae funciones, clases, tipos y tests con tree-sitter",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "cfe72313-771d-4396-913d-07fddbe38666"
+  ],
+  "symbols": []
+}

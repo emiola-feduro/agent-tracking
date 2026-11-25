@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/hooks/ui/use-checkout-view.ts",
+  "purpose": "Worktree que se mira, guardado en la URL.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3eb20a0d-6864-4eba-ac5a-88e24ff870b0"
+  ],
+  "symbols": []
+}

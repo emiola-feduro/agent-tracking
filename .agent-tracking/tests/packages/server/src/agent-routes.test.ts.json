@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/agent-routes.test.ts",
+  "tests": [
+    {
+      "featureId": "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+      "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
+      "name": "agent routes",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

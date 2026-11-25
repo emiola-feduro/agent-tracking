@@ -1,0 +1,9 @@
+{
+  "path": "packages/core/src/merge-layout.test.ts",
+  "purpose": "Tests del merge JSON y del formato v2.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": []
+}

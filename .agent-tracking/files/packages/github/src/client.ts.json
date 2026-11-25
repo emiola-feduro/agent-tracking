@@ -1,0 +1,23 @@
+{
+  "path": "packages/github/src/client.ts",
+  "purpose": "Cliente de GitHub; commits adelante y borrado de ramas.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
+    "88321b05-2eeb-4232-8bce-97b07a1d66cf"
+  ],
+  "symbols": [
+    {
+      "name": "commitsAhead",
+      "kind": "function",
+      "purpose": "Commits que la rama tiene y la principal no",
+      "source": "reported"
+    },
+    {
+      "name": "deleteBranch",
+      "kind": "function",
+      "purpose": "Borra la rama en GitHub y limpia la caché",
+      "source": "reported"
+    }
+  ]
+}

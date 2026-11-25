@@ -1,0 +1,36 @@
+{
+  "path": "packages/git/src/worktrees.ts",
+  "purpose": "Worktrees, diffs de turno y borrado de ramas.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+    "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+    "ffddc27b-124c-442f-bfb1-788daca31510"
+  ],
+  "symbols": [
+    {
+      "name": "readRepoFile",
+      "kind": "function",
+      "purpose": "Lee un archivo del repo con límite de tamaño y detección de binarios",
+      "source": "reported"
+    },
+    {
+      "name": "snapshotWorkingTree",
+      "kind": "function",
+      "purpose": "Estado al empezar, sin tocar el repo",
+      "source": "reported"
+    },
+    {
+      "name": "diffSince",
+      "kind": "function",
+      "purpose": "Cambios desde la foto, incluidos archivos sin commit editados",
+      "source": "reported"
+    },
+    {
+      "name": "deleteBranch",
+      "kind": "function",
+      "purpose": "Borra una rama local con mensajes claros",
+      "source": "reported"
+    }
+  ]
+}

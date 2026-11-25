@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-conventions.tsx",
+  "purpose": "Convenciones editables en Reglas y convenciones.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+  ],
+  "symbols": []
+}

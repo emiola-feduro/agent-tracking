@@ -1,0 +1,33 @@
+{
+  "path": "packages/tracking/src/repo-sync.test.ts",
+  "tests": [
+    {
+      "featureId": "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+      "requirementId": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "name": "git merges of .agent-tracking > the driver is registered and merges edits of the same requirement from two branches",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+      "requirementId": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "name": "git merges of .agent-tracking > the same value changed on both sides stops with conflict markers, as git does",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+      "requirementId": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "name": "importing what arrives through git > a pull is imported and the database's own unwritten changes are kept",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+      "requirementId": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "name": "importing what arrives through git > a version 1 project.json is read and rewritten in the new layout",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

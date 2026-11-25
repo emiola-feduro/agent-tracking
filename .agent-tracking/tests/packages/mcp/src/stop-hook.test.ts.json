@@ -1,0 +1,12 @@
+{
+  "path": "packages/mcp/src/stop-hook.test.ts",
+  "tests": [
+    {
+      "featureId": "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
+      "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
+      "name": "hook Stop",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

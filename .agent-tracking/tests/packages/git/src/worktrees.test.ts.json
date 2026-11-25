@@ -1,0 +1,19 @@
+{
+  "path": "packages/git/src/worktrees.test.ts",
+  "tests": [
+    {
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "an untracked file edited during the turn shows up",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "fcec5305-a2d0-4043-a3ed-05b381b633f7",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+      "name": "worktrees y diff del turno",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx",
+  "purpose": "Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+    "e20e7af5-350b-42e3-9997-73c58a0975ad"
+  ],
+  "symbols": []
+}

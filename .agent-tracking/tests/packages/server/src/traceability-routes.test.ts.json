@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/traceability-routes.test.ts",
+  "tests": [
+    {
+      "featureId": "ffddc27b-124c-442f-bfb1-788daca31510",
+      "requirementId": "10bb951b-b30e-402d-bbeb-6906eac77592",
+      "name": "rutas de trazabilidad",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

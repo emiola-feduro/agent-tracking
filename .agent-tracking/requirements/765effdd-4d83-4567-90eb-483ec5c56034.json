@@ -1,0 +1,53 @@
+{
+  "id": "765effdd-4d83-4567-90eb-483ec5c56034",
+  "title": "Asistente con Claude",
+  "description": "Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determinista.",
+  "type": "functional",
+  "area": "backend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.684Z",
+  "dod": [
+    {
+      "id": "028ad7a1-b2c6-40d4-ba05-c8ea1fde2e77",
+      "criterion": "Las respuestas del modelo pasan por las mismas reglas del catálogo",
+      "origin": "human",
+      "status": "done",
+      "evidence": "assistant/src/stack.ts normalizeStackAnswer con buildStack",
+      "createdAt": "2026-11-25T13:33:02.684Z"
+    },
+    {
+      "id": "e1388175-e647-4108-b929-ba078bd59bda",
+      "criterion": "Sin asistente configurado, el wizard usa la recomendación determinista",
+      "origin": "human",
+      "status": "done",
+      "evidence": "assistant.test.ts: fallback determinista",
+      "createdAt": "2026-11-25T13:33:02.684Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "eb414879-3201-4d99-9b1e-a3043e0aed50",
+      "name": "Asistente de stack, DoD y skills",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.117Z"
+    },
+    {
+      "id": "abd40f70-d2b9-4a69-bedd-08d4841a629d",
+      "name": "Botones que gastan tokens",
+      "description": "Brillo y chispa sutiles en los botones que llaman a Claude.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T15:04:52.687Z"
+    },
+    {
+      "id": "cd9f791e-6d22-496a-933c-50a50921b753",
+      "name": "Proveedores del asistente",
+      "description": "OpenAI y Gemini por API, Codex CLI y Gemini CLI locales, además de Claude por API o Claude Code; se elige en Apariencia o con AGENT_TRACKING_ASSISTANT_PROVIDER.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T19:42:14.102Z"
+    }
+  ]
+}

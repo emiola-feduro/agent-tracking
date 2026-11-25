@@ -1,0 +1,9 @@
+{
+  "path": "packages/mcp/src/stop-hook.ts",
+  "purpose": "Hook Stop que recuerda enviar el reporte",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
+  ],
+  "symbols": []
+}

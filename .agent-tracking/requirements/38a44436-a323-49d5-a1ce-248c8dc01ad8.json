@@ -1,0 +1,37 @@
+{
+  "id": "38a44436-a323-49d5-a1ce-248c8dc01ad8",
+  "title": "La app se recupera sola de reinicios del servidor",
+  "description": "Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket.",
+  "type": "non_functional",
+  "area": "performance",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.685Z",
+  "dod": [
+    {
+      "id": "0c6e5672-8b8a-425a-994d-f69689216c57",
+      "criterion": "Al reconectar el WebSocket se vuelven a pedir los datos",
+      "origin": "human",
+      "status": "done",
+      "evidence": "use-live-events.ts invalida todo al reconectar",
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    },
+    {
+      "id": "8d2eeccb-f552-49bd-86bf-1163dfab18b5",
+      "criterion": "Las lecturas se cortan a los 12 segundos y se reintentan",
+      "origin": "human",
+      "status": "done",
+      "evidence": "apps/web/src/lib/api.ts READ_TIMEOUT_MS y query-client.ts",
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "4e182ef9-9a67-474a-81f0-7b4b51e2a032",
+      "name": "Reintentos y recarga al reconectar",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.218Z"
+    }
+  ]
+}

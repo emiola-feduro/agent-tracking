@@ -1,0 +1,9 @@
+{
+  "path": "packages/tracking/src/repo-sync.test.ts",
+  "purpose": "Tests con git real: merges en dos ramas, conflictos, importación tras pull, checkout, marcas y migración v1.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": []
+}

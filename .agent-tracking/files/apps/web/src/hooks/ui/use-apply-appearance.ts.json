@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/hooks/ui/use-apply-appearance.ts",
+  "purpose": "Aplica variables, fuentes y tamaño al documento",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "bda900d8-220f-4412-9227-a2e92219919b"
+  ],
+  "symbols": []
+}

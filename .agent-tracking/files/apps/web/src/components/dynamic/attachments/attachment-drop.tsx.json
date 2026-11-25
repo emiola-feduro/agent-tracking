@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/attachments/attachment-drop.tsx",
+  "purpose": "Arrastrar, elegir o pegar imágenes",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "e7d7a963-cd1a-43a3-995d-b5ab4e76cca4"
+  ],
+  "symbols": []
+}

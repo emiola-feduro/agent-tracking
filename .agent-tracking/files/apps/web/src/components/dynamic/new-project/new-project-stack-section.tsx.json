@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx",
+  "purpose": "Opciones del stack con grupos exclusivos y dependencias deshabilitadas",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+  ],
+  "symbols": []
+}

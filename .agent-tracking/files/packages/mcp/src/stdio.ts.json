@@ -1,0 +1,9 @@
+{
+  "path": "packages/mcp/src/stdio.ts",
+  "purpose": "Transporte stdio para clientes locales",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
+  ],
+  "symbols": []
+}

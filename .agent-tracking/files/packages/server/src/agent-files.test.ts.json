@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/agent-files.test.ts",
+  "purpose": "Tests de los archivos de instrucciones.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/live-activity.test.ts",
+  "tests": [
+    {
+      "featureId": "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "actividad en vivo y endpoint del hook",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

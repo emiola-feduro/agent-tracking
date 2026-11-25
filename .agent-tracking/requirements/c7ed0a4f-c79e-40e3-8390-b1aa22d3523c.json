@@ -1,0 +1,53 @@
+{
+  "id": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+  "title": "Ramas y worktrees",
+  "description": "Ver el progreso de cada worktree frente a main y cambiar la rama del checkout principal.",
+  "type": "functional",
+  "area": "frontend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.683Z",
+  "dod": [
+    {
+      "id": "1536647c-7003-4c84-b209-fda5901e4e56",
+      "criterion": "Se puede cambiar de rama y git lo impide con cambios sin commit",
+      "origin": "human",
+      "status": "done",
+      "evidence": "repo.ts checkoutBranch rechaza cambios sin commit; repo-routes.test.ts",
+      "createdAt": "2026-11-25T13:33:02.683Z"
+    },
+    {
+      "id": "c5fc176c-e069-44a5-b823-c18e2083d417",
+      "criterion": "Cada worktree muestra commits adelante, cambios sin commit y su diff",
+      "origin": "human",
+      "status": "done",
+      "evidence": "worktrees.test.ts y features-v3.test.ts",
+      "createdAt": "2026-11-25T13:33:02.683Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "fcec5305-a2d0-4043-a3ed-05b381b633f7",
+      "name": "Pestaña Ramas y worktrees",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.075Z"
+    },
+    {
+      "id": "3eb20a0d-6864-4eba-ac5a-88e24ff870b0",
+      "name": "Menú de rama y worktree",
+      "description": "Cambiar de rama con aviso de cambios sin commit, o mirar otro worktree con su código, diff y último turno.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T16:49:01.575Z"
+    },
+    {
+      "id": "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+      "name": "Borrar ramas locales",
+      "description": "Con las reglas de git y sin tocar ramas donde trabaja un agente.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T16:53:46.952Z"
+    }
+  ]
+}

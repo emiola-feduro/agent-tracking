@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/portable.test.ts",
+  "tests": [
+    {
+      "featureId": "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+      "requirementId": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "name": "a project travels with the repository",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

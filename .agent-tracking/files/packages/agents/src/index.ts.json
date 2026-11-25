@@ -1,0 +1,16 @@
+{
+  "path": "packages/agents/src/index.ts",
+  "purpose": "Registro de adaptadores y utilidades (adapterFor, agentForClient, agentLabel).",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "a8021746-6f16-480d-af64-7d9a91068c3e"
+  ],
+  "symbols": [
+    {
+      "name": "adapterFor",
+      "kind": "function",
+      "purpose": "Adaptador del parámetro ?agent=, Claude por defecto",
+      "source": "reported"
+    }
+  ]
+}

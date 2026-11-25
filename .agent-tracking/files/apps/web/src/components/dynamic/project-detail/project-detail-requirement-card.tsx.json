@@ -1,0 +1,10 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx",
+  "purpose": "Requerimiento plegado en una línea; abierto muestra todo.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+    "e20e7af5-350b-42e3-9997-73c58a0975ad"
+  ],
+  "symbols": []
+}

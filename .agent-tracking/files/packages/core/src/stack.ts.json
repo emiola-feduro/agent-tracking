@@ -1,0 +1,34 @@
+{
+  "path": "packages/core/src/stack.ts",
+  "purpose": "Catálogo de tecnologías, reglas de consistencia y recomendación por tipo",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+  ],
+  "symbols": [
+    {
+      "name": "canSelectStackOption",
+      "kind": "function",
+      "purpose": "Si una opción y lo que requiere tienen su base",
+      "source": "reported"
+    },
+    {
+      "name": "toggleStackOption",
+      "kind": "function",
+      "purpose": "Selecciona o quita una opción manteniendo grupos, requisitos y dependencias",
+      "source": "reported"
+    },
+    {
+      "name": "buildStack",
+      "kind": "function",
+      "purpose": "Arma una selección consistente desde una lista en cualquier orden",
+      "source": "reported"
+    },
+    {
+      "name": "recommendStack",
+      "kind": "function",
+      "purpose": "Recomendación determinista por tipo y plataformas",
+      "source": "reported"
+    }
+  ]
+}

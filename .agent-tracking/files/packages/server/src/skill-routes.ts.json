@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/skill-routes.ts",
+  "purpose": "Estado de las skills en este equipo e instalación",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": []
+}

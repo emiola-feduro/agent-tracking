@@ -1,0 +1,26 @@
+{
+  "path": "packages/core/src/plan.test.ts",
+  "tests": [
+    {
+      "featureId": "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+      "requirementId": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
+      "name": "classifyRequirement",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "855fbd27-5249-4b67-8a41-e7b18f0856ca",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "commit conventions",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "d5c72587-3bd9-487f-bab5-74e76b919371",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "parseRequirements y parseProjectPlan",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

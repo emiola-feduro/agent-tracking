@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-turn-toast.tsx",
+  "purpose": "Aviso de trabajo terminado con enlace al resumen.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+  ],
+  "symbols": []
+}

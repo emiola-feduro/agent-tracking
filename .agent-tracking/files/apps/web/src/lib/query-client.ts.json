@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/lib/query-client.ts",
+  "purpose": "Reintentos para errores de red y del servidor",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4e182ef9-9a67-474a-81f0-7b4b51e2a032"
+  ],
+  "symbols": []
+}

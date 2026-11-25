@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-goal.tsx",
+  "purpose": "Paso Objetivo y reglas con convenciones.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+  ],
+  "symbols": []
+}

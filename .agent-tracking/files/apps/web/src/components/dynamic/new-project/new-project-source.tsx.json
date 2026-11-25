@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-source.tsx",
+  "purpose": "Paso Origen: desde cero, repo nuevo, local o clonado",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+  ],
+  "symbols": []
+}

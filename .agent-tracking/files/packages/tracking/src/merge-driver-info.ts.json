@@ -1,0 +1,9 @@
+{
+  "path": "packages/tracking/src/merge-driver-info.ts",
+  "purpose": "Nombre del driver y ruta del script.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/github-routes.test.ts",
+  "tests": [
+    {
+      "featureId": "88321b05-2eeb-4232-8bce-97b07a1d66cf",
+      "requirementId": "d48566db-3202-417a-a0ff-2fa359fdc596",
+      "name": "rutas de GitHub",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

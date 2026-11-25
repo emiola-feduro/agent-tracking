@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-github-publish.tsx",
+  "purpose": "Opción del wizard para crear el repo en GitHub.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+  ],
+  "symbols": []
+}

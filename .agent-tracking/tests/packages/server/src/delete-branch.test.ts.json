@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/delete-branch.test.ts",
+  "tests": [
+    {
+      "featureId": "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+      "name": "deleting branches",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

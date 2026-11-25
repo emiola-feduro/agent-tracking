@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-requirement-dod.tsx",
+  "purpose": "DoD del wizard; Sugerir con IA con TokenButton.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "abd40f70-d2b9-4a69-bedd-08d4841a629d"
+  ],
+  "symbols": []
+}

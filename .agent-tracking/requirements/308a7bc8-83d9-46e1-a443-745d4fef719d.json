@@ -1,0 +1,45 @@
+{
+  "id": "308a7bc8-83d9-46e1-a443-745d4fef719d",
+  "title": "Accesible y usable en móvil",
+  "description": "Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 390 px.",
+  "type": "non_functional",
+  "area": "ux",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.685Z",
+  "dod": [
+    {
+      "id": "5bc3a656-b647-4b4b-8b3c-b56a5eb6f1ee",
+      "criterion": "Las pantallas principales no se desplazan en horizontal a 390 px",
+      "origin": "human",
+      "status": "done",
+      "evidence": "e2e a 390 px: scrollWidth 390 en proyecto, trazabilidad y requerimientos",
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    },
+    {
+      "id": "cfcd7a51-c7a8-42d8-a0e1-1f135313f887",
+      "criterion": "Los controles personalizados tienen rol, nombre accesible y funcionan con teclado",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "bc892359-fa8e-49bf-9e13-6d988fa6f21b",
+      "name": "Diseño adaptable y selector de proyectos",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.208Z"
+    },
+    {
+      "id": "b667d6f3-afef-4d8c-926e-a68abe6d09bf",
+      "name": "Navegación con sidebar",
+      "description": "Secciones del proyecto en un sidebar en pantallas anchas y pestañas en angostas, con sección Resumen.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T15:04:52.657Z"
+    }
+  ]
+}

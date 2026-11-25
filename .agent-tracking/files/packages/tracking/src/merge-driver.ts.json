@@ -1,0 +1,9 @@
+{
+  "path": "packages/tracking/src/merge-driver.ts",
+  "purpose": "Script que git ejecuta como driver: combina JSON por entradas, conserva CONTEXT.md y cae al merge de líneas en conflictos reales.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": []
+}

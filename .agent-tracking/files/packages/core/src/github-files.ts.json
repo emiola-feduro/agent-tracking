@@ -1,0 +1,9 @@
+{
+  "path": "packages/core/src/github-files.ts",
+  "purpose": "Genera ci.yml según el stack y la plantilla de pull request",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+  ],
+  "symbols": []
+}

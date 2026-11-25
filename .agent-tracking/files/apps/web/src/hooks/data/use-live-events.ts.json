@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/hooks/data/use-live-events.ts",
+  "purpose": "WebSocket que recarga todo al reconectar",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4e182ef9-9a67-474a-81f0-7b4b51e2a032"
+  ],
+  "symbols": []
+}

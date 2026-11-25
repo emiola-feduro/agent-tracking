@@ -1,0 +1,18 @@
+{
+  "path": "packages/server/src/live-activity.ts",
+  "purpose": "Actividad en vivo por sesión y agente.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+    "a8021746-6f16-480d-af64-7d9a91068c3e",
+    "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+  ],
+  "symbols": [
+    {
+      "name": "describeTool",
+      "kind": "function",
+      "purpose": "Una línea legible por llamada a herramienta",
+      "source": "reported"
+    }
+  ]
+}

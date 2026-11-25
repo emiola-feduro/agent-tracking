@@ -1,0 +1,22 @@
+{
+  "path": "packages/core/src/project-kind.ts",
+  "purpose": "Tipos de proyecto y catálogo de stack que aplica a cada uno",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+  ],
+  "symbols": [
+    {
+      "name": "PROJECT_KIND_INFO",
+      "kind": "constant",
+      "purpose": "Etiqueta, plataformas y capas de cada tipo",
+      "source": "reported"
+    },
+    {
+      "name": "stackOptionsFor",
+      "kind": "function",
+      "purpose": "Opciones del catálogo para un tipo y sus plataformas",
+      "source": "reported"
+    }
+  ]
+}

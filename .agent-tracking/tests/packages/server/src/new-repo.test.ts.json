@@ -1,0 +1,19 @@
+{
+  "path": "packages/server/src/new-repo.test.ts",
+  "tests": [
+    {
+      "featureId": "855fbd27-5249-4b67-8a41-e7b18f0856ca",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "commit conventions are saved and written into CONTEXT.md",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "repo nuevo, tipo de proyecto y plantilla editada",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

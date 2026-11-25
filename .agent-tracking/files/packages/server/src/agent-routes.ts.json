@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/agent-routes.ts",
+  "purpose": "Rutas /agents: estado, planes, conectar y desconectar.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+  ],
+  "symbols": []
+}

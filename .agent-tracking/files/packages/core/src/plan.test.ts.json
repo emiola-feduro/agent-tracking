@@ -1,0 +1,9 @@
+{
+  "path": "packages/core/src/plan.test.ts",
+  "purpose": "Tests de clasificación, importación y planes.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d5c72587-3bd9-487f-bab5-74e76b919371"
+  ],
+  "symbols": []
+}

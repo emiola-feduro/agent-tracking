@@ -1,0 +1,10 @@
+{
+  "path": "packages/git/src/index.ts",
+  "purpose": "Exporta las utilidades de git.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": []
+}

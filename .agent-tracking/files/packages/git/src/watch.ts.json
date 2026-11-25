@@ -1,0 +1,9 @@
+{
+  "path": "packages/git/src/watch.ts",
+  "purpose": "Vigila el árbol de trabajo y HEAD",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "cfe72313-771d-4396-913d-07fddbe38666"
+  ],
+  "symbols": []
+}

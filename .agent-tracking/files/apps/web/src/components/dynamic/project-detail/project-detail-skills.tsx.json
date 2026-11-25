@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx",
+  "purpose": "Pestaña Skills con estado, instalar y compartir",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,16 @@
+{
+  "path": "packages/tracking/src/create-project.ts",
+  "purpose": "Creación de proyectos compartida por la API y el MCP.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "40490b16-9821-49bc-a246-7d81b01eb54a"
+  ],
+  "symbols": [
+    {
+      "name": "createProject",
+      "kind": "function",
+      "purpose": "Inserta el proyecto, escribe sus archivos y avisa",
+      "source": "reported"
+    }
+  ]
+}

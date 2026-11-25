@@ -1,0 +1,12 @@
+{
+  "path": "packages/analyzer/src/analyzer.test.ts",
+  "tests": [
+    {
+      "featureId": "cfe72313-771d-4396-913d-07fddbe38666",
+      "requirementId": "1d788405-8d51-494f-8414-ecb321666721",
+      "name": "análisis por lenguaje",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

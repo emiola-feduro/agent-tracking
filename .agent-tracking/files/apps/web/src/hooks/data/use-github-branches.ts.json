@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/hooks/data/use-github-branches.ts",
+  "purpose": "Lista y borrado de ramas con doble confirmación.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+  ],
+  "symbols": [
+    {
+      "name": "useDeleteGithubBranch",
+      "kind": "function",
+      "purpose": "Borra tras confirmar, y otra vez si se pierde trabajo",
+      "source": "reported"
+    }
+  ]
+}

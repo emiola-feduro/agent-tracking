@@ -1,0 +1,9 @@
+{
+  "path": "packages/git/src/worktrees.test.ts",
+  "purpose": "Tests de worktrees, diff del turno y archivos sin commit.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,12 @@
+{
+  "path": "packages/agents/src/agents.test.ts",
+  "tests": [
+    {
+      "featureId": "a8021746-6f16-480d-af64-7d9a91068c3e",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "name": "adapters",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "path": "packages/assistant/src/stack.ts",
+  "purpose": "Sugerencia de stack normalizada con el catálogo",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "eb414879-3201-4d99-9b1e-a3043e0aed50"
+  ],
+  "symbols": []
+}

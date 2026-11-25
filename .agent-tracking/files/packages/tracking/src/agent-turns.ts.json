@@ -1,0 +1,22 @@
+{
+  "path": "packages/tracking/src/agent-turns.ts",
+  "purpose": "Turnos con agente, y turnos por MCP para agentes sin hooks.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "a8021746-6f16-480d-af64-7d9a91068c3e"
+  ],
+  "symbols": [
+    {
+      "name": "finishFromMcp",
+      "kind": "function",
+      "purpose": "Cierra el turno con el reporte final",
+      "source": "reported"
+    },
+    {
+      "name": "startFromMcp",
+      "kind": "function",
+      "purpose": "Abre un turno al leer el contexto",
+      "source": "reported"
+    }
+  ]
+}

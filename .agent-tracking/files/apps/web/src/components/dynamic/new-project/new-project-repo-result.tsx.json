@@ -1,0 +1,10 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx",
+  "purpose": "Textos del wizard que hablan de la carpeta .agent-tracking.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+    "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
+  ],
+  "symbols": []
+}

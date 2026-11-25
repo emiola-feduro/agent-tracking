@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/delete-branch.test.ts",
+  "purpose": "Tests del borrado de ramas.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351"
+  ],
+  "symbols": []
+}

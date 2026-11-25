@@ -1,0 +1,45 @@
+{
+  "id": "d9d9a456-5385-4793-918a-de1ab104db5e",
+  "title": "Seguridad de rutas y datos locales",
+  "description": "Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del equipo.",
+  "type": "non_functional",
+  "area": "security",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.686Z",
+  "dod": [
+    {
+      "id": "b2e4892f-11a6-44eb-8eca-1c9b0cf5fc2b",
+      "criterion": "Las rutas de archivos se validan dentro del repo, incluidos los enlaces simbólicos",
+      "origin": "human",
+      "status": "done",
+      "evidence": "repo.test.ts y features-v3.test.ts: ../ rechazado",
+      "createdAt": "2026-11-25T13:33:02.686Z"
+    },
+    {
+      "id": "d51c31d5-4301-404e-874d-487d4cbeca1e",
+      "criterion": "Los worktrees pedidos se validan contra git worktree list",
+      "origin": "human",
+      "status": "done",
+      "evidence": "features-v3.test.ts: worktree ajeno rechazado",
+      "createdAt": "2026-11-25T13:33:02.686Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
+      "name": "Validación de rutas y worktrees",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.231Z"
+    },
+    {
+      "id": "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+      "name": "Solo páginas de este equipo",
+      "description": "La API, el WebSocket y /mcp rechazan otros orígenes.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T19:03:37.916Z"
+    }
+  ]
+}

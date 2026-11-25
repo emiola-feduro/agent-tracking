@@ -1,0 +1,16 @@
+{
+  "path": "packages/server/src/app.ts",
+  "purpose": "Actualizar desde el repo también reescribe los archivos.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
+    "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+    "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+    "cd9f791e-6d22-496a-933c-50a50921b753",
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+    "d5c72587-3bd9-487f-bab5-74e76b919371",
+    "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+  ],
+  "symbols": []
+}

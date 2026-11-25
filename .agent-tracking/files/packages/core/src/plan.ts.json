@@ -1,0 +1,35 @@
+{
+  "path": "packages/core/src/plan.ts",
+  "purpose": "Planes con sección de convenciones.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "855fbd27-5249-4b67-8a41-e7b18f0856ca",
+    "d5c72587-3bd9-487f-bab5-74e76b919371"
+  ],
+  "symbols": [
+    {
+      "name": "parseRequirements",
+      "kind": "function",
+      "purpose": "Requerimientos con criterios desde Markdown o JSON",
+      "source": "reported"
+    },
+    {
+      "name": "parseProjectPlan",
+      "kind": "function",
+      "purpose": "Plan completo: nombre, tipo, stack, objetivo, reglas y requerimientos",
+      "source": "reported"
+    },
+    {
+      "name": "missingPlanFields",
+      "kind": "function",
+      "purpose": "Preguntas para lo que el wizard exige y falta",
+      "source": "reported"
+    },
+    {
+      "name": "PLAN_TEMPLATE",
+      "kind": "constant",
+      "purpose": "Ejemplo de plan para copiar",
+      "source": "reported"
+    }
+  ]
+}

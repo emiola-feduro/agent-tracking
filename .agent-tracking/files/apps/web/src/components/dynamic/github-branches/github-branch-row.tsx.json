@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/github-branches/github-branch-row.tsx",
+  "purpose": "Fila de rama remota con botón de borrar y motivo cuando no se puede.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+  ],
+  "symbols": []
+}

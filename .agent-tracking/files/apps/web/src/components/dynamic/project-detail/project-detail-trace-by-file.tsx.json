@@ -1,0 +1,10 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-trace-by-file.tsx",
+  "purpose": "Vista por archivo con carpetas plegables.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "f1e0b768-0473-4877-a495-4eaf473a9157",
+    "ffddc27b-124c-442f-bfb1-788daca31510"
+  ],
+  "symbols": []
+}

@@ -16,6 +16,25 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
 - **Avance global:** 85%
 
+## Convenciones de commits y ramas
+
+_No se definieron convenciones: se usan Conventional Commits por defecto._
+
+- **Formato del mensaje:** `<tipo>(<alcance opcional>): <descripción>`, en español, en imperativo y sin punto final.
+- **Ramas:** `<tipo>/<tema-corto>`, por ejemplo `feat/busqueda-por-fecha`. No se trabaja directo en main.
+- **Tipos permitidos:**
+  - `feat`: Una funcionalidad nueva
+  - `fix`: Corrige un error
+  - `docs`: Solo documentación
+  - `style`: Formato, espacios o punto y coma, sin cambiar la lógica
+  - `refactor`: Cambia el código sin corregir errores ni agregar funciones
+  - `perf`: Mejora el rendimiento
+  - `test`: Agrega o corrige tests
+  - `build`: Build o dependencias
+  - `ci`: Configuración de integración continua
+  - `chore`: Tareas de mantenimiento que no tocan el código de la app
+  - `revert`: Revierte un commit anterior
+
 ## Reglas de negocio
 
 1. El código y los comentarios van en inglés; el texto de la interfaz, en español
@@ -40,8 +59,8 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
 
 **Definition of Done:**
 
-- [x] Se puede crear un proyecto desde cero, desde un repo local, clonando de GitHub o creando un repo nuevo (`8d6809eb-906a-4d6a-b69e-49ebc5194271`)
 - [x] El tipo de proyecto decide qué partes del stack se ofrecen y la recomendación (`57167353-1627-4151-8858-323090f874cb`)
+- [x] Se puede crear un proyecto desde cero, desde un repo local, clonando de GitHub o creando un repo nuevo (`8d6809eb-906a-4d6a-b69e-49ebc5194271`)
 - [x] Las tecnologías dependientes (Tailwind, runtimes, ORM) se deshabilitan sin su base (`255bd75a-edb5-4f9f-910d-306569a2a5a9`)
 - [x] El pipeline de CI y la plantilla de PR se eligen en el Resumen y la plantilla se edita en Markdown (`af6cce67-e226-47ae-8fe5-c15715b74adf`)
 
@@ -56,17 +75,17 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/github-files.ts`: Genera ci.yml según el stack y la plantilla de pull request
   - `packages/core/src/project-kind.ts`: Tipos de proyecto y catálogo de stack que aplica a cada uno
   - `packages/core/src/stack.ts`: Catálogo de tecnologías, reglas de consistencia y recomendación por tipo
-  - `packages/git/src/index.ts`: Inspección, clonado y creación de repos, y escritura de archivos nuevos
+  - `packages/git/src/index.ts`: Exporta las utilidades de git.
 - Importar requerimientos y planes desde Markdown o JSON — _done_ (`d5c72587-3bd9-487f-bab5-74e76b919371`)
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con clasificación deducida.
   - `apps/web/src/components/dynamic/new-project/new-project-requirements.tsx`: Paso de requerimientos del wizard con importación.
   - `apps/web/src/components/dynamic/requirements-import/requirements-import-dialog.tsx`: Diálogo para pegar o abrir Markdown o JSON con vista previa de lo entendido.
   - `apps/web/src/hooks/form/use-create-project.ts`: Crea el proyecto y luego lo publica si se pidió.
   - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard; requerimientos importados y clasificación opcional.
-  - `packages/core/src/index.ts`: Exporta el núcleo, ahora con planes.
+  - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
 - Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
@@ -75,72 +94,6 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/conventions.ts`: Modelo, valores por defecto y texto para CONTEXT.md.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
   - `packages/db/src/schema.ts`: Columna commit_conventions.
-
-### Servidor MCP y reporte del agente — 100%
-
-ID: `c574c729-d420-4c48-917a-138e34dfab17`
-
-**Tipo:** Funcional, área backend
-
-Herramientas MCP para leer el contexto del proyecto y reportar features, archivos, símbolos, tests, DoD y vistas.
-
-**Definition of Done:**
-
-- [x] get_project_context devuelve el CONTEXT.md del proyecto (`186c1ef8-9d2a-48af-9c6d-695f9c7be4f1`)
-- [x] submit_report registra features, archivos, símbolos, tests y criterios cumplidos en una llamada (`067a6292-b4e9-4ce5-8633-6571c728556f`)
-- [x] report_screen agrega capturas del repositorio a la galería (`dd301a58-0bb4-4300-9d4d-370cd270d919`)
-- [x] El proyecto se resuelve por id o por cualquier ruta del repo, también desde un worktree (`0f2204fa-b31e-449b-b0f1-187a36d95782`)
-
-**Features:**
-
-- Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
-  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
-  - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
-  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
-  - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
-  - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
-  - `packages/tracking/src/tracker.ts`: Escritura de features, archivos, símbolos y tests, y resolución del proyecto por ruta o worktree
-- Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
-  - `packages/mcp/src/mcp.test.ts`: Tests de las herramientas MCP, incluida la creación desde un plan.
-  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
-  - `packages/tracking/src/create-project.ts`: Creación de proyectos compartida por la API y el MCP.
-  - `packages/tracking/src/index.ts`: Exporta createProject.
-- Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
-  - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Diálogo con el diff de cada archivo antes de conectar.
-  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Wizard: agentes del proyecto.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Sección Agentes.
-  - `apps/web/src/lib/line-diff.ts`: Diff por líneas para archivos de configuración.
-  - `packages/agents/src/connect.test.ts`: Tests de conexión en un HOME temporal.
-  - `packages/agents/src/connect.ts`: Planes de conexión y desconexión por agente, y su aplicación con copias .bak.
-  - `packages/core/src/agent-context.ts`: Bloque administrado para los archivos de instrucciones de cada agente.
-  - `packages/server/src/agent-files.test.ts`: Tests de los archivos de instrucciones.
-  - `packages/server/src/agent-routes.test.ts`: Tests de las rutas de agentes.
-  - `packages/server/src/agent-routes.ts`: Rutas /agents: estado, planes, conectar y desconectar.
-  - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
-  - `packages/tracking/src/repo-sync.ts`: Escribe y quita el bloque en CLAUDE.md, AGENTS.md y GEMINI.md.
-
-### Análisis del repositorio en vivo — 100%
-
-ID: `1d788405-8d51-494f-8414-ecb321666721`
-
-**Tipo:** Funcional, área backend
-
-Vigilante del repo que detecta archivos, funciones, clases y tests, y marca lo cambiado sin reportar.
-
-**Definition of Done:**
-
-- [x] Los archivos guardados aparecen como cambios sin reportar sin intervención del agente (`d49933f5-a019-4d0f-bb02-15f4344236dd`)
-- [x] El análisis detecta funciones, clases, tipos y tests en TypeScript, JavaScript y Python (`5862bb14-0aa7-4579-88de-e3284a6aa141`)
-- [x] El cambio de rama desde la terminal se refleja en la app (`73bc4a2d-36ee-4f3c-923c-07723ad1dd61`)
-
-**Features:**
-
-- Vigilante y análisis del repo — _done_ (`cfe72313-771d-4396-913d-07fddbe38666`)
-  - `packages/analyzer/src/analyze.ts`: Análisis incremental del repo con caché por contenido
-  - `packages/analyzer/src/symbols.ts`: Extrae funciones, clases, tipos y tests con tree-sitter
-  - `packages/git/src/watch.ts`: Vigila el árbol de trabajo y HEAD
-  - `packages/server/src/repo-watchers.ts`: Un vigilante por proyecto con repo
-  - `packages/tracking/src/inference.ts`: Registra lo detectado como inferido y lo liga al feature en curso
 
 ### Trazabilidad requerimiento, feature, archivo y símbolo — 100%
 
@@ -152,8 +105,8 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
 
 **Definition of Done:**
 
-- [x] Cada archivo es una tarjeta con su propósito y una tabla de símbolos (`f64c0e45-1572-4d1c-b4cc-196ef561bdbc`)
 - [x] Hay una vista por archivo agrupada por carpeta con su requerimiento y feature (`e81952d7-763c-4064-b36b-b18a86baa307`)
+- [x] Cada archivo es una tarjeta con su propósito y una tabla de símbolos (`f64c0e45-1572-4d1c-b4cc-196ef561bdbc`)
 - [x] La pestaña Código muestra el archivo y marca las líneas del símbolo elegido (`65aa6bff-fd6f-4bb9-9ddd-e2192ee2586f`)
 
 **Features:**
@@ -175,6 +128,72 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `apps/web/src/components/dynamic/project-detail/project-detail-trace-requirement.tsx`: Requerimiento en la trazabilidad; pasa el plegado y la búsqueda a sus features.
   - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad: plegado, búsqueda y vista de worktree.
 
+### Análisis del repositorio en vivo — 100%
+
+ID: `1d788405-8d51-494f-8414-ecb321666721`
+
+**Tipo:** Funcional, área backend
+
+Vigilante del repo que detecta archivos, funciones, clases y tests, y marca lo cambiado sin reportar.
+
+**Definition of Done:**
+
+- [x] El análisis detecta funciones, clases, tipos y tests en TypeScript, JavaScript y Python (`5862bb14-0aa7-4579-88de-e3284a6aa141`)
+- [x] El cambio de rama desde la terminal se refleja en la app (`73bc4a2d-36ee-4f3c-923c-07723ad1dd61`)
+- [x] Los archivos guardados aparecen como cambios sin reportar sin intervención del agente (`d49933f5-a019-4d0f-bb02-15f4344236dd`)
+
+**Features:**
+
+- Vigilante y análisis del repo — _done_ (`cfe72313-771d-4396-913d-07fddbe38666`)
+  - `packages/analyzer/src/analyze.ts`: Análisis incremental del repo con caché por contenido
+  - `packages/analyzer/src/symbols.ts`: Extrae funciones, clases, tipos y tests con tree-sitter
+  - `packages/git/src/watch.ts`: Vigila el árbol de trabajo y HEAD
+  - `packages/server/src/repo-watchers.ts`: El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.
+  - `packages/tracking/src/inference.ts`: Análisis del repo; INFERRED_ACTOR ahora viene de core.
+
+### Servidor MCP y reporte del agente — 100%
+
+ID: `c574c729-d420-4c48-917a-138e34dfab17`
+
+**Tipo:** Funcional, área backend
+
+Herramientas MCP para leer el contexto del proyecto y reportar features, archivos, símbolos, tests, DoD y vistas.
+
+**Definition of Done:**
+
+- [x] submit_report registra features, archivos, símbolos, tests y criterios cumplidos en una llamada (`067a6292-b4e9-4ce5-8633-6571c728556f`)
+- [x] El proyecto se resuelve por id o por cualquier ruta del repo, también desde un worktree (`0f2204fa-b31e-449b-b0f1-187a36d95782`)
+- [x] get_project_context devuelve el CONTEXT.md del proyecto (`186c1ef8-9d2a-48af-9c6d-695f9c7be4f1`)
+- [x] report_screen agrega capturas del repositorio a la galería (`dd301a58-0bb4-4300-9d4d-370cd270d919`)
+
+**Features:**
+
+- Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
+  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
+  - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
+  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
+  - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
+  - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
+  - `packages/tracking/src/tracker.ts`: Escritura de features, archivos, símbolos y tests, y resolución del proyecto por ruta o worktree
+- Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
+  - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
+  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
+  - `packages/tracking/src/create-project.ts`: Creación de proyectos compartida por la API y el MCP.
+  - `packages/tracking/src/index.ts`: Exporta createProject.
+- Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
+  - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Diálogo con el diff de cada archivo antes de conectar.
+  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Wizard: agentes del proyecto.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Sección Agentes.
+  - `apps/web/src/lib/line-diff.ts`: Diff por líneas para archivos de configuración.
+  - `packages/agents/src/connect.test.ts`: Tests de conexión en un HOME temporal.
+  - `packages/agents/src/connect.ts`: Planes de conexión y desconexión por agente, y su aplicación con copias .bak.
+  - `packages/core/src/agent-context.ts`: Bloque administrado para los archivos de instrucciones de cada agente.
+  - `packages/server/src/agent-files.test.ts`: Tests de los archivos de instrucciones.
+  - `packages/server/src/agent-routes.test.ts`: Tests de las rutas de agentes.
+  - `packages/server/src/agent-routes.ts`: Rutas /agents: estado, planes, conectar y desconectar.
+  - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
+  - `packages/tracking/src/repo-sync.ts`: Sincroniza la base y .agent-tracking: importa lo que llega por git con merge de 3 vías, escribe el formato v2, registra el driver y aplica el proyecto conservando lo inferido.
+
 ### Actividad en vivo y turnos del agente — 100%
 
 ID: `b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af`
@@ -185,10 +204,10 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
 
 **Definition of Done:**
 
-- [x] Los hooks responden 204 sin salida, así que no gastan tokens (`c73d3bc7-f455-4e23-b4d8-77e8e647b749`)
-- [x] El panel en vivo muestra el paso actual y los anteriores (`84bf366b-e5c9-4357-9612-b72ce884009e`)
 - [x] Cada turno guarda pedido, pasos, mensaje final, rama, duración y su diff exacto (`052ef931-df84-4412-9e76-7e205b9010ab`)
 - [x] Solo se leen transcripts dentro de ~/.claude (`6e749177-f5c5-47b4-9832-49970cd2621b`)
+- [x] El panel en vivo muestra el paso actual y los anteriores (`84bf366b-e5c9-4357-9612-b72ce884009e`)
+- [x] Los hooks responden 204 sin salida, así que no gastan tokens (`c73d3bc7-f455-4e23-b4d8-77e8e647b749`)
 
 **Features:**
 
@@ -203,7 +222,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
 - Seguimiento de Codex CLI y Gemini CLI — _done_ (`a8021746-6f16-480d-af64-7d9a91068c3e`)
@@ -230,8 +249,8 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 
 **Definition of Done:**
 
-- [x] Cada worktree muestra commits adelante, cambios sin commit y su diff (`c5fc176c-e069-44a5-b823-c18e2083d417`)
 - [x] Se puede cambiar de rama y git lo impide con cambios sin commit (`1536647c-7003-4c84-b209-fda5901e4e56`)
+- [x] Cada worktree muestra commits adelante, cambios sin commit y su diff (`c5fc176c-e069-44a5-b823-c18e2083d417`)
 
 **Features:**
 
@@ -251,7 +270,7 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
   - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
-  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
   - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 
@@ -266,8 +285,8 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
 **Definition of Done:**
 
 - [x] Se listan pull requests con diff, reviews y comentarios (`0f4ebb54-5f86-48bf-aec6-0c7d2ebd5a7d`)
-- [x] Se listan ejecuciones de GitHub Actions con jobs y logs (`e31b1a80-d215-4b31-b1d0-1507e33b78f4`)
 - [x] La autenticación usa GITHUB_TOKEN, gh auth token o acceso anónimo (`bcfc37ed-59f6-4072-962d-114a699eabef`)
+- [x] Se listan ejecuciones de GitHub Actions con jobs y logs (`e31b1a80-d215-4b31-b1d0-1507e33b78f4`)
 
 **Features:**
 
@@ -291,7 +310,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/hooks/data/use-github-branches.ts`: Lista y borrado de ramas con doble confirmación.
   - `apps/web/src/lib/github-api.ts`: Cliente web de las rutas de GitHub.
   - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
-  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
   - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
   - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
 - CI de Agent Tracking en GitHub Actions — _done_ (`5ad82298-fbd4-4fd2-96ed-1c656f6b8e28`)
@@ -307,8 +326,8 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
 
 **Definition of Done:**
 
-- [x] Sin asistente configurado, el wizard usa la recomendación determinista (`e1388175-e647-4108-b929-ba078bd59bda`)
 - [x] Las respuestas del modelo pasan por las mismas reglas del catálogo (`028ad7a1-b2c6-40d4-ba05-c8ea1fde2e77`)
+- [x] Sin asistente configurado, el wizard usa la recomendación determinista (`e1388175-e647-4108-b929-ba078bd59bda`)
 
 **Features:**
 
@@ -334,9 +353,9 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `packages/assistant/src/openai.ts`: Proveedor OpenAI con salida estructurada.
   - `packages/assistant/src/providers.test.ts`: Tests de los proveedores con fetch y spawn simulados.
   - `packages/assistant/src/spawn.ts`: Ejecución de CLIs con tiempo límite y carpeta aislada.
-  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
   - `packages/server/src/assistant.test.ts`: Tests de las rutas del asistente.
-  - `packages/server/src/index.ts`: Mensaje de inicio con el proveedor activo.
+  - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
 
 ### Referencias visuales y galería de vistas — 100%
 
@@ -348,9 +367,9 @@ Imágenes en requerimientos y criterios del DoD, y galería de pantallas de la a
 
 **Definition of Done:**
 
+- [x] Solo se aceptan imágenes raster verificadas por su contenido (`1c5868f8-3115-4e71-a031-9d732e4c3418`)
 - [x] Se adjuntan imágenes arrastrando, eligiendo o pegando con Ctrl+V (`44307941-a929-478c-8148-d842aebf59bb`)
 - [x] Las referencias se copian a .agent-tracking/attachments y se listan en CONTEXT.md (`ded9ac9f-a5d3-4946-876a-9850f05ffadd`)
-- [x] Solo se aceptan imágenes raster verificadas por su contenido (`1c5868f8-3115-4e71-a031-9d732e4c3418`)
 
 **Features:**
 
@@ -359,6 +378,52 @@ Imágenes en requerimientos y criterios del DoD, y galería de pantallas de la a
   - `apps/web/src/components/dynamic/project-detail/project-detail-screens.tsx`: Galería de vistas agrupada por feature
   - `packages/server/src/attachment-routes.ts`: Subir, servir, editar y borrar imágenes
   - `packages/tracking/src/attachments.ts`: Valida y guarda imágenes, compartido por la API y el MCP
+
+### Accesible y usable en móvil — 50%
+
+ID: `308a7bc8-83d9-46e1-a443-745d4fef719d`
+
+**Tipo:** No funcional, área usabilidad
+
+Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 390 px.
+
+**Definition of Done:**
+
+- [x] Las pantallas principales no se desplazan en horizontal a 390 px (`5bc3a656-b647-4b4b-8b3c-b56a5eb6f1ee`)
+- [ ] Los controles personalizados tienen rol, nombre accesible y funcionan con teclado (`cfcd7a51-c7a8-42d8-a0e1-1f135313f887`)
+
+**Features:**
+
+- Diseño adaptable y selector de proyectos — _done_ (`bc892359-fa8e-49bf-9e13-6d988fa6f21b`)
+  - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
+  - `apps/web/src/components/ui/tabs/tabs.tsx`: Pestañas desplazables sin barra vertical
+- Navegación con sidebar — _done_ (`b667d6f3-afef-4d8c-926e-a68abe6d09bf`)
+  - `apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx`: Textos del wizard que hablan de la carpeta .agent-tracking.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Sidebar de secciones del proyecto con conteos.
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Página del proyecto con menú, aviso y secciones.
+  - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
+  - `apps/web/src/hooks/form/use-repo-source.ts`: Importa o clona el repo y abre el Resumen.
+  - `apps/web/src/router.tsx`: Rutas; parámetro wt.
+
+### La app se recupera sola de reinicios del servidor — 100%
+
+ID: `38a44436-a323-49d5-a1ce-248c8dc01ad8`
+
+**Tipo:** No funcional, área rendimiento
+
+Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket.
+
+**Definition of Done:**
+
+- [x] Al reconectar el WebSocket se vuelven a pedir los datos (`0c6e5672-8b8a-425a-994d-f69689216c57`)
+- [x] Las lecturas se cortan a los 12 segundos y se reintentan (`8d2eeccb-f552-49bd-86bf-1163dfab18b5`)
+
+**Features:**
+
+- Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
+  - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
+  - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
+  - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 
 ### Requerimientos funcionales y no funcionales con filtros — 100%
 
@@ -370,8 +435,8 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
 
 **Definition of Done:**
 
-- [x] Cada requerimiento tiene tipo y área editables (`800c8648-c628-4de0-b459-e6fa6c445b21`)
 - [x] Se filtra por tipo, área y texto (`4753d5a2-b57f-4dbe-a73e-49f474834989`)
+- [x] Cada requerimiento tiene tipo y área editables (`800c8648-c628-4de0-b459-e6fa6c445b21`)
 
 **Features:**
 
@@ -389,21 +454,21 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
   - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-  - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
+  - `packages/core/src/types.ts`: Tipos del dominio; createdAt y createdBy opcionales para ordenar y filtrar la exportación.
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
 
 ### Apariencia — 100%
 
 ID: `f66fb380-a480-42a5-b45f-433928f2a081`
 
-**Tipo:** No funcional, área experiencia de uso
+**Tipo:** No funcional, área usabilidad
 
 Temas, fuentes y tamaño de texto como en ER Studio.
 
 **Definition of Done:**
 
-- [x] Se elige entre los temas claros y oscuros, y se mantiene al recargar sin destello (`b47e1c2d-43e0-4393-8e20-0b0fca034bbe`)
 - [x] Se eligen fuentes para la interfaz y para el código, y tres tamaños de texto (`aedcc16b-9b35-414e-9d1c-97115699998e`)
+- [x] Se elige entre los temas claros y oscuros, y se mantiene al recargar sin destello (`b47e1c2d-43e0-4393-8e20-0b0fca034bbe`)
 
 **Features:**
 
@@ -413,51 +478,31 @@ Temas, fuentes y tamaño de texto como en ER Studio.
   - `apps/web/src/lib/appearance/fonts.ts`: Fuentes por categoría y carga desde Google Fonts
   - `apps/web/src/lib/appearance/themes.ts`: Temas de ER Studio más los de Agent Tracking
 
-### Accesible y usable en móvil — 50%
+### Web multiusuario y colaboración — 0%
 
-ID: `308a7bc8-83d9-46e1-a443-745d4fef719d`
+ID: `6512a2ba-bffe-4427-b835-b3740aa1fab3`
 
-**Tipo:** No funcional, área experiencia de uso
+**Tipo:** Funcional, área infraestructura
 
-Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 390 px.
-
-**Definition of Done:**
-
-- [x] Las pantallas principales no se desplazan en horizontal a 390 px (`5bc3a656-b647-4b4b-8b3c-b56a5eb6f1ee`)
-- [ ] Los controles personalizados tienen rol, nombre accesible y funcionan con teclado (`cfcd7a51-c7a8-42d8-a0e1-1f135313f887`)
-
-**Features:**
-
-- Diseño adaptable y selector de proyectos — _done_ (`bc892359-fa8e-49bf-9e13-6d988fa6f21b`)
-  - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
-  - `apps/web/src/components/ui/tabs/tabs.tsx`: Pestañas desplazables sin barra vertical
-- Navegación con sidebar — _done_ (`b667d6f3-afef-4d8c-926e-a68abe6d09bf`)
-  - `apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx`: Resultado de inspección del repo; enlaza al Resumen.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Sidebar de secciones del proyecto con conteos.
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Página del proyecto con menú, aviso y secciones.
-  - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
-  - `apps/web/src/hooks/form/use-repo-source.ts`: Importa o clona el repo y abre el Resumen.
-  - `apps/web/src/router.tsx`: Rutas; parámetro wt.
-
-### La app se recupera sola de reinicios del servidor — 100%
-
-ID: `38a44436-a323-49d5-a1ce-248c8dc01ad8`
-
-**Tipo:** No funcional, área rendimiento
-
-Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket.
+Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
 
 **Definition of Done:**
 
-- [x] Las lecturas se cortan a los 12 segundos y se reintentan (`8d2eeccb-f552-49bd-86bf-1163dfab18b5`)
-- [x] Al reconectar el WebSocket se vuelven a pedir los datos (`0c6e5672-8b8a-425a-994d-f69689216c57`)
+- [ ] La app de escritorio puede sincronizar con un servidor compartido (`37358a45-94a4-4ac6-b55b-123d61637ac1`)
+- [ ] Varias personas trabajan en el mismo proyecto con roles (`5f5fe41b-c0b7-44bf-a3dc-3a5d1fce84ee`)
 
-**Features:**
+### Gestión de cambios y detección de conflictos — 0%
 
-- Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
-  - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
-  - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
+ID: `80d5080e-093a-4db8-8d2b-78e060067521`
+
+**Tipo:** Funcional, área backend
+
+Fase 6: solicitudes de cambio con análisis de conflictos y revisiones.
+
+**Definition of Done:**
+
+- [ ] Un cambio a requerimientos o reglas se crea como solicitud con reporte de conflictos (`5b995b43-b991-4536-97a8-5d34bc635787`)
+- [ ] Al aprobar se guarda una revisión y los features afectados pasan a revisión (`7dff790a-a354-42a0-a94d-0d7fa28ff3c7`)
 
 ### Seguridad de rutas y datos locales — 100%
 
@@ -478,36 +523,10 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 - Solo páginas de este equipo — _done_ (`2643a8cc-df59-4ebb-a845-e574b2b3ebc7`)
-  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
-  - `packages/server/src/index.ts`: Mensaje de inicio con el proveedor activo.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
+  - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
   - `packages/server/src/origin.test.ts`: Tests de orígenes permitidos.
   - `packages/server/src/origin.ts`: Qué orígenes pueden llamar al servidor.
-
-### Gestión de cambios y detección de conflictos — 0%
-
-ID: `80d5080e-093a-4db8-8d2b-78e060067521`
-
-**Tipo:** Funcional, área backend
-
-Fase 6: solicitudes de cambio con análisis de conflictos y revisiones.
-
-**Definition of Done:**
-
-- [ ] Un cambio a requerimientos o reglas se crea como solicitud con reporte de conflictos (`5b995b43-b991-4536-97a8-5d34bc635787`)
-- [ ] Al aprobar se guarda una revisión y los features afectados pasan a revisión (`7dff790a-a354-42a0-a94d-0d7fa28ff3c7`)
-
-### Web multiusuario y colaboración — 0%
-
-ID: `6512a2ba-bffe-4427-b835-b3740aa1fab3`
-
-**Tipo:** Funcional, área infraestructura
-
-Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
-
-**Definition of Done:**
-
-- [ ] Varias personas trabajan en el mismo proyecto con roles (`5f5fe41b-c0b7-44bf-a3dc-3a5d1fce84ee`)
-- [ ] La app de escritorio puede sincronizar con un servidor compartido (`37358a45-94a4-4ac6-b55b-123d61637ac1`)
 
 ### Compartir el proyecto por git — 100%
 
@@ -519,8 +538,8 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 
 **Definition of Done:**
 
-- [x] Al importar desde el repo se restauran las imágenes de referencia y de vistas (`74d018a8-c7c2-4168-807e-2858d433aa8b`)
 - [x] Las skills personales se pueden incluir en el repo e instalar en otro equipo (`26607921-a38a-4a7f-a462-05c2c31e2f4b`)
+- [x] Al importar desde el repo se restauran las imágenes de referencia y de vistas (`74d018a8-c7c2-4168-807e-2858d433aa8b`)
 - [x] Las skills de un plugin se instalan desde su marketplace con Claude Code (`99a6fe1e-cc88-4945-899b-f856e2c9f7bf`)
 
 **Features:**
@@ -532,17 +551,38 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
   - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
   - `packages/core/src/core.test.ts`: Fixtures de skills con su origen
-  - `packages/core/src/project-file.ts`: project.json guarda la lista de imágenes y el origen de cada skill
+  - `packages/core/src/project-file.ts`: Esquema del archivo compartido (v1 y v2) y exportación sin datos inferidos ni números de línea.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-  - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
+  - `packages/core/src/types.ts`: Tipos del dominio; createdAt y createdBy opcionales para ordenar y filtrar la exportación.
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
   - `packages/db/src/schema.ts`: Columna commit_conventions.
-  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
   - `packages/skills/src/portable.ts`: Origen de las skills, copia al repo e instalación en otro equipo
-  - `packages/tracking/src/repo-sync.ts`: Escribe y quita el bloque en CLAUDE.md, AGENTS.md y GEMINI.md.
+  - `packages/tracking/src/repo-sync.ts`: Sincroniza la base y .agent-tracking: importa lo que llega por git con merge de 3 vías, escribe el formato v2, registra el driver y aplica el proyecto conservando lo inferido.
+- Colaboración por git sin conflictos — _done_ (`aae78170-f499-46db-bd20-2b6ad56c5cc3`)
+  - `README.md`: Documenta el formato nuevo, el driver de merge y la importación automática.
+  - `apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx`: Textos del wizard que hablan de la carpeta .agent-tracking.
+  - `packages/core/src/index.ts`: Exporta los módulos de core.
+  - `packages/core/src/json-merge.ts`: Merge de 3 vías de JSON: objetos por clave, entidades por id, ruta o nombre, y listas simples como conjuntos.
+  - `packages/core/src/merge-layout.test.ts`: Tests del merge JSON y del formato v2.
+  - `packages/core/src/project-file.ts`: Esquema del archivo compartido (v1 y v2) y exportación sin datos inferidos ni números de línea.
+  - `packages/core/src/project-tree.ts`: Formato v2 de .agent-tracking: parte y reúne el proyecto en archivos por entidad con orden estable.
+  - `packages/core/src/types.ts`: Tipos del dominio; createdAt y createdBy opcionales para ordenar y filtrar la exportación.
+  - `packages/git/src/index.ts`: Exporta las utilidades de git.
+  - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
+  - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
+  - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
+  - `packages/server/src/app.ts`: Actualizar desde el repo también reescribe los archivos.
+  - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
+  - `packages/server/src/repo-watchers.ts`: El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.
+  - `packages/tracking/src/inference.ts`: Análisis del repo; INFERRED_ACTOR ahora viene de core.
+  - `packages/tracking/src/merge-driver-info.ts`: Nombre del driver y ruta del script.
+  - `packages/tracking/src/merge-driver.ts`: Script que git ejecuta como driver: combina JSON por entradas, conserva CONTEXT.md y cae al merge de líneas en conflictos reales.
+  - `packages/tracking/src/repo-sync.test.ts`: Tests con git real: merges en dos ramas, conflictos, importación tras pull, checkout, marcas y migración v1.
+  - `packages/tracking/src/repo-sync.ts`: Sincroniza la base y .agent-tracking: importa lo que llega por git con merge de 3 vías, escribe el formato v2, registra el driver y aplica el proyecto conservando lo inferido.
 
 ## Ideas de tests pendientes
 

@@ -1,0 +1,11 @@
+{
+  "path": "packages/git/src/repo.ts",
+  "purpose": "Errores de git con códigos unmerged e in_use.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+    "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
+    "fcec5305-a2d0-4043-a3ed-05b381b633f7"
+  ],
+  "symbols": []
+}

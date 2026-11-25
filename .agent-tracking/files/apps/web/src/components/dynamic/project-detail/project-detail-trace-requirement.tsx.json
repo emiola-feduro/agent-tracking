@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-trace-requirement.tsx",
+  "purpose": "Requerimiento en la trazabilidad; pasa el plegado y la búsqueda a sus features.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "f1e0b768-0473-4877-a495-4eaf473a9157"
+  ],
+  "symbols": []
+}

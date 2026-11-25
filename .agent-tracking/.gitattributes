@@ -1,0 +1,4 @@
+# Written by Agent Tracking. Merges these files entry by entry instead of line by line; the driver
+# is registered in each clone's .git/config by Agent Tracking. Without it git merges them as text.
+*.json merge=agent-tracking
+CONTEXT.md merge=agent-tracking linguist-generated=true

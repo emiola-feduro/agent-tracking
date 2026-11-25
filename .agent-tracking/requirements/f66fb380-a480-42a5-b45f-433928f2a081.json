@@ -1,0 +1,37 @@
+{
+  "id": "f66fb380-a480-42a5-b45f-433928f2a081",
+  "title": "Apariencia",
+  "description": "Temas, fuentes y tamaño de texto como en ER Studio.",
+  "type": "non_functional",
+  "area": "ux",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.685Z",
+  "dod": [
+    {
+      "id": "aedcc16b-9b35-414e-9d1c-97115699998e",
+      "criterion": "Se eligen fuentes para la interfaz y para el código, y tres tamaños de texto",
+      "origin": "human",
+      "status": "done",
+      "evidence": "e2e de apariencia: fuente y tamaño 17.92px",
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    },
+    {
+      "id": "b47e1c2d-43e0-4393-8e20-0b0fca034bbe",
+      "criterion": "Se elige entre los temas claros y oscuros, y se mantiene al recargar sin destello",
+      "origin": "human",
+      "status": "done",
+      "evidence": "e2e de apariencia: tema conservado tras recargar",
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "bda900d8-220f-4412-9227-a2e92219919b",
+      "name": "Temas, fuentes y tamaño de texto",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.191Z"
+    }
+  ]
+}

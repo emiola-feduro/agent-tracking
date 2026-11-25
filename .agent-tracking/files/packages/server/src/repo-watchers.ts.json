@@ -1,0 +1,10 @@
+{
+  "path": "packages/server/src/repo-watchers.ts",
+  "purpose": "El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+    "cfe72313-771d-4396-913d-07fddbe38666"
+  ],
+  "symbols": []
+}

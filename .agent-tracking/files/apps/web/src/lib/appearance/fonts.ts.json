@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/lib/appearance/fonts.ts",
+  "purpose": "Fuentes por categoría y carga desde Google Fonts",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "bda900d8-220f-4412-9227-a2e92219919b"
+  ],
+  "symbols": []
+}

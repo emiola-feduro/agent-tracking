@@ -1,0 +1,45 @@
+{
+  "id": "1d788405-8d51-494f-8414-ecb321666721",
+  "title": "Análisis del repositorio en vivo",
+  "description": "Vigilante del repo que detecta archivos, funciones, clases y tests, y marca lo cambiado sin reportar.",
+  "type": "functional",
+  "area": "backend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.682Z",
+  "dod": [
+    {
+      "id": "5862bb14-0aa7-4579-88de-e3284a6aa141",
+      "criterion": "El análisis detecta funciones, clases, tipos y tests en TypeScript, JavaScript y Python",
+      "origin": "human",
+      "status": "done",
+      "evidence": "analyzer.test.ts",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "73bc4a2d-36ee-4f3c-923c-07723ad1dd61",
+      "criterion": "El cambio de rama desde la terminal se refleja en la app",
+      "origin": "human",
+      "status": "done",
+      "evidence": "repo-inference.test.ts: switching branch from a terminal",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "d49933f5-a019-4d0f-bb02-15f4344236dd",
+      "criterion": "Los archivos guardados aparecen como cambios sin reportar sin intervención del agente",
+      "origin": "human",
+      "status": "done",
+      "evidence": "repo-inference.test.ts",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "cfe72313-771d-4396-913d-07fddbe38666",
+      "name": "Vigilante y análisis del repo",
+      "description": "Detecta cambios, símbolos y tests, y cambios de rama.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:20.984Z"
+    }
+  ]
+}

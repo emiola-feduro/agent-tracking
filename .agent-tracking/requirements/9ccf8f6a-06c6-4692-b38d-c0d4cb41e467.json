@@ -1,0 +1,45 @@
+{
+  "id": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
+  "title": "Requerimientos funcionales y no funcionales con filtros",
+  "description": "Tipo y área en cada requerimiento, agrupados y filtrables.",
+  "type": "functional",
+  "area": "frontend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.685Z",
+  "dod": [
+    {
+      "id": "4753d5a2-b57f-4dbe-a73e-49f474834989",
+      "criterion": "Se filtra por tipo, área y texto",
+      "origin": "human",
+      "status": "done",
+      "evidence": "project-detail-requirements.tsx, verificado en el navegador",
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    },
+    {
+      "id": "800c8648-c628-4de0-b459-e6fa6c445b21",
+      "criterion": "Cada requerimiento tiene tipo y área editables",
+      "origin": "human",
+      "status": "done",
+      "evidence": "features-v3.test.ts y requirement card",
+      "createdAt": "2026-11-25T13:33:02.685Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "e20e7af5-350b-42e3-9997-73c58a0975ad",
+      "name": "Tipo, área y filtros de requerimientos",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.169Z"
+    },
+    {
+      "id": "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+      "name": "Clasificación por parte del sistema o atributo de calidad",
+      "description": "Áreas según el tipo, deducción desde el texto, sugerencia cuando no cuadra, tarjetas plegadas y filtros agrupados.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T15:04:52.553Z"
+    }
+  ]
+}

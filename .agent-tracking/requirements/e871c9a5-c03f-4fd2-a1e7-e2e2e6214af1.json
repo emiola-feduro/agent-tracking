@@ -1,0 +1,53 @@
+{
+  "id": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+  "title": "Compartir el proyecto por git",
+  "description": "Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.",
+  "type": "functional",
+  "area": "backend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:50:31.114Z",
+  "dod": [
+    {
+      "id": "26607921-a38a-4a7f-a462-05c2c31e2f4b",
+      "criterion": "Las skills personales se pueden incluir en el repo e instalar en otro equipo",
+      "origin": "human",
+      "status": "done",
+      "evidence": "portable.test.ts: skill compartida e instalada en el segundo equipo; verificado en el navegador",
+      "createdAt": "2026-11-25T13:50:31.114Z"
+    },
+    {
+      "id": "74d018a8-c7c2-4168-807e-2858d433aa8b",
+      "criterion": "Al importar desde el repo se restauran las imágenes de referencia y de vistas",
+      "origin": "human",
+      "status": "done",
+      "evidence": "portable.test.ts: imagen restaurada tras clonar e importar, archivo conservado",
+      "createdAt": "2026-11-25T13:50:31.114Z"
+    },
+    {
+      "id": "99a6fe1e-cc88-4945-899b-f856e2c9f7bf",
+      "criterion": "Las skills de un plugin se instalan desde su marketplace con Claude Code",
+      "origin": "human",
+      "status": "done",
+      "evidence": "portable.test.ts: comandos marketplace add e install; detectado mattpocock-skills@claude-plugins-official",
+      "createdAt": "2026-11-25T13:50:31.114Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+      "name": "Imágenes y skills que viajan con el repo",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:51:03.020Z"
+    },
+    {
+      "id": "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+      "name": "Colaboración por git sin conflictos",
+      "description": "Formato v2 por entidades, driver de merge semántico, .gitattributes, importación automática con merge de 3 vías y migración desde v1.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T20:53:55.853Z"
+    }
+  ]
+}

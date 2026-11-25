@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/repo-routes.test.ts",
+  "tests": [
+    {
+      "featureId": "fcec5305-a2d0-4043-a3ed-05b381b633f7",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+      "name": "rutas del repo",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

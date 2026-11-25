@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/stores/use-notice-store.ts",
+  "purpose": "Avisos de una sola vez para la página del proyecto.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+  ],
+  "symbols": []
+}

@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-checkout-menu.tsx",
+  "purpose": "Menú desplegable de ramas y worktrees.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3eb20a0d-6864-4eba-ac5a-88e24ff870b0"
+  ],
+  "symbols": []
+}

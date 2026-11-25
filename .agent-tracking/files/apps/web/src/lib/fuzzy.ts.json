@@ -1,0 +1,22 @@
+{
+  "path": "apps/web/src/lib/fuzzy.ts",
+  "purpose": "Puntaje de coincidencia y texto que completa.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e"
+  ],
+  "symbols": [
+    {
+      "name": "fuzzyScore",
+      "kind": "function",
+      "purpose": "Prefijo, inicio de palabra, subcadena o letras en orden",
+      "source": "reported"
+    },
+    {
+      "name": "completionOf",
+      "kind": "function",
+      "purpose": "Resto que completa lo escrito",
+      "source": "reported"
+    }
+  ]
+}

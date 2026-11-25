@@ -1,0 +1,30 @@
+{
+  "path": "packages/core/src/requirements.ts",
+  "purpose": "Etiquetas y clasificación de requerimientos.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+    "e20e7af5-350b-42e3-9997-73c58a0975ad"
+  ],
+  "symbols": [
+    {
+      "name": "classifyRequirement",
+      "kind": "function",
+      "purpose": "Deduce tipo y área del texto",
+      "source": "reported"
+    },
+    {
+      "name": "readClassification",
+      "kind": "function",
+      "purpose": "Lee palabras sueltas de tipo y área",
+      "source": "reported"
+    },
+    {
+      "name": "settleClassification",
+      "kind": "function",
+      "purpose": "Completa una clasificación parcial de forma coherente",
+      "source": "reported"
+    }
+  ]
+}

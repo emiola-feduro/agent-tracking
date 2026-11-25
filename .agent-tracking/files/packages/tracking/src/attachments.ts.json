@@ -1,0 +1,22 @@
+{
+  "path": "packages/tracking/src/attachments.ts",
+  "purpose": "Valida y guarda imágenes, compartido por la API y el MCP",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "e7d7a963-cd1a-43a3-995d-b5ab4e76cca4"
+  ],
+  "symbols": [
+    {
+      "name": "sniffImage",
+      "kind": "function",
+      "purpose": "Tipo real de la imagen por sus primeros bytes",
+      "source": "reported"
+    },
+    {
+      "name": "saveAttachment",
+      "kind": "function",
+      "purpose": "Guarda la imagen y la exporta al repo",
+      "source": "reported"
+    }
+  ]
+}

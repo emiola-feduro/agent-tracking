@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-worktree-banner.tsx",
+  "purpose": "Aviso y diff del worktree que se está viendo.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3eb20a0d-6864-4eba-ac5a-88e24ff870b0"
+  ],
+  "symbols": []
+}

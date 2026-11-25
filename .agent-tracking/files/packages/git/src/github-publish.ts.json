@@ -1,0 +1,22 @@
+{
+  "path": "packages/git/src/github-publish.ts",
+  "purpose": "Cuenta de GitHub y publicación del repo con gh.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+  ],
+  "symbols": [
+    {
+      "name": "githubAccount",
+      "kind": "function",
+      "purpose": "Cuenta y organizaciones",
+      "source": "reported"
+    },
+    {
+      "name": "publishToGithub",
+      "kind": "function",
+      "purpose": "Crea, conecta origin y sube",
+      "source": "reported"
+    }
+  ]
+}

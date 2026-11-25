@@ -1,0 +1,9 @@
+{
+  "path": ".github/workflows/ci.yml",
+  "purpose": "Pipeline de CI: typecheck, check de la web, tests y build con Bun 1.4.2.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "5ad82298-fbd4-4fd2-96ed-1c656f6b8e28"
+  ],
+  "symbols": []
+}

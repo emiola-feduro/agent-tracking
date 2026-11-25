@@ -1,0 +1,9 @@
+{
+  "path": "packages/assistant/src/codex-cli.ts",
+  "purpose": "Proveedor Codex CLI no interactivo.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "cd9f791e-6d22-496a-933c-50a50921b753"
+  ],
+  "symbols": []
+}

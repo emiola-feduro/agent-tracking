@@ -1,0 +1,12 @@
+{
+  "path": "packages/assistant/src/providers.test.ts",
+  "tests": [
+    {
+      "featureId": "cd9f791e-6d22-496a-933c-50a50921b753",
+      "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
+      "name": "assistant providers",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

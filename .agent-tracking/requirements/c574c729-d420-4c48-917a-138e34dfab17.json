@@ -1,0 +1,69 @@
+{
+  "id": "c574c729-d420-4c48-917a-138e34dfab17",
+  "title": "Servidor MCP y reporte del agente",
+  "description": "Herramientas MCP para leer el contexto del proyecto y reportar features, archivos, símbolos, tests, DoD y vistas.",
+  "type": "functional",
+  "area": "backend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.682Z",
+  "dod": [
+    {
+      "id": "067a6292-b4e9-4ce5-8633-6571c728556f",
+      "criterion": "submit_report registra features, archivos, símbolos, tests y criterios cumplidos en una llamada",
+      "origin": "human",
+      "status": "done",
+      "evidence": "mcp.test.ts y este mismo reporte",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "0f2204fa-b31e-449b-b0f1-187a36d95782",
+      "criterion": "El proyecto se resuelve por id o por cualquier ruta del repo, también desde un worktree",
+      "origin": "human",
+      "status": "done",
+      "evidence": "features-v3.test.ts: hooks desde un worktree",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "186c1ef8-9d2a-48af-9c6d-695f9c7be4f1",
+      "criterion": "get_project_context devuelve el CONTEXT.md del proyecto",
+      "origin": "human",
+      "status": "done",
+      "evidence": "mcp.test.ts",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "dd301a58-0bb4-4300-9d4d-370cd270d919",
+      "criterion": "report_screen agrega capturas del repositorio a la galería",
+      "origin": "human",
+      "status": "done",
+      "evidence": "mcp.test.ts: report_screen",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
+      "name": "Servidor MCP con reporte final",
+      "description": "Herramientas de contexto, reporte en una llamada, reportes parciales y capturas.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:20.945Z"
+    },
+    {
+      "id": "40490b16-9821-49bc-a246-7d81b01eb54a",
+      "name": "Crear proyecto desde un plan por MCP",
+      "description": "get_plan_format y create_project; devuelve preguntas cuando falta lo obligatorio.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T15:04:52.521Z"
+    },
+    {
+      "id": "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+      "name": "Conectar agentes y sus instrucciones",
+      "description": "Sección Agentes con conexión previsualizada y bloques en CLAUDE.md, AGENTS.md y GEMINI.md.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T19:03:37.849Z"
+    }
+  ]
+}

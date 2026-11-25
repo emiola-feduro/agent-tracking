@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/github-publish.test.ts",
+  "tests": [
+    {
+      "featureId": "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
+      "requirementId": "d48566db-3202-417a-a0ff-2fa359fdc596",
+      "name": "a brand-new repo gets a first commit, is created, connected and pushed",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

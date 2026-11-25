@@ -1,0 +1,9 @@
+{
+  "path": "packages/agents/src/describe.ts",
+  "purpose": "Utilidades para describir herramientas sin guardar contenidos.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "a8021746-6f16-480d-af64-7d9a91068c3e"
+  ],
+  "symbols": []
+}

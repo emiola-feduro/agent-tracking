@@ -1,0 +1,22 @@
+{
+  "path": "packages/agents/src/connect.ts",
+  "purpose": "Planes de conexión y desconexión por agente, y su aplicación con copias .bak.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+  ],
+  "symbols": [
+    {
+      "name": "connectPlan",
+      "kind": "function",
+      "purpose": "Qué cambiaría conectar, sin escribir nada",
+      "source": "reported"
+    },
+    {
+      "name": "applyChanges",
+      "kind": "function",
+      "purpose": "Escribe lo planeado si los archivos no cambiaron",
+      "source": "reported"
+    }
+  ]
+}

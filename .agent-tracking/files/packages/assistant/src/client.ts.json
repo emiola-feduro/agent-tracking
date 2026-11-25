@@ -1,0 +1,9 @@
+{
+  "path": "packages/assistant/src/client.ts",
+  "purpose": "Configuración y elección del proveedor del asistente; ask() por proveedor.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "cd9f791e-6d22-496a-933c-50a50921b753"
+  ],
+  "symbols": []
+}

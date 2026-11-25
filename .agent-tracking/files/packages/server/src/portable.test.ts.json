@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/portable.test.ts",
+  "purpose": "Test de un proyecto que pasa de un equipo a otro con imágenes y skills",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": []
+}

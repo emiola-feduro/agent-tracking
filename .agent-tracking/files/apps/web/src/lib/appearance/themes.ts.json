@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/lib/appearance/themes.ts",
+  "purpose": "Temas de ER Studio más los de Agent Tracking",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "bda900d8-220f-4412-9227-a2e92219919b"
+  ],
+  "symbols": []
+}

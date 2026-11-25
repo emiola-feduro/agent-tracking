@@ -1,0 +1,10 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-basics.tsx",
+  "purpose": "Wizard: agentes del proyecto.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+  ],
+  "symbols": []
+}

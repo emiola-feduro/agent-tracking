@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirement-classification.tsx",
+  "purpose": "Edición de tipo y área explicada, con sugerencia del texto.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+  ],
+  "symbols": []
+}

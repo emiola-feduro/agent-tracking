@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/agents-flow.test.ts",
+  "purpose": "Codex y Gemini a la vez: sesiones en vivo y turnos.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "a8021746-6f16-480d-af64-7d9a91068c3e"
+  ],
+  "symbols": []
+}

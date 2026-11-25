@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/origin.test.ts",
+  "tests": [
+    {
+      "featureId": "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+      "requirementId": "d9d9a456-5385-4793-918a-de1ab104db5e",
+      "name": "who may call the API",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

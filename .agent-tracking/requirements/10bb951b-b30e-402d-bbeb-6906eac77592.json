@@ -1,0 +1,61 @@
+{
+  "id": "10bb951b-b30e-402d-bbeb-6906eac77592",
+  "title": "Trazabilidad requerimiento, feature, archivo y símbolo",
+  "description": "Árbol por requerimiento o por archivo, con búsqueda, símbolos y vista previa del código.",
+  "type": "functional",
+  "area": "frontend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.682Z",
+  "dod": [
+    {
+      "id": "e81952d7-763c-4064-b36b-b18a86baa307",
+      "criterion": "Hay una vista por archivo agrupada por carpeta con su requerimiento y feature",
+      "origin": "human",
+      "status": "done",
+      "evidence": "project-detail-trace-by-file.tsx, verificado en el navegador",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "f64c0e45-1572-4d1c-b4cc-196ef561bdbc",
+      "criterion": "Cada archivo es una tarjeta con su propósito y una tabla de símbolos",
+      "origin": "human",
+      "status": "done",
+      "evidence": "project-detail-trace-file.tsx, verificado en el navegador",
+      "createdAt": "2026-11-25T13:33:02.682Z"
+    },
+    {
+      "id": "65aa6bff-fd6f-4bb9-9ddd-e2192ee2586f",
+      "criterion": "La pestaña Código muestra el archivo y marca las líneas del símbolo elegido",
+      "origin": "human",
+      "status": "done",
+      "evidence": "project-detail-trace-code.tsx, verificado en el navegador",
+      "createdAt": "2026-11-25T13:33:02.683Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "ffddc27b-124c-442f-bfb1-788daca31510",
+      "name": "Trazabilidad por archivo con vista de código",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.010Z"
+    },
+    {
+      "id": "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e",
+      "name": "Búsqueda con sugerencias y autocompletado con Tab",
+      "description": "Sugiere archivos y símbolos existentes al escribir y antes de escribir.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T15:04:52.624Z"
+    },
+    {
+      "id": "f1e0b768-0473-4877-a495-4eaf473a9157",
+      "name": "Features y carpetas plegables",
+      "description": "Plegados por defecto; la búsqueda abre lo que coincide.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T16:49:01.559Z"
+    }
+  ]
+}

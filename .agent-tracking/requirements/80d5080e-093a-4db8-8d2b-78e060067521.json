@@ -1,0 +1,28 @@
+{
+  "id": "80d5080e-093a-4db8-8d2b-78e060067521",
+  "title": "Gestión de cambios y detección de conflictos",
+  "description": "Fase 6: solicitudes de cambio con análisis de conflictos y revisiones.",
+  "type": "functional",
+  "area": "backend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.686Z",
+  "dod": [
+    {
+      "id": "5b995b43-b991-4536-97a8-5d34bc635787",
+      "criterion": "Un cambio a requerimientos o reglas se crea como solicitud con reporte de conflictos",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-25T13:33:02.686Z"
+    },
+    {
+      "id": "7dff790a-a354-42a0-a94d-0d7fa28ff3c7",
+      "criterion": "Al aprobar se guarda una revisión y los features afectados pasan a revisión",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-25T13:33:02.686Z"
+    }
+  ],
+  "features": []
+}

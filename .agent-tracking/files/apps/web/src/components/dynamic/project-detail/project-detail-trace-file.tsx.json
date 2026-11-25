@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-trace-file.tsx",
+  "purpose": "Tarjeta de archivo con pestañas Símbolos y Código",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "ffddc27b-124c-442f-bfb1-788daca31510"
+  ],
+  "symbols": []
+}

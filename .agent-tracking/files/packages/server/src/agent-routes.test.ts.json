@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/agent-routes.test.ts",
+  "purpose": "Tests de las rutas de agentes.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+  ],
+  "symbols": []
+}

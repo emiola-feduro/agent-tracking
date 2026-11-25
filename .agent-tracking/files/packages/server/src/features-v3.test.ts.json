@@ -1,0 +1,10 @@
+{
+  "path": "packages/server/src/features-v3.test.ts",
+  "purpose": "Tests de turnos, imágenes, worktrees e importación.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+    "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+  ],
+  "symbols": []
+}

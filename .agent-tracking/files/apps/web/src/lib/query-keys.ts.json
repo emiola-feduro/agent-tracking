@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/lib/query-keys.ts",
+  "purpose": "Clave de consulta del estado de las skills",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": []
+}

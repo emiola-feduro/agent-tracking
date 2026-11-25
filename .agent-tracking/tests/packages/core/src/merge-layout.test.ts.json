@@ -1,0 +1,12 @@
+{
+  "path": "packages/core/src/merge-layout.test.ts",
+  "tests": [
+    {
+      "featureId": "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+      "requirementId": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "name": "project layout > joining the files gives the project back, in a stable order",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

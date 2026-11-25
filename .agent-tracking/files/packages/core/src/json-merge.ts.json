@@ -1,0 +1,16 @@
+{
+  "path": "packages/core/src/json-merge.ts",
+  "purpose": "Merge de 3 vías de JSON: objetos por clave, entidades por id, ruta o nombre, y listas simples como conjuntos.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": [
+    {
+      "name": "mergeJson",
+      "kind": "function",
+      "purpose": "Combina base, nuestro y de ellos; informa conflicto o aplica el lado preferido",
+      "source": "reported"
+    }
+  ]
+}

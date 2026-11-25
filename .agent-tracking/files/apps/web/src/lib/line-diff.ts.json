@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/lib/line-diff.ts",
+  "purpose": "Diff por líneas para archivos de configuración.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+  ],
+  "symbols": []
+}

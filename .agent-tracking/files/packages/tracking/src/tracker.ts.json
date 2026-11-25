@@ -1,0 +1,16 @@
+{
+  "path": "packages/tracking/src/tracker.ts",
+  "purpose": "Escritura de features, archivos, símbolos y tests, y resolución del proyecto por ruta o worktree",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
+  ],
+  "symbols": [
+    {
+      "name": "createTracker",
+      "kind": "function",
+      "purpose": "Servicio compartido por la API y el MCP",
+      "source": "reported"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "path": "packages/skills/src/portable.ts",
+  "purpose": "Origen de las skills, copia al repo e instalación en otro equipo",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": [
+    {
+      "name": "skillOrigin",
+      "kind": "function",
+      "purpose": "Plugin y marketplace de una skill según su ruta",
+      "source": "reported"
+    },
+    {
+      "name": "shareSkill",
+      "kind": "function",
+      "purpose": "Copia la carpeta de la skill al repo sin ocultos y con límites",
+      "source": "reported"
+    },
+    {
+      "name": "installSharedSkill",
+      "kind": "function",
+      "purpose": "Instala una skill compartida en ~/.claude/skills sin reemplazar",
+      "source": "reported"
+    },
+    {
+      "name": "pluginInstallCommands",
+      "kind": "function",
+      "purpose": "Comandos de Claude Code para instalar el plugin",
+      "source": "reported"
+    }
+  ]
+}

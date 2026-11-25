@@ -1,0 +1,10 @@
+{
+  "path": "packages/mcp/src/mcp.test.ts",
+  "purpose": "Tests MCP adaptados al formato v2.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": []
+}

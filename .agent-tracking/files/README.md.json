@@ -1,0 +1,9 @@
+{
+  "path": "README.md",
+  "purpose": "Documenta el formato nuevo, el driver de merge y la importación automática.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3"
+  ],
+  "symbols": []
+}

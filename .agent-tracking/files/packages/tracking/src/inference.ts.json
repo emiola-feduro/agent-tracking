@@ -1,0 +1,10 @@
+{
+  "path": "packages/tracking/src/inference.ts",
+  "purpose": "Análisis del repo; INFERRED_ACTOR ahora viene de core.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+    "cfe72313-771d-4396-913d-07fddbe38666"
+  ],
+  "symbols": []
+}

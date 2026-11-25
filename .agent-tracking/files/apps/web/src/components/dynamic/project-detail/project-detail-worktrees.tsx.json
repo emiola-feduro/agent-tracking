@@ -1,0 +1,10 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx",
+  "purpose": "Lista de ramas con botón de borrar y motivo cuando no se puede.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+    "fcec5305-a2d0-4043-a3ed-05b381b633f7"
+  ],
+  "symbols": []
+}

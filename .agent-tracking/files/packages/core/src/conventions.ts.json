@@ -1,0 +1,22 @@
+{
+  "path": "packages/core/src/conventions.ts",
+  "purpose": "Modelo, valores por defecto y texto para CONTEXT.md.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+  ],
+  "symbols": [
+    {
+      "name": "COMMIT_TYPES",
+      "kind": "constant",
+      "purpose": "Categorías de commit con su rama",
+      "source": "reported"
+    },
+    {
+      "name": "conventionsMarkdown",
+      "kind": "function",
+      "purpose": "Sección de convenciones del contexto",
+      "source": "reported"
+    }
+  ]
+}

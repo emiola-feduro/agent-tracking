@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/github-delete-branch.test.ts",
+  "purpose": "Tests del borrado de ramas en GitHub con fetch simulado.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1"
+  ],
+  "symbols": []
+}

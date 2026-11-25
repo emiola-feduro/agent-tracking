@@ -1,0 +1,45 @@
+{
+  "id": "f497fa5f-cde3-4420-bd49-ee7c7832680f",
+  "title": "Referencias visuales y galería de vistas",
+  "description": "Imágenes en requerimientos y criterios del DoD, y galería de pantallas de la app.",
+  "type": "functional",
+  "area": "frontend",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.684Z",
+  "dod": [
+    {
+      "id": "1c5868f8-3115-4e71-a031-9d732e4c3418",
+      "criterion": "Solo se aceptan imágenes raster verificadas por su contenido",
+      "origin": "human",
+      "status": "done",
+      "evidence": "features-v3.test.ts: SVG disfrazado de PNG rechazado",
+      "createdAt": "2026-11-25T13:33:02.684Z"
+    },
+    {
+      "id": "44307941-a929-478c-8148-d842aebf59bb",
+      "criterion": "Se adjuntan imágenes arrastrando, eligiendo o pegando con Ctrl+V",
+      "origin": "human",
+      "status": "done",
+      "evidence": "attachment-drop.tsx, subida verificada en el navegador",
+      "createdAt": "2026-11-25T13:33:02.684Z"
+    },
+    {
+      "id": "ded9ac9f-a5d3-4946-876a-9850f05ffadd",
+      "criterion": "Las referencias se copian a .agent-tracking/attachments y se listan en CONTEXT.md",
+      "origin": "human",
+      "status": "done",
+      "evidence": "features-v3.test.ts: exported for agents",
+      "createdAt": "2026-11-25T13:33:02.684Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "e7d7a963-cd1a-43a3-995d-b5ab4e76cca4",
+      "name": "Imágenes de referencia y galería de vistas",
+      "description": "",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-25T13:34:21.138Z"
+    }
+  ]
+}

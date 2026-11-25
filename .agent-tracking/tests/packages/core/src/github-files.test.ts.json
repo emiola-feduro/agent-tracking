@@ -1,0 +1,12 @@
+{
+  "path": "packages/core/src/github-files.test.ts",
+  "tests": [
+    {
+      "featureId": "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "pipeline y plantilla de PR",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

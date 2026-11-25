@@ -1,0 +1,10 @@
+{
+  "path": "packages/server/src/github-routes.ts",
+  "purpose": "Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
+    "88321b05-2eeb-4232-8bce-97b07a1d66cf"
+  ],
+  "symbols": []
+}

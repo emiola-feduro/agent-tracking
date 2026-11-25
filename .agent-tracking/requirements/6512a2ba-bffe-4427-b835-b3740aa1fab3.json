@@ -1,0 +1,28 @@
+{
+  "id": "6512a2ba-bffe-4427-b835-b3740aa1fab3",
+  "title": "Web multiusuario y colaboración",
+  "description": "Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.",
+  "type": "functional",
+  "area": "infra",
+  "weight": 1,
+  "createdAt": "2026-11-25T13:33:02.686Z",
+  "dod": [
+    {
+      "id": "37358a45-94a4-4ac6-b55b-123d61637ac1",
+      "criterion": "La app de escritorio puede sincronizar con un servidor compartido",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-25T13:33:02.686Z"
+    },
+    {
+      "id": "5f5fe41b-c0b7-44bf-a3dc-3a5d1fce84ee",
+      "criterion": "Varias personas trabajan en el mismo proyecto con roles",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-25T13:33:02.686Z"
+    }
+  ],
+  "features": []
+}

@@ -1,0 +1,9 @@
+{
+  "path": "packages/core/src/core.test.ts",
+  "purpose": "Fixtures de skills con su origen",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": []
+}

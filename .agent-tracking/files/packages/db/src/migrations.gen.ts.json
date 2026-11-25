@@ -1,0 +1,9 @@
+{
+  "path": "packages/db/src/migrations.gen.ts",
+  "purpose": "Migración con plugin, marketplace y compartida en las skills",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+  ],
+  "symbols": []
+}

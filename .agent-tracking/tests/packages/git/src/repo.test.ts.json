@@ -1,0 +1,12 @@
+{
+  "path": "packages/git/src/repo.test.ts",
+  "tests": [
+    {
+      "featureId": "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
+      "requirementId": "d9d9a456-5385-4793-918a-de1ab104db5e",
+      "name": "rutas dentro del repo",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}
