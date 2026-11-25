@@ -32,7 +32,7 @@ type ProjectDetailNavProps = { projectId: string; groups: NavGroup[]; active: Pr
 /** Sections of a project as a sidebar on wide screens; each one is a link, so it can be opened in a new tab. */
 const ProjectDetailNav = ({ projectId, groups, active }: ProjectDetailNavProps) => {
   return (
-    <nav aria-label="Secciones del proyecto" className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-5 overflow-y-auto pb-4">
+    <nav aria-label="Secciones del proyecto" className="flex max-h-[calc(100dvh-11rem)] flex-col gap-5 overflow-y-auto pb-4">
       {groups.map((group, i) => (
         <div key={group.label ?? i} className="flex flex-col gap-0.5">
           {group.label && <h2 className="px-3 pb-1 text-xs font-semibold tracking-wide text-muted uppercase">{group.label}</h2>}
@@ -44,7 +44,7 @@ const ProjectDetailNav = ({ projectId, groups, active }: ProjectDetailNavProps) 
                   <Link
                     to="/projects/$projectId"
                     params={{ projectId }}
-                    search={{ tab: item.value }}
+                    search={(prev: Record<string, unknown>) => ({ ...prev, tab: item.value }) as never}
                     replace
                     aria-current={current ? "page" : undefined}
                     className={`relative flex min-h-9 items-center gap-2.5 rounded-md px-3 text-sm transition-colors duration-150 ${current ? "bg-brand-soft font-medium text-brand" : "text-ink-soft hover:bg-subtle hover:text-ink"}`}

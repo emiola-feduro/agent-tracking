@@ -3,6 +3,7 @@ import Segmented from "@/components/ui/segmented/segmented";
 import SuggestInput from "@/components/ui/suggest-input/suggest-input";
 import useTraceSuggestions from "@/hooks/ui/use-trace-suggestions";
 import useTraceability, { fileMatches } from "@/hooks/data/use-traceability";
+import useCheckoutView from "@/hooks/ui/use-checkout-view";
 import useExpanded from "@/hooks/ui/use-expanded";
 import type { ProjectView } from "@/lib/api";
 import { useState } from "react";
@@ -18,6 +19,7 @@ type Mode = "requirements" | "files";
 const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
   const { requirements, features, progress } = view;
   const trace = useTraceability(view);
+  const { worktree } = useCheckoutView(view.project.id);
   const { pendingFiles, unlinkedFiles, symbolsOf, allFiles } = trace;
   const [mode, setMode] = useState<Mode>("requirements");
   const [query, setQuery] = useState("");
@@ -41,7 +43,7 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
   const allOpen = groupKeys.length > 0 && groupKeys.every((k) => expanded.isOpen(k));
 
   return (
-    <TraceContext.Provider value={{ projectId: view.project.id, canPreview: !!view.project.repoPath }}>
+    <TraceContext.Provider value={{ projectId: view.project.id, canPreview: !!view.project.repoPath, worktree: worktree ?? undefined }}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-3 sm:flex-row sm:items-end sm:justify-between sm:p-4">
           <div className="flex flex-col gap-1.5">

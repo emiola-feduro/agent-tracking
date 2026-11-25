@@ -217,7 +217,7 @@ export const api = {
   publishGithub: (id: string, data: GithubPublish) =>
     request<{ url: string; repoUrl: string; committed: boolean; pushed: boolean }>("POST", `${p(id)}/github/publish`, data),
   repoBranch: (id: string) => request<{ current: string | null }>("GET", `${p(id)}/repo/branches`),
-  localBranches: (id: string) => request<{ current: string | null; branches: LocalBranch[] }>("GET", `${p(id)}/repo/branches`),
+  localBranches: (id: string) => request<{ current: string | null; branches: LocalBranch[]; dirty: string[] }>("GET", `${p(id)}/repo/branches`),
   checkout: (id: string, branch: string) => request<{ branch: string; previous: string | null }>("POST", `${p(id)}/repo/checkout`, { branch }),
   worktrees: (id: string) => request<{ base: string | null; worktrees: Worktree[] }>("GET", `${p(id)}/repo/worktrees`),
   worktreeDiff: (id: string, worktree: string) => request<Diff>("GET", `${p(id)}/repo/worktree-diff?worktree=${encodeURIComponent(worktree)}`),

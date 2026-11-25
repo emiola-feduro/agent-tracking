@@ -3,8 +3,8 @@ import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 
 /** Checkouts of the repository with how far each one moved from the base branch. */
-export const useWorktrees = (projectId: string) =>
-  useQuery({ queryKey: queryKeys.worktrees(projectId), queryFn: () => api.worktrees(projectId), placeholderData: (previous) => previous });
+export const useWorktrees = (projectId: string, enabled = true) =>
+  useQuery({ queryKey: queryKeys.worktrees(projectId), queryFn: () => api.worktrees(projectId), enabled, placeholderData: (previous) => previous });
 
 export const useLocalBranches = (projectId: string) =>
   useQuery({ queryKey: queryKeys.branches(projectId), queryFn: () => api.localBranches(projectId), placeholderData: (previous) => previous });

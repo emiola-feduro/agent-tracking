@@ -5,6 +5,7 @@ import MarkdownPreview from "@/components/ui/markdown-preview/markdown-preview";
 import Skeleton from "@/components/ui/skeleton/skeleton";
 import StatusPill from "@/components/ui/status-pill/status-pill";
 import { useAgentTurn, useAgentTurns } from "@/hooks/data/use-agent-turns";
+import useCheckoutView from "@/hooks/ui/use-checkout-view";
 import useNow from "@/hooks/ui/use-now";
 import { formatEventTime } from "@/lib/activity";
 import { relativeTime } from "@/lib/relative-time";
@@ -28,7 +29,11 @@ type Panel = "summary" | "diff" | "steps";
 const ProjectDetailLastTurn = ({ projectId }: { projectId: string }) => {
   const { data: turns } = useAgentTurns(projectId);
   // Only turns that changed the repository deserve a summary (questions do not).
-  const finished = (turns ?? []).filter((t) => t.endedAt && t.files.length > 0);
+  const { worktree } = useCheckoutView(projectId);
+  // In a worktree, only what agents did there; in the main checkout, everything.
+  const finished = (turns ?? []).filter(
+    (t) => t.endedAt && t.files.length > 0 && (!worktree || t.cwd === worktree || t.cwd.startsWith(`${worktree}/`)),
+  );
   const [index, setIndex] = useState(0);
   const [panel, setPanel] = useState<Panel>("summary");
   const turn = finished[Math.min(index, finished.length - 1)] ?? null;

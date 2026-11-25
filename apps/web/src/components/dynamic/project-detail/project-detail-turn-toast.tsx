@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAgentTurns } from "@/hooks/data/use-agent-turns";
 import type { AgentTurn } from "@/lib/api";
 
@@ -38,7 +39,8 @@ const ProjectDetailTurnToast = ({ projectId, onOverview }: { projectId: string; 
   const added = shown.files.reduce((n, f) => n + f.insertions, 0);
   const removed = shown.files.reduce((n, f) => n + f.deletions, 0);
 
-  return (
+  // Rendered on the body: an animated ancestor would otherwise pin it to the page instead of the screen.
+  return createPortal(
     <div role="status" className="fixed right-4 bottom-4 z-40 w-[min(calc(100vw-2rem),24rem)] animate-enter rounded-lg border border-brand/40 bg-surface p-4 shadow-lg">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
@@ -74,7 +76,8 @@ const ProjectDetailTurnToast = ({ projectId, onOverview }: { projectId: string; 
           Ver el resumen
         </Link>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 };
 

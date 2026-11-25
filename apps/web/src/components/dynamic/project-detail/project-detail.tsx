@@ -5,6 +5,8 @@ import GithubPulls from "@/components/dynamic/github-pulls/github-pulls";
 import Tabs from "@/components/ui/tabs/tabs";
 import type { ProjectView } from "@/lib/api";
 import ProjectDetailActivity from "./project-detail-activity";
+import ProjectDetailCheckoutMenu from "./project-detail-checkout-menu";
+import ProjectDetailWorktreeBanner from "./project-detail-worktree-banner";
 import ProjectDetailContext from "./project-detail-context";
 import ProjectDetailLastTurn from "./project-detail-last-turn";
 import ProjectDetailLive from "./project-detail-live";
@@ -82,10 +84,14 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
   return (
     <div className="flex animate-enter flex-col gap-6 lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:items-start lg:gap-8">
       <aside className="hidden lg:block">
-        <ProjectDetailNav projectId={project.id} groups={groups} active={current} />
+        <div className="sticky top-20 z-20 flex flex-col gap-4">
+          {project.repoPath && <ProjectDetailCheckoutMenu projectId={project.id} />}
+          <ProjectDetailNav projectId={project.id} groups={groups} active={current} />
+        </div>
       </aside>
       <div className="flex min-w-0 flex-col gap-6">
-        <div className="lg:hidden">
+        <div className="relative z-20 flex flex-col gap-3 lg:hidden">
+          {project.repoPath && <ProjectDetailCheckoutMenu projectId={project.id} />}
           <Tabs
             label="Secciones del proyecto"
             items={flat.map((i) => ({ value: i.value, label: i.count !== undefined ? `${i.label} (${i.count})` : i.label }))}
@@ -93,6 +99,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
             onChange={onTabChange}
           />
         </div>
+        <ProjectDetailWorktreeBanner projectId={project.id} />
         <ProjectDetailLive view={view} />
         <ProjectDetailTurnToast projectId={project.id} onOverview={current === "overview"} />
         <div key={current} className="flex animate-enter flex-col gap-6" role="region" aria-label={flat.find((i) => i.value === current)?.label}>

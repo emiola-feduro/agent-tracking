@@ -156,7 +156,14 @@ export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
 
   app.get("/projects/:id/repo/branches", async (c) => {
     const root = await repoOf(c.req.param("id"));
-    return c.json(await guard(async () => ({ current: await currentBranch(root), branches: await listBranches(root) })));
+    return c.json(
+      await guard(async () => ({
+        current: await currentBranch(root),
+        branches: await listBranches(root),
+        // Tracked files with uncommitted changes: while there are any, switching branch is refused.
+        dirty: (await workingTreeChanges(root)).filter((f) => f.status !== "untracked").map((f) => f.path),
+      })),
+    );
   });
 
   app.post("/projects/:id/repo/checkout", async (c) => {

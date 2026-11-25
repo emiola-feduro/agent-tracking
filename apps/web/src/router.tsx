@@ -43,8 +43,11 @@ const newProjectRoute = createRoute({
 const projectRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/projects/$projectId",
-  validateSearch: (search: Record<string, unknown>): { tab?: ProjectTab } =>
-    TABS.includes(search.tab as ProjectTab) ? { tab: search.tab as ProjectTab } : {},
+  // `wt`: the worktree being looked at, when it is not the main checkout.
+  validateSearch: (search: Record<string, unknown>): { tab?: ProjectTab; wt?: string } => ({
+    ...(TABS.includes(search.tab as ProjectTab) ? { tab: search.tab as ProjectTab } : {}),
+    ...(typeof search.wt === "string" && search.wt.startsWith("/") ? { wt: search.wt } : {}),
+  }),
   loader: ({ params }) => void queryClient.prefetchQuery(projectQuery(params.projectId)),
   component: function ProjectRouteComponent() {
     const { projectId } = projectRoute.useParams();

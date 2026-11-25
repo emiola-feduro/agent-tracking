@@ -7,8 +7,8 @@ type ProjectDetailTraceCodeProps = { path: string; highlight: { start: number; e
 
 /** The file as it is now in the repository, with the selected function or type marked. */
 const ProjectDetailTraceCode = ({ path, highlight }: ProjectDetailTraceCodeProps) => {
-  const { projectId } = useTraceContext();
-  const { data, isPending, isError, error } = useRepoFile(projectId, path, true);
+  const { projectId, worktree } = useTraceContext();
+  const { data, isPending, isError, error } = useRepoFile(projectId, path, true, worktree);
   const ext = path.split(".").pop() ?? "";
 
   if (isPending)

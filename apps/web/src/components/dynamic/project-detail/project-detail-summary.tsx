@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import GithubPublishPanel from "@/components/dynamic/github-publish/github-publish-panel";
 import Alert from "@/components/ui/alert/alert";
 import useNoticeStore from "@/stores/use-notice-store";
+import { useWorktrees } from "@/hooks/data/use-worktrees";
+import useCheckoutView from "@/hooks/ui/use-checkout-view";
 import Button from "@/components/ui/button/button";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
 import Skeleton from "@/components/ui/skeleton/skeleton";
@@ -17,6 +19,9 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
   const { sync } = useProjectActions(id);
   const branch = useCurrentBranch(id, !!repoPath);
   const notice = useNoticeStore((s) => s.notices[id]);
+  const { worktree } = useCheckoutView(id);
+  const worktrees = useWorktrees(id, !!worktree && !!repoPath);
+  const viewed = worktree ? worktrees.data?.worktrees.find((w) => w.path === worktree) : undefined;
   const setNotice = useNoticeStore((s) => s.set);
 
   return (
@@ -68,6 +73,13 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
                 <Skeleton className="h-5 w-28 rounded-full" />
               ) : branch.isError ? (
                 <span className="text-muted">No se pudo leer</span>
+              ) : viewed ? (
+                <>
+                  <StatusPill tone="brand">
+                    <span className="font-mono">{viewed.branch ?? "HEAD separado"}</span>
+                  </StatusPill>
+                  <span className="text-xs text-muted">en el worktree {viewed.path.split("/").pop()}</span>
+                </>
               ) : branch.data?.current ? (
                 <StatusPill tone="brand">
                   <span className="font-mono">{branch.data.current}</span>
