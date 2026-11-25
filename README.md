@@ -195,6 +195,10 @@ uno primero.
 - En **Ramas y worktrees** también se borran ramas locales. No se puede borrar la rama actual, una
   abierta en un worktree ni una en la que esté trabajando un agente (un turno abierto en esa rama). Si
   la rama tiene commits que no están en `main`, se avisa cuántos se perderían antes de borrarla.
+- En **Ramas en GitHub** también se borran ramas remotas, con la sesión de GitHub del servidor. Nunca
+  la rama principal, una protegida ni una en la que trabaja un agente. Si tiene commits que no están en
+  la principal o un pull request abierto (que GitHub cierra al borrarla), se pide una segunda
+  confirmación diciendo cuántos commits y qué PR.
 - **Ramas y worktrees** lista cada checkout del repositorio (`git worktree list`) con cuántos commits
   lleva frente a `main`, lo que tiene sin commit, el diff y el último turno de un agente ahí. También
   permite cambiar la rama del checkout principal. Los hooks que llegan desde un worktree cuentan para

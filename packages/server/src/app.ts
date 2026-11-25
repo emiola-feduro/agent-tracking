@@ -188,6 +188,8 @@ const briefFromSnapshot = (snap: ProjectSnapshot): ProjectBrief => ({
 
 export function createApp(db: Db, opts: AppOptions = {}) {
   const tracker = opts.tracker ?? createTracker(db, { emit: opts.emit });
+  /** Set once the live activity and turns exist (see below); used by the GitHub and repo routes. */
+  let agentOnBranch: (projectId: string, branch: string) => Promise<boolean> = async () => false;
   const emit: Emit = tracker.emit;
   const claudeHome = opts.claudeHome ?? join(homedir(), ".claude");
   const cloneRoot = opts.cloneRoot ?? join(homedir(), "repos");
@@ -201,7 +203,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     return c.json({ error: "Error interno" }, 500);
   });
 
-  app.route("/", githubRoutes(db, emit, opts.github));
+  // agentOnBranch is defined further down, with the live activity it reads.
+  app.route("/", githubRoutes(db, emit, { ...opts.github, agentOnBranch: (projectId, branch) => agentOnBranch(projectId, branch) }));
 
   const snapshotOr404 = async (id: string) => {
     const snap = await loadSnapshot(db, id);
@@ -721,7 +724,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
    * An agent counts as being on a branch while one of its turns started there is still open and it
    * is active (a step in the last minutes) or the turn began less than half an hour ago.
    */
-  const agentOnBranch = async (projectId: string, branch: string) => {
+  agentOnBranch = async (projectId: string, branch: string) => {
     const open = await db
       .select({ startedAt: s.agentTurns.startedAt })
       .from(s.agentTurns)

@@ -34,7 +34,9 @@ export const githubApi = {
   watch: (id: string) => request<void>("POST", `${g(id)}/watch`),
   pulls: (id: string, state: PullFilter) => request<PullSummary[]>("GET", `${g(id)}/pulls${query({ state })}`),
   pull: (id: string, number: number) => request<PullDetail>("GET", `${g(id)}/pulls/${number}`),
-  branches: (id: string) => request<BranchSummary[]>("GET", `${g(id)}/branches`),
+  branches: (id: string) => request<(BranchSummary & { agent: boolean })[]>("GET", `${g(id)}/branches`),
+  deleteBranch: (id: string, branch: string, force = false) =>
+    request<{ branch: string }>("DELETE", `${g(id)}/branches/${encodeURIComponent(branch)}${force ? "?force=1" : ""}`),
   workflows: (id: string) => request<Workflow[]>("GET", `${g(id)}/workflows`),
   runs: (id: string, filter: RunFilter) => request<WorkflowRun[]>("GET", `${g(id)}/runs${query(filter)}`),
   run: (id: string, runId: number) => request<RunDetail>("GET", `${g(id)}/runs/${runId}`),

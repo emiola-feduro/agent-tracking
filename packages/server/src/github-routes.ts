@@ -12,6 +12,8 @@ import { GithubWatcher, type WatcherOptions } from "./github-watcher";
 export type GithubOptions = {
   client?: GithubClient;
   watcher?: WatcherOptions;
+  /** Whether an agent is working on that branch right now; set by the app (see agent turns). */
+  agentOnBranch?: (projectId: string, branch: string) => Promise<boolean>;
 };
 
 const ERROR_STATUS: Record<GithubError["code"], ContentfulStatusCode> = {
@@ -97,8 +99,44 @@ export function githubRoutes(db: Db, emit: Emit, opts: GithubOptions = {}) {
   });
 
   routes.get("/projects/:id/github/branches", async (c) => {
-    const ref = await repoOr4xx(c.req.param("id"));
-    return c.json(await github(() => gh.listBranches(ref)));
+    const id = c.req.param("id");
+    const ref = await repoOr4xx(id);
+    const branches = await github(() => gh.listBranches(ref));
+    return c.json(await Promise.all(branches.map(async (b) => ({ ...b, agent: (await opts.agentOnBranch?.(id, b.name)) ?? false }))));
+  });
+
+  /**
+   * Deletes a branch on GitHub. Never the default branch, a protected one or one an agent is working
+   * on. With an open pull request or commits the default branch lacks, it answers 409 with the
+   * details unless `force=1`: those are worth a second look before they disappear.
+   */
+  routes.delete("/projects/:id/github/branches/:branch{.+}", async (c) => {
+    const id = c.req.param("id");
+    const name = decodeURIComponent(c.req.param("branch"));
+    const ref = await repoOr4xx(id);
+    const branches = await github(() => gh.listBranches(ref));
+    const branch = branches.find((b) => b.name === name);
+    if (!branch) throw new HTTPException(404, { message: `La rama ${name} no existe en GitHub` });
+    if (branch.isDefault) throw new HTTPException(409, { message: `${name} es la rama principal del repositorio en GitHub: no se borra`, cause: { code: "default" } });
+    if (branch.protected) throw new HTTPException(409, { message: `${name} está protegida en GitHub: quita la protección allí si de verdad quieres borrarla`, cause: { code: "protected" } });
+    if (await opts.agentOnBranch?.(id, name)) {
+      throw new HTTPException(409, { message: `Un agente está trabajando en ${name} ahora mismo: espera a que termine para borrarla`, cause: { code: "agent" } });
+    }
+    if (c.req.query("force") !== "1") {
+      const base = branches.find((b) => b.isDefault)?.name;
+      const ahead = base ? await github(() => gh.commitsAhead(ref, base, name)) : 0;
+      const openPull = branch.pull && (branch.pull.state === "open" || branch.pull.state === "draft") ? branch.pull.number : null;
+      if (ahead > 0 || openPull) {
+        const parts = [
+          ahead ? `${ahead === 1 ? "1 commit que no está" : `${ahead} commits que no están`} en ${base}` : "",
+          openPull ? `el pull request #${openPull} abierto, que se cerrará` : "",
+        ].filter(Boolean);
+        throw new HTTPException(409, { message: `${name} tiene ${parts.join(" y ")}.`, cause: { code: "confirm", ahead, pull: openPull } });
+      }
+    }
+    await github(() => gh.deleteBranch(ref, name));
+    emit({ type: "changed", projectId: id, entity: "github" });
+    return c.json({ branch: name });
   });
 
   routes.get("/projects/:id/github/workflows", async (c) => {

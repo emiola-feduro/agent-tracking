@@ -11,7 +11,7 @@ const GithubBranches = ({ projectId }: { projectId: string }) => {
   return (
     <ul className="flex animate-enter flex-col divide-y divide-line rounded-lg border border-line bg-surface">
       {data.map((branch) => (
-        <GithubBranchRow key={branch.name} branch={branch} />
+        <GithubBranchRow key={branch.name} projectId={projectId} branch={branch} />
       ))}
     </ul>
   );

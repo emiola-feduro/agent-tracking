@@ -246,6 +246,24 @@ export class GithubClient {
     });
   }
 
+  /** Commits `branch` has that `base` does not: what deleting it on GitHub would lose. */
+  async commitsAhead({ owner, repo }: RepoRef, base: string, branch: string): Promise<number> {
+    return this.run(async (o) => {
+      const { data } = await o.repos.compareCommitsWithBasehead({ owner, repo, basehead: `${base}...${branch}`, per_page: 1 });
+      return data.ahead_by;
+    });
+  }
+
+  /** Deletes a branch on GitHub. Cached listings are dropped so the next read shows it gone. */
+  async deleteBranch({ owner, repo }: RepoRef, branch: string): Promise<void> {
+    await this.run(async (o) => {
+      // The ref keeps its slashes (feat/x): Octokit's {ref} parameter would encode them.
+      const path = branch.split("/").map(encodeURIComponent).join("/");
+      await o.request(`DELETE /repos/{owner}/{repo}/git/refs/heads/${path}`, { owner, repo });
+    });
+    this.cache.clear();
+  }
+
   async listWorkflows({ owner, repo }: RepoRef): Promise<Workflow[]> {
     return this.run(async (o) => {
       const { data } = await o.actions.listRepoWorkflows({ owner, repo, per_page: PAGE });
