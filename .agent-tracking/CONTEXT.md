@@ -51,11 +51,21 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `apps/web/src/components/dynamic/new-project/new-project-github-files.tsx`: CI y plantilla de PR editable en Markdown en el Resumen
   - `apps/web/src/components/dynamic/new-project/new-project-source.tsx`: Paso Origen: desde cero, repo nuevo, local o clonado
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Opciones del stack con grupos exclusivos y dependencias deshabilitadas
-  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard, validación de pasos y resumen para el asistente
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard; requerimientos importados y clasificación opcional.
   - `packages/core/src/github-files.ts`: Genera ci.yml según el stack y la plantilla de pull request
   - `packages/core/src/project-kind.ts`: Tipos de proyecto y catálogo de stack que aplica a cada uno
   - `packages/core/src/stack.ts`: Catálogo de tecnologías, reglas de consistencia y recomendación por tipo
   - `packages/git/src/index.ts`: Inspección, clonado y creación de repos, y escritura de archivos nuevos
+- Importar requerimientos y planes desde Markdown o JSON — _done_ (`d5c72587-3bd9-487f-bab5-74e76b919371`)
+  - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con clasificación deducida.
+  - `apps/web/src/components/dynamic/new-project/new-project-requirements.tsx`: Paso de requerimientos del wizard con importación.
+  - `apps/web/src/components/dynamic/requirements-import/requirements-import-dialog.tsx`: Diálogo para pegar o abrir Markdown o JSON con vista previa de lo entendido.
+  - `apps/web/src/hooks/form/use-create-project.ts`: Arma el proyecto del wizard y abre su Resumen.
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard; requerimientos importados y clasificación opcional.
+  - `packages/core/src/index.ts`: Exporta el núcleo, ahora con planes.
+  - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
+  - `packages/core/src/plan.ts`: Lee requerimientos con su DoD y planes de proyecto en Markdown o JSON, y lista lo que falta preguntar.
+  - `packages/server/src/app.ts`: API HTTP; importación de requerimientos y clasificación deducida al crear o cambiar tipo.
 
 ### Servidor MCP y reporte del agente — 100%
 
@@ -77,10 +87,15 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
   - `packages/core/src/context.ts`: CONTEXT.md apunta a la copia compartida o al plugin de cada skill
   - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
-  - `packages/mcp/src/server.ts`: Definición de las herramientas MCP sobre el tracker compartido
+  - `packages/mcp/src/server.ts`: Servidor MCP; herramientas get_plan_format y create_project.
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
   - `packages/tracking/src/tracker.ts`: Escritura de features, archivos, símbolos y tests, y resolución del proyecto por ruta o worktree
+- Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
+  - `packages/mcp/src/mcp.test.ts`: Tests de las herramientas MCP, incluida la creación desde un plan.
+  - `packages/mcp/src/server.ts`: Servidor MCP; herramientas get_plan_format y create_project.
+  - `packages/tracking/src/create-project.ts`: Creación de proyectos compartida por la API y el MCP.
+  - `packages/tracking/src/index.ts`: Exporta createProject.
 
 ### Análisis del repositorio en vivo — 100%
 
@@ -124,9 +139,14 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
 - Trazabilidad por archivo con vista de código — _done_ (`ffddc27b-124c-442f-bfb1-788daca31510`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-trace-by-file.tsx`: Archivos agrupados por carpeta con su requerimiento y feature
   - `apps/web/src/components/dynamic/project-detail/project-detail-trace-file.tsx`: Tarjeta de archivo con pestañas Símbolos y Código
-  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Vista por requerimiento o por archivo, búsqueda y expandir todo
+  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad con el buscador nuevo.
   - `apps/web/src/components/ui/code-view/code-view.tsx`: Código con números de línea y rango marcado
   - `packages/git/src/worktrees.ts`: Lectura de archivos para vista previa, worktrees y diffs
+- Búsqueda con sugerencias y autocompletado con Tab — _done_ (`8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad con el buscador nuevo.
+  - `apps/web/src/components/ui/suggest-input/suggest-input.tsx`: Campo de búsqueda con lista de sugerencias y completado gris que Tab acepta.
+  - `apps/web/src/hooks/ui/use-trace-suggestions.ts`: Archivos y símbolos sugeridos para la trazabilidad.
+  - `apps/web/src/lib/fuzzy.ts`: Puntaje de coincidencia y texto que completa.
 
 ### Actividad en vivo y turnos del agente — 100%
 
@@ -146,10 +166,10 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
 **Features:**
 
 - Hooks en vivo y resumen de turnos — _done_ (`41655f5e-8ac6-4b7b-b47c-39410ac5ff7a`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-last-turn.tsx`: Tarjeta del último turno con resumen, cambios y pasos
+  - `apps/web/src/components/dynamic/project-detail/project-detail-last-turn.tsx`: Resumen del último turno con cambios.
   - `apps/web/src/components/dynamic/project-detail/project-detail-live.tsx`: Panel con el paso actual y los anteriores
   - `apps/web/src/components/ui/diff-view/diff-view.tsx`: Diff por archivo con líneas coloreadas
-  - `packages/server/src/agent-turns.ts`: Registra cada turno con pedido, pasos, mensaje final y diff
+  - `packages/server/src/agent-turns.ts`: Registra turnos del agente; descarta los que no cambiaron archivos.
   - `packages/server/src/live-activity.ts`: Estado en memoria de lo que hace el agente
 
 ### Ramas y worktrees — 100%
@@ -213,6 +233,11 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `packages/assistant/src/claude-code.ts`: Usa el Claude Code instalado como proveedor
   - `packages/assistant/src/dod.ts`: Criterios del DoD sugeridos
   - `packages/assistant/src/stack.ts`: Sugerencia de stack normalizada con el catálogo
+- Botones que gastan tokens — _done_ (`abd40f70-d2b9-4a69-bedd-08d4841a629d`)
+  - `apps/web/src/components/dynamic/new-project/new-project-requirement-dod.tsx`: DoD del wizard; Sugerir con IA con TokenButton.
+  - `apps/web/src/components/dynamic/new-project/new-project-stack-assistant.tsx`: Sugerencia de stack con TokenButton.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx`: DoD del proyecto; Generar criterios con TokenButton.
+  - `apps/web/src/components/ui/token-button/token-button.tsx`: Botón que indica que usa tokens de Claude.
 
 ### Referencias visuales y galería de vistas — 100%
 
@@ -252,9 +277,21 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
 **Features:**
 
 - Tipo, área y filtros de requerimientos — _done_ (`e20e7af5-350b-42e3-9997-73c58a0975ad`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Tipo y área editables, referencias visuales y DoD
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Agrupa por tipo y filtra por tipo, área y texto
-  - `packages/core/src/requirements.ts`: Ruta de la copia compartida de una skill en el repo
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento plegado en una línea; abierto muestra todo.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
+  - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
+- Clasificación por parte del sistema o atributo de calidad — _done_ (`11fce3fd-7e0f-46db-ae30-20e2566cbb7b`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento plegado en una línea; abierto muestra todo.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-classification.tsx`: Edición de tipo y área explicada, con sugerencia del texto.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-form.tsx`: Formulario de nuevo requerimiento.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
+  - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
+  - `apps/web/src/hooks/data/use-project-actions.ts`: Mutaciones del proyecto, incluida la importación.
+  - `apps/web/src/lib/api.ts`: Cliente de la API.
+  - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
+  - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
+  - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
+  - `packages/server/src/features-v3.test.ts`: Tests de integración de imágenes, turnos, worktrees e importación.
 
 ### Apariencia — 100%
 
@@ -293,8 +330,15 @@ Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 39
 **Features:**
 
 - Diseño adaptable y selector de proyectos — _done_ (`bc892359-fa8e-49bf-9e13-6d988fa6f21b`)
-  - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Cambiar de proyecto con Ctrl+K y teclado
+  - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
   - `apps/web/src/components/ui/tabs/tabs.tsx`: Pestañas desplazables sin barra vertical
+- Navegación con sidebar — _done_ (`b667d6f3-afef-4d8c-926e-a68abe6d09bf`)
+  - `apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx`: Resultado de inspección del repo; enlaza al Resumen.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Sidebar de secciones del proyecto con conteos.
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Página del proyecto con sidebar y Resumen.
+  - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
+  - `apps/web/src/hooks/form/use-repo-source.ts`: Importa o clona el repo y abre el Resumen.
+  - `apps/web/src/router.tsx`: Rutas; Resumen por defecto.
 
 ### La app se recupera sola de reinicios del servidor — 100%
 
@@ -313,7 +357,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: Llamadas para estado, instalación y compartir skills
+  - `apps/web/src/lib/api.ts`: Cliente de la API.
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 
 ### Seguridad de rutas y datos locales — 100%
@@ -380,16 +424,16 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
-  - `apps/web/src/lib/api.ts`: Llamadas para estado, instalación y compartir skills
+  - `apps/web/src/lib/api.ts`: Cliente de la API.
   - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
   - `packages/core/src/context.ts`: CONTEXT.md apunta a la copia compartida o al plugin de cada skill
   - `packages/core/src/core.test.ts`: Fixtures de skills con su origen
   - `packages/core/src/project-file.ts`: project.json guarda la lista de imágenes y el origen de cada skill
-  - `packages/core/src/requirements.ts`: Ruta de la copia compartida de una skill en el repo
-  - `packages/core/src/types.ts`: ProjectSkill con plugin, marketplace y compartida
+  - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
+  - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
   - `packages/db/src/schema.ts`: Columnas de origen y compartida en project_skills
-  - `packages/server/src/app.ts`: Origen de las skills al crear el proyecto y casilla de compartir
+  - `packages/server/src/app.ts`: API HTTP; importación de requerimientos y clasificación deducida al crear o cambiar tipo.
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Exporta las funciones para llevar skills entre equipos

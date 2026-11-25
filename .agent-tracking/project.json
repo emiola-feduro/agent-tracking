@@ -103,6 +103,13 @@
           "description": "Siete pasos: origen, proyecto con tipo, stack, skills, objetivo y reglas, requerimientos y resumen con carpeta .github.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "d5c72587-3bd9-487f-bab5-74e76b919371",
+          "name": "Importar requerimientos y planes desde Markdown o JSON",
+          "description": "Parser de requerimientos y de planes completos, diálogo de importación con vista previa en el wizard y en el proyecto.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -148,6 +155,13 @@
           "id": "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
           "name": "Servidor MCP con reporte final",
           "description": "Herramientas de contexto, reporte en una llamada, reportes parciales y capturas.",
+          "status": "done",
+          "agent": "claude-code"
+        },
+        {
+          "id": "40490b16-9821-49bc-a246-7d81b01eb54a",
+          "name": "Crear proyecto desde un plan por MCP",
+          "description": "get_plan_format y create_project; devuelve preguntas cuando falta lo obligatorio.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -230,6 +244,13 @@
           "description": "",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e",
+          "name": "Búsqueda con sugerencias y autocompletado con Tab",
+          "description": "Sugiere archivos y símbolos existentes al escribir y antes de escribir.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -274,7 +295,7 @@
         {
           "id": "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
           "name": "Hooks en vivo y resumen de turnos",
-          "description": "",
+          "description": "Los turnos sin cambios en el repo ya no dejan resumen.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -383,6 +404,13 @@
           "description": "",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "abd40f70-d2b9-4a69-bedd-08d4841a629d",
+          "name": "Botones que gastan tokens",
+          "description": "Brillo y chispa sutiles en los botones que llaman a Claude.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -456,6 +484,13 @@
           "description": "",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+          "name": "Clasificación por parte del sistema o atributo de calidad",
+          "description": "Áreas según el tipo, deducción desde el texto, sugerencia cuando no cuadra, tarjetas plegadas y filtros agrupados.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -520,6 +555,13 @@
           "id": "bc892359-fa8e-49bf-9e13-6d988fa6f21b",
           "name": "Diseño adaptable y selector de proyectos",
           "description": "",
+          "status": "done",
+          "agent": "claude-code"
+        },
+        {
+          "id": "b667d6f3-afef-4d8c-926e-a68abe6d09bf",
+          "name": "Navegación con sidebar",
+          "description": "Secciones del proyecto en un sidebar en pantallas anchas y pestañas en angostas, con sección Resumen.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -2761,6 +2803,150 @@
       "name": "a project travels with the repository",
       "type": "integration",
       "lastResult": "passing"
+    },
+    {
+      "id": "da4ba69c-b76a-4912-9668-fa4adf2dd3c6",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/core/src/plan.test.ts",
+      "name": "classifyRequirement > quality words make it non functional, the rest is placed in the system",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "7668b042-7d86-4ea9-9f31-d5e6e64ebf9f",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/core/src/plan.test.ts",
+      "name": "classifyRequirement > a given half is kept and the other agrees with it",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "4144232c-4a7d-4b20-a781-44b6ab41daad",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/core/src/plan.test.ts",
+      "name": "parseRequirements > markdown: one heading per requirement, tags, description and criteria",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "5d9f76a8-4096-46e0-a8b9-0d450bb97df0",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/core/src/plan.test.ts",
+      "name": "parseRequirements > json in English or Spanish keys",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "49351ac3-9171-4224-91a6-223a6c88fc1d",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/core/src/plan.test.ts",
+      "name": "parseRequirements > bad input says why",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "bd524b68-73c8-4fef-bd35-f83a58efca66",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/core/src/plan.test.ts",
+      "name": "parseProjectPlan > the template is a complete plan",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "cadf8866-ffc3-4ae3-ad3a-e345c06c73f4",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/core/src/plan.test.ts",
+      "name": "parseProjectPlan > what is missing becomes questions for the person",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "2241e426-5a79-41d4-a2ad-99c538d08b53",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/mcp/src/mcp.test.ts",
+      "name": "creating a project from a plan > asks for what is missing, then creates it with inferred classification",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "afa0a9d2-0eb6-4c33-adc3-b5f865d03465",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "importing requirements > markdown with criteria becomes requirements; missing type and area are inferred",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "f2e50a3c-0109-4c46-9ff5-4cd2aec1aa4d",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "importing requirements > switching type picks an area that fits",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "c6d694b8-edeb-43ca-9548-279fefbe691c",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "agent turns > a turn that changed nothing (just a question) leaves no summary",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "d484a929-a6fc-4156-9781-3bfbaed87f4e",
+      "featureId": "d5c72587-3bd9-487f-bab5-74e76b919371",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "path": "packages/core/src/plan.test.ts",
+      "name": "parseRequirements y parseProjectPlan",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "id": "9fd49c8b-952d-486b-a088-4165a69dfd3a",
+      "featureId": "d5c72587-3bd9-487f-bab5-74e76b919371",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "importing requirements",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "6152934a-cd2c-4667-8474-13c47eed7d0f",
+      "featureId": "40490b16-9821-49bc-a246-7d81b01eb54a",
+      "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
+      "path": "packages/mcp/src/mcp.test.ts",
+      "name": "creating a project from a plan",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "31abcb7c-27b0-4100-bf94-b791541dab83",
+      "featureId": "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+      "requirementId": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "switching type picks an area that fits",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "4d48283d-7450-45c2-ba03-0c7d407d1060",
+      "featureId": "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+      "requirementId": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
+      "path": "packages/core/src/plan.test.ts",
+      "name": "classifyRequirement",
+      "type": "unit",
+      "lastResult": "passing"
     }
   ],
   "files": [
@@ -3855,9 +4041,11 @@
     {
       "id": "b77cca7a-e3a3-437d-8cdb-692856060d5d",
       "path": "apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx",
-      "purpose": "",
+      "purpose": "Resultado de inspección del repo; enlaza al Resumen.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
+      ],
       "symbols": [
         {
           "id": "bde94b5d-0ce5-47fa-a3e2-68d9ac09ff22",
@@ -3882,16 +4070,18 @@
     {
       "id": "954142eb-05e9-4a6f-a49f-5e2ee2ddcc74",
       "path": "apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx",
-      "purpose": "",
+      "purpose": "Requerimiento del wizard con clasificación deducida.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
+      ],
       "symbols": [
         {
           "id": "0c1a4881-ee1b-4383-9dd6-bd8038a3f7bd",
           "name": "NewProjectRequirementCardProps",
           "kind": "type",
-          "lineStart": 10,
-          "lineEnd": 13,
+          "lineStart": 8,
+          "lineEnd": 11,
           "purpose": "",
           "source": "inferred"
         },
@@ -3899,8 +4089,8 @@
           "id": "bfddbd6e-c4ba-4fb3-96e8-2589ae7dd982",
           "name": "NewProjectRequirementCard",
           "kind": "function",
-          "lineStart": 15,
-          "lineEnd": 46,
+          "lineStart": 13,
+          "lineEnd": 48,
           "purpose": "",
           "source": "inferred"
         }
@@ -3909,9 +4099,11 @@
     {
       "id": "f74da006-30c4-4f0f-af4a-c005a7784bb5",
       "path": "apps/web/src/components/dynamic/new-project/new-project-requirement-dod.tsx",
-      "purpose": "",
+      "purpose": "DoD del wizard; Sugerir con IA con TokenButton.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "abd40f70-d2b9-4a69-bedd-08d4841a629d"
+      ],
       "symbols": [
         {
           "id": "28fcb801-f3fa-4e4b-b1ff-ac3e3ecb64dd",
@@ -3927,16 +4119,18 @@
     {
       "id": "efcfdaa4-1541-46f3-a00f-6c9c9508b7c6",
       "path": "apps/web/src/components/dynamic/new-project/new-project-requirements.tsx",
-      "purpose": "",
+      "purpose": "Paso de requerimientos del wizard con importación.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
+      ],
       "symbols": [
         {
           "id": "2c1cf66b-bae3-4010-8191-4ebb3b5ca77a",
           "name": "NewProjectRequirements",
           "kind": "function",
-          "lineStart": 6,
-          "lineEnd": 21,
+          "lineStart": 8,
+          "lineEnd": 41,
           "purpose": "",
           "source": "inferred"
         }
@@ -4199,9 +4393,11 @@
     {
       "id": "e3093205-3ae5-4d6a-88e4-4ed881876940",
       "path": "apps/web/src/components/dynamic/new-project/new-project-stack-assistant.tsx",
-      "purpose": "",
+      "purpose": "Sugerencia de stack con TokenButton.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "abd40f70-d2b9-4a69-bedd-08d4841a629d"
+      ],
       "symbols": [
         {
           "id": "320e4775-f128-42a2-8954-06c3008683a9",
@@ -4633,16 +4829,18 @@
     {
       "id": "cc9fdf3c-4b09-4700-bdd3-5efe019dee10",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx",
-      "purpose": "",
+      "purpose": "DoD del proyecto; Generar criterios con TokenButton.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "abd40f70-d2b9-4a69-bedd-08d4841a629d"
+      ],
       "symbols": [
         {
           "id": "6372c497-ae15-47a9-af75-8b5c7b6662f2",
           "name": "ProjectDetailDodProps",
           "kind": "type",
-          "lineStart": 14,
-          "lineEnd": 20,
+          "lineStart": 15,
+          "lineEnd": 21,
           "purpose": "",
           "source": "inferred"
         },
@@ -4650,8 +4848,8 @@
           "id": "5fdf57c8-9687-4fd1-857e-f3c88b330920",
           "name": "ProjectDetailDod",
           "kind": "function",
-          "lineStart": 22,
-          "lineEnd": 104,
+          "lineStart": 23,
+          "lineEnd": 105,
           "purpose": "",
           "source": "inferred"
         }
@@ -4723,7 +4921,7 @@
     {
       "id": "d8af2dda-83b1-4abe-bfe7-4232486e3adf",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-last-turn.tsx",
-      "purpose": "Tarjeta del último turno con resumen, cambios y pasos",
+      "purpose": "Resumen del último turno con cambios.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a"
@@ -4752,7 +4950,7 @@
           "name": "ProjectDetailLastTurn",
           "kind": "function",
           "lineStart": 28,
-          "lineEnd": 153,
+          "lineEnd": 154,
           "purpose": "",
           "source": "inferred"
         }
@@ -4806,6 +5004,71 @@
       ]
     },
     {
+      "id": "54e3ca35-a082-4894-b73f-e85d27c71202",
+      "path": "apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx",
+      "purpose": "Sidebar de secciones del proyecto con conteos.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
+      ],
+      "symbols": [
+        {
+          "id": "5b4ccff4-8c00-4185-938a-52ad5a980a98",
+          "name": "NavItem",
+          "kind": "type",
+          "lineStart": 5,
+          "lineEnd": 5,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "cab64874-732a-48dd-ad70-0494620846ca",
+          "name": "NavGroup",
+          "kind": "type",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "435f7dae-dcaa-4f52-a413-8e4fca971090",
+          "name": "icon",
+          "kind": "function",
+          "lineStart": 8,
+          "lineEnd": 12,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "3f50ba42-f895-42c8-858a-d7940c7093c4",
+          "name": "NAV_ICONS",
+          "kind": "constant",
+          "lineStart": 14,
+          "lineEnd": 28,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "0e80a2ec-3078-4bbd-8df9-30f59442459b",
+          "name": "ProjectDetailNavProps",
+          "kind": "type",
+          "lineStart": 30,
+          "lineEnd": 30,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "0d1558a5-3b6c-4e43-8a29-8d29f15715c6",
+          "name": "ProjectDetailNav",
+          "kind": "function",
+          "lineStart": 33,
+          "lineEnd": 65,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
       "id": "1c20322a-4475-4632-8fd1-cc09099f5fa6",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-pending.tsx",
       "purpose": "",
@@ -4835,9 +5098,10 @@
     {
       "id": "d3c1845e-42d5-49fe-8a11-1de711736571",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx",
-      "purpose": "Tipo y área editables, referencias visuales y DoD",
+      "purpose": "Requerimiento plegado en una línea; abierto muestra todo.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
         "e20e7af5-350b-42e3-9997-73c58a0975ad"
       ],
       "symbols": [
@@ -4846,16 +5110,7 @@
           "name": "ProjectDetailRequirementCardProps",
           "kind": "type",
           "lineStart": 12,
-          "lineEnd": 15,
-          "purpose": "",
-          "source": "inferred"
-        },
-        {
-          "id": "132f2b9d-595c-4729-8d55-e4ab46cf9a19",
-          "name": "PillSelect",
-          "kind": "function",
-          "lineStart": 18,
-          "lineEnd": 56,
+          "lineEnd": 17,
           "purpose": "",
           "source": "inferred"
         },
@@ -4863,8 +5118,37 @@
           "id": "e559b78f-ea87-4fb5-b4f0-3ac324a645b2",
           "name": "ProjectDetailRequirementCard",
           "kind": "function",
-          "lineStart": 58,
-          "lineEnd": 120,
+          "lineStart": 20,
+          "lineEnd": 116,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "5dccb1a1-bbda-4959-83c9-ee1d37ed1415",
+      "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirement-classification.tsx",
+      "purpose": "Edición de tipo y área explicada, con sugerencia del texto.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+      ],
+      "symbols": [
+        {
+          "id": "8d5ade14-0304-4f7a-a5a3-d667720679ee",
+          "name": "Props",
+          "kind": "type",
+          "lineStart": 7,
+          "lineEnd": 11,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "1bb81de6-bf1a-4a28-8eb2-2551c1e473d9",
+          "name": "ProjectDetailRequirementClassification",
+          "kind": "function",
+          "lineStart": 17,
+          "lineEnd": 53,
           "purpose": "",
           "source": "inferred"
         }
@@ -4873,16 +5157,18 @@
     {
       "id": "ab35bb7e-afe4-4c66-9c25-5598e9f82590",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirement-form.tsx",
-      "purpose": "",
+      "purpose": "Formulario de nuevo requerimiento.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+      ],
       "symbols": [
         {
           "id": "b6869358-ce35-4d31-ba80-6f189a62df2a",
           "name": "ProjectDetailRequirementForm",
           "kind": "function",
-          "lineStart": 10,
-          "lineEnd": 42,
+          "lineStart": 9,
+          "lineEnd": 37,
           "purpose": "",
           "source": "inferred"
         }
@@ -4891,9 +5177,10 @@
     {
       "id": "6183ebde-10f6-495a-85f6-4ad61b6f7009",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx",
-      "purpose": "Agrupa por tipo y filtra por tipo, área y texto",
+      "purpose": "Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
         "e20e7af5-350b-42e3-9997-73c58a0975ad"
       ],
       "symbols": [
@@ -4901,8 +5188,8 @@
           "id": "53980f38-38a3-4d59-8bed-fc6a206fdfaf",
           "name": "TypeFilter",
           "kind": "type",
-          "lineStart": 10,
-          "lineEnd": 10,
+          "lineStart": 15,
+          "lineEnd": 15,
           "purpose": "",
           "source": "inferred"
         },
@@ -4910,8 +5197,8 @@
           "id": "d8ab9d02-52eb-44f7-bd5b-3f6b9b13f698",
           "name": "normalize",
           "kind": "function",
-          "lineStart": 12,
-          "lineEnd": 12,
+          "lineStart": 17,
+          "lineEnd": 17,
           "purpose": "",
           "source": "inferred"
         },
@@ -4919,8 +5206,8 @@
           "id": "56f93416-d211-4b08-916f-b3743fe9a8c3",
           "name": "ProjectDetailRequirements",
           "kind": "function",
-          "lineStart": 15,
-          "lineEnd": 104,
+          "lineStart": 20,
+          "lineEnd": 195,
           "purpose": "",
           "source": "inferred"
         }
@@ -5378,9 +5665,10 @@
     {
       "id": "47cc8ba5-0320-4cb7-849a-4e6db5dc47de",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx",
-      "purpose": "Vista por requerimiento o por archivo, búsqueda y expandir todo",
+      "purpose": "Trazabilidad con el buscador nuevo.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e",
         "ffddc27b-124c-442f-bfb1-788daca31510"
       ],
       "symbols": [
@@ -5388,8 +5676,8 @@
           "id": "b64a914c-99fd-40ae-8805-e9ddadc9fa49",
           "name": "Mode",
           "kind": "type",
-          "lineStart": 14,
-          "lineEnd": 14,
+          "lineStart": 15,
+          "lineEnd": 15,
           "purpose": "",
           "source": "inferred"
         },
@@ -5397,8 +5685,8 @@
           "id": "4d857b62-5c27-42af-af89-66b8ce54565e",
           "name": "OPEN_BY_DEFAULT",
           "kind": "constant",
-          "lineStart": 17,
-          "lineEnd": 17,
+          "lineStart": 18,
+          "lineEnd": 18,
           "purpose": "",
           "source": "inferred"
         },
@@ -5406,8 +5694,8 @@
           "id": "e62fbdc5-1849-41ee-b310-b45b8e50c146",
           "name": "ProjectDetailTraceability",
           "kind": "function",
-          "lineStart": 19,
-          "lineEnd": 122,
+          "lineStart": 20,
+          "lineEnd": 125,
           "purpose": "",
           "source": "inferred"
         }
@@ -5463,22 +5751,15 @@
     {
       "id": "81801470-d40d-4eae-ad0c-4f817ca9f80d",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail.tsx",
-      "purpose": "",
+      "purpose": "Página del proyecto con sidebar y Resumen.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
+      ],
       "symbols": [
         {
           "id": "7fe9ae32-76f7-4ba7-8f52-696e542909be",
           "name": "GithubTab",
-          "kind": "type",
-          "lineStart": 20,
-          "lineEnd": 20,
-          "purpose": "",
-          "source": "inferred"
-        },
-        {
-          "id": "3d29e951-bf3c-4efd-9c91-fee0f32ba323",
-          "name": "ProjectTab",
           "kind": "type",
           "lineStart": 21,
           "lineEnd": 21,
@@ -5486,11 +5767,20 @@
           "source": "inferred"
         },
         {
+          "id": "3d29e951-bf3c-4efd-9c91-fee0f32ba323",
+          "name": "ProjectTab",
+          "kind": "type",
+          "lineStart": 22,
+          "lineEnd": 33,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
           "id": "b58f22b2-3064-42ac-b656-2841ed66c8be",
           "name": "ProjectDetailProps",
           "kind": "type",
-          "lineStart": 23,
-          "lineEnd": 27,
+          "lineStart": 35,
+          "lineEnd": 39,
           "purpose": "",
           "source": "inferred"
         },
@@ -5498,8 +5788,8 @@
           "id": "a09875ef-f3e8-4d4b-9217-fb8a4c70415f",
           "name": "ProjectDetail",
           "kind": "function",
-          "lineStart": 29,
-          "lineEnd": 75,
+          "lineStart": 45,
+          "lineEnd": 123,
           "purpose": "",
           "source": "inferred"
         }
@@ -5625,9 +5915,10 @@
     {
       "id": "dc8c791a-1673-4466-a751-bc806acd73fd",
       "path": "apps/web/src/components/dynamic/project-switcher/project-switcher.tsx",
-      "purpose": "Cambiar de proyecto con Ctrl+K y teclado",
+      "purpose": "Selector de proyectos; abre Resumen.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "b667d6f3-afef-4d8c-926e-a68abe6d09bf",
         "bc892359-fa8e-49bf-9e13-6d988fa6f21b"
       ],
       "symbols": [
@@ -5655,6 +5946,91 @@
           "kind": "function",
           "lineStart": 13,
           "lineEnd": 137,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "e96e6482-2fb0-4124-b011-13b73bffc36b",
+      "path": "apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx",
+      "purpose": "Tipo y área para requerimientos nuevos, deducidos por defecto.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+      ],
+      "symbols": [
+        {
+          "id": "fcfa47bb-b086-476c-9984-27bfa18e2f7d",
+          "name": "ClassificationDraft",
+          "kind": "type",
+          "lineStart": 6,
+          "lineEnd": 6,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "a077cb69-9a78-4854-a67c-7233bab4bf2f",
+          "name": "Props",
+          "kind": "type",
+          "lineStart": 8,
+          "lineEnd": 14,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "07690c72-8a2f-43a4-9004-09acda47e7c0",
+          "name": "AUTO",
+          "kind": "constant",
+          "lineStart": 16,
+          "lineEnd": 16,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "60c28c39-2852-4faa-8e5b-341633e7aa2c",
+          "name": "ClassificationFields",
+          "kind": "function",
+          "lineStart": 22,
+          "lineEnd": 57,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "be4b6466-5280-4e96-bf0d-6c0efeb4d177",
+      "path": "apps/web/src/components/dynamic/requirements-import/requirements-import-dialog.tsx",
+      "purpose": "Diálogo para pegar o abrir Markdown o JSON con vista previa de lo entendido.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
+      ],
+      "symbols": [
+        {
+          "id": "280ce0fa-2a12-4d0f-814f-d1884528f8ae",
+          "name": "RequirementsImportDialogProps",
+          "kind": "type",
+          "lineStart": 5,
+          "lineEnd": 13,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "d6ca67f0-41ec-43c2-8d0a-177fafd54e8e",
+          "name": "JSON_EXAMPLE",
+          "kind": "constant",
+          "lineStart": 15,
+          "lineEnd": 23,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "71a14e9a-b84d-4a79-8a40-b83a05a8f3d6",
+          "name": "RequirementsImportDialog",
+          "kind": "function",
+          "lineStart": 29,
+          "lineEnd": 169,
           "purpose": "",
           "source": "inferred"
         }
@@ -6187,6 +6563,44 @@
       ]
     },
     {
+      "id": "0edc8a88-cef7-449c-8506-436a55b014c5",
+      "path": "apps/web/src/components/ui/suggest-input/suggest-input.tsx",
+      "purpose": "Campo de búsqueda con lista de sugerencias y completado gris que Tab acepta.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e"
+      ],
+      "symbols": [
+        {
+          "id": "8f6195cd-6083-4065-8ef2-57690ecc8886",
+          "name": "Suggestion",
+          "kind": "type",
+          "lineStart": 4,
+          "lineEnd": 12,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "0dffa80d-2222-4580-a8a0-bc2b5dc0f89b",
+          "name": "SuggestInputProps",
+          "kind": "type",
+          "lineStart": 14,
+          "lineEnd": 24,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "dee62d8c-377a-401c-80ea-7861fee7f48c",
+          "name": "SuggestInput",
+          "kind": "function",
+          "lineStart": 30,
+          "lineEnd": 131,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
       "id": "edc2b7fd-7106-4e39-8962-72e48896652d",
       "path": "apps/web/src/components/ui/tabs/tabs.tsx",
       "purpose": "Pestañas desplazables sin barra vertical",
@@ -6264,6 +6678,26 @@
           "kind": "function",
           "lineStart": 12,
           "lineEnd": 42,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "5777c95e-613e-4f82-9937-959e824da347",
+      "path": "apps/web/src/components/ui/token-button/token-button.tsx",
+      "purpose": "Botón que indica que usa tokens de Claude.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "abd40f70-d2b9-4a69-bedd-08d4841a629d"
+      ],
+      "symbols": [
+        {
+          "id": "7de7c5c5-4ad4-4160-a3b1-00e01ee95e85",
+          "name": "TokenButton",
+          "kind": "function",
+          "lineStart": 8,
+          "lineEnd": 26,
           "purpose": "",
           "source": "inferred"
         }
@@ -6589,16 +7023,18 @@
     {
       "id": "7c9436bd-84ac-4f42-9885-48dcc2faef31",
       "path": "apps/web/src/hooks/data/use-project-actions.ts",
-      "purpose": "",
+      "purpose": "Mutaciones del proyecto, incluida la importación.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+      ],
       "symbols": [
         {
           "id": "e31d9649-4f21-44cb-af00-d0e2f4752d9d",
           "name": "useProjectActions",
           "kind": "function",
           "lineStart": 9,
-          "lineEnd": 148,
+          "lineEnd": 151,
           "purpose": "",
           "source": "inferred"
         }
@@ -6888,9 +7324,11 @@
     {
       "id": "cacccc3c-ccc7-4100-b06d-9d2bf2fafdaa",
       "path": "apps/web/src/hooks/form/use-create-project.ts",
-      "purpose": "",
+      "purpose": "Arma el proyecto del wizard y abre su Resumen.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
+      ],
       "symbols": [
         {
           "id": "32834f13-136c-4a3f-a65e-fdbd644318ef",
@@ -6987,9 +7425,11 @@
     {
       "id": "82afd207-94ab-4480-b083-03234a89baa2",
       "path": "apps/web/src/hooks/form/use-repo-source.ts",
-      "purpose": "",
+      "purpose": "Importa o clona el repo y abre el Resumen.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
+      ],
       "symbols": [
         {
           "id": "dd5ab484-1d6f-471b-a265-01e08c2785f6",
@@ -7320,6 +7760,35 @@
       ]
     },
     {
+      "id": "7640a924-ad7a-4f0d-9048-0a94aa5b989b",
+      "path": "apps/web/src/hooks/ui/use-trace-suggestions.ts",
+      "purpose": "Archivos y símbolos sugeridos para la trazabilidad.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e"
+      ],
+      "symbols": [
+        {
+          "id": "fbac558c-f78e-4e4c-88cd-8e8837f55b6d",
+          "name": "base",
+          "kind": "function",
+          "lineStart": 8,
+          "lineEnd": 8,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "df9cae9e-c913-4a08-958a-3ed15a0a8bcc",
+          "name": "useTraceSuggestions",
+          "kind": "function",
+          "lineStart": 14,
+          "lineEnd": 51,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
       "id": "46ebc13b-9a4a-4a37-9660-62a3cd996800",
       "path": "apps/web/src/lib/activity.ts",
       "purpose": "",
@@ -7421,9 +7890,10 @@
     {
       "id": "0bb13765-2920-4330-9abf-7981824d2dfc",
       "path": "apps/web/src/lib/api.ts",
-      "purpose": "Llamadas para estado, instalación y compartir skills",
+      "purpose": "Cliente de la API.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
         "4e182ef9-9a67-474a-81f0-7b4b51e2a032",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
       ],
@@ -7667,7 +8137,7 @@
           "name": "api",
           "kind": "constant",
           "lineStart": 169,
-          "lineEnd": 256,
+          "lineEnd": 258,
           "purpose": "",
           "source": "inferred"
         }
@@ -7975,6 +8445,44 @@
       ]
     },
     {
+      "id": "2e551e64-7b1a-45ab-9ca0-6f9a31938b93",
+      "path": "apps/web/src/lib/fuzzy.ts",
+      "purpose": "Puntaje de coincidencia y texto que completa.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e"
+      ],
+      "symbols": [
+        {
+          "id": "0af4798e-986b-4db3-a303-dfc6b8e59a69",
+          "name": "completionOf",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Resto que completa lo escrito",
+          "source": "reported"
+        },
+        {
+          "id": "a07e812f-a28b-4610-91be-7b146df014f0",
+          "name": "fuzzyScore",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Prefijo, inicio de palabra, subcadena o letras en orden",
+          "source": "reported"
+        },
+        {
+          "id": "908eafbd-5176-4ea3-8b7b-66d5b4ecf404",
+          "name": "norm",
+          "kind": "function",
+          "lineStart": 1,
+          "lineEnd": 1,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
       "id": "b8c15250-0069-4885-8965-65dc910decb9",
       "path": "apps/web/src/lib/github-api.ts",
       "purpose": "",
@@ -8157,9 +8665,11 @@
     {
       "id": "a73708e1-6558-420e-906a-75a5eab74e91",
       "path": "apps/web/src/lib/labels.ts",
-      "purpose": "",
+      "purpose": "Etiquetas en español y opciones de área por tipo.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+      ],
       "symbols": [
         {
           "id": "11ac8ad5-9044-4c8c-9497-8c1ce2a48c4f",
@@ -8311,6 +8821,15 @@
           "kind": "constant",
           "lineStart": 82,
           "lineEnd": 82,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "85612883-0587-4f61-9c64-55038aa856ee",
+          "name": "areaOptionsFor",
+          "kind": "function",
+          "lineStart": 84,
+          "lineEnd": 84,
           "purpose": "",
           "source": "inferred"
         }
@@ -8493,16 +9012,18 @@
     {
       "id": "52a308e9-034a-4e41-9f07-32a5ceb197e8",
       "path": "apps/web/src/router.tsx",
-      "purpose": "",
+      "purpose": "Rutas; Resumen por defecto.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
+      ],
       "symbols": [
         {
           "id": "4b2b5b5d-3fb4-408f-8009-df4664b76b19",
           "name": "TABS",
           "kind": "constant",
           "lineStart": 11,
-          "lineEnd": 24,
+          "lineEnd": 25,
           "purpose": "",
           "source": "inferred"
         },
@@ -8510,8 +9031,8 @@
           "id": "8c6e379e-d66a-49f1-8143-243c68f84f32",
           "name": "rootRoute",
           "kind": "constant",
-          "lineStart": 26,
-          "lineEnd": 26,
+          "lineStart": 27,
+          "lineEnd": 27,
           "purpose": "",
           "source": "inferred"
         },
@@ -8519,8 +9040,8 @@
           "id": "c44323bd-9f9c-4df6-a62b-00903df8a0d5",
           "name": "indexRoute",
           "kind": "constant",
-          "lineStart": 29,
-          "lineEnd": 34,
+          "lineStart": 30,
+          "lineEnd": 35,
           "purpose": "",
           "source": "inferred"
         },
@@ -8528,8 +9049,8 @@
           "id": "40f219f1-1952-4c9f-b3b7-f14e0e945579",
           "name": "newProjectRoute",
           "kind": "constant",
-          "lineStart": 36,
-          "lineEnd": 40,
+          "lineStart": 37,
+          "lineEnd": 41,
           "purpose": "",
           "source": "inferred"
         },
@@ -8537,8 +9058,8 @@
           "id": "ce724532-cdde-4db7-9c48-7bacb1b4fa2d",
           "name": "projectRoute",
           "kind": "constant",
-          "lineStart": 42,
-          "lineEnd": 53,
+          "lineStart": 43,
+          "lineEnd": 54,
           "purpose": "",
           "source": "inferred"
         },
@@ -8546,8 +9067,8 @@
           "id": "80fe3c55-003e-4abf-adc2-27a2e8a57a59",
           "name": "routeTree",
           "kind": "constant",
-          "lineStart": 55,
-          "lineEnd": 55,
+          "lineStart": 56,
+          "lineEnd": 56,
           "purpose": "",
           "source": "inferred"
         },
@@ -8555,8 +9076,8 @@
           "id": "d62d0dc0-0eb5-4e56-bf11-37e638684e18",
           "name": "router",
           "kind": "constant",
-          "lineStart": 57,
-          "lineEnd": 63,
+          "lineStart": 58,
+          "lineEnd": 64,
           "purpose": "",
           "source": "inferred"
         }
@@ -8619,10 +9140,11 @@
     {
       "id": "01f8c0bc-d2f1-43be-a27c-bcfef123babd",
       "path": "apps/web/src/stores/use-wizard-store.ts",
-      "purpose": "Estado del wizard, validación de pasos y resumen para el asistente",
+      "purpose": "Estado del wizard; requerimientos importados y clasificación opcional.",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+        "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
       ],
       "symbols": [
         {
@@ -8666,7 +9188,7 @@
           "name": "RequirementDraft",
           "kind": "type",
           "lineStart": 18,
-          "lineEnd": 28,
+          "lineEnd": 29,
           "purpose": "",
           "source": "inferred"
         },
@@ -8674,8 +9196,8 @@
           "id": "7d6698af-ef15-49ea-abac-50aff0ff29de",
           "name": "WizardData",
           "kind": "type",
-          "lineStart": 30,
-          "lineEnd": 55,
+          "lineStart": 31,
+          "lineEnd": 56,
           "purpose": "",
           "source": "inferred"
         },
@@ -8683,8 +9205,8 @@
           "id": "7ceb6a6d-a34d-45a2-870d-74d821bab337",
           "name": "WizardActions",
           "kind": "type",
-          "lineStart": 57,
-          "lineEnd": 71,
+          "lineStart": 58,
+          "lineEnd": 74,
           "purpose": "",
           "source": "inferred"
         },
@@ -8692,8 +9214,8 @@
           "id": "13ceffca-7d4d-48cd-85db-5029c26fbe02",
           "name": "newRequirement",
           "kind": "function",
-          "lineStart": 73,
-          "lineEnd": 73,
+          "lineStart": 76,
+          "lineEnd": 76,
           "purpose": "",
           "source": "inferred"
         },
@@ -8701,8 +9223,8 @@
           "id": "146f4c6a-39d8-4fec-b106-4a887a54b593",
           "name": "initial",
           "kind": "function",
-          "lineStart": 75,
-          "lineEnd": 95,
+          "lineStart": 78,
+          "lineEnd": 98,
           "purpose": "",
           "source": "inferred"
         },
@@ -8710,8 +9232,8 @@
           "id": "782893c7-3c7a-4c44-9a00-78150e397638",
           "name": "toggle",
           "kind": "function",
-          "lineStart": 97,
-          "lineEnd": 97,
+          "lineStart": 100,
+          "lineEnd": 100,
           "purpose": "",
           "source": "inferred"
         },
@@ -8719,8 +9241,8 @@
           "id": "b01411cb-24c0-45b1-9ca6-ffe0cb0f3508",
           "name": "useWizardStore",
           "kind": "constant",
-          "lineStart": 99,
-          "lineEnd": 136,
+          "lineStart": 102,
+          "lineEnd": 146,
           "purpose": "",
           "source": "inferred"
         },
@@ -8728,8 +9250,8 @@
           "id": "d366a1dc-d927-47e1-9dcd-7282c79a7bb0",
           "name": "wizardBrief",
           "kind": "function",
-          "lineStart": 139,
-          "lineEnd": 150,
+          "lineStart": 149,
+          "lineEnd": 160,
           "purpose": "",
           "source": "inferred"
         },
@@ -8737,8 +9259,8 @@
           "id": "e0c658b5-b537-4303-8ec1-d2e98940601e",
           "name": "isStepValid",
           "kind": "function",
-          "lineStart": 153,
-          "lineEnd": 172,
+          "lineStart": 163,
+          "lineEnd": 182,
           "purpose": "",
           "source": "inferred"
         },
@@ -8746,8 +9268,8 @@
           "id": "cb72e904-e773-4274-9242-eb6e630f75b2",
           "name": "canOpenStep",
           "kind": "function",
-          "lineStart": 175,
-          "lineEnd": 176,
+          "lineStart": 185,
+          "lineEnd": 186,
           "purpose": "",
           "source": "inferred"
         }
@@ -10796,10 +11318,231 @@
     {
       "id": "25ec9fd1-2e2f-48a3-a3fb-663d30665b93",
       "path": "packages/core/src/index.ts",
-      "purpose": "",
+      "purpose": "Exporta el núcleo, ahora con planes.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
+      ],
       "symbols": []
+    },
+    {
+      "id": "5fad1fe1-6dd4-4f00-937b-b2ecfe1afbb2",
+      "path": "packages/core/src/plan.test.ts",
+      "purpose": "Tests de clasificación, importación y planes.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "3b387161-b48f-450d-8afa-23f64f974fc0",
+      "path": "packages/core/src/plan.ts",
+      "purpose": "Lee requerimientos con su DoD y planes de proyecto en Markdown o JSON, y lista lo que falta preguntar.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
+      ],
+      "symbols": [
+        {
+          "id": "4510382e-0cc5-4ef6-a8bb-b2be762f2ccb",
+          "name": "PLAN_TEMPLATE",
+          "kind": "constant",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Ejemplo de plan para copiar",
+          "source": "reported"
+        },
+        {
+          "id": "d304b386-97ca-4488-80c3-b9bd0622b580",
+          "name": "missingPlanFields",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Preguntas para lo que el wizard exige y falta",
+          "source": "reported"
+        },
+        {
+          "id": "2570dd17-14f0-4906-85a2-4078e98b6a28",
+          "name": "parseProjectPlan",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Plan completo: nombre, tipo, stack, objetivo, reglas y requerimientos",
+          "source": "reported"
+        },
+        {
+          "id": "27e1cf14-9f1a-4730-ae88-49e1016989f6",
+          "name": "parseRequirements",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Requerimientos con criterios desde Markdown o JSON",
+          "source": "reported"
+        },
+        {
+          "id": "90b1d7b6-defe-4389-bf04-b3451e23bb27",
+          "name": "ImportedRequirement",
+          "kind": "type",
+          "lineStart": 9,
+          "lineEnd": 15,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "1264dfde-bada-4e23-bf4a-34e5d3944709",
+          "name": "ProjectPlan",
+          "kind": "type",
+          "lineStart": 17,
+          "lineEnd": 26,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "4f87eedf-4533-4251-ad1f-05e3bb84cb32",
+          "name": "ParseOutcome",
+          "kind": "type",
+          "lineStart": 28,
+          "lineEnd": 28,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "13994b7f-d340-441c-841e-e8d2838c23a1",
+          "name": "norm",
+          "kind": "function",
+          "lineStart": 30,
+          "lineEnd": 30,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "19034e9e-34c9-45b0-83c0-b2b7c742cd27",
+          "name": "list",
+          "kind": "function",
+          "lineStart": 31,
+          "lineEnd": 35,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "599ff33c-324f-4a0e-91a2-6e76cb922008",
+          "name": "DOD_HEADING",
+          "kind": "constant",
+          "lineStart": 38,
+          "lineEnd": 38,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "1e67c6d3-c684-4af9-b482-7dbe2819bf9e",
+          "name": "TAG",
+          "kind": "constant",
+          "lineStart": 39,
+          "lineEnd": 39,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "8b0bac60-d6c8-48d4-b1e5-c6e7b8db5a10",
+          "name": "RawRequirement",
+          "kind": "type",
+          "lineStart": 41,
+          "lineEnd": 41,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "daff6c60-44bf-4256-baa6-14bad2c3cced",
+          "name": "asText",
+          "kind": "function",
+          "lineStart": 43,
+          "lineEnd": 43,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "5ee9343d-278a-4dd6-abbb-688542aba472",
+          "name": "settle",
+          "kind": "function",
+          "lineStart": 45,
+          "lineEnd": 61,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "4c1ee3e9-4835-40f8-ae39-7a4b17944b57",
+          "name": "fromJsonItem",
+          "kind": "function",
+          "lineStart": 64,
+          "lineEnd": 76,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "cb603645-eeac-4383-981d-b4b32f611bfe",
+          "name": "markdownRequirements",
+          "kind": "function",
+          "lineStart": 79,
+          "lineEnd": 136,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "7d88a242-797e-4fb0-b145-44ab1a0b349d",
+          "name": "looksJson",
+          "kind": "function",
+          "lineStart": 138,
+          "lineEnd": 138,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "5e52431d-efe8-4a9e-9a11-6bd44149ef17",
+          "name": "KIND_WORDS",
+          "kind": "constant",
+          "lineStart": 164,
+          "lineEnd": 172,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "c9643328-f4fd-4693-af4c-591b5aff19da",
+          "name": "readKind",
+          "kind": "function",
+          "lineStart": 173,
+          "lineEnd": 177,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "a9f1bfc9-24e8-43a5-bb16-5836d33c155e",
+          "name": "PLATFORM_WORDS",
+          "kind": "constant",
+          "lineStart": 178,
+          "lineEnd": 178,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "1ffae580-ed80-40a1-b8a7-b2ea646fc3ac",
+          "name": "MissingField",
+          "kind": "type",
+          "lineStart": 271,
+          "lineEnd": 271,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "58417c72-e751-46ec-a743-c93a98f3a00f",
+          "name": "REQUIREMENTS_TEMPLATE",
+          "kind": "constant",
+          "lineStart": 328,
+          "lineEnd": 328,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
     },
     {
       "id": "9fa0d4a9-7e50-45e0-87ad-6fb312845569",
@@ -11051,19 +11794,56 @@
     {
       "id": "4f202979-b6cf-4b6c-84e1-6c56978fd962",
       "path": "packages/core/src/requirements.ts",
-      "purpose": "Ruta de la copia compartida de una skill en el repo",
+      "purpose": "Etiquetas y clasificación de requerimientos.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
         "e20e7af5-350b-42e3-9997-73c58a0975ad"
       ],
       "symbols": [
         {
+          "id": "4a95e61c-5d98-41b7-9441-3e98b10499ae",
+          "name": "classifyRequirement",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Deduce tipo y área del texto",
+          "source": "reported"
+        },
+        {
+          "id": "e95640f4-8db1-4fce-9f46-7226beed1aae",
+          "name": "readClassification",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Lee palabras sueltas de tipo y área",
+          "source": "reported"
+        },
+        {
+          "id": "6e6e96f5-8e29-49b9-a6d2-98ae94c70a8d",
+          "name": "settleClassification",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Completa una clasificación parcial de forma coherente",
+          "source": "reported"
+        },
+        {
           "id": "8fa90b79-f9bc-4e54-b017-0b513d2efbad",
           "name": "REQUIREMENT_TYPE_LABEL",
           "kind": "constant",
-          "lineStart": 3,
-          "lineEnd": 6,
+          "lineStart": 12,
+          "lineEnd": 15,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "e78ed315-8b6f-4a33-90eb-024cbd7de23a",
+          "name": "REQUIREMENT_TYPE_HINT",
+          "kind": "constant",
+          "lineStart": 18,
+          "lineEnd": 21,
           "purpose": "",
           "source": "inferred"
         },
@@ -11071,8 +11851,71 @@
           "id": "7670531b-9b54-4ccc-ac65-5810ef60ce01",
           "name": "REQUIREMENT_AREA_LABEL",
           "kind": "constant",
-          "lineStart": 8,
-          "lineEnd": 17,
+          "lineStart": 23,
+          "lineEnd": 38,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "6720f07b-635a-4bbe-bbd9-0c604fc27dc0",
+          "name": "AREA_GROUP_LABEL",
+          "kind": "constant",
+          "lineStart": 41,
+          "lineEnd": 44,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "e89e4c6e-115e-41f6-8cc1-b40d1d566da5",
+          "name": "areasFor",
+          "kind": "function",
+          "lineStart": 46,
+          "lineEnd": 46,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "27abff9b-c766-4ba6-8406-4a4250789076",
+          "name": "isAreaOf",
+          "kind": "function",
+          "lineStart": 47,
+          "lineEnd": 47,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "2ea225fd-6f71-4c8c-8547-18cb9f50bf87",
+          "name": "QUALITY_HINTS",
+          "kind": "constant",
+          "lineStart": 50,
+          "lineEnd": 59,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "d7f0234d-7d51-41f6-affd-51592e3f9746",
+          "name": "PART_HINTS",
+          "kind": "constant",
+          "lineStart": 62,
+          "lineEnd": 68,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "133e5153-c56b-47b0-b7b6-75f8b870faf3",
+          "name": "Classification",
+          "kind": "type",
+          "lineStart": 70,
+          "lineEnd": 70,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "922c31e8-be5f-4742-98d0-07ff657abb48",
+          "name": "norm",
+          "kind": "function",
+          "lineStart": 72,
+          "lineEnd": 72,
           "purpose": "",
           "source": "inferred"
         },
@@ -11080,8 +11923,8 @@
           "id": "b8ff319b-83fe-4142-83ce-93204a274943",
           "name": "ATTACHMENTS_DIR",
           "kind": "constant",
-          "lineStart": 19,
-          "lineEnd": 19,
+          "lineStart": 128,
+          "lineEnd": 128,
           "purpose": "",
           "source": "inferred"
         },
@@ -11089,8 +11932,8 @@
           "id": "e8aa7dcf-054e-4fe4-b96e-f65709d7cc1d",
           "name": "attachmentRepoPath",
           "kind": "function",
-          "lineStart": 22,
-          "lineEnd": 25,
+          "lineStart": 131,
+          "lineEnd": 134,
           "purpose": "",
           "source": "inferred"
         },
@@ -11098,8 +11941,8 @@
           "id": "4eb5dfc3-a0a9-4ba1-beae-9b82bd3e10c4",
           "name": "SHARED_SKILLS_DIR",
           "kind": "constant",
-          "lineStart": 27,
-          "lineEnd": 27,
+          "lineStart": 136,
+          "lineEnd": 136,
           "purpose": "",
           "source": "inferred"
         },
@@ -11107,8 +11950,8 @@
           "id": "c2f9890c-8921-487a-bbcd-8837896c0b70",
           "name": "sharedSkillPath",
           "kind": "function",
-          "lineStart": 30,
-          "lineEnd": 31,
+          "lineStart": 139,
+          "lineEnd": 140,
           "purpose": "",
           "source": "inferred"
         }
@@ -11524,9 +12367,10 @@
     {
       "id": "add7ce19-db85-4b05-b454-978e30c1b2ef",
       "path": "packages/core/src/types.ts",
-      "purpose": "ProjectSkill con plugin, marketplace y compartida",
+      "purpose": "Tipos del dominio; áreas funcionales y de calidad.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
       ],
       "symbols": [
@@ -11702,8 +12546,8 @@
           "source": "inferred"
         },
         {
-          "id": "aacd1aea-c54c-47b1-aeb9-882003f38b8d",
-          "name": "REQUIREMENT_AREAS",
+          "id": "284fb0aa-8790-469f-99af-6a60dcc05ab3",
+          "name": "FUNCTIONAL_AREAS",
           "kind": "constant",
           "lineStart": 69,
           "lineEnd": 69,
@@ -11711,11 +12555,29 @@
           "source": "inferred"
         },
         {
+          "id": "5fadb202-b87b-4278-919c-c435e805e7f7",
+          "name": "QUALITY_AREAS",
+          "kind": "constant",
+          "lineStart": 71,
+          "lineEnd": 71,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "aacd1aea-c54c-47b1-aeb9-882003f38b8d",
+          "name": "REQUIREMENT_AREAS",
+          "kind": "constant",
+          "lineStart": 73,
+          "lineEnd": 73,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
           "id": "d30d4ac6-2286-457f-acad-8623c66ca0e8",
           "name": "RequirementArea",
           "kind": "type",
-          "lineStart": 70,
-          "lineEnd": 70,
+          "lineStart": 74,
+          "lineEnd": 74,
           "purpose": "",
           "source": "inferred"
         },
@@ -11723,8 +12585,8 @@
           "id": "37f5312e-81a6-4876-a432-04db0b8ebb61",
           "name": "Requirement",
           "kind": "type",
-          "lineStart": 72,
-          "lineEnd": 81,
+          "lineStart": 76,
+          "lineEnd": 85,
           "purpose": "",
           "source": "inferred"
         },
@@ -11732,8 +12594,8 @@
           "id": "40188066-0be7-4114-8486-21c6bb3adc18",
           "name": "Feature",
           "kind": "type",
-          "lineStart": 83,
-          "lineEnd": 90,
+          "lineStart": 87,
+          "lineEnd": 94,
           "purpose": "",
           "source": "inferred"
         },
@@ -11741,8 +12603,8 @@
           "id": "d10307fa-9030-43d7-84eb-edadf6a7ba6d",
           "name": "TestCase",
           "kind": "type",
-          "lineStart": 92,
-          "lineEnd": 100,
+          "lineStart": 96,
+          "lineEnd": 104,
           "purpose": "",
           "source": "inferred"
         },
@@ -11750,8 +12612,8 @@
           "id": "29bd87ce-2532-4210-9b60-12fd48068a82",
           "name": "FileArtifact",
           "kind": "type",
-          "lineStart": 103,
-          "lineEnd": 115,
+          "lineStart": 107,
+          "lineEnd": 119,
           "purpose": "",
           "source": "inferred"
         },
@@ -11759,8 +12621,8 @@
           "id": "cfdc56a9-1bf9-42c2-a24e-cbfc62e62ce4",
           "name": "FeatureFile",
           "kind": "type",
-          "lineStart": 117,
-          "lineEnd": 120,
+          "lineStart": 121,
+          "lineEnd": 124,
           "purpose": "",
           "source": "inferred"
         },
@@ -11768,8 +12630,8 @@
           "id": "9fa877f2-492d-4b07-beee-36560178ccaa",
           "name": "CodeSymbol",
           "kind": "type",
-          "lineStart": 122,
-          "lineEnd": 131,
+          "lineStart": 126,
+          "lineEnd": 135,
           "purpose": "",
           "source": "inferred"
         },
@@ -11777,8 +12639,8 @@
           "id": "94f3b078-3f8f-4267-a781-bba3ba6187ef",
           "name": "TestIdea",
           "kind": "type",
-          "lineStart": 133,
-          "lineEnd": 143,
+          "lineStart": 137,
+          "lineEnd": 147,
           "purpose": "",
           "source": "inferred"
         },
@@ -11786,8 +12648,8 @@
           "id": "550700be-8ed3-4ff0-bd4d-e5b55520653b",
           "name": "AgentEvent",
           "kind": "type",
-          "lineStart": 146,
-          "lineEnd": 153,
+          "lineStart": 150,
+          "lineEnd": 157,
           "purpose": "",
           "source": "inferred"
         },
@@ -11795,8 +12657,8 @@
           "id": "79e85558-02de-4ed3-a449-f0d58fcb2600",
           "name": "ProjectSnapshot",
           "kind": "type",
-          "lineStart": 156,
-          "lineEnd": 170,
+          "lineStart": 160,
+          "lineEnd": 174,
           "purpose": "",
           "source": "inferred"
         },
@@ -11804,8 +12666,8 @@
           "id": "f89c0519-297d-4913-9fb8-53cb7269b243",
           "name": "AttachmentKind",
           "kind": "type",
-          "lineStart": 172,
-          "lineEnd": 172,
+          "lineStart": 176,
+          "lineEnd": 176,
           "purpose": "",
           "source": "inferred"
         },
@@ -11813,8 +12675,8 @@
           "id": "62a67f47-6c4f-4f05-8756-c76fda3d8a6f",
           "name": "Attachment",
           "kind": "type",
-          "lineStart": 174,
-          "lineEnd": 189,
+          "lineStart": 178,
+          "lineEnd": 193,
           "purpose": "",
           "source": "inferred"
         }
@@ -13409,26 +14271,38 @@
     {
       "id": "9c2573c3-eee5-4192-b3fe-4c118222b42a",
       "path": "packages/mcp/src/mcp.test.ts",
-      "purpose": "",
+      "purpose": "Tests de las herramientas MCP, incluida la creación desde un plan.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "40490b16-9821-49bc-a246-7d81b01eb54a"
+      ],
       "symbols": []
     },
     {
       "id": "261bab90-13b2-47a2-b64d-5fdaa0b6ee1b",
       "path": "packages/mcp/src/server.ts",
-      "purpose": "Definición de las herramientas MCP sobre el tracker compartido",
+      "purpose": "Servidor MCP; herramientas get_plan_format y create_project.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "40490b16-9821-49bc-a246-7d81b01eb54a",
         "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
       ],
       "symbols": [
         {
+          "id": "66a637d4-c027-46e1-aebe-cb732eba9e97",
+          "name": "createMcpServer",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Registra las herramientas del agente",
+          "source": "reported"
+        },
+        {
           "id": "64974d1b-b57c-4b70-a43d-2024d79e6f5c",
           "name": "SERVER_INFO",
           "kind": "constant",
-          "lineStart": 16,
-          "lineEnd": 16,
+          "lineStart": 27,
+          "lineEnd": 27,
           "purpose": "",
           "source": "inferred"
         },
@@ -13436,8 +14310,8 @@
           "id": "6982584b-1aff-450f-a254-bd442d298c25",
           "name": "SERVER_INSTRUCTIONS",
           "kind": "constant",
-          "lineStart": 18,
-          "lineEnd": 28,
+          "lineStart": 29,
+          "lineEnd": 40,
           "purpose": "",
           "source": "inferred"
         },
@@ -13445,8 +14319,8 @@
           "id": "81b5ec28-1425-43b7-ab3c-693f52e6a3cd",
           "name": "McpDeps",
           "kind": "type",
-          "lineStart": 31,
-          "lineEnd": 33,
+          "lineStart": 43,
+          "lineEnd": 45,
           "purpose": "",
           "source": "inferred"
         },
@@ -13454,8 +14328,8 @@
           "id": "89218afe-a8d5-4b4d-a5cf-3c1621c64c2a",
           "name": "TEST_TYPES",
           "kind": "constant",
-          "lineStart": 35,
-          "lineEnd": 35,
+          "lineStart": 47,
+          "lineEnd": 47,
           "purpose": "",
           "source": "inferred"
         },
@@ -13463,8 +14337,8 @@
           "id": "234b5b8e-e87e-486b-b32e-216c6052927e",
           "name": "TEST_RESULTS",
           "kind": "constant",
-          "lineStart": 36,
-          "lineEnd": 36,
+          "lineStart": 48,
+          "lineEnd": 48,
           "purpose": "",
           "source": "inferred"
         },
@@ -13472,8 +14346,8 @@
           "id": "d7aae4cc-acf3-4a75-b5a4-6baade72f773",
           "name": "McpSession",
           "kind": "type",
-          "lineStart": 38,
-          "lineEnd": 43,
+          "lineStart": 50,
+          "lineEnd": 55,
           "purpose": "",
           "source": "inferred"
         },
@@ -13481,8 +14355,8 @@
           "id": "37022549-97d4-4250-a187-ccf8fdecf9b4",
           "name": "projectArg",
           "kind": "constant",
-          "lineStart": 45,
-          "lineEnd": 50,
+          "lineStart": 57,
+          "lineEnd": 62,
           "purpose": "",
           "source": "inferred"
         },
@@ -13490,8 +14364,8 @@
           "id": "32992734-907b-485e-bba7-268f32b7d196",
           "name": "text",
           "kind": "function",
-          "lineStart": 52,
-          "lineEnd": 54,
+          "lineStart": 64,
+          "lineEnd": 66,
           "purpose": "",
           "source": "inferred"
         },
@@ -13499,17 +14373,8 @@
           "id": "05e1a032-c618-439e-acba-4a0bc88854d8",
           "name": "filesOf",
           "kind": "function",
-          "lineStart": 56,
-          "lineEnd": 68,
-          "purpose": "",
-          "source": "inferred"
-        },
-        {
-          "id": "66a637d4-c027-46e1-aebe-cb732eba9e97",
-          "name": "createMcpServer",
-          "kind": "function",
-          "lineStart": 74,
-          "lineEnd": 511,
+          "lineStart": 68,
+          "lineEnd": 80,
           "purpose": "",
           "source": "inferred"
         }
@@ -13710,30 +14575,12 @@
     {
       "id": "54473408-615d-4f68-a76b-71c999cdeb51",
       "path": "packages/server/src/agent-turns.ts",
-      "purpose": "Registra cada turno con pedido, pasos, mensaje final y diff",
+      "purpose": "Registra turnos del agente; descarta los que no cambiaron archivos.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a"
       ],
       "symbols": [
-        {
-          "id": "fc8521ea-a4ea-4921-a2a7-d8be4830d183",
-          "name": "createAgentTurns",
-          "kind": "function",
-          "lineStart": null,
-          "lineEnd": null,
-          "purpose": "Abre y cierra turnos con los hooks",
-          "source": "reported"
-        },
-        {
-          "id": "d0867263-9c46-45c9-bc9b-23038dfcdc67",
-          "name": "lastAssistantMessage",
-          "kind": "function",
-          "lineStart": null,
-          "lineEnd": null,
-          "purpose": "Lee el mensaje final del transcript, solo dentro de ~/.claude",
-          "source": "reported"
-        },
         {
           "id": "7fd3e313-6eab-48a6-ac45-901a658b0f69",
           "name": "MAX_PROMPT",
@@ -13780,11 +14627,29 @@
           "source": "inferred"
         },
         {
+          "id": "d0867263-9c46-45c9-bc9b-23038dfcdc67",
+          "name": "lastAssistantMessage",
+          "kind": "function",
+          "lineStart": 21,
+          "lineEnd": 51,
+          "purpose": "Lee el mensaje final del transcript, solo dentro de ~/.claude",
+          "source": "reported"
+        },
+        {
+          "id": "fc8521ea-a4ea-4921-a2a7-d8be4830d183",
+          "name": "createAgentTurns",
+          "kind": "function",
+          "lineStart": 57,
+          "lineEnd": 145,
+          "purpose": "Abre y cierra turnos con los hooks",
+          "source": "reported"
+        },
+        {
           "id": "4383c19e-cdab-47a9-a54c-f1434c079a59",
           "name": "AgentTurns",
           "kind": "type",
-          "lineStart": 139,
-          "lineEnd": 139,
+          "lineStart": 147,
+          "lineEnd": 147,
           "purpose": "",
           "source": "inferred"
         }
@@ -13801,18 +14666,19 @@
     {
       "id": "553410b3-6c29-4e18-924c-ed3654f5d583",
       "path": "packages/server/src/app.ts",
-      "purpose": "Origen de las skills al crear el proyecto y casilla de compartir",
+      "purpose": "API HTTP; importación de requerimientos y clasificación deducida al crear o cambiar tipo.",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+        "d5c72587-3bd9-487f-bab5-74e76b919371"
       ],
       "symbols": [
         {
           "id": "1df6e7b1-4e2c-4bb4-a64a-8cbe5c3f3d5b",
           "name": "newId",
           "kind": "function",
-          "lineStart": 53,
-          "lineEnd": 53,
+          "lineStart": 56,
+          "lineEnd": 56,
           "purpose": "",
           "source": "inferred"
         },
@@ -13820,8 +14686,8 @@
           "id": "d011ba68-8936-45ad-ac92-b17a8b3166ae",
           "name": "nowIso",
           "kind": "function",
-          "lineStart": 54,
-          "lineEnd": 54,
+          "lineStart": 57,
+          "lineEnd": 57,
           "purpose": "",
           "source": "inferred"
         },
@@ -13829,8 +14695,8 @@
           "id": "f53950d0-8caa-49dd-936d-234779e8a8e0",
           "name": "platforms",
           "kind": "constant",
-          "lineStart": 55,
-          "lineEnd": 55,
+          "lineStart": 58,
+          "lineEnd": 58,
           "purpose": "",
           "source": "inferred"
         },
@@ -13838,8 +14704,8 @@
           "id": "b96da5bf-90a2-4b60-94e2-bd8fb9aefb75",
           "name": "projectKind",
           "kind": "constant",
-          "lineStart": 56,
-          "lineEnd": 56,
+          "lineStart": 59,
+          "lineEnd": 59,
           "purpose": "",
           "source": "inferred"
         },
@@ -13847,8 +14713,8 @@
           "id": "0deffb7c-dab5-4aa7-9686-59a9fda95fbc",
           "name": "withKindPlatforms",
           "kind": "function",
-          "lineStart": 58,
-          "lineEnd": 62,
+          "lineStart": 61,
+          "lineEnd": 65,
           "purpose": "",
           "source": "inferred"
         },
@@ -13856,8 +14722,8 @@
           "id": "29bd4a9e-c488-487d-9dd8-50521aa9d9df",
           "name": "dodInput",
           "kind": "constant",
-          "lineStart": 64,
-          "lineEnd": 64,
+          "lineStart": 67,
+          "lineEnd": 67,
           "purpose": "",
           "source": "inferred"
         },
@@ -13865,8 +14731,8 @@
           "id": "17e1c7cf-64c2-44cc-a9d9-ce6d8891d7a7",
           "name": "requirementInput",
           "kind": "constant",
-          "lineStart": 65,
-          "lineEnd": 72,
+          "lineStart": 68,
+          "lineEnd": 76,
           "purpose": "",
           "source": "inferred"
         },
@@ -13874,8 +14740,8 @@
           "id": "00b5c733-c9c3-4258-8d5e-9b87c3fe3a57",
           "name": "skillInput",
           "kind": "constant",
-          "lineStart": 73,
-          "lineEnd": 79,
+          "lineStart": 77,
+          "lineEnd": 83,
           "purpose": "",
           "source": "inferred"
         },
@@ -13883,8 +14749,8 @@
           "id": "d3d80f23-1dac-40bf-82af-9123206fed1d",
           "name": "projectFields",
           "kind": "constant",
-          "lineStart": 80,
-          "lineEnd": 89,
+          "lineStart": 84,
+          "lineEnd": 93,
           "purpose": "",
           "source": "inferred"
         },
@@ -13892,8 +14758,8 @@
           "id": "e4258922-d35e-4221-a50d-bc36581c46e4",
           "name": "createProject",
           "kind": "constant",
-          "lineStart": 90,
-          "lineEnd": 102,
+          "lineStart": 94,
+          "lineEnd": 106,
           "purpose": "",
           "source": "inferred"
         },
@@ -13901,8 +14767,8 @@
           "id": "0a675bf6-68fc-4ce4-8cc5-345e0e7012e5",
           "name": "body",
           "kind": "function",
-          "lineStart": 104,
-          "lineEnd": 108,
+          "lineStart": 108,
+          "lineEnd": 112,
           "purpose": "",
           "source": "inferred"
         },
@@ -13910,8 +14776,8 @@
           "id": "cadd743d-280d-473c-94cd-a8fc30ba0a08",
           "name": "patchBody",
           "kind": "function",
-          "lineStart": 114,
-          "lineEnd": 120,
+          "lineStart": 118,
+          "lineEnd": 124,
           "purpose": "",
           "source": "inferred"
         },
@@ -13919,8 +14785,8 @@
           "id": "b2cabb0c-0f95-4fff-9489-3edf47d7ce5a",
           "name": "withProgress",
           "kind": "function",
-          "lineStart": 122,
-          "lineEnd": 131,
+          "lineStart": 126,
+          "lineEnd": 135,
           "purpose": "",
           "source": "inferred"
         },
@@ -13928,8 +14794,8 @@
           "id": "6e5f59f8-6657-44e0-9f49-ad26058b5963",
           "name": "AppOptions",
           "kind": "type",
-          "lineStart": 133,
-          "lineEnd": 149,
+          "lineStart": 137,
+          "lineEnd": 153,
           "purpose": "",
           "source": "inferred"
         },
@@ -13937,8 +14803,8 @@
           "id": "cf3efd62-a48d-4a2a-b172-44b2db0e0a46",
           "name": "NOT_CONFIGURED",
           "kind": "constant",
-          "lineStart": 151,
-          "lineEnd": 151,
+          "lineStart": 155,
+          "lineEnd": 155,
           "purpose": "",
           "source": "inferred"
         },
@@ -13946,8 +14812,8 @@
           "id": "ac9130df-9f82-40bf-ae34-67995e934c3c",
           "name": "briefInput",
           "kind": "constant",
-          "lineStart": 153,
-          "lineEnd": 162,
+          "lineStart": 157,
+          "lineEnd": 166,
           "purpose": "",
           "source": "inferred"
         },
@@ -13955,8 +14821,8 @@
           "id": "da814c83-146a-48d6-9308-a84d730bb2bb",
           "name": "briefFromSnapshot",
           "kind": "function",
-          "lineStart": 164,
-          "lineEnd": 173,
+          "lineStart": 168,
+          "lineEnd": 177,
           "purpose": "",
           "source": "inferred"
         },
@@ -13964,8 +14830,8 @@
           "id": "09f0943e-ce5a-4eee-9e3d-147e380a07cc",
           "name": "createApp",
           "kind": "function",
-          "lineStart": 175,
-          "lineEnd": 661,
+          "lineStart": 179,
+          "lineEnd": 683,
           "purpose": "",
           "source": "inferred"
         }
@@ -14002,9 +14868,11 @@
     {
       "id": "a64c946e-5d1a-4c9c-a311-d2e23cb13186",
       "path": "packages/server/src/features-v3.test.ts",
-      "purpose": "",
+      "purpose": "Tests de integración de imágenes, turnos, worktrees e importación.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+      ],
       "symbols": []
     },
     {
@@ -14920,11 +15788,51 @@
       ]
     },
     {
+      "id": "acb66ec3-32aa-4b35-941b-e75bef95a635",
+      "path": "packages/tracking/src/create-project.ts",
+      "purpose": "Creación de proyectos compartida por la API y el MCP.",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "40490b16-9821-49bc-a246-7d81b01eb54a"
+      ],
+      "symbols": [
+        {
+          "id": "2a4f25a2-0cd4-44b3-9576-088d32951154",
+          "name": "createProject",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Inserta el proyecto, escribe sus archivos y avisa",
+          "source": "reported"
+        },
+        {
+          "id": "3a985649-7709-4b73-b0ea-41b0ab9bd11c",
+          "name": "NewProjectRequirement",
+          "kind": "type",
+          "lineStart": 18,
+          "lineEnd": 26,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "07bf70bd-75b5-4ac9-b30a-5e6fdf44e162",
+          "name": "NewProjectInput",
+          "kind": "type",
+          "lineStart": 28,
+          "lineEnd": 42,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
       "id": "2a49ce8f-d206-47d8-be8f-06e8b94efda5",
       "path": "packages/tracking/src/index.ts",
-      "purpose": "",
+      "purpose": "Exporta createProject.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "40490b16-9821-49bc-a246-7d81b01eb54a"
+      ],
       "symbols": []
     },
     {
@@ -15456,6 +16364,5 @@
       "origin": "llm",
       "status": "proposed"
     }
-  ],
-  "attachments": []
+  ]
 }
