@@ -294,6 +294,8 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
   - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
   - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
+- CI de Agent Tracking en GitHub Actions — _done_ (`5ad82298-fbd4-4fd2-96ed-1c656f6b8e28`)
+  - `.github/workflows/ci.yml`: Pipeline de CI: typecheck, check de la web, tests y build con Bun 1.4.2.
 
 ### Asistente con Claude — 100%
 

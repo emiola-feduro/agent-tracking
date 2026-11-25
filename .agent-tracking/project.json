@@ -434,6 +434,13 @@
           "description": "Con la sesión de GitHub del servidor y dos confirmaciones cuando se perdería trabajo.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "5ad82298-fbd4-4fd2-96ed-1c656f6b8e28",
+          "name": "CI de Agent Tracking en GitHub Actions",
+          "description": "Tres jobs en paralelo: tipos, tests y build de la web, en cada push a main y pull request.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -3180,6 +3187,16 @@
     }
   ],
   "files": [
+    {
+      "id": "6bb6c7ad-d7fe-45ca-9284-00e750931e1f",
+      "path": ".github/workflows/ci.yml",
+      "purpose": "Pipeline de CI: typecheck, check de la web, tests y build con Bun 1.4.2.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "5ad82298-fbd4-4fd2-96ed-1c656f6b8e28"
+      ],
+      "symbols": []
+    },
     {
       "id": "1e82d488-978c-4c70-9d9f-57b6a250dc7b",
       "path": "apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx",
