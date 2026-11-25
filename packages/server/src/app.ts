@@ -622,35 +622,65 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   // Live agent activity. Claude Code hooks post their raw payload here (see README); the answer is
   // always empty so nothing reaches the agent's context.
   const live = opts.live ?? createLiveActivity();
-  const projectByCwd = new Map<string, { projectId: string | null; root: string | null; until: number }>();
-  const resolveCwd = async (cwd: string) => {
-    const hit = projectByCwd.get(cwd);
+  const projectByDir = new Map<string, { projectId: string | null; root: string | null; checkout: string | null; until: number }>();
+  /** The project a directory belongs to, its main repo path and the checkout (worktree) it is in. */
+  const resolveDir = async (dir: string) => {
+    const hit = projectByDir.get(dir);
     if (hit && hit.until > Date.now()) return hit;
-    const projectId = await tracker.resolveProject(cwd);
+    const projectId = await tracker.resolveProject(dir);
     const project = projectId ? await db.query.projects.findFirst({ where: eq(s.projects.id, projectId), columns: { repoPath: true } }) : null;
-    const entry = { projectId, root: project?.repoPath ?? null, until: Date.now() + 30_000 };
-    projectByCwd.set(cwd, entry);
+    const checkout = projectId ? ((await inspectRepo(dir).catch(() => null))?.root ?? project?.repoPath ?? null) : null;
+    const entry = { projectId, root: project?.repoPath ?? null, checkout, until: Date.now() + 30_000 };
+    projectByDir.set(dir, entry);
     return entry;
   };
 
+  /** Absolute paths a tool call touches: files it reads or edits, and folders a shell command goes into. */
+  const toolDirs = (payload: TurnHookPayload): string[] => {
+    const input = (payload.tool_input ?? {}) as Record<string, unknown>;
+    const files = [input.file_path, input.notebook_path, input.path].filter((p): p is string => typeof p === "string" && isAbsolute(p));
+    const command = typeof input.command === "string" ? input.command : "";
+    const shell = [...command.matchAll(/(?:^|[\s;&|(])cd\s+("?)(~?\/[^\s"';&|)]+)\1/g)].map((m) => m[2]!.replace(/^~(?=\/)/, homedir()));
+    return [...files.map((f) => dirname(f)), ...shell];
+  };
+
   const turns = createAgentTurns(db, { claudeHome });
-  /** Turn bookkeeping runs after answering (the hook gives up after a second), one event at a time per project. */
+  /** Turn bookkeeping runs one event at a time per project. */
   const turnQueue = new Map<string, Promise<unknown>>();
 
   app.post("/agent/hook", async (c) => {
     const payload = (await c.req.json().catch(() => null)) as TurnHookPayload | null;
     if (!payload || typeof payload.cwd !== "string" || !isAbsolute(payload.cwd)) return c.body(null, 204);
-    const { projectId, root } = await resolveCwd(payload.cwd);
+    turns.rememberPrompt(payload);
+    // The project comes from the working directory, or from what the tool touches when the agent
+    // works from a folder outside the repository.
+    let target = await resolveDir(payload.cwd);
+    if (!target.projectId && payload.hook_event_name === "PreToolUse") {
+      for (const dir of toolDirs(payload)) {
+        const found = await resolveDir(dir);
+        if (found.projectId) {
+          target = found;
+          break;
+        }
+      }
+    }
+    const { projectId, root, checkout } = target;
     if (!projectId) return c.body(null, 204);
+    const before = live.get(projectId);
     if (live.record(projectId, payload, root)) emit({ type: "live", projectId });
-    const steps = () => [...live.get(projectId).steps].reverse();
+    const ctx = {
+      checkout: checkout ?? root ?? payload.cwd,
+      wasWorking: before.status === "working",
+      // The turn's steps in order; a new request replaces them, so they are taken from before it.
+      steps: [...(payload.hook_event_name === "UserPromptSubmit" ? before : live.get(projectId)).steps].reverse(),
+    };
     const next = (turnQueue.get(projectId) ?? Promise.resolve())
-      .then(() => turns.record(projectId, payload, steps))
+      .then(() => turns.record(projectId, payload, ctx))
       .then((changed) => changed && emit({ type: "changed", projectId, entity: "turn" }))
       .catch((e) => console.error("No se pudo registrar el turno del agente:", e));
     turnQueue.set(projectId, next);
-    // The starting snapshot must be taken before the agent edits anything; it takes milliseconds.
-    if (payload.hook_event_name === "UserPromptSubmit") await next;
+    // The starting snapshot must exist before the agent edits anything; it takes milliseconds.
+    if (payload.hook_event_name === "UserPromptSubmit" || payload.hook_event_name === "PreToolUse") await next;
     return c.body(null, 204);
   });
 

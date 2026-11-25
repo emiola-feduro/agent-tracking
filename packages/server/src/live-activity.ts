@@ -103,7 +103,12 @@ export function createLiveActivity(opts: { idleAfterMs?: number; now?: () => num
       const current = view(projectId);
       switch (payload.hook_event_name) {
         case "UserPromptSubmit":
-          // A new request: start a fresh list. The prompt text itself is not kept.
+          // A message sent while the agent is still working joins the same turn and keeps its steps.
+          if (current.status === "working") {
+            states.set(projectId, { ...current, lastAt: at });
+            return true;
+          }
+          // A new request: start a fresh list. The prompt text itself is not kept here.
           states.set(projectId, { status: "working", startedAt: at, lastAt: at, steps: [] });
           return true;
         case "PreToolUse": {

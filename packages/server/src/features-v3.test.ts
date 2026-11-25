@@ -5,6 +5,9 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createApp } from "./app";
+import { createLiveActivity } from "./live-activity";
+
+const live = createLiveActivity();
 
 let tmp: string;
 let repo: string;
@@ -38,7 +41,7 @@ beforeAll(async () => {
   await writeFile(join(repo, "app.ts"), "export const a = 1;\n");
   await run(["add", "."]);
   await run(["commit", "-qm", "init"]);
-  app = createApp(openDb(":memory:"), { claudeHome });
+  app = createApp(openDb(":memory:"), { claudeHome, live });
   const created = await call("POST", "/projects", {
     name: "Gastos",
     kind: "api",
@@ -125,6 +128,48 @@ describe("agent turns", () => {
     await call("POST", "/agent/hook", { cwd: repo, session_id: "s3", hook_event_name: "Stop", last_assistant_message: "Crea la app." });
     await Bun.sleep(300);
     expect((await call("GET", `/projects/${projectId}/turns`)).data.length).toBe(before);
+  });
+
+  test("a message sent while the agent works joins the same turn", async () => {
+    const hook = (payload: object) => call("POST", "/agent/hook", { cwd: repo, session_id: "s4", ...payload });
+    await hook({ hook_event_name: "UserPromptSubmit", prompt: "Agrega el filtro por categoría" });
+    await hook({ hook_event_name: "PreToolUse", tool_name: "Write", tool_input: { file_path: join(repo, "filtro.ts") } });
+    await writeFile(join(repo, "filtro.ts"), "export const filtro = 1;\n");
+    await hook({ hook_event_name: "UserPromptSubmit", prompt: "Y que también filtre por fecha" });
+    await writeFile(join(repo, "fecha.ts"), "export const fecha = 1;\n");
+    await hook({ hook_event_name: "Stop", last_assistant_message: "Listo, filtros por categoría y fecha." });
+    await Bun.sleep(300);
+    const [turn] = (await call("GET", `/projects/${projectId}/turns`)).data;
+    expect(turn.prompt).toBe("Agrega el filtro por categoría\n\nY que también filtre por fecha");
+    expect(turn.files.map((f: any) => f.path).sort()).toEqual(["fecha.ts", "filtro.ts"]);
+  });
+
+  test("a turn whose Stop never came is summarized when the next request arrives", async () => {
+    const hook = (payload: object) => call("POST", "/agent/hook", { cwd: repo, session_id: "s5", ...payload });
+    await hook({ hook_event_name: "UserPromptSubmit", prompt: "Primer pedido" });
+    await writeFile(join(repo, "primero.ts"), "export {};\n");
+    // No Stop; after a while (the live view goes idle) the next request comes in.
+    await call("POST", "/agent/hook", { cwd: repo, session_id: "s5", hook_event_name: "SessionStart" });
+    live.forget(projectId);
+    await hook({ hook_event_name: "UserPromptSubmit", prompt: "Segundo pedido", last_assistant_message: "Hice el primero." });
+    await Bun.sleep(300);
+    const first = (await call("GET", `/projects/${projectId}/turns`)).data.find((t: any) => t.prompt === "Primer pedido");
+    expect(first).toMatchObject({ files: [{ path: "primero.ts" }] });
+    expect(first.endedAt).not.toBeNull();
+  });
+
+  test("a session started outside the repo is tracked from the first file it touches", async () => {
+    const outside = join(tmp, "fuera");
+    await mkdir(outside, { recursive: true });
+    const hook = (payload: object) => call("POST", "/agent/hook", { cwd: outside, session_id: "s6", ...payload });
+    await hook({ hook_event_name: "UserPromptSubmit", prompt: "Desde otra carpeta" });
+    await hook({ hook_event_name: "PreToolUse", tool_name: "Edit", tool_input: { file_path: join(repo, "app.ts") } });
+    await writeFile(join(repo, "app.ts"), "export const a = 99;\n");
+    await hook({ hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command: `cd ${repo} && bun test` } });
+    await call("POST", "/agent/hook", { cwd: repo, session_id: "s6", hook_event_name: "Stop", last_assistant_message: "Cambié app.ts." });
+    await Bun.sleep(300);
+    const [turn] = (await call("GET", `/projects/${projectId}/turns`)).data;
+    expect(turn).toMatchObject({ prompt: "Desde otra carpeta", summary: "Cambié app.ts.", files: [{ path: "app.ts" }] });
   });
 
   test("transcripts outside the Claude folder are never read", async () => {

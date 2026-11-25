@@ -16,6 +16,7 @@ import ProjectDetailSkills from "./project-detail-skills";
 import ProjectDetailSummary from "./project-detail-summary";
 import ProjectDetailTests from "./project-detail-tests";
 import ProjectDetailTraceability from "./project-detail-traceability";
+import ProjectDetailTurnToast from "./project-detail-turn-toast";
 import ProjectDetailWorktrees from "./project-detail-worktrees";
 
 export type GithubTab = "pulls" | "branches" | "pipelines";
@@ -93,6 +94,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
           />
         </div>
         <ProjectDetailLive view={view} />
+        <ProjectDetailTurnToast projectId={project.id} onOverview={current === "overview"} />
         <div key={current} className="flex animate-enter flex-col gap-6" role="region" aria-label={flat.find((i) => i.value === current)?.label}>
           {current === "overview" && (
             <>
