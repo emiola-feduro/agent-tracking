@@ -15,7 +15,7 @@ archivos → funciones, con su Definition of Done, tests, PRs y pipelines. Deskt
 | `packages/git` | Inspecciona repos locales, clona desde GitHub, ramas, checkout, log, diffs y watcher de archivos (git sin shell) |
 | `packages/analyzer` | Análisis con tree-sitter (WASM): símbolos y tests por archivo, incremental por hash — ver [su README](packages/analyzer/README.md) |
 | `packages/github` | Cliente de GitHub (Octokit) con caché por ETag: PRs, ramas remotas y GitHub Actions |
-| `packages/assistant` | Asistente con la API de Claude: stack, criterios de DoD y skills, con salidas validadas con zod |
+| `packages/assistant` | Asistente con Claude, OpenAI o Gemini (por API o con su CLI): stack, criterios de DoD y skills, con salidas validadas con zod |
 | `packages/server` | API Hono + WebSocket de eventos (`/ws`); importación de repos; sirve la SPA compilada |
 | `apps/web` | UI React 19 + TanStack Router/Query + Tailwind 4 + Zustand (SPA con Vite) |
 | `apps/desktop` | Tauri 2; ejecuta el servidor como sidecar compilado con `bun build --compile` |
@@ -36,37 +36,67 @@ Desktop: requiere las dependencias de sistema de Tauri (en Linux `webkit2gtk-4.1
 cd apps/desktop && bun run dev
 ```
 
-## Asistente con Claude
+## Asistente
 
 Opcional. Sin asistente todo funciona con los valores deterministas y la UI oculta las acciones de IA.
-Al arrancar, el servidor elige cómo llegar a Claude:
+El asistente sugiere el stack, los criterios del DoD y las skills. Al arrancar, el servidor detecta
+qué proveedores puede usar y activa el primero de esta lista (Claude primero):
 
-1. **API key** (`ANTHROPIC_API_KEY`): pago por uso en Claude Console. Es la vía para instalaciones
-   que usan otras personas: cada una con su propia key.
-2. **Tu Claude Code instalado**: si no hay key y el comando `claude` tiene una sesión iniciada
+1. **Claude con API key** (`api`, `ANTHROPIC_API_KEY`): pago por uso en Claude Console. Es la vía
+   para instalaciones que usan otras personas: cada una con su propia key.
+2. **Tu Claude Code instalado** (`claude-code`): si el comando `claude` tiene una sesión iniciada
    (`claude auth status`), cada sugerencia se ejecuta con `claude -p` y la cubre tu suscripción
-   Pro o Max, compartiendo su cupo de uso. Pensado para uso personal en tu propio equipo. Corre
-   sin herramientas ni servidores MCP, desde una carpeta vacía, y las peticiones van de una en una.
+   Pro o Max, compartiendo su cupo de uso. Corre sin herramientas ni servidores MCP.
+3. **OpenAI con API key** (`openai-api`, `OPENAI_API_KEY`): Responses API con Structured Outputs
+   (`text.format` de tipo `json_schema` en modo estricto).
+4. **Gemini con API key** (`gemini-api`, `GEMINI_API_KEY`): `generateContent` con
+   `responseMimeType: application/json` y `responseJsonSchema`.
+5. **Tu Codex CLI instalado** (`codex-cli`): si `codex login status` termina bien, cada sugerencia
+   se ejecuta con `codex exec` en modo `--sandbox read-only`, `--ephemeral`, sin tu configuración
+   de usuario y con `--output-schema` para la respuesta.
+6. **Tu Gemini CLI instalado** (`gemini-cli`): si `gemini --version` responde, cada sugerencia se
+   ejecuta en modo headless (`gemini -p --output-format json --approval-mode plan`). Este CLI no
+   acepta un esquema, así que el esquema va en el prompt y la respuesta se valida aquí. Si no has
+   iniciado sesión (o definido `GEMINI_API_KEY`), la primera sugerencia falla.
+
+Los CLIs corren desde una carpeta vacía y las peticiones van de una en una. Toda respuesta se valida
+con zod, venga de donde venga.
 
 ```bash
-export ANTHROPIC_API_KEY=...   # opcional; en el entorno del servidor, nunca en archivos del repo
-bun run start                  # el log dice qué proveedor quedó activo
+export OPENAI_API_KEY=...      # opcional; en el entorno del servidor, nunca en archivos del repo
+bun run start                  # el log dice qué proveedor quedó activo y cuáles más hay
 ```
+
+En la UI, **Apariencia → Asistente** muestra los proveedores disponibles y permite cambiar el activo
+mientras el servidor sigue en marcha. El botón de las acciones de IA dice de quién son los tokens que
+gasta. El cambio no se guarda: para fijarlo, usa `AGENT_TRACKING_ASSISTANT_PROVIDER`.
 
 | Variable | Por defecto | Uso |
 |---|---|---|
-| `AGENT_TRACKING_ASSISTANT_PROVIDER` | `auto` | `auto` (key y si no Claude Code), `api`, `claude-code` u `off` |
-| `ANTHROPIC_API_KEY` | sin definir | Activa el proveedor de API |
+| `AGENT_TRACKING_ASSISTANT_PROVIDER` | `auto` | `auto` (el primero disponible), `api`, `claude-code`, `openai-api`, `gemini-api`, `codex-cli`, `gemini-cli` u `off` |
+| `ANTHROPIC_API_KEY` | sin definir | Activa Claude por API |
+| `OPENAI_API_KEY` | sin definir | Activa OpenAI por API |
+| `GEMINI_API_KEY` | sin definir | Activa Gemini por API (Gemini CLI también la usa) |
 | `AGENT_TRACKING_CLAUDE_BIN` | `claude` | Ruta al CLI de Claude Code |
-| `AGENT_TRACKING_ASSISTANT_MODEL` | `claude-sonnet-5-5` | Criterios de DoD y selección de skills |
-| `AGENT_TRACKING_ASSISTANT_HEAVY_MODEL` | `claude-opus-5-5` | Recomendación de stack |
+| `AGENT_TRACKING_CODEX_BIN` | `codex` | Ruta al CLI de Codex |
+| `AGENT_TRACKING_GEMINI_BIN` | `gemini` | Ruta al CLI de Gemini |
+| `AGENT_TRACKING_ASSISTANT_MODEL` | `claude-sonnet-5-5` | Claude: criterios de DoD y selección de skills |
+| `AGENT_TRACKING_ASSISTANT_HEAVY_MODEL` | `claude-opus-5-5` | Claude: recomendación de stack |
+| `AGENT_TRACKING_OPENAI_MODEL` | `gpt-6.2-sol` | OpenAI: DoD y skills |
+| `AGENT_TRACKING_OPENAI_HEAVY_MODEL` | `gpt-6.2-astra` | OpenAI: stack |
+| `AGENT_TRACKING_GEMINI_MODEL` | `gemini-4-hydrogen` | Gemini API: DoD y skills |
+| `AGENT_TRACKING_GEMINI_HEAVY_MODEL` | `gemini-4-carbon` | Gemini API: stack |
+| `AGENT_TRACKING_CODEX_MODEL`, `AGENT_TRACKING_CODEX_HEAVY_MODEL` | el de tu configuración de Codex | Codex CLI (`--model`) |
+| `AGENT_TRACKING_GEMINI_CLI_MODEL`, `AGENT_TRACKING_GEMINI_CLI_HEAVY_MODEL` | el de Gemini CLI (`auto`) | Gemini CLI (`--model`) |
 
-Si inicias sesión en Claude Code o cambias la key, reinicia el servidor para que lo detecte.
+Si inicias sesión en un CLI o cambias una key, reinicia el servidor para que lo detecte.
 
-Endpoints: `GET /api/assistant` (estado), `POST /api/assistant/stack`, `POST /api/assistant/dod`,
-`POST /api/assistant/skills` y `POST /api/projects/:id/requirements/:reqId/dod/suggest`. Sin asistente
-responden 503. La recomendación de stack pasa por las reglas de `packages/core` y, si la respuesta no
-es válida, devuelve `recommendStack` con `source: "default"`.
+Endpoints: `GET /api/assistant` (estado y proveedor activo), `GET /api/assistant/providers` (los
+disponibles), `PUT /api/assistant/provider` (`{ "provider": "openai-api" }`, cambia el activo),
+`POST /api/assistant/stack`, `POST /api/assistant/dod`, `POST /api/assistant/skills` y
+`POST /api/projects/:id/requirements/:reqId/dod/suggest`. Sin asistente las sugerencias responden 503.
+La recomendación de stack pasa por las reglas de `packages/core` y, si la respuesta no es válida,
+devuelve `recommendStack` con `source: "default"`.
 
 ## Archivo de proyecto compartido
 

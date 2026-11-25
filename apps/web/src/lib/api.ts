@@ -129,6 +129,11 @@ export type NewProject = {
   requirements: { title: string; description: string; type?: RequirementType; area?: RequirementArea; dod: { criterion: string; origin: "human" | "llm" }[] }[];
 };
 
+export type AssistantProviderId = "api" | "claude-code" | "openai-api" | "gemini-api" | "codex-cli" | "gemini-cli";
+/** A provider the server can use; `vendor` is whose tokens a request spends. Empty models mean the CLI's default. */
+export type AssistantProviderInfo = { id: AssistantProviderId; label: string; vendor: string; models: { default: string; heavy: string } };
+export type AssistantProviders = { active: AssistantProviderId | null; providers: AssistantProviderInfo[] };
+
 /** Project data the assistant reads; wizard drafts send what has been filled so far. */
 export type AssistantBrief = {
   name?: string;
@@ -264,7 +269,10 @@ export const api = {
   setTestIdeaStatus: (id: string, ideaId: string, status: TestIdeaStatus) =>
     request<TestIdea>("PATCH", `${p(id)}/test-ideas/${ideaId}`, { status }),
   deleteTestIdea: (id: string, ideaId: string) => request<void>("DELETE", `${p(id)}/test-ideas/${ideaId}`),
-  assistantStatus: () => request<{ configured: boolean; provider?: "api" | "claude-code" }>("GET", "/assistant"),
+  assistantStatus: () =>
+    request<{ configured: boolean; provider?: AssistantProviderId; label?: string; vendor?: string }>("GET", "/assistant"),
+  assistantProviders: () => request<AssistantProviders>("GET", "/assistant/providers"),
+  setAssistantProvider: (provider: AssistantProviderId) => request<AssistantProviders>("PUT", "/assistant/provider", { provider }),
   suggestStack: (brief: AssistantBrief) => request<StackSuggestion>("POST", "/assistant/stack", brief),
   suggestDod: (project: AssistantBrief, requirement: { title: string; description?: string }, existing: string[]) =>
     request<{ criteria: string[] }>("POST", "/assistant/dod", { project, requirement, existing }),

@@ -1,4 +1,5 @@
 import { mockAssistant, type MockReply, type MockRequest } from "@agent-tracking/assistant/src/testing";
+import type { AssistantConfig } from "@agent-tracking/assistant";
 import { recommendStack } from "@agent-tracking/core";
 import { openDb } from "@agent-tracking/db";
 import { describe, expect, test } from "bun:test";
@@ -46,10 +47,60 @@ describe("without an API key", () => {
   });
 });
 
+describe("choosing the provider", () => {
+  const claude = mockAssistant(() => JSON.stringify({ criteria: ["De Claude"] }));
+  /** An OpenAI provider whose fake fetch answers every request with the same criteria. */
+  const openai = (): AssistantConfig => ({
+    provider: "openai-api",
+    http: {
+      apiKey: "sk-o",
+      baseUrl: "https://example.test",
+      timeoutMs: 5_000,
+      fetch: (async () =>
+        Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ criteria: ["De OpenAI"] }) }] }] })) as unknown as typeof fetch,
+    },
+    models: { default: "gpt-6.2-sol", heavy: "gpt-6.2-astra" },
+  });
+  const setupBoth = () => {
+    const other = openai();
+    return caller(createApp(openDb(":memory:"), { assistant: claude, assistantProviders: [claude, other] }));
+  };
+  const dod = { project, requirement: { title: "Checkout" } };
+
+  test("lists the available providers and the active one", async () => {
+    const { status, data } = await setupBoth()("GET", "/assistant/providers");
+    expect(status).toBe(200);
+    expect(data.active).toBe("api");
+    expect(data.providers.map((p: { id: string }) => p.id)).toEqual(["api", "openai-api"]);
+    expect(data.providers[1]).toMatchObject({ label: "OpenAI (API key)", vendor: "OpenAI", models: { default: "gpt-6.2-sol" } });
+  });
+
+  test("switching sends the next requests through the chosen provider", async () => {
+    const call = setupBoth();
+    expect((await call("POST", "/assistant/dod", dod)).data.criteria).toEqual(["De Claude"]);
+    const switched = await call("PUT", "/assistant/provider", { provider: "openai-api" });
+    expect(switched).toMatchObject({ status: 200, data: { active: "openai-api" } });
+    expect((await call("GET", "/assistant")).data).toMatchObject({ configured: true, provider: "openai-api", vendor: "OpenAI" });
+    expect((await call("POST", "/assistant/dod", dod)).data.criteria).toEqual(["De OpenAI"]);
+  });
+
+  test("an unavailable or unknown provider is rejected", async () => {
+    const call = setupBoth();
+    expect((await call("PUT", "/assistant/provider", { provider: "gemini-cli" })).status).toBe(409);
+    expect((await call("PUT", "/assistant/provider", { provider: "otro" })).status).toBe(400);
+    expect((await call("GET", "/assistant")).data.provider).toBe("api");
+  });
+
+  test("without an assistant the list is empty", async () => {
+    const call = caller(createApp(openDb(":memory:"), {}));
+    expect((await call("GET", "/assistant/providers")).data).toEqual({ active: null, providers: [] });
+  });
+});
+
 describe("with the assistant", () => {
   test("status says configured", async () => {
     const { call } = setup(() => "{}");
-    expect((await call("GET", "/assistant")).data).toEqual({ configured: true, provider: "api" });
+    expect((await call("GET", "/assistant")).data).toEqual({ configured: true, provider: "api", label: "Claude (API key)", vendor: "Claude" });
   });
 
   test("stack: valid answer comes back marked as assistant", async () => {

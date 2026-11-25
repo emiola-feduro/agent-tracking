@@ -20,9 +20,11 @@ import {
   type ProjectSnapshot,
 } from "@agent-tracking/core";
 import {
+  ASSISTANT_PROVIDERS,
   AssistantError,
   describeAssistantError,
   MAX_SKILLS,
+  PROVIDER_INFO,
   providerOf,
   suggestDod,
   suggestSkills,
@@ -156,13 +158,16 @@ export interface AppOptions {
   syncRepo?: (projectId: string, scope: "changes" | "all") => Promise<unknown>;
   /** GitHub client and background polling (see github-routes.ts). */
   github?: GithubOptions;
-  /** Claude assistant; null or missing keeps the deterministic behaviour (see assistantConfigFromEnv). */
+  /** Active assistant; null or missing keeps the deterministic behaviour (see resolveAssistantProviders). */
   assistant?: AssistantConfig | null;
+  /** Every provider available on this machine; the UI can switch between them. Defaults to the active one. */
+  assistantProviders?: AssistantConfig[];
   /** What agents are doing right now, fed by Claude Code hooks (see live-activity.ts). */
   live?: LiveActivity;
 }
 
-const NOT_CONFIGURED = "El asistente no está configurado. Define ANTHROPIC_API_KEY en el entorno del servidor y reinícialo.";
+const NOT_CONFIGURED =
+  "El asistente no está configurado. Define ANTHROPIC_API_KEY, OPENAI_API_KEY o GEMINI_API_KEY en el entorno del servidor, o inicia sesión en Claude Code, Codex CLI o Gemini CLI, y reinícialo.";
 
 const briefInput = z.object({
   name: z.string().max(200).optional(),
@@ -239,8 +244,13 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     };
   };
 
-  // Claude assistant
-  const assistant = opts.assistant ?? null;
+  // Assistant: the active provider can be switched at runtime among the available ones.
+  let assistant = opts.assistant ?? null;
+  const providers = opts.assistantProviders ?? (assistant ? [assistant] : []);
+  const describeProvider = (config: AssistantConfig) => {
+    const id = providerOf(config);
+    return { id, ...PROVIDER_INFO[id], models: config.models };
+  };
   const assistantOr503 = () => {
     if (!assistant) throw new HTTPException(503, { message: NOT_CONFIGURED, cause: { configured: false } });
     return assistant;
@@ -256,9 +266,25 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     }
   };
 
-  app.get("/assistant", (c) =>
-    c.json(assistant ? { configured: true, provider: providerOf(assistant) } : { configured: false }),
+  app.get("/assistant", (c) => {
+    if (!assistant) return c.json({ configured: false });
+    const { id, label, vendor } = describeProvider(assistant);
+    return c.json({ configured: true, provider: id, label, vendor });
+  });
+
+  app.get("/assistant/providers", (c) =>
+    c.json({ active: assistant ? providerOf(assistant) : null, providers: providers.map(describeProvider) }),
   );
+
+  /** Switches the active provider for this server run; the choice is not stored. */
+  app.put("/assistant/provider", async (c) => {
+    const { provider } = await body(c, z.object({ provider: z.enum(ASSISTANT_PROVIDERS) }));
+    const next = providers.find((p) => providerOf(p) === provider);
+    if (!next) throw new HTTPException(409, { message: `${PROVIDER_INFO[provider].label} no está disponible en este servidor.` });
+    assistant = next;
+    console.log(`Asistente: ahora con ${PROVIDER_INFO[provider].label}`);
+    return c.json({ active: provider, providers: providers.map(describeProvider) });
+  });
 
   app.post("/assistant/stack", async (c) => {
     const config = assistantOr503();
