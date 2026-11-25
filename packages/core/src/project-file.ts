@@ -5,12 +5,20 @@ import { PLATFORMS, REQUIREMENT_AREAS, REQUIREMENT_TYPES, SYMBOL_KINDS, TEST_IDE
 /** Path of the shareable project file, relative to the repository root. */
 export const PROJECT_FILE_PATH = ".agent-tracking/project.json";
 export const CONTEXT_FILE_PATH = ".agent-tracking/CONTEXT.md";
-export const PROJECT_FILE_VERSION = 1;
+/**
+ * Version 2 splits the data into one file per requirement, code file and test file (see
+ * project-tree.ts) and leaves out what the analysis of the code finds again on each machine, so
+ * that collaborators rarely touch the same lines. Version 1 files are still read.
+ */
+export const PROJECT_FILE_VERSION = 2;
+
+/** Actor for everything found by analysing the repository instead of being reported by an agent. */
+export const INFERRED_ACTOR = "repo:analysis";
 
 const id = z.string().min(1);
 
 export const projectFileSchema = z.object({
-  version: z.literal(PROJECT_FILE_VERSION),
+  version: z.union([z.literal(1), z.literal(PROJECT_FILE_VERSION)]),
   project: z.object({
     id,
     name: z.string().min(1),
@@ -58,6 +66,8 @@ export const projectFileSchema = z.object({
         type: z.enum(REQUIREMENT_TYPES).default("functional"),
         area: z.enum(REQUIREMENT_AREAS).default("general"),
         weight: z.number().positive().default(1),
+        /** Keeps the order of requirements, DoD criteria and features across machines. */
+        createdAt: z.string().optional(),
         dod: z
           .array(
             z.object({
@@ -66,6 +76,7 @@ export const projectFileSchema = z.object({
               origin: z.enum(["human", "llm"]).default("human"),
               status: z.enum(["pending", "done", "failed"]).default("pending"),
               evidence: z.string().nullable().default(null),
+              createdAt: z.string().optional(),
             }),
           )
           .default([]),
@@ -77,6 +88,7 @@ export const projectFileSchema = z.object({
               description: z.string().default(""),
               status: z.enum(["pending", "in_progress", "done", "needs_review", "orphaned"]).default("pending"),
               agent: z.string().nullable().default(null),
+              createdAt: z.string().optional(),
             }),
           )
           .default([]),
@@ -86,7 +98,8 @@ export const projectFileSchema = z.object({
   tests: z
     .array(
       z.object({
-        id,
+        /** Version 1 only: tests are matched by path and name. */
+        id: id.optional(),
         featureId: z.string().nullable().default(null),
         requirementId: z.string().nullable().default(null),
         path: z.string(),
@@ -100,7 +113,8 @@ export const projectFileSchema = z.object({
   files: z
     .array(
       z.object({
-        id,
+        /** Version 1 only: files are matched by path. */
+        id: id.optional(),
         path: z.string().min(1),
         purpose: z.string().default(""),
         createdBy: z.string().default("user:local"),
@@ -108,11 +122,13 @@ export const projectFileSchema = z.object({
         symbols: z
           .array(
             z.object({
-              id,
+              /** Version 1 only: symbols are matched by name and kind. */
+              id: id.optional(),
               name: z.string().min(1),
               kind: z.enum(SYMBOL_KINDS),
-              lineStart: z.number().int().nullable().default(null),
-              lineEnd: z.number().int().nullable().default(null),
+              /** Version 1 only: lines move with every edit, the analysis finds them again. */
+              lineStart: z.number().int().nullable().optional(),
+              lineEnd: z.number().int().nullable().optional(),
               purpose: z.string().default(""),
               source: z.enum(["reported", "inferred"]).default("reported"),
             }),
@@ -130,6 +146,7 @@ export const projectFileSchema = z.object({
         text: z.string().min(1),
         origin: z.enum(["human", "llm"]).default("human"),
         status: z.enum(TEST_IDEA_STATUSES).default("proposed"),
+        createdAt: z.string().optional(),
       }),
     )
     .default([]),
@@ -195,50 +212,41 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       type: r.type,
       area: r.area,
       weight: r.weight,
+      createdAt: r.createdAt,
       dod: s.dod
         .filter((d) => d.requirementId === r.id)
-        .map(({ id, criterion, origin, status, evidence }) => ({ id, criterion, origin, status, evidence })),
+        .map(({ id, criterion, origin, status, evidence, createdAt }) => ({ id, criterion, origin, status, evidence, createdAt })),
       features: s.features
         .filter((f) => f.requirementId === r.id)
-        .map(({ id, name, description, status, agent }) => ({ id, name, description, status, agent })),
+        .map(({ id, name, description, status, agent, createdAt }) => ({ id, name, description, status, agent, createdAt })),
     })),
-    tests: s.tests.map(({ id, featureId, requirementId, path, name, type, lastResult }) => ({
-      id,
-      featureId,
-      requirementId,
-      path,
-      name,
-      type,
-      lastResult,
-    })),
-    files: s.files.map((f) => ({
-      id: f.id,
-      path: f.path,
-      purpose: f.purpose,
-      createdBy: f.createdBy,
-      featureIds: s.featureFiles
-        .filter((l) => l.fileId === f.id)
-        .map((l) => l.featureId)
-        .sort(),
-      symbols: s.symbols
-        .filter((y) => y.fileId === f.id)
-        .map(({ id, name, kind, lineStart, lineEnd, purpose, source }) => ({
-          id,
-          name,
-          kind,
-          lineStart,
-          lineEnd,
-          purpose,
-          source,
-        })),
-    })),
-    testIdeas: s.testIdeas.map(({ id, featureId, requirementId, text, origin, status }) => ({
+    // Tests the analysis finds again on its own are left out; linked, reported or run ones travel.
+    tests: s.tests
+      .filter((t) => t.createdBy !== INFERRED_ACTOR || t.featureId || t.requirementId || t.lastResult === "passing" || t.lastResult === "failing")
+      .map(({ featureId, requirementId, path, name, type, lastResult }) => ({ featureId, requirementId, path, name, type, lastResult })),
+    files: s.files
+      .map((f) => ({
+        path: f.path,
+        purpose: f.purpose,
+        createdBy: f.createdBy,
+        featureIds: s.featureFiles
+          .filter((l) => l.fileId === f.id)
+          .map((l) => l.featureId)
+          .sort(),
+        // Inferred symbols and every line number come from the code itself.
+        symbols: s.symbols
+          .filter((y) => y.fileId === f.id && y.source === "reported")
+          .map(({ name, kind, purpose, source }) => ({ name, kind, purpose, source })),
+      }))
+      .filter((f) => f.purpose || f.featureIds.length > 0 || f.symbols.length > 0),
+    testIdeas: s.testIdeas.map(({ id, featureId, requirementId, text, origin, status, createdAt }) => ({
       id,
       featureId,
       requirementId,
       text,
       origin,
       status,
+      createdAt,
     })),
     attachments: (s.attachments ?? []).map(({ id, kind, requirementId, dodItemId, featureId, title, route, filename, createdBy, createdAt }) => ({
       id,

@@ -1,7 +1,7 @@
 import { loadSnapshot, openDb, type Db } from "@agent-tracking/db";
 import { schema as s } from "@agent-tracking/db";
 import { git } from "@agent-tracking/git";
-import { createTracker, type AppEvent } from "@agent-tracking/tracking";
+import { createTracker, readRepoFile, type AppEvent } from "@agent-tracking/tracking";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
@@ -221,10 +221,13 @@ describe("MCP tools over an SDK client", () => {
     expect(events.some((e) => e.type === "activity")).toBe(true);
     expect(events.some((e) => e.type === "changed" && e.entity === "symbol")).toBe(true);
 
-    const file = JSON.parse(await readFile(join(repo, ".agent-tracking", "project.json"), "utf8"));
-    expect(file.version).toBe(1);
-    const pay = file.files.find((f: { path: string }) => f.path === "src/checkout/pay.ts");
+    expect(JSON.parse(await readFile(join(repo, ".agent-tracking", "project.json"), "utf8")).version).toBe(2);
+    const parsed = await readRepoFile(repo);
+    if (!parsed?.ok) throw new Error("no project file");
+    const file = parsed.file;
+    const pay = file.files.find((f) => f.path === "src/checkout/pay.ts")!;
     expect(pay.featureIds).toContain(featureId);
+    expect(await readFile(join(repo, ".agent-tracking", "files", "src", "checkout", "pay.ts.json"), "utf8")).toContain("Cobro con tarjeta");
     expect(pay.symbols[0].name).toBe("charge");
     expect(file.testIdeas[0].text).toBe("Tarjeta rechazada");
     const context = await readFile(join(repo, ".agent-tracking", "CONTEXT.md"), "utf8");

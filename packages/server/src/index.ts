@@ -2,7 +2,7 @@ import { PROVIDER_INFO, providerOf, resolveAssistantProviders } from "@agent-tra
 import { openDb } from "@agent-tracking/db";
 import { isAllowedOrigin } from "./origin";
 import { createMcpHttpHandler } from "@agent-tracking/mcp";
-import { createRepoInference, createTracker } from "@agent-tracking/tracking";
+import { createRepoInference, createTracker, onRepoImport } from "@agent-tracking/tracking";
 import { join, normalize } from "node:path";
 import { createApp, type AppEvent } from "./app";
 import { createRepoWatchers, type RepoWatchers } from "./repo-watchers";
@@ -28,6 +28,12 @@ repoWatchers = createRepoWatchers(db, inference, {
   onBranchChange: (projectId) => emit({ type: "changed", projectId, entity: "repo" }),
 });
 const syncRepo = (projectId: string, scope: "changes" | "all") => repoWatchers!.sync(projectId, scope);
+// Changes that arrived through git (pull, merge, checkout) were imported: analyse the code again so
+// symbols, lines and tests match the new checkout, and refresh the UI.
+onRepoImport((projectId) => {
+  void syncRepo(projectId, "all");
+  emit({ type: "changed", projectId, entity: "project", id: projectId });
+});
 // Claude first (API key, then the local Claude Code login), then OpenAI, Gemini, Codex CLI and Gemini CLI (see README).
 const { available: assistantProviders, active: assistant } = await resolveAssistantProviders();
 // Background GitHub polling for projects open in the UI (GITHUB_POLL_MS=0 disables it).

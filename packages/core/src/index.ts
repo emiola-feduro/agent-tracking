@@ -3,6 +3,8 @@ export * from "./progress";
 export * from "./context";
 export * from "./stack";
 export * from "./project-file";
+export * from "./project-tree";
+export * from "./json-merge";
 export * from "./suggestions";
 export * from "./github-files";
 export * from "./project-kind";

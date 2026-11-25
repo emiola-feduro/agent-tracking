@@ -1,5 +1,5 @@
 import { analyzeFile, AnalysisCache, detectLanguage, type CodeSymbol, type FileAnalysis } from "@agent-tracking/analyzer";
-import type { SymbolKind, TestType } from "@agent-tracking/core";
+import { INFERRED_ACTOR, type SymbolKind, type TestType } from "@agent-tracking/core";
 import { schema as s, type Db } from "@agent-tracking/db";
 import { listRepoFiles, workingTreeChanges } from "@agent-tracking/git";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
@@ -8,8 +8,7 @@ import { stat } from "node:fs/promises";
 import { join } from "node:path";
 import type { Tracker } from "./tracker";
 
-/** Actor for everything found by analysing the repository instead of being reported by an agent. */
-export const INFERRED_ACTOR = "repo:analysis";
+export { INFERRED_ACTOR };
 
 /** Files Agent Tracking writes itself; analysing them would loop on every change. */
 const OWN_FILES = /^\.agent-tracking\//;

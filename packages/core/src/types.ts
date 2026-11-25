@@ -64,6 +64,8 @@ export interface DodItem {
   origin: "human" | "llm";
   status: DodStatus;
   evidence: string | null;
+  /** Set by the database; orders the entries and travels in the project file. */
+  createdAt?: string;
 }
 
 /** Functional: what the system does. Non functional: how well it does it (speed, security...). */
@@ -86,6 +88,8 @@ export interface Requirement {
   area: RequirementArea;
   /** Peso relativo para el % global del proyecto (por defecto 1). */
   weight: number;
+  /** Set by the database; orders the entries and travels in the project file. */
+  createdAt?: string;
 }
 
 export interface Feature {
@@ -95,6 +99,8 @@ export interface Feature {
   description: string;
   status: FeatureStatus;
   agent: string | null;
+  /** Set by the database; orders the entries and travels in the project file. */
+  createdAt?: string;
 }
 
 export interface TestCase {
@@ -105,6 +111,8 @@ export interface TestCase {
   name: string;
   type: TestType;
   lastResult: TestResult;
+  /** Who added it; the analysis of the code adds tests on its own (INFERRED_ACTOR). */
+  createdBy?: string;
 }
 
 /** A repository file that an agent created or touched. `path` is relative to the repo root. */

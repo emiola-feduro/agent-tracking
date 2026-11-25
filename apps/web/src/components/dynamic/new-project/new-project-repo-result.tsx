@@ -52,11 +52,11 @@ const NewProjectRepoResult = ({ inspection, importRepo }: NewProjectRepoResultPr
         </div>
       ) : projectFileError ? (
         <Alert tone="warn">
-          El archivo .agent-tracking/project.json no es válido y se reemplazará al crear el proyecto: {projectFileError}
+          Los datos de .agent-tracking no son válidos y se reemplazarán al crear el proyecto: {projectFileError}
         </Alert>
       ) : (
         <p className="text-sm text-ink-soft">
-          Al crear el proyecto se guardará <code className="font-mono">.agent-tracking/project.json</code> en este repositorio.
+          Al crear el proyecto se guardará la carpeta <code className="font-mono">.agent-tracking</code> en este repositorio.
         </p>
       )}
     </div>

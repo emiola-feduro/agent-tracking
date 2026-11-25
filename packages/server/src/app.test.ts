@@ -62,7 +62,10 @@ describe("project lifecycle", () => {
     reqId = data.requirements[0].id;
     const file = JSON.parse(await readFile(join(repo, ".agent-tracking", "project.json"), "utf8"));
     expect(file.project.id).toBe(projectId);
-    expect(file.requirements[0].dod).toHaveLength(2);
+    expect(file.version).toBe(2);
+    const requirement = JSON.parse(await readFile(join(repo, ".agent-tracking", "requirements", `${reqId}.json`), "utf8"));
+    expect(requirement.dod).toHaveLength(2);
+    expect(await readFile(join(repo, ".agent-tracking", ".gitattributes"), "utf8")).toContain("merge=agent-tracking");
     expect(await readFile(join(repo, ".agent-tracking", "CONTEXT.md"), "utf8")).toContain("# Tienda");
   });
 
@@ -84,8 +87,8 @@ describe("project lifecycle", () => {
     expect((await call("PATCH", `/projects/${projectId}/requirements/${reqId}/dod/${dodId}`, { status: "done" })).status).toBe(200);
     const after = (await call("GET", `/projects/${projectId}`)).data;
     expect(after.progress.project).toBe(50);
-    const file = JSON.parse(await readFile(join(repo, ".agent-tracking", "project.json"), "utf8"));
-    expect(file.requirements[0].dod[0].status).toBe("done");
+    const requirement = JSON.parse(await readFile(join(repo, ".agent-tracking", "requirements", `${reqId}.json`), "utf8"));
+    expect(requirement.dod.map((d: any) => d.status)).toContain("done");
     expect(events.at(-1)).toMatchObject({ type: "changed", projectId, entity: "dod" });
   });
 
@@ -151,7 +154,7 @@ describe("import", () => {
     await git(["init", "-q", broken]);
     await Bun.write(join(broken, ".agent-tracking", "project.json"), "{ nope");
     const { data } = await call("POST", "/import/inspect", { path: broken });
-    expect(data.projectFileError).toBe("El archivo no es JSON válido");
+    expect(data.projectFileError).toContain("no es JSON válido");
   });
 
   test("clone rejects non-GitHub urls", async () => {

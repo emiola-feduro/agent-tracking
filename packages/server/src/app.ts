@@ -430,6 +430,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     if (!parsed) throw new HTTPException(404, { message: "El repositorio no tiene .agent-tracking/project.json" });
     if (!parsed.ok) throw new HTTPException(400, { message: parsed.error });
     await replaceFromFile(db, id, parsed.file, snap.project.repoPath);
+    await writeRepoFiles(db, id);
     emit({ type: "changed", projectId: id, entity: "project", id });
     return c.json(withProgress(await snapshotOr404(id)));
   });

@@ -100,11 +100,43 @@ devuelve `recommendStack` con `source: "default"`.
 
 ## Archivo de proyecto compartido
 
-Cada proyecto con repositorio local escribe `.agent-tracking/project.json` (fuente de verdad) y
+Cada proyecto con repositorio local escribe sus datos en `.agent-tracking/` (fuente de verdad) y
 `.agent-tracking/CONTEXT.md` (contexto para agentes) dentro del repo, en cada cambio. Haz commit de
-ambos: quien clone el repo puede elegir "Repositorio local" o "Clonar de GitHub" en Agent Tracking e
-importar el mismo proyecto con sus ids, avance y DoD. Después de un `git pull`, el botón "Actualizar
-desde el repo" vuelve a leer el archivo.
+la carpeta: quien clone el repo puede elegir "Repositorio local" o "Clonar de GitHub" en Agent
+Tracking e importar el mismo proyecto con sus ids, avance y DoD.
+
+### Trabajar en equipo sin conflictos de git
+
+Los datos están repartidos para que dos personas rara vez toquen el mismo archivo:
+
+| Archivo | Contenido |
+| --- | --- |
+| `project.json` | proyecto, reglas, skills e ideas de tests |
+| `requirements/<id>.json` | un requerimiento con su DoD y sus features |
+| `files/<ruta>.json` | lo que se sabe de un archivo de código: propósito, features, símbolos reportados |
+| `tests/<ruta>.json` | los tests de un archivo que tienen feature, requerimiento o resultado |
+| `attachments/<imagen>.json` | los datos de una imagen, junto a la imagen |
+
+Lo que el análisis del código encuentra solo en cada equipo (símbolos inferidos, números de línea,
+tests sin vincular) no se guarda en el repo: cada Agent Tracking lo calcula de nuevo.
+
+Además:
+
+- **Merge por entradas:** Agent Tracking registra en el `.git/config` de cada clon un driver de merge
+  (`merge.agent-tracking`) y escribe `.agent-tracking/.gitattributes` para usarlo. Así git combina
+  cambios a distintos requerimientos, criterios, features o campos aunque estén en el mismo archivo.
+  Solo hay conflicto si los dos lados cambiaron el mismo valor de forma distinta, y entonces git deja
+  las marcas de siempre. `CONTEXT.md` se genera: el merge se queda con la versión local y Agent
+  Tracking la vuelve a escribir. Sin Agent Tracking instalado (por ejemplo, un merge en GitHub), git
+  usa su merge de líneas.
+- **Importación automática:** después de un `pull`, `merge`, `checkout` o `rebase`, Agent Tracking ve
+  que los archivos cambiaron y los importa solo. Si en la base de datos había cambios todavía sin
+  escribir, se combinan con los que llegaron; si los dos tocaron lo mismo, gana lo que llegó por git.
+  Mientras un archivo tenga marcas de conflicto, Agent Tracking no lo toca hasta que se resuelva.
+- **Archivos de la versión anterior:** un `project.json` con todo adentro (versión 1) se sigue leyendo
+  y se reescribe con el formato nuevo.
+
+"Actualizar desde el repo" sigue disponible para releer los archivos a mano.
 
 ## Conectar agentes
 
@@ -174,11 +206,11 @@ el agente con la herramienta MCP `report_screen` (una imagen guardada dentro del
 
 ### Compartir el proyecto por git
 
-`.agent-tracking/project.json` lleva todo lo necesario para que quien clone el repo importe el mismo
+`.agent-tracking/` lleva todo lo necesario para que quien clone el repo importe el mismo
 proyecto desde el wizard (Repositorio local o Clonar de GitHub): requerimientos con su DoD, features,
 archivos, símbolos, tests, reglas, skills y la lista de imágenes, cuyos archivos están en
-`.agent-tracking/attachments/`. Al importar se restauran las imágenes; "Actualizar desde el repo"
-vuelve a leerlo después de un pull. Turnos, actividad y caché de GitHub son de cada equipo.
+`.agent-tracking/attachments/`. Al importar se restauran las imágenes; después de un pull los cambios
+se importan solos (ver "Trabajar en equipo sin conflictos de git"). Turnos, actividad y caché de GitHub son de cada equipo.
 
 Las skills del proyecto muestran en su pestaña si están en este equipo:
 
