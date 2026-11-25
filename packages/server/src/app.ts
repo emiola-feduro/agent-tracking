@@ -49,6 +49,7 @@ import { repoRoutes } from "./repo-routes";
 import { adapterFor, AGENT_KINDS } from "@agent-tracking/agents";
 import { createAgentTurns, type TurnHookPayload } from "@agent-tracking/tracking";
 import { agentRoutes } from "./agent-routes";
+import { isAllowedOrigin } from "./origin";
 import { attachmentRoutes } from "./attachment-routes";
 import { originFor, sharedPatch, skillRoutes } from "./skill-routes";
 import { createLiveActivity, type LiveActivity } from "./live-activity";
@@ -198,7 +199,13 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   const claudeHome = opts.claudeHome ?? join(homedir(), ".claude");
   const cloneRoot = opts.cloneRoot ?? join(homedir(), "repos");
   const app = new Hono().basePath("/api");
-  app.use("*", cors());
+  // Only this machine's pages (or the address the app is served from) may call the API: any other
+  // site open in the browser could otherwise read projects, change branches or push to GitHub.
+  app.use("*", async (c, next) => {
+    if (!isAllowedOrigin(c.req.header("origin"), c.req.header("host"))) return c.json({ error: "Origen no permitido" }, 403);
+    await next();
+  });
+  app.use("*", cors({ origin: (origin, c) => (isAllowedOrigin(origin, c.req.header("host")) ? origin : null) }));
 
   app.onError((err, c) => {
     if (err instanceof TrackingError) return c.json({ error: err.message }, err.status);

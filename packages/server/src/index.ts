@@ -1,5 +1,6 @@
 import { providerOf, resolveAssistantConfig } from "@agent-tracking/assistant";
 import { openDb } from "@agent-tracking/db";
+import { isAllowedOrigin } from "./origin";
 import { createMcpHttpHandler } from "@agent-tracking/mcp";
 import { createRepoInference, createTracker } from "@agent-tracking/tracking";
 import { join, normalize } from "node:path";
@@ -61,7 +62,12 @@ server = Bun.serve({
     // Eventos en tiempo real para la UI: ws://host:port/ws
     const { pathname } = new URL(req.url);
     if (pathname === "/ws") {
+      // Same rule as the API: another site in the browser must not listen to project events.
+      if (!isAllowedOrigin(req.headers.get("origin"), req.headers.get("host"))) return new Response("Origen no permitido", { status: 403 });
       return srv.upgrade(req, { data: undefined }) ? undefined : new Response("Upgrade requerido", { status: 426 });
+    }
+    if (pathname === "/mcp" && !isAllowedOrigin(req.headers.get("origin"), req.headers.get("host"))) {
+      return new Response("Origen no permitido", { status: 403 });
     }
     if (pathname.startsWith("/api/")) return app.fetch(req);
     if (pathname === "/mcp") return mcp(req);
