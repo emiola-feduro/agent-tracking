@@ -8,6 +8,7 @@ import ProjectDetailActivity from "./project-detail-activity";
 import ProjectDetailCheckoutMenu from "./project-detail-checkout-menu";
 import ProjectDetailWorktreeBanner from "./project-detail-worktree-banner";
 import ProjectDetailContext from "./project-detail-context";
+import ProjectDetailConventions from "./project-detail-conventions";
 import ProjectDetailLastTurn from "./project-detail-last-turn";
 import ProjectDetailLive from "./project-detail-live";
 import ProjectDetailNav, { NAV_ICONS, type NavGroup } from "./project-detail-nav";
@@ -72,7 +73,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
     {
       label: "Proyecto",
       items: [
-        { value: "rules", label: "Reglas", count: rules.length, icon: NAV_ICONS.rules },
+        { value: "rules", label: "Reglas y convenciones", count: rules.length, icon: NAV_ICONS.rules },
         { value: "skills", label: "Skills", count: skills.filter((k) => k.enabled).length, icon: NAV_ICONS.skills },
         { value: "context", label: "Contexto", icon: NAV_ICONS.context },
       ],
@@ -115,7 +116,12 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
           {current === "worktrees" && project.repoPath && <ProjectDetailWorktrees projectId={project.id} />}
           {current === "activity" && <ProjectDetailActivity projectId={project.id} />}
           {current === "tests" && <ProjectDetailTests view={view} />}
-          {current === "rules" && <ProjectDetailRules view={view} />}
+          {current === "rules" && (
+            <>
+              <ProjectDetailRules view={view} />
+              <ProjectDetailConventions view={view} />
+            </>
+          )}
           {current === "skills" && <ProjectDetailSkills view={view} />}
           {current === "context" && <ProjectDetailContext view={view} />}
           {(current === "pulls" || current === "branches" || current === "pipelines") && (

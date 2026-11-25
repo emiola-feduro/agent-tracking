@@ -106,3 +106,22 @@ describe("parseProjectPlan", () => {
     expect(full.ok && missingPlanFields(full.value).map((m) => m.field)).toEqual(["platforms"]);
   });
 });
+
+describe("commit conventions", () => {
+  test("defaults when none were set, the team's rules when they were", async () => {
+    const { conventionsMarkdown } = await import("./index");
+    const defaults = conventionsMarkdown(null).join("\n");
+    expect(defaults).toContain("Conventional Commits por defecto");
+    expect(defaults).toContain("`feat`");
+    const own = conventionsMarkdown({ types: ["feat", "fix"], scope: "required", language: "en", custom: "- Referencia el ticket: JIRA-123" }).join("\n");
+    expect(own).toContain("<tipo>(<alcance>): <descripción>");
+    expect(own).toContain("en inglés");
+    expect(own).not.toContain("`docs`");
+    expect(own).toContain("Referencia el ticket: JIRA-123");
+  });
+
+  test("a plan can carry them", () => {
+    const r = parseProjectPlan("# X\nTipo: cli\n## Objetivo\ny\n## Convenciones de commits\n- Mensajes en inglés\n- Un commit por feature\n## Requerimientos\n### Z\n- [ ] w\n");
+    expect(r.ok && r.value.conventions).toBe("Mensajes en inglés\nUn commit por feature");
+  });
+});

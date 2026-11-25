@@ -16,6 +16,15 @@ export const projectFileSchema = z.object({
     name: z.string().min(1),
     goal: z.string().default(""),
     kind: z.enum(PROJECT_KINDS).default("fullstack"),
+    commitConventions: z
+      .object({
+        types: z.array(z.string()),
+        scope: z.enum(["optional", "required", "none"]).default("optional"),
+        language: z.enum(["es", "en"]).default("es"),
+        custom: z.string().default(""),
+      })
+      .nullable()
+      .default(null),
     platforms: z.array(z.enum(PLATFORMS)).default([]),
     stack: z.array(z.string()).default([]),
     databases: z.array(z.string()).default([]),
@@ -157,6 +166,7 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       name: p.name,
       goal: p.goal,
       kind: p.kind,
+      commitConventions: p.commitConventions ?? null,
       platforms: p.platforms,
       stack: p.stack,
       databases: p.databases,

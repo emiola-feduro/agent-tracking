@@ -81,8 +81,18 @@ const skillInput = z.object({
   location: z.string(),
   enabled: z.boolean().default(true),
 });
+const commitConventions = z
+  .object({
+    types: z.array(z.string().max(30)).max(30),
+    scope: z.enum(["optional", "required", "none"]).default("optional"),
+    language: z.enum(["es", "en"]).default("es"),
+    custom: z.string().max(5_000).default(""),
+  })
+  .nullable();
 const projectFields = z.object({
   name: z.string().min(1),
+  /** null or missing: the default conventions. */
+  commitConventions: commitConventions.optional(),
   goal: z.string().default(""),
   kind: projectKind,
   platforms: platforms.min(1, "Elige al menos una plataforma"),

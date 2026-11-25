@@ -172,13 +172,32 @@ para que el agente se las haga a la persona.
 
 Los botones que llaman a Claude y gastan tokens tienen un brillo y una chispa sutiles.
 
+### Convenciones de commits
+
+En el wizard (paso Objetivo y reglas) y en la sección Reglas y convenciones se eligen las categorías de
+commit que aplican (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert), si el
+alcance entre paréntesis es opcional u obligatorio, el idioma y las reglas propias del equipo. Si no
+se define nada, se usan Conventional Commits con ramas `tipo/tema`. Todo queda en `CONTEXT.md` para
+que los agentes lo sigan.
+
+### Crear el repositorio en GitHub
+
+Para un repositorio local sin remoto, el Resumen del wizard (y el Resumen del proyecto) ofrece crearlo
+en GitHub con la sesión de GitHub CLI (`gh`) del equipo: cuenta u organización, nombre y visibilidad
+(privado por defecto). Se conecta como `origin` y se sube la rama actual; si no hay commits, se hace
+uno primero.
+
 ### Ramas, worktrees y turnos del agente
 
+- El menú de arriba del sidebar cambia la rama del checkout principal (avisa antes si git no lo
+  permitiría por cambios sin commit) o pasa a mirar otro worktree: su rama, su código, su diff y lo
+  último que hizo un agente ahí.
 - **Ramas y worktrees** lista cada checkout del repositorio (`git worktree list`) con cuántos commits
   lleva frente a `main`, lo que tiene sin commit, el diff y el último turno de un agente ahí. También
   permite cambiar la rama del checkout principal. Los hooks que llegan desde un worktree cuentan para
   el proyecto del repositorio principal.
-- **Lo último que hizo el agente** (en Resumen, solo para turnos que cambiaron archivos): con los hooks `UserPromptSubmit` y `Stop`, cada turno queda
+- **Lo último que hizo el agente** (en Resumen, solo para turnos que cambiaron archivos, con un aviso
+  en cualquier sección cuando termina): con los hooks `UserPromptSubmit` y `Stop`, cada turno queda
   registrado con el pedido, los pasos, el mensaje final del agente (leído del transcript en
   `~/.claude`), la hora, la duración, la rama y el diff exacto de ese turno. El diff compara contra una
   foto del árbol de trabajo tomada al empezar (`git stash create`, sin tocar el repo), así que los

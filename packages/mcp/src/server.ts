@@ -1,5 +1,6 @@
 import {
   buildContextMarkdown,
+  DEFAULT_COMMIT_CONVENTIONS,
   missingPlanFields,
   parseProjectPlan,
   PLAN_TEMPLATE,
@@ -534,6 +535,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
           "Un plan es Markdown como este (también se acepta JSON con los mismos campos):",
           "",
           PLAN_TEMPLATE,
+          "Opcional: una sección ## Convenciones de commits con las reglas del equipo, una por línea; sin ella se usan Conventional Commits (feat, fix, docs...) y ramas tipo/tema.",
           "Obligatorio: nombre (# Título), Tipo, Objetivo y al menos un requerimiento. Plataformas solo si el tipo es aplicación completa.",
           "Cada requerimiento debería tener criterios del Definition of Done (lista o checklist debajo de su título).",
           `Tipos de proyecto: ${PROJECT_KINDS.map((k) => `${k} (${PROJECT_KIND_INFO[k].label})`).join(", ")}.`,
@@ -589,6 +591,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
             databases: value.databases,
             repoPath: repoPath ?? null,
             rules: value.rules,
+            commitConventions: value.conventions ? { ...DEFAULT_COMMIT_CONVENTIONS, custom: value.conventions } : null,
             requirements: value.requirements.map((r) => ({ ...r, dod: r.dod.map((criterion) => ({ criterion })) })),
             githubFiles,
           },

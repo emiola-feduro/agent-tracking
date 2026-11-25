@@ -18,6 +18,8 @@ export interface Project {
   id: string;
   name: string;
   goal: string;
+  /** How commits and branches are written; null means the defaults (Conventional Commits). */
+  commitConventions?: import("./conventions").CommitConventions | null;
   /** What is being built; see PROJECT_KIND_INFO. Older projects are "fullstack". */
   kind: import("./project-kind").ProjectKind;
   platforms: Platform[];

@@ -104,3 +104,22 @@ describe("kind of project", () => {
     expect((await call("GET", "/stack/recommend?kind=nope")).status).toBe(400);
   });
 });
+
+describe("commit conventions", () => {
+  test("are saved with the project and written into CONTEXT.md", async () => {
+    const repo = join(tmp, "convenciones");
+    await git(["init", "-q", "-b", "main", repo]);
+    const created = await call("POST", "/projects", {
+      name: "C",
+      kind: "cli",
+      repoPath: repo,
+      commitConventions: { types: ["feat", "fix"], scope: "none", language: "es", custom: "Un commit por cambio lógico" },
+    });
+    expect(created.data.project.commitConventions).toMatchObject({ types: ["feat", "fix"], scope: "none" });
+    const context = await readFile(join(repo, ".agent-tracking/CONTEXT.md"), "utf8");
+    expect(context).toContain("## Convenciones de commits y ramas");
+    expect(context).toContain("Un commit por cambio lógico");
+    await call("PATCH", `/projects/${created.data.project.id}`, { commitConventions: null });
+    expect(await readFile(join(repo, ".agent-tracking/CONTEXT.md"), "utf8")).toContain("por defecto");
+  });
+});

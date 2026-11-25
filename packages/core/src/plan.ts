@@ -22,12 +22,19 @@ export type ProjectPlan = {
   stack: string[];
   databases: string[];
   rules: string[];
+  /** Text under "## Convenciones de commits"; empty means the defaults. */
+  conventions: string;
   requirements: ImportedRequirement[];
 };
 
 export type ParseOutcome<T> = { ok: true; value: T; warnings: string[] } | { ok: false; error: string };
 
-const norm = (text: string) => text.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+const norm = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
 const list = (value: string) =>
   value
     .split(/[,;]/)
@@ -35,7 +42,8 @@ const list = (value: string) =>
     .filter(Boolean);
 
 /** Headings that hold the Definition of Done of the requirement above them. */
-const DOD_HEADING = /^(dod|definition of done|definicion de (hecho|terminado)|criterios?( de aceptacion| de terminado)?|acceptance criteria|aceptacion)\b/;
+const DOD_HEADING =
+  /^(dod|definition of done|definicion de (hecho|terminado)|criterios?( de aceptacion| de terminado)?|acceptance criteria|aceptacion)\b/;
 const TAG = /\s*\[([^\]]+)\]\s*$/;
 
 type RawRequirement = { title: string; description?: unknown; type?: unknown; area?: unknown; tags?: unknown; dod?: unknown };
@@ -52,9 +60,14 @@ function settle(raw: RawRequirement, kind: ProjectKind, warnings: string[]): Imp
     const r = readClassification([w]);
     return !r.type && !r.area;
   });
-  if (unknown.length) warnings.push(`"${title}": no reconozco ${unknown.map((u) => `"${u}"`).join(", ")} como tipo o área; lo deduje del texto.`);
+  if (unknown.length)
+    warnings.push(`"${title}": no reconozco ${unknown.map((u) => `"${u}"`).join(", ")} como tipo o área; lo deduje del texto.`);
   const dod = (Array.isArray(raw.dod) ? raw.dod : [])
-    .map((d) => (typeof d === "string" ? d : asText((d as { criterion?: unknown; criterio?: unknown })?.criterion ?? (d as { criterio?: unknown })?.criterio)))
+    .map((d) =>
+      typeof d === "string"
+        ? d
+        : asText((d as { criterion?: unknown; criterio?: unknown })?.criterion ?? (d as { criterio?: unknown })?.criterio),
+    )
     .map((d) => d.trim())
     .filter(Boolean);
   return { title, description, ...settleClassification(given, title, description, kind), dod };
@@ -98,7 +111,10 @@ function markdownRequirements(lines: string[]): RawRequirement[] {
         continue;
       }
       const tag = TAG.exec(h[2]!);
-      const title = h[2]!.replace(TAG, "").replace(/^(requerimiento|requisito|requirement|rf|rnf)[\s\d.:-]*[:.-]\s*/i, "").trim();
+      const title = h[2]!
+        .replace(TAG, "")
+        .replace(/^(requerimiento|requisito|requirement|rf|rnf)[\s\d.:-]*[:.-]\s*/i, "")
+        .trim();
       current = { title, tags: tag ? list(tag[1]!) : [], body: [], dodLines: [] };
       out.push(current);
       continue;
@@ -113,7 +129,9 @@ function markdownRequirements(lines: string[]): RawRequirement[] {
       (current.tags as string[]).push(...list(kv[2]!));
       continue;
     }
-    const label = /^\s*\*{0,2}(dod|definition of done|criterios?(?: de aceptaci[oó]n)?|acceptance criteria)\s*:?\s*\*{0,2}\s*:?\s*$/i.exec(line);
+    const label = /^\s*\*{0,2}(dod|definition of done|criterios?(?: de aceptaci[oó]n)?|acceptance criteria)\s*:?\s*\*{0,2}\s*:?\s*$/i.exec(
+      line,
+    );
     if (label) {
       inDod = true;
       continue;
@@ -148,16 +166,21 @@ export function parseRequirements(text: string, kind: ProjectKind = "fullstack")
     } catch (e) {
       return { ok: false, error: `El JSON no es válido: ${(e as Error).message}` };
     }
-    const items = Array.isArray(data) ? data : ((data as Record<string, unknown>)?.requirements ?? (data as Record<string, unknown>)?.requerimientos);
-    if (!Array.isArray(items)) return { ok: false, error: "El JSON debe ser una lista de requerimientos o un objeto con la lista en \"requirements\"." };
+    const items = Array.isArray(data)
+      ? data
+      : ((data as Record<string, unknown>)?.requirements ?? (data as Record<string, unknown>)?.requerimientos);
+    if (!Array.isArray(items))
+      return { ok: false, error: 'El JSON debe ser una lista de requerimientos o un objeto con la lista en "requirements".' };
     raw = items.map(fromJsonItem).filter((x): x is RawRequirement => !!x);
   } else {
     raw = markdownRequirements(text.replace(/\r\n/g, "\n").split("\n"));
   }
   const value = raw.map((r) => settle(r, kind, warnings)).filter((r): r is ImportedRequirement => !!r);
-  if (value.length === 0) return { ok: false, error: "No encontré requerimientos. Usa un título por requerimiento (## Título) o una lista en JSON." };
+  if (value.length === 0)
+    return { ok: false, error: "No encontré requerimientos. Usa un título por requerimiento (## Título) o una lista en JSON." };
   const noDod = value.filter((r) => r.dod.length === 0).length;
-  if (noDod) warnings.push(noDod === 1 ? "1 requerimiento no tiene criterios del DoD." : `${noDod} requerimientos no tienen criterios del DoD.`);
+  if (noDod)
+    warnings.push(noDod === 1 ? "1 requerimiento no tiene criterios del DoD." : `${noDod} requerimientos no tienen criterios del DoD.`);
   return { ok: true, value, warnings };
 }
 
@@ -175,7 +198,15 @@ const readKind = (value: string): ProjectKind | null => {
   if (isProjectKind(v)) return v;
   return KIND_WORDS.find(([, re]) => re.test(v))?.[0] ?? null;
 };
-const PLATFORM_WORDS: Record<string, Platform> = { web: "web", escritorio: "desktop", desktop: "desktop", movil: "mobile", mobile: "mobile", ios: "mobile", android: "mobile" };
+const PLATFORM_WORDS: Record<string, Platform> = {
+  web: "web",
+  escritorio: "desktop",
+  desktop: "desktop",
+  movil: "mobile",
+  mobile: "mobile",
+  ios: "mobile",
+  android: "mobile",
+};
 
 /**
  * A whole project plan in Markdown: `# Nombre`, `Tipo:`, `Plataformas:`, `Stack:`, `Bases de datos:`
@@ -184,7 +215,17 @@ const PLATFORM_WORDS: Record<string, Platform> = { web: "web", escritorio: "desk
  */
 export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
   const warnings: string[] = [];
-  const plan: ProjectPlan = { name: "", goal: "", kind: null, platforms: [], stack: [], databases: [], rules: [], requirements: [] };
+  const plan: ProjectPlan = {
+    name: "",
+    goal: "",
+    kind: null,
+    platforms: [],
+    stack: [],
+    databases: [],
+    rules: [],
+    conventions: "",
+    requirements: [],
+  };
 
   if (looksJson(text)) {
     let data: Record<string, unknown>;
@@ -198,19 +239,23 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
     plan.goal = asText(o.goal ?? o.objetivo);
     plan.kind = readKind(asText(o.kind ?? o.tipo));
     const strings = (v: unknown) => (Array.isArray(v) ? v.map(asText).filter(Boolean) : typeof v === "string" ? list(v) : []);
-    plan.platforms = strings(o.platforms ?? o.plataformas).map((p) => PLATFORM_WORDS[norm(p)]).filter((p): p is Platform => !!p);
+    plan.platforms = strings(o.platforms ?? o.plataformas)
+      .map((p) => PLATFORM_WORDS[norm(p)])
+      .filter((p): p is Platform => !!p);
     plan.stack = strings(o.stack ?? o.tecnologias);
     plan.databases = strings(o.databases ?? o["bases de datos"] ?? o.basesdedatos);
     plan.rules = strings(o.rules ?? o.reglas ?? o["reglas de negocio"]);
+    plan.conventions = strings(o.conventions ?? o.convenciones ?? o["commit conventions"]).join("\n");
     const reqs = o.requirements ?? o.requerimientos;
     if (reqs !== undefined) {
       const parsed = parseRequirements(JSON.stringify(reqs), plan.kind ?? "fullstack");
-      if (parsed.ok) (plan.requirements = parsed.value), warnings.push(...parsed.warnings);
+      if (parsed.ok) ((plan.requirements = parsed.value), warnings.push(...parsed.warnings));
       else warnings.push(parsed.error);
     }
   } else {
     const lines = text.replace(/\r\n/g, "\n").split("\n");
-    let section: "head" | "goal" | "rules" | "requirements" | "other" = "head";
+    let section: "head" | "goal" | "rules" | "conventions" | "requirements" | "other" = "head";
+    const conventions: string[] = [];
     const goal: string[] = [];
     const reqLines: string[] = [];
     for (const line of lines) {
@@ -223,11 +268,13 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
         const t = norm(h[2]!);
         section = /^(objetivo|goal|proposito)/.test(t)
           ? "goal"
-          : /^(reglas|business rules|reglas de negocio)/.test(t)
-            ? "rules"
-            : /^(requerimientos|requisitos|requirements|historias)/.test(t)
-              ? "requirements"
-              : "other";
+          : /^(convenciones|commit conventions|commits)/.test(t)
+            ? "conventions"
+            : /^(reglas|business rules|reglas de negocio)/.test(t)
+              ? "rules"
+              : /^(requerimientos|requisitos|requirements|historias)/.test(t)
+                ? "requirements"
+                : "other";
         continue;
       }
       if (section === "requirements") {
@@ -243,23 +290,27 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
           plan.kind = readKind(value);
           if (!plan.kind) warnings.push(`No reconozco el tipo de proyecto "${value}".`);
         } else if (/^(plataformas?|platforms?)$/.test(key))
-          plan.platforms = list(value).map((p) => PLATFORM_WORDS[norm(p)]).filter((p): p is Platform => !!p);
+          plan.platforms = list(value)
+            .map((p) => PLATFORM_WORDS[norm(p)])
+            .filter((p): p is Platform => !!p);
         else if (/^(stack|tecnologias)$/.test(key)) plan.stack = list(value);
         else if (/^(bases? de datos|databases?|bd)$/.test(key)) plan.databases = list(value);
         else if (/^(objetivo|goal)$/.test(key)) plan.goal = value;
         continue;
       }
       if (section === "goal" && line.trim()) goal.push(line.trim());
+      if (section === "conventions" && line.trim()) conventions.push(line.trim().replace(/^[-*]\s*/, ""));
       if (section === "rules") {
         const item = /^\s*(?:[-*+]|\d+[.)])\s+(.*)$/.exec(line);
         if (item) plan.rules.push(item[1]!.trim());
       }
     }
     if (goal.length) plan.goal = goal.join(" ");
+    plan.conventions = conventions.join("\n");
     // Requirement headings sit one level below "## Requerimientos"; shift them up for the parser.
     if (reqLines.some((l) => l.trim())) {
       const parsed = parseRequirements(reqLines.join("\n"), plan.kind ?? "fullstack");
-      if (parsed.ok) (plan.requirements = parsed.value), warnings.push(...parsed.warnings);
+      if (parsed.ok) ((plan.requirements = parsed.value), warnings.push(...parsed.warnings));
       else warnings.push(parsed.error);
     }
   }
@@ -282,7 +333,8 @@ export function missingPlanFields(plan: ProjectPlan): MissingField[] {
   else if (PROJECT_KIND_INFO[plan.kind].platforms === null && plan.platforms.length === 0)
     missing.push({ field: "platforms", question: "¿En qué plataformas se usa la aplicación?", options: ["web", "desktop", "mobile"] });
   if (!plan.goal.trim()) missing.push({ field: "goal", question: "¿Cuál es el objetivo del proyecto, en una o dos frases?" });
-  if (plan.requirements.length === 0) missing.push({ field: "requirements", question: "¿Qué debe hacer el proyecto? Necesito al menos un requerimiento." });
+  if (plan.requirements.length === 0)
+    missing.push({ field: "requirements", question: "¿Qué debe hacer el proyecto? Necesito al menos un requerimiento." });
   else {
     const empty = plan.requirements.filter((r) => r.dod.length === 0).map((r) => r.title);
     if (empty.length)

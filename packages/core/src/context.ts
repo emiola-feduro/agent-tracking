@@ -1,3 +1,4 @@
+import { conventionsMarkdown } from "./conventions";
 import { PROJECT_KIND_INFO } from "./project-kind";
 import { attachmentRepoPath, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, sharedSkillPath } from "./requirements";
 import { projectProgress, requirementProgress, toPercent } from "./progress";
@@ -30,6 +31,9 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
   out.push(`- **Bases de datos:** ${p.databases.length ? p.databases.join(", ") : "_Sin definir_"}`);
   if (p.repoUrl) out.push(`- **Repositorio:** ${p.repoUrl}`);
   out.push(`- **Avance global:** ${toPercent(projectProgress(s))}%`, "");
+
+  out.push("## Convenciones de commits y ramas", "");
+  out.push(...conventionsMarkdown(p.commitConventions), "");
 
   out.push("## Reglas de negocio", "");
   if (s.rules.length === 0) out.push("_No hay reglas definidas._");

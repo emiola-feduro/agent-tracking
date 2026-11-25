@@ -2,6 +2,7 @@ import {
   githubFiles,
   kindPlatforms,
   settleClassification,
+  type CommitConventions,
   type GithubFileKind,
   type Platform,
   type ProjectKind,
@@ -39,6 +40,7 @@ export type NewProjectInput = {
   requirements?: NewProjectRequirement[];
   githubFiles?: GithubFileKind[];
   prTemplate?: string;
+  commitConventions?: CommitConventions | null;
 };
 
 /**
@@ -72,6 +74,7 @@ export async function createProject(db: Db, emit: Emit, input: NewProjectInput, 
         name: input.name.trim(),
         goal: input.goal?.trim() ?? "",
         kind,
+        commitConventions: input.commitConventions ?? null,
         platforms,
         stack: input.stack ?? [],
         databases: input.databases ?? [],

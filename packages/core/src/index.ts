@@ -8,3 +8,4 @@ export * from "./github-files";
 export * from "./project-kind";
 export * from "./requirements";
 export * from "./plan";
+export * from "./conventions";

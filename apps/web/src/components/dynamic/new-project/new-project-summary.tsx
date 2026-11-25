@@ -60,6 +60,11 @@ const NewProjectSummary = () => {
         <Row label="Objetivo" step="goal">
           {goal}
         </Row>
+        <Row label="Convenciones" step="goal">
+          {s.commitConventions
+            ? `Propias: ${s.commitConventions.types.join(", ")}${s.commitConventions.custom.trim() ? ", con reglas del equipo" : ""}`
+            : "Por defecto (Conventional Commits)"}
+        </Row>
         <Row label="Reglas" step="goal">
           {rules.filter((r) => r.trim()).length}
         </Row>

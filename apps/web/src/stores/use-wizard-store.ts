@@ -1,4 +1,4 @@
-import { kindPlatforms, PROJECT_KIND_INFO, toggleStackOption } from "@agent-tracking/core";
+import { type CommitConventions, kindPlatforms, PROJECT_KIND_INFO, toggleStackOption } from "@agent-tracking/core";
 import { create } from "zustand";
 import type { AssistantBrief, GithubPublish, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
 
@@ -38,6 +38,8 @@ type WizardData = {
   githubFiles: GithubFileKind[];
   /** Create the repository on GitHub too (only for local repos without a remote). */
   publish: (GithubPublish & { enabled: boolean }) | null;
+  /** null: the default conventions (Conventional Commits). */
+  commitConventions: CommitConventions | null;
   /** Pull request template as edited in the summary; null until edited (then it follows the requirements). */
   prTemplate: string | null;
   name: string;
@@ -84,6 +86,7 @@ const initial = (): WizardData => ({
   repo: null,
   githubFiles: [],
   publish: null,
+  commitConventions: null,
   prTemplate: null,
   name: "",
   kind: "fullstack",

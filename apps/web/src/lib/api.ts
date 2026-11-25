@@ -1,5 +1,6 @@
 import type {
   AgentEvent,
+  CommitConventions,
   Attachment,
   BusinessRule,
   CodeSymbol,
@@ -102,6 +103,7 @@ export type SkillInput = Pick<ProjectSkill, "name" | "description" | "source" | 
 export type NewProject = {
   name: string;
   goal: string;
+  commitConventions: CommitConventions | null;
   kind: ProjectKind;
   platforms: Platform[];
   stack: string[];
@@ -172,6 +174,7 @@ export const api = {
   getProject: (id: string) => request<ProjectView>("GET", p(id)),
   createProject: (data: NewProject) => request<ProjectView>("POST", "/projects", data),
   deleteProject: (id: string) => request<void>("DELETE", p(id)),
+  updateProject: (id: string, data: { commitConventions?: CommitConventions | null }) => request<ProjectView>("PATCH", p(id), data),
   syncProject: (id: string) => request<ProjectView>("POST", `${p(id)}/sync`),
 
   stackOptions: () => request<{ stack: StackOption[]; databases: DatabaseOption[] }>("GET", "/stack/options"),

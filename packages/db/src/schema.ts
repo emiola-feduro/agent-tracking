@@ -1,4 +1,4 @@
-import type { AttachmentKind, Platform, ProjectKind, RequirementArea, RequirementType, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
+import type { AttachmentKind, CommitConventions, Platform, ProjectKind, RequirementArea, RequirementType, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
 import { sql } from "drizzle-orm";
 import { blob, index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
@@ -17,6 +17,8 @@ export const projects = sqliteTable("projects", {
   name: text("name").notNull(),
   goal: text("goal").notNull().default(""),
   kind: text("kind").$type<ProjectKind>().notNull().default("fullstack"),
+  /** null: the default conventions (see packages/core/src/conventions.ts). */
+  commitConventions: text("commit_conventions", { mode: "json" }).$type<CommitConventions | null>(),
   platforms: text("platforms", { mode: "json" }).$type<Platform[]>().notNull().default(sql`'[]'`),
   stack: text("stack", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
   databases: text("databases", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),

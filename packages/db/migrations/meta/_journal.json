@@ -43,6 +43,13 @@
       "when": 1795614364614,
       "tag": "0005_thankful_vulcan",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1795625113001,
+      "tag": "0006_low_talisman",
+      "breakpoints": true
     }
   ]
 }
