@@ -13,7 +13,7 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Plataformas:** Web, Escritorio
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
-- **Avance global:** 84%
+- **Avance global:** 85%
 
 ## Reglas de negocio
 
@@ -75,7 +75,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 **Features:**
 
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
-  - `packages/core/src/context.ts`: Genera el CONTEXT.md que leen los agentes
+  - `packages/core/src/context.ts`: CONTEXT.md apunta a la copia compartida o al plugin de cada skill
   - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
   - `packages/mcp/src/server.ts`: Definición de las herramientas MCP sobre el tracker compartido
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
@@ -360,6 +360,31 @@ Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
 
 - [ ] Varias personas trabajan en el mismo proyecto con roles (`5f5fe41b-c0b7-44bf-a3dc-3a5d1fce84ee`)
 - [ ] La app de escritorio puede sincronizar con un servidor compartido (`37358a45-94a4-4ac6-b55b-123d61637ac1`)
+
+### Compartir el proyecto por git — 100%
+
+ID: `e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1`
+
+**Tipo:** Funcional, área backend
+
+Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
+
+**Definition of Done:**
+
+- [x] Al importar desde el repo se restauran las imágenes de referencia y de vistas (`74d018a8-c7c2-4168-807e-2858d433aa8b`)
+- [x] Las skills personales se pueden incluir en el repo e instalar en otro equipo (`26607921-a38a-4a7f-a462-05c2c31e2f4b`)
+- [x] Las skills de un plugin se instalan desde su marketplace con Claude Code (`99a6fe1e-cc88-4945-899b-f856e2c9f7bf`)
+
+**Features:**
+
+- Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
+  - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
+  - `packages/core/src/context.ts`: CONTEXT.md apunta a la copia compartida o al plugin de cada skill
+  - `packages/core/src/project-file.ts`: project.json guarda la lista de imágenes y el origen de cada skill
+  - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
+  - `packages/skills/src/portable.ts`: Origen de las skills, copia al repo e instalación en otro equipo
+  - `packages/tracking/src/repo-sync.ts`: Exporta skills compartidas y restaura imágenes al importar o sincronizar
 
 ## Ideas de tests pendientes
 

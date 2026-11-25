@@ -46,6 +46,10 @@ export const projectSkills = sqliteTable("project_skills", {
   source: text("source", { enum: ["user", "repo", "plugin", "catalog", "created"] }).notNull(),
   location: text("location").notNull(),
   enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+  plugin: text("plugin"),
+  marketplace: text("marketplace"),
+  marketplaceSource: text("marketplace_source"),
+  shared: integer("shared", { mode: "boolean" }).notNull().default(false),
   ...audit,
 });
 

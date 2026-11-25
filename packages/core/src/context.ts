@@ -1,5 +1,5 @@
 import { PROJECT_KIND_INFO } from "./project-kind";
-import { attachmentRepoPath, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL } from "./requirements";
+import { attachmentRepoPath, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, sharedSkillPath } from "./requirements";
 import { projectProgress, requirementProgress, toPercent } from "./progress";
 import type { ProjectSnapshot } from "./types";
 
@@ -41,7 +41,15 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
   const skills = s.skills.filter((k) => k.enabled);
   out.push("## Skills a usar", "");
   if (skills.length === 0) out.push("_No se seleccionaron skills._");
-  for (const k of skills) out.push(`- **${k.name}** (${k.source}) — ${k.description}`);
+  for (const k of skills) {
+    // Where to read it: the copy in the repo when it was shared, the plugin otherwise.
+    const where = k.shared
+      ? ` Léela en \`${sharedSkillPath(k.name)}/SKILL.md\`.`
+      : k.plugin
+        ? ` Viene del plugin \`${k.plugin}${k.marketplace ? `@${k.marketplace}` : ""}\`.`
+        : "";
+    out.push(`- **${k.name}** (${k.source}) — ${k.description}${where}`);
+  }
   out.push("");
 
   out.push("## Requerimientos", "");

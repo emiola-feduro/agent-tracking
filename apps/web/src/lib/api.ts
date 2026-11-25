@@ -58,6 +58,8 @@ export type ProjectView = ProjectSnapshot & {
 export type LiveStep = { at: string; tool: string; label: string; target?: string };
 export type LiveState = { status: "working" | "idle"; startedAt: string | null; lastAt: string | null; steps: LiveStep[] };
 export type GithubFileKind = "ci" | "prTemplate";
+/** Whether a project skill is on this machine and how to get it if not. */
+export type SkillAvailability = { skillId: string; installed: boolean; install: "shared" | "plugin" | null; commands: string[] | null };
 export type FileContent = { path: string; content: string; lines: number; truncated: boolean; binary: boolean };
 export type DiffFile = { path: string; insertions: number; deletions: number; binary: boolean };
 export type Diff = { files: DiffFile[]; patch: string; truncated: boolean };
@@ -95,7 +97,7 @@ export type RepoInspection = {
   projectFileError: string | null;
   existingProjectId: string | null;
 };
-export type SkillInput = Omit<ProjectSkill, "id" | "projectId">;
+export type SkillInput = Pick<ProjectSkill, "name" | "description" | "source" | "location" | "enabled">;
 export type NewProject = {
   name: string;
   goal: string;
@@ -192,6 +194,9 @@ export const api = {
   toggleSkill: (id: string, skillId: string, enabled: boolean) =>
     request<ProjectSkill>("PATCH", `${p(id)}/skills/${skillId}`, { enabled }),
   removeSkill: (id: string, skillId: string) => request<void>("DELETE", `${p(id)}/skills/${skillId}`),
+  shareSkill: (id: string, skillId: string, shared: boolean) => request<ProjectSkill>("PATCH", `${p(id)}/skills/${skillId}`, { shared }),
+  skillStatus: (id: string) => request<SkillAvailability[]>("GET", `${p(id)}/skills/status`),
+  installSkill: (id: string, skillId: string) => request<SkillAvailability>("POST", `${p(id)}/skills/${skillId}/install`),
 
   addRequirement: (id: string, data: { title: string; description: string; type: RequirementType; area: RequirementArea }) =>
     request<{ id: string }>("POST", `${p(id)}/requirements`, data),

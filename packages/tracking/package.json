@@ -10,6 +10,7 @@
     "@agent-tracking/core": "workspace:*",
     "@agent-tracking/db": "workspace:*",
     "@agent-tracking/git": "workspace:*",
+    "@agent-tracking/skills": "workspace:*",
     "drizzle-orm": "0.44",
     "zod": "4"
   },

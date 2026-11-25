@@ -134,6 +134,25 @@ lista para que el agente las abra antes de implementar.
 La pestaña Vistas es la galería de pantallas de la app: capturas subidas a mano o reportadas por
 el agente con la herramienta MCP `report_screen` (una imagen guardada dentro del repositorio).
 
+### Compartir el proyecto por git
+
+`.agent-tracking/project.json` lleva todo lo necesario para que quien clone el repo importe el mismo
+proyecto desde el wizard (Repositorio local o Clonar de GitHub): requerimientos con su DoD, features,
+archivos, símbolos, tests, reglas, skills y la lista de imágenes, cuyos archivos están en
+`.agent-tracking/attachments/`. Al importar se restauran las imágenes; "Actualizar desde el repo"
+vuelve a leerlo después de un pull. Turnos, actividad y caché de GitHub son de cada equipo.
+
+Las skills del proyecto muestran en su pestaña si están en este equipo:
+
+- **Personales o creadas:** con "Incluirla en el repo" se copian a `.agent-tracking/skills/<nombre>`
+  (sin archivos ocultos ni `node_modules`, hasta 60 archivos y 2 MB). En otro equipo, "Instalar desde
+  el repo" las copia a `~/.claude/skills` sin reemplazar nada existente. `CONTEXT.md` apunta a esa copia,
+  así que el agente puede leerla aunque no esté instalada.
+- **De un plugin:** se guarda el plugin y su marketplace. "Instalar plugin" ejecuta
+  `claude plugin marketplace add` (si falta el marketplace) y `claude plugin install`, previa
+  confirmación. Estas no se copian al repo.
+- **Del repo** (`.claude/skills`): ya viajan con git.
+
 ### Ramas, worktrees y turnos del agente
 
 - **Ramas y worktrees** lista cada checkout del repositorio (`git worktree list`) con cuántos commits

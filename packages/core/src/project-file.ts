@@ -31,6 +31,11 @@ export const projectFileSchema = z.object({
         /** Relative to the repo for repo skills; informative only for machine-specific sources. */
         location: z.string().default(""),
         enabled: z.boolean().default(true),
+        plugin: z.string().nullable().default(null),
+        marketplace: z.string().nullable().default(null),
+        marketplaceSource: z.string().nullable().default(null),
+        /** In the repo at .agent-tracking/skills/<folder>, ready to install. */
+        shared: z.boolean().default(false),
       }),
     )
     .default([]),
@@ -118,6 +123,23 @@ export const projectFileSchema = z.object({
       }),
     )
     .default([]),
+  /** Image metadata; the bytes are in .agent-tracking/attachments (see attachmentRepoPath). */
+  attachments: z
+    .array(
+      z.object({
+        id,
+        kind: z.enum(["reference", "screen"]).default("reference"),
+        requirementId: z.string().nullable().default(null),
+        dodItemId: z.string().nullable().default(null),
+        featureId: z.string().nullable().default(null),
+        title: z.string().default(""),
+        route: z.string().default(""),
+        filename: z.string().min(1),
+        createdBy: z.string().default("user:local"),
+        createdAt: z.string().optional(),
+      }),
+    )
+    .default([]),
 });
 
 export type ProjectFile = z.infer<typeof projectFileSchema>;
@@ -143,12 +165,16 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
     rules: [...s.rules]
       .sort((a, b) => a.priority - b.priority)
       .map(({ id, text, priority }) => ({ id, text, priority })),
-    skills: s.skills.map(({ name, description, source, location, enabled }) => ({
+    skills: s.skills.map(({ name, description, source, location, enabled, plugin, marketplace, marketplaceSource, shared }) => ({
       name,
       description,
       source,
       location: source === "repo" ? toRepoRelative(location, p.repoPath) : location,
       enabled,
+      plugin: plugin ?? null,
+      marketplace: marketplace ?? null,
+      marketplaceSource: marketplaceSource ?? null,
+      shared: shared ?? false,
     })),
     requirements: s.requirements.map((r) => ({
       id: r.id,
@@ -201,6 +227,18 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       text,
       origin,
       status,
+    })),
+    attachments: (s.attachments ?? []).map(({ id, kind, requirementId, dodItemId, featureId, title, route, filename, createdBy, createdAt }) => ({
+      id,
+      kind,
+      requirementId,
+      dodItemId,
+      featureId,
+      title,
+      route,
+      filename,
+      createdBy,
+      createdAt,
     })),
   };
 }

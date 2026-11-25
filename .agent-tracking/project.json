@@ -640,6 +640,46 @@
         }
       ],
       "features": []
+    },
+    {
+      "id": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "title": "Compartir el proyecto por git",
+      "description": "Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.",
+      "type": "functional",
+      "area": "backend",
+      "weight": 1,
+      "dod": [
+        {
+          "id": "74d018a8-c7c2-4168-807e-2858d433aa8b",
+          "criterion": "Al importar desde el repo se restauran las imágenes de referencia y de vistas",
+          "origin": "human",
+          "status": "done",
+          "evidence": "portable.test.ts: imagen restaurada tras clonar e importar, archivo conservado"
+        },
+        {
+          "id": "26607921-a38a-4a7f-a462-05c2c31e2f4b",
+          "criterion": "Las skills personales se pueden incluir en el repo e instalar en otro equipo",
+          "origin": "human",
+          "status": "done",
+          "evidence": "portable.test.ts: skill compartida e instalada en el segundo equipo; verificado en el navegador"
+        },
+        {
+          "id": "99a6fe1e-cc88-4945-899b-f856e2c9f7bf",
+          "criterion": "Las skills de un plugin se instalan desde su marketplace con Claude Code",
+          "origin": "human",
+          "status": "done",
+          "evidence": "portable.test.ts: comandos marketplace add e install; detectado mattpocock-skills@claude-plugins-official"
+        }
+      ],
+      "features": [
+        {
+          "id": "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+          "name": "Imágenes y skills que viajan con el repo",
+          "description": "",
+          "status": "done",
+          "agent": "claude-code"
+        }
+      ]
     }
   ],
   "tests": [
@@ -2701,6 +2741,24 @@
       "requirementId": "d9d9a456-5385-4793-918a-de1ab104db5e",
       "path": "packages/server/src/features-v3.test.ts",
       "name": "worktrees y vista previa",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "5663420e-0a79-4651-81d2-1fd285584526",
+      "featureId": null,
+      "requirementId": null,
+      "path": "packages/server/src/portable.test.ts",
+      "name": "a project travels with the repository > images and skills arrive on the other machine",
+      "type": "unit",
+      "lastResult": "unknown"
+    },
+    {
+      "id": "050aaa97-2be6-4cb4-b0ac-7aaa8e15b33a",
+      "featureId": "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+      "requirementId": "e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1",
+      "path": "packages/server/src/portable.test.ts",
+      "name": "a project travels with the repository",
       "type": "integration",
       "lastResult": "passing"
     }
@@ -4927,16 +4985,27 @@
     {
       "id": "8ff76e8b-55d0-472f-9866-54ef8798fa7d",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx",
-      "purpose": "",
+      "purpose": "Pestaña Skills con estado, instalar y compartir",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
+        {
+          "id": "69137c73-3b49-42da-a121-683da898f650",
+          "name": "SOURCE_LABEL",
+          "kind": "constant",
+          "lineStart": 8,
+          "lineEnd": 14,
+          "purpose": "",
+          "source": "inferred"
+        },
         {
           "id": "d40abf30-d384-42b2-9c87-48363b30e88e",
           "name": "ProjectDetailSkills",
           "kind": "function",
-          "lineStart": 7,
-          "lineEnd": 30,
+          "lineStart": 20,
+          "lineEnd": 120,
           "purpose": "",
           "source": "inferred"
         }
@@ -6644,6 +6713,35 @@
       ]
     },
     {
+      "id": "76e608bd-a9b4-4df6-bf1c-88f4f2926beb",
+      "path": "apps/web/src/hooks/data/use-skill-status.ts",
+      "purpose": "Consulta el estado y lanza instalar o compartir",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
+      "symbols": [
+        {
+          "id": "3e8ee607-3727-4c41-bc4d-6d11c57f0e5e",
+          "name": "useSkillStatus",
+          "kind": "function",
+          "lineStart": 6,
+          "lineEnd": 7,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "c26c0da1-159c-4127-bf83-85ab23e3ff91",
+          "name": "useSkillActions",
+          "kind": "function",
+          "lineStart": 9,
+          "lineEnd": 16,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
       "id": "5d7646e5-d12c-4bea-8d85-e9a08781adca",
       "path": "apps/web/src/hooks/data/use-stack-recommendation.ts",
       "purpose": "",
@@ -7366,17 +7464,8 @@
           "source": "inferred"
         },
         {
-          "id": "92e67c19-bcf1-471c-ae38-80d0071a3fb7",
-          "name": "FileContent",
-          "kind": "type",
-          "lineStart": 61,
-          "lineEnd": 61,
-          "purpose": "",
-          "source": "inferred"
-        },
-        {
-          "id": "1275d81e-48d9-43a8-9fb3-653f92c49f52",
-          "name": "DiffFile",
+          "id": "46e7a09a-2b7e-4092-9b18-71fa43ef08a0",
+          "name": "SkillAvailability",
           "kind": "type",
           "lineStart": 62,
           "lineEnd": 62,
@@ -7384,8 +7473,8 @@
           "source": "inferred"
         },
         {
-          "id": "6285dd99-a531-474a-84c5-c426534ddd46",
-          "name": "Diff",
+          "id": "92e67c19-bcf1-471c-ae38-80d0071a3fb7",
+          "name": "FileContent",
           "kind": "type",
           "lineStart": 63,
           "lineEnd": 63,
@@ -7393,11 +7482,29 @@
           "source": "inferred"
         },
         {
+          "id": "1275d81e-48d9-43a8-9fb3-653f92c49f52",
+          "name": "DiffFile",
+          "kind": "type",
+          "lineStart": 64,
+          "lineEnd": 64,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "6285dd99-a531-474a-84c5-c426534ddd46",
+          "name": "Diff",
+          "kind": "type",
+          "lineStart": 65,
+          "lineEnd": 65,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
           "id": "01b4c00a-0072-44cf-923b-9684c7fabee5",
           "name": "BranchProgress",
           "kind": "type",
-          "lineStart": 64,
-          "lineEnd": 72,
+          "lineStart": 66,
+          "lineEnd": 74,
           "purpose": "",
           "source": "inferred"
         },
@@ -7405,8 +7512,8 @@
           "id": "7eae728a-f3a5-4c8c-8934-8662dfff750c",
           "name": "Worktree",
           "kind": "type",
-          "lineStart": 73,
-          "lineEnd": 73,
+          "lineStart": 75,
+          "lineEnd": 75,
           "purpose": "",
           "source": "inferred"
         },
@@ -7414,8 +7521,8 @@
           "id": "854a2cf1-ab7a-4e1a-ae88-a5dc3a800a98",
           "name": "LocalBranch",
           "kind": "type",
-          "lineStart": 74,
-          "lineEnd": 74,
+          "lineStart": 76,
+          "lineEnd": 76,
           "purpose": "",
           "source": "inferred"
         },
@@ -7423,8 +7530,8 @@
           "id": "3aacf60e-47f0-4fff-898c-b3b6e6223f90",
           "name": "AgentTurn",
           "kind": "type",
-          "lineStart": 76,
-          "lineEnd": 87,
+          "lineStart": 78,
+          "lineEnd": 89,
           "purpose": "",
           "source": "inferred"
         },
@@ -7432,8 +7539,8 @@
           "id": "4d5011ef-aab4-4d0e-bfac-7225c34c8272",
           "name": "AgentTurnDetail",
           "kind": "type",
-          "lineStart": 88,
-          "lineEnd": 88,
+          "lineStart": 90,
+          "lineEnd": 90,
           "purpose": "",
           "source": "inferred"
         },
@@ -7441,8 +7548,8 @@
           "id": "646218dd-1d81-41cb-918c-ba0e6d8067c8",
           "name": "ProjectListItem",
           "kind": "type",
-          "lineStart": 89,
-          "lineEnd": 89,
+          "lineStart": 91,
+          "lineEnd": 91,
           "purpose": "",
           "source": "inferred"
         },
@@ -7450,8 +7557,8 @@
           "id": "ce3d9a85-4064-4e1a-909f-2904a2f97f7d",
           "name": "DiscoveredSkill",
           "kind": "type",
-          "lineStart": 90,
-          "lineEnd": 90,
+          "lineStart": 92,
+          "lineEnd": 92,
           "purpose": "",
           "source": "inferred"
         },
@@ -7459,8 +7566,8 @@
           "id": "36fdedf6-ddd7-4449-8e78-d57c317d0203",
           "name": "RepoInfo",
           "kind": "type",
-          "lineStart": 91,
-          "lineEnd": 91,
+          "lineStart": 93,
+          "lineEnd": 93,
           "purpose": "",
           "source": "inferred"
         },
@@ -7468,8 +7575,8 @@
           "id": "c016e2a2-0043-4cc5-90a9-24dcb181bc4a",
           "name": "RepoInspection",
           "kind": "type",
-          "lineStart": 92,
-          "lineEnd": 97,
+          "lineStart": 94,
+          "lineEnd": 99,
           "purpose": "",
           "source": "inferred"
         },
@@ -7477,8 +7584,8 @@
           "id": "a51bccb6-ba6b-4d6f-8f15-408478802eb5",
           "name": "SkillInput",
           "kind": "type",
-          "lineStart": 98,
-          "lineEnd": 98,
+          "lineStart": 100,
+          "lineEnd": 100,
           "purpose": "",
           "source": "inferred"
         },
@@ -7486,8 +7593,8 @@
           "id": "9ecfc94a-738c-4c58-9106-b8f002e91dec",
           "name": "NewProject",
           "kind": "type",
-          "lineStart": 99,
-          "lineEnd": 114,
+          "lineStart": 101,
+          "lineEnd": 116,
           "purpose": "",
           "source": "inferred"
         },
@@ -7495,8 +7602,8 @@
           "id": "b6c43771-a9f0-4341-a0a5-fc0567730977",
           "name": "AssistantBrief",
           "kind": "type",
-          "lineStart": 117,
-          "lineEnd": 126,
+          "lineStart": 119,
+          "lineEnd": 128,
           "purpose": "",
           "source": "inferred"
         },
@@ -7504,8 +7611,8 @@
           "id": "6a3960f5-7c1e-4982-84d7-bf0b4d0a11b3",
           "name": "StackSuggestion",
           "kind": "type",
-          "lineStart": 127,
-          "lineEnd": 127,
+          "lineStart": 129,
+          "lineEnd": 129,
           "purpose": "",
           "source": "inferred"
         },
@@ -7513,8 +7620,8 @@
           "id": "e9994168-530d-4aa3-b3ea-de14b958ad5a",
           "name": "SkillPick",
           "kind": "type",
-          "lineStart": 128,
-          "lineEnd": 128,
+          "lineStart": 130,
+          "lineEnd": 130,
           "purpose": "",
           "source": "inferred"
         },
@@ -7522,8 +7629,8 @@
           "id": "fd7244f7-249f-48ff-a8e2-790e30129419",
           "name": "ApiError",
           "kind": "class",
-          "lineStart": 130,
-          "lineEnd": 138,
+          "lineStart": 132,
+          "lineEnd": 140,
           "purpose": "",
           "source": "inferred"
         },
@@ -7531,8 +7638,8 @@
           "id": "26c09315-aa26-495c-b7f8-06f72cdd18a7",
           "name": "READ_TIMEOUT_MS",
           "kind": "constant",
-          "lineStart": 141,
-          "lineEnd": 141,
+          "lineStart": 143,
+          "lineEnd": 143,
           "purpose": "",
           "source": "inferred"
         },
@@ -7540,8 +7647,8 @@
           "id": "b8601804-945c-48b5-88d7-9763a0d536eb",
           "name": "request",
           "kind": "function",
-          "lineStart": 143,
-          "lineEnd": 163,
+          "lineStart": 145,
+          "lineEnd": 165,
           "purpose": "",
           "source": "inferred"
         },
@@ -7549,8 +7656,8 @@
           "id": "3b2bb6a2-3ac1-4a45-bcae-a493e2dd5fd1",
           "name": "p",
           "kind": "function",
-          "lineStart": 165,
-          "lineEnd": 165,
+          "lineStart": 167,
+          "lineEnd": 167,
           "purpose": "",
           "source": "inferred"
         },
@@ -7558,8 +7665,8 @@
           "id": "b749070c-35a5-45f1-9735-329aa3ac7cac",
           "name": "api",
           "kind": "constant",
-          "lineStart": 167,
-          "lineEnd": 251,
+          "lineStart": 169,
+          "lineEnd": 256,
           "purpose": "",
           "source": "inferred"
         }
@@ -8249,7 +8356,7 @@
           "name": "queryKeys",
           "kind": "constant",
           "lineStart": 3,
-          "lineEnd": 23,
+          "lineEnd": 24,
           "purpose": "",
           "source": "inferred"
         }
@@ -10510,9 +10617,10 @@
     {
       "id": "2cbf47ad-923c-41b9-ae75-994fda07653d",
       "path": "packages/core/src/context.ts",
-      "purpose": "Genera el CONTEXT.md que leen los agentes",
+      "purpose": "CONTEXT.md apunta a la copia compartida o al plugin de cada skill",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
         "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
       ],
       "symbols": [
@@ -10539,7 +10647,7 @@
           "name": "buildContextMarkdown",
           "kind": "function",
           "lineStart": 14,
-          "lineEnd": 103,
+          "lineEnd": 111,
           "purpose": "",
           "source": "inferred"
         }
@@ -10754,9 +10862,11 @@
     {
       "id": "6806592c-2309-4b3c-8a16-27e6a0b22699",
       "path": "packages/core/src/project-file.ts",
-      "purpose": "",
+      "purpose": "project.json guarda la lista de imágenes y el origen de cada skill",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
         {
           "id": "ba9f5880-df55-4549-8c50-15f11bd6e303",
@@ -10799,7 +10909,7 @@
           "name": "projectFileSchema",
           "kind": "constant",
           "lineStart": 12,
-          "lineEnd": 121,
+          "lineEnd": 143,
           "purpose": "",
           "source": "inferred"
         },
@@ -10807,8 +10917,8 @@
           "id": "b49f8415-c556-4bc2-87f9-a90802be8b82",
           "name": "ProjectFile",
           "kind": "type",
-          "lineStart": 123,
-          "lineEnd": 123,
+          "lineStart": 145,
+          "lineEnd": 145,
           "purpose": "",
           "source": "inferred"
         },
@@ -10816,8 +10926,8 @@
           "id": "14a7630a-af79-4f29-a264-f897afe25c31",
           "name": "toRepoRelative",
           "kind": "function",
-          "lineStart": 125,
-          "lineEnd": 126,
+          "lineStart": 147,
+          "lineEnd": 148,
           "purpose": "",
           "source": "inferred"
         },
@@ -10825,8 +10935,8 @@
           "id": "d8042e1d-b02a-4d73-a569-b63a5291bfb9",
           "name": "toProjectFile",
           "kind": "function",
-          "lineStart": 129,
-          "lineEnd": 206,
+          "lineStart": 151,
+          "lineEnd": 244,
           "purpose": "",
           "source": "inferred"
         },
@@ -10834,8 +10944,8 @@
           "id": "e1792135-cfe3-49d8-81a1-ca6b434ae895",
           "name": "serializeProjectFile",
           "kind": "function",
-          "lineStart": 208,
-          "lineEnd": 208,
+          "lineStart": 246,
+          "lineEnd": 246,
           "purpose": "",
           "source": "inferred"
         },
@@ -10843,8 +10953,8 @@
           "id": "cce42969-11dd-4a72-901c-eb917972aef5",
           "name": "ParseResult",
           "kind": "type",
-          "lineStart": 210,
-          "lineEnd": 210,
+          "lineStart": 248,
+          "lineEnd": 248,
           "purpose": "",
           "source": "inferred"
         },
@@ -10852,8 +10962,8 @@
           "id": "ac7cfacb-37cf-456d-a0d9-f9a6e3de8957",
           "name": "parseProjectFile",
           "kind": "function",
-          "lineStart": 212,
-          "lineEnd": 221,
+          "lineStart": 250,
+          "lineEnd": 259,
           "purpose": "",
           "source": "inferred"
         }
@@ -10975,6 +11085,24 @@
           "kind": "function",
           "lineStart": 22,
           "lineEnd": 25,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "4eb5dfc3-a0a9-4ba1-beae-9b82bd3e10c4",
+          "name": "SHARED_SKILLS_DIR",
+          "kind": "constant",
+          "lineStart": 27,
+          "lineEnd": 27,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "c2f9890c-8921-487a-bbcd-8837896c0b70",
+          "name": "sharedSkillPath",
+          "kind": "function",
+          "lineStart": 30,
+          "lineEnd": 31,
           "purpose": "",
           "source": "inferred"
         }
@@ -11534,7 +11662,7 @@
           "name": "ProjectSkill",
           "kind": "type",
           "lineStart": 39,
-          "lineEnd": 47,
+          "lineEnd": 54,
           "purpose": "",
           "source": "inferred"
         },
@@ -11542,8 +11670,8 @@
           "id": "551ad2a2-394c-4f04-83c5-d594e1d784ce",
           "name": "DodItem",
           "kind": "type",
-          "lineStart": 49,
-          "lineEnd": 56,
+          "lineStart": 56,
+          "lineEnd": 63,
           "purpose": "",
           "source": "inferred"
         },
@@ -11551,8 +11679,8 @@
           "id": "f8729f21-f87f-415d-a7c9-c80b44942b5e",
           "name": "REQUIREMENT_TYPES",
           "kind": "constant",
-          "lineStart": 59,
-          "lineEnd": 59,
+          "lineStart": 66,
+          "lineEnd": 66,
           "purpose": "",
           "source": "inferred"
         },
@@ -11560,8 +11688,8 @@
           "id": "eb9ddeb2-1da5-4831-a5d1-5e7e4f2a7471",
           "name": "RequirementType",
           "kind": "type",
-          "lineStart": 60,
-          "lineEnd": 60,
+          "lineStart": 67,
+          "lineEnd": 67,
           "purpose": "",
           "source": "inferred"
         },
@@ -11569,8 +11697,8 @@
           "id": "aacd1aea-c54c-47b1-aeb9-882003f38b8d",
           "name": "REQUIREMENT_AREAS",
           "kind": "constant",
-          "lineStart": 62,
-          "lineEnd": 62,
+          "lineStart": 69,
+          "lineEnd": 69,
           "purpose": "",
           "source": "inferred"
         },
@@ -11578,8 +11706,8 @@
           "id": "d30d4ac6-2286-457f-acad-8623c66ca0e8",
           "name": "RequirementArea",
           "kind": "type",
-          "lineStart": 63,
-          "lineEnd": 63,
+          "lineStart": 70,
+          "lineEnd": 70,
           "purpose": "",
           "source": "inferred"
         },
@@ -11587,8 +11715,8 @@
           "id": "37f5312e-81a6-4876-a432-04db0b8ebb61",
           "name": "Requirement",
           "kind": "type",
-          "lineStart": 65,
-          "lineEnd": 74,
+          "lineStart": 72,
+          "lineEnd": 81,
           "purpose": "",
           "source": "inferred"
         },
@@ -11596,8 +11724,8 @@
           "id": "40188066-0be7-4114-8486-21c6bb3adc18",
           "name": "Feature",
           "kind": "type",
-          "lineStart": 76,
-          "lineEnd": 83,
+          "lineStart": 83,
+          "lineEnd": 90,
           "purpose": "",
           "source": "inferred"
         },
@@ -11605,8 +11733,8 @@
           "id": "d10307fa-9030-43d7-84eb-edadf6a7ba6d",
           "name": "TestCase",
           "kind": "type",
-          "lineStart": 85,
-          "lineEnd": 93,
+          "lineStart": 92,
+          "lineEnd": 100,
           "purpose": "",
           "source": "inferred"
         },
@@ -11614,8 +11742,8 @@
           "id": "29bd87ce-2532-4210-9b60-12fd48068a82",
           "name": "FileArtifact",
           "kind": "type",
-          "lineStart": 96,
-          "lineEnd": 108,
+          "lineStart": 103,
+          "lineEnd": 115,
           "purpose": "",
           "source": "inferred"
         },
@@ -11623,8 +11751,8 @@
           "id": "cfdc56a9-1bf9-42c2-a24e-cbfc62e62ce4",
           "name": "FeatureFile",
           "kind": "type",
-          "lineStart": 110,
-          "lineEnd": 113,
+          "lineStart": 117,
+          "lineEnd": 120,
           "purpose": "",
           "source": "inferred"
         },
@@ -11632,8 +11760,8 @@
           "id": "9fa877f2-492d-4b07-beee-36560178ccaa",
           "name": "CodeSymbol",
           "kind": "type",
-          "lineStart": 115,
-          "lineEnd": 124,
+          "lineStart": 122,
+          "lineEnd": 131,
           "purpose": "",
           "source": "inferred"
         },
@@ -11641,8 +11769,8 @@
           "id": "94f3b078-3f8f-4267-a781-bba3ba6187ef",
           "name": "TestIdea",
           "kind": "type",
-          "lineStart": 126,
-          "lineEnd": 136,
+          "lineStart": 133,
+          "lineEnd": 143,
           "purpose": "",
           "source": "inferred"
         },
@@ -11650,8 +11778,8 @@
           "id": "550700be-8ed3-4ff0-bd4d-e5b55520653b",
           "name": "AgentEvent",
           "kind": "type",
-          "lineStart": 139,
-          "lineEnd": 146,
+          "lineStart": 146,
+          "lineEnd": 153,
           "purpose": "",
           "source": "inferred"
         },
@@ -11659,8 +11787,8 @@
           "id": "79e85558-02de-4ed3-a449-f0d58fcb2600",
           "name": "ProjectSnapshot",
           "kind": "type",
-          "lineStart": 149,
-          "lineEnd": 163,
+          "lineStart": 156,
+          "lineEnd": 170,
           "purpose": "",
           "source": "inferred"
         },
@@ -11668,8 +11796,8 @@
           "id": "f89c0519-297d-4913-9fb8-53cb7269b243",
           "name": "AttachmentKind",
           "kind": "type",
-          "lineStart": 165,
-          "lineEnd": 165,
+          "lineStart": 172,
+          "lineEnd": 172,
           "purpose": "",
           "source": "inferred"
         },
@@ -11677,8 +11805,8 @@
           "id": "62a67f47-6c4f-4f05-8756-c76fda3d8a6f",
           "name": "Attachment",
           "kind": "type",
-          "lineStart": 167,
-          "lineEnd": 182,
+          "lineStart": 174,
+          "lineEnd": 189,
           "purpose": "",
           "source": "inferred"
         }
@@ -11820,8 +11948,8 @@
           "id": "8a24cb34-5408-4263-860a-1fccea53393a",
           "name": "MIGRATIONS",
           "kind": "constant",
-          "lineStart": 8,
-          "lineEnd": 14,
+          "lineStart": 9,
+          "lineEnd": 16,
           "purpose": "",
           "source": "inferred"
         }
@@ -11893,7 +12021,7 @@
           "name": "projectSkills",
           "kind": "constant",
           "lineStart": 41,
-          "lineEnd": 50,
+          "lineEnd": 54,
           "purpose": "",
           "source": "inferred"
         },
@@ -11901,8 +12029,8 @@
           "id": "4cd4b29f-4c7c-4542-ae4e-822f6505c6db",
           "name": "requirements",
           "kind": "constant",
-          "lineStart": 52,
-          "lineEnd": 61,
+          "lineStart": 56,
+          "lineEnd": 65,
           "purpose": "",
           "source": "inferred"
         },
@@ -11910,8 +12038,8 @@
           "id": "086980c9-7c98-40f6-b0c8-d0b58dec727a",
           "name": "requirementRef",
           "kind": "function",
-          "lineStart": 63,
-          "lineEnd": 63,
+          "lineStart": 67,
+          "lineEnd": 67,
           "purpose": "",
           "source": "inferred"
         },
@@ -11919,8 +12047,8 @@
           "id": "a92af7b1-b951-4f01-a9c5-c97748a33ddf",
           "name": "dodItems",
           "kind": "constant",
-          "lineStart": 65,
-          "lineEnd": 73,
+          "lineStart": 69,
+          "lineEnd": 77,
           "purpose": "",
           "source": "inferred"
         },
@@ -11928,8 +12056,8 @@
           "id": "a4b1a7e5-a755-4019-8706-63037c6b8d27",
           "name": "features",
           "kind": "constant",
-          "lineStart": 75,
-          "lineEnd": 85,
+          "lineStart": 79,
+          "lineEnd": 89,
           "purpose": "",
           "source": "inferred"
         },
@@ -11937,8 +12065,8 @@
           "id": "369a37c0-c401-4f7d-b0dc-63a239f4ebd9",
           "name": "tests",
           "kind": "constant",
-          "lineStart": 87,
-          "lineEnd": 101,
+          "lineStart": 91,
+          "lineEnd": 105,
           "purpose": "",
           "source": "inferred"
         },
@@ -11946,8 +12074,8 @@
           "id": "1d744ad2-179f-4499-8622-b294f942a271",
           "name": "fileArtifacts",
           "kind": "constant",
-          "lineStart": 104,
-          "lineEnd": 119,
+          "lineStart": 108,
+          "lineEnd": 123,
           "purpose": "",
           "source": "inferred"
         },
@@ -11955,8 +12083,8 @@
           "id": "60ebba14-2eb3-441a-9328-784f2fe018f5",
           "name": "featureFiles",
           "kind": "constant",
-          "lineStart": 122,
-          "lineEnd": 135,
+          "lineStart": 126,
+          "lineEnd": 139,
           "purpose": "",
           "source": "inferred"
         },
@@ -11964,8 +12092,8 @@
           "id": "2afc1ac7-e246-4cd3-b3f2-ff24db168615",
           "name": "symbols",
           "kind": "constant",
-          "lineStart": 137,
-          "lineEnd": 154,
+          "lineStart": 141,
+          "lineEnd": 158,
           "purpose": "",
           "source": "inferred"
         },
@@ -11973,8 +12101,8 @@
           "id": "758460a8-fb5f-48bd-b7cc-ce869ef69a9f",
           "name": "agentEvents",
           "kind": "constant",
-          "lineStart": 157,
-          "lineEnd": 168,
+          "lineStart": 161,
+          "lineEnd": 172,
           "purpose": "",
           "source": "inferred"
         },
@@ -11982,8 +12110,8 @@
           "id": "96515e62-28ff-4378-8753-ba40e724b23d",
           "name": "testIdeas",
           "kind": "constant",
-          "lineStart": 170,
-          "lineEnd": 182,
+          "lineStart": 174,
+          "lineEnd": 186,
           "purpose": "",
           "source": "inferred"
         },
@@ -11991,8 +12119,8 @@
           "id": "7d9bfb72-bb34-498b-86f3-9fec661b3689",
           "name": "attachments",
           "kind": "constant",
-          "lineStart": 185,
-          "lineEnd": 204,
+          "lineStart": 189,
+          "lineEnd": 208,
           "purpose": "",
           "source": "inferred"
         },
@@ -12000,8 +12128,8 @@
           "id": "51e9e61b-9b25-4a8d-8914-03cc21504ab0",
           "name": "agentTurns",
           "kind": "constant",
-          "lineStart": 207,
-          "lineEnd": 230,
+          "lineStart": 211,
+          "lineEnd": 234,
           "purpose": "",
           "source": "inferred"
         }
@@ -13669,8 +13797,8 @@
           "id": "1df6e7b1-4e2c-4bb4-a64a-8cbe5c3f3d5b",
           "name": "newId",
           "kind": "function",
-          "lineStart": 52,
-          "lineEnd": 52,
+          "lineStart": 53,
+          "lineEnd": 53,
           "purpose": "",
           "source": "inferred"
         },
@@ -13678,8 +13806,8 @@
           "id": "d011ba68-8936-45ad-ac92-b17a8b3166ae",
           "name": "nowIso",
           "kind": "function",
-          "lineStart": 53,
-          "lineEnd": 53,
+          "lineStart": 54,
+          "lineEnd": 54,
           "purpose": "",
           "source": "inferred"
         },
@@ -13687,8 +13815,8 @@
           "id": "f53950d0-8caa-49dd-936d-234779e8a8e0",
           "name": "platforms",
           "kind": "constant",
-          "lineStart": 54,
-          "lineEnd": 54,
+          "lineStart": 55,
+          "lineEnd": 55,
           "purpose": "",
           "source": "inferred"
         },
@@ -13696,8 +13824,8 @@
           "id": "b96da5bf-90a2-4b60-94e2-bd8fb9aefb75",
           "name": "projectKind",
           "kind": "constant",
-          "lineStart": 55,
-          "lineEnd": 55,
+          "lineStart": 56,
+          "lineEnd": 56,
           "purpose": "",
           "source": "inferred"
         },
@@ -13705,8 +13833,8 @@
           "id": "0deffb7c-dab5-4aa7-9686-59a9fda95fbc",
           "name": "withKindPlatforms",
           "kind": "function",
-          "lineStart": 57,
-          "lineEnd": 61,
+          "lineStart": 58,
+          "lineEnd": 62,
           "purpose": "",
           "source": "inferred"
         },
@@ -13714,8 +13842,8 @@
           "id": "29bd4a9e-c488-487d-9dd8-50521aa9d9df",
           "name": "dodInput",
           "kind": "constant",
-          "lineStart": 63,
-          "lineEnd": 63,
+          "lineStart": 64,
+          "lineEnd": 64,
           "purpose": "",
           "source": "inferred"
         },
@@ -13723,8 +13851,8 @@
           "id": "17e1c7cf-64c2-44cc-a9d9-ce6d8891d7a7",
           "name": "requirementInput",
           "kind": "constant",
-          "lineStart": 64,
-          "lineEnd": 71,
+          "lineStart": 65,
+          "lineEnd": 72,
           "purpose": "",
           "source": "inferred"
         },
@@ -13732,8 +13860,8 @@
           "id": "00b5c733-c9c3-4258-8d5e-9b87c3fe3a57",
           "name": "skillInput",
           "kind": "constant",
-          "lineStart": 72,
-          "lineEnd": 78,
+          "lineStart": 73,
+          "lineEnd": 79,
           "purpose": "",
           "source": "inferred"
         },
@@ -13741,8 +13869,8 @@
           "id": "d3d80f23-1dac-40bf-82af-9123206fed1d",
           "name": "projectFields",
           "kind": "constant",
-          "lineStart": 79,
-          "lineEnd": 88,
+          "lineStart": 80,
+          "lineEnd": 89,
           "purpose": "",
           "source": "inferred"
         },
@@ -13750,8 +13878,8 @@
           "id": "e4258922-d35e-4221-a50d-bc36581c46e4",
           "name": "createProject",
           "kind": "constant",
-          "lineStart": 89,
-          "lineEnd": 101,
+          "lineStart": 90,
+          "lineEnd": 102,
           "purpose": "",
           "source": "inferred"
         },
@@ -13759,8 +13887,8 @@
           "id": "0a675bf6-68fc-4ce4-8cc5-345e0e7012e5",
           "name": "body",
           "kind": "function",
-          "lineStart": 103,
-          "lineEnd": 107,
+          "lineStart": 104,
+          "lineEnd": 108,
           "purpose": "",
           "source": "inferred"
         },
@@ -13768,8 +13896,8 @@
           "id": "cadd743d-280d-473c-94cd-a8fc30ba0a08",
           "name": "patchBody",
           "kind": "function",
-          "lineStart": 113,
-          "lineEnd": 119,
+          "lineStart": 114,
+          "lineEnd": 120,
           "purpose": "",
           "source": "inferred"
         },
@@ -13777,8 +13905,8 @@
           "id": "b2cabb0c-0f95-4fff-9489-3edf47d7ce5a",
           "name": "withProgress",
           "kind": "function",
-          "lineStart": 121,
-          "lineEnd": 130,
+          "lineStart": 122,
+          "lineEnd": 131,
           "purpose": "",
           "source": "inferred"
         },
@@ -13786,8 +13914,8 @@
           "id": "6e5f59f8-6657-44e0-9f49-ad26058b5963",
           "name": "AppOptions",
           "kind": "type",
-          "lineStart": 132,
-          "lineEnd": 148,
+          "lineStart": 133,
+          "lineEnd": 149,
           "purpose": "",
           "source": "inferred"
         },
@@ -13795,8 +13923,8 @@
           "id": "cf3efd62-a48d-4a2a-b172-44b2db0e0a46",
           "name": "NOT_CONFIGURED",
           "kind": "constant",
-          "lineStart": 150,
-          "lineEnd": 150,
+          "lineStart": 151,
+          "lineEnd": 151,
           "purpose": "",
           "source": "inferred"
         },
@@ -13804,8 +13932,8 @@
           "id": "ac9130df-9f82-40bf-ae34-67995e934c3c",
           "name": "briefInput",
           "kind": "constant",
-          "lineStart": 152,
-          "lineEnd": 161,
+          "lineStart": 153,
+          "lineEnd": 162,
           "purpose": "",
           "source": "inferred"
         },
@@ -13813,8 +13941,8 @@
           "id": "da814c83-146a-48d6-9308-a84d730bb2bb",
           "name": "briefFromSnapshot",
           "kind": "function",
-          "lineStart": 163,
-          "lineEnd": 172,
+          "lineStart": 164,
+          "lineEnd": 173,
           "purpose": "",
           "source": "inferred"
         },
@@ -13822,8 +13950,8 @@
           "id": "09f0943e-ce5a-4eee-9e3d-147e380a07cc",
           "name": "createApp",
           "kind": "function",
-          "lineStart": 174,
-          "lineEnd": 651,
+          "lineStart": 175,
+          "lineEnd": 661,
           "purpose": "",
           "source": "inferred"
         }
@@ -14247,6 +14375,14 @@
       "symbols": []
     },
     {
+      "id": "5438a20b-d8a8-4af6-b187-6173a7fb3d6e",
+      "path": "packages/server/src/portable.test.ts",
+      "purpose": "",
+      "createdBy": "repo:analysis",
+      "featureIds": [],
+      "symbols": []
+    },
+    {
       "id": "a9681ed8-6ba7-4660-8406-6842971e23f0",
       "path": "packages/server/src/repo-inference.test.ts",
       "purpose": "",
@@ -14342,6 +14478,71 @@
           "kind": "type",
           "lineStart": 80,
           "lineEnd": 80,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "4300e925-d32b-4de1-9a8e-8e753523a136",
+      "path": "packages/server/src/skill-routes.ts",
+      "purpose": "Estado de las skills en este equipo e instalación",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
+      "symbols": [
+        {
+          "id": "245a9e40-623d-42a9-98af-73d51e6bf43b",
+          "name": "SkillRow",
+          "kind": "type",
+          "lineStart": 17,
+          "lineEnd": 17,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "2655fe46-f31e-4f12-bafc-c6e5ef26e0c8",
+          "name": "SkillAvailability",
+          "kind": "type",
+          "lineStart": 20,
+          "lineEnd": 27,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "0e025f8a-7f7a-4734-830d-3e9bab32418e",
+          "name": "skillRoutes",
+          "kind": "function",
+          "lineStart": 36,
+          "lineEnd": 103,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "48abaeb0-0b26-400c-a090-e0f91585f316",
+          "name": "installedPlugins",
+          "kind": "function",
+          "lineStart": 106,
+          "lineEnd": 109,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "7a6e4b50-d76a-4e9d-b392-537306ff50f0",
+          "name": "originFor",
+          "kind": "function",
+          "lineStart": 112,
+          "lineEnd": 115,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "381d13d8-284a-40c8-b79d-7000836f85f3",
+          "name": "sharedPatch",
+          "kind": "constant",
+          "lineStart": 117,
+          "lineEnd": 117,
           "purpose": "",
           "source": "inferred"
         }
@@ -14485,6 +14686,125 @@
           "kind": "function",
           "lineStart": 143,
           "lineEnd": 156,
+          "purpose": "",
+          "source": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "60d14a9d-7f9e-4472-8586-394b5d078595",
+      "path": "packages/skills/src/portable.ts",
+      "purpose": "Origen de las skills, copia al repo e instalación en otro equipo",
+      "createdBy": "repo:analysis",
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
+      "symbols": [
+        {
+          "id": "2ed28963-323a-4800-88d6-25e7bd3f0b52",
+          "name": "installSharedSkill",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Instala una skill compartida en ~/.claude/skills sin reemplazar",
+          "source": "reported"
+        },
+        {
+          "id": "3d59f7e6-9324-4d86-8403-1b559a22b802",
+          "name": "pluginInstallCommands",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Comandos de Claude Code para instalar el plugin",
+          "source": "reported"
+        },
+        {
+          "id": "b3623f5a-3828-4721-a481-a4fc3439becf",
+          "name": "shareSkill",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Copia la carpeta de la skill al repo sin ocultos y con límites",
+          "source": "reported"
+        },
+        {
+          "id": "ffbe67e9-a2f8-431a-ab3f-78cf93f37eb6",
+          "name": "skillOrigin",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Plugin y marketplace de una skill según su ruta",
+          "source": "reported"
+        },
+        {
+          "id": "02c00cad-a511-43a8-8b87-8648f71d8da6",
+          "name": "SkillOrigin",
+          "kind": "type",
+          "lineStart": 7,
+          "lineEnd": 7,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "d5170eec-dad2-4d31-8ab5-22f71f0aec83",
+          "name": "NONE",
+          "kind": "constant",
+          "lineStart": 9,
+          "lineEnd": 9,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "bfbeede1-e5fc-45a0-955e-edf1744cb9c1",
+          "name": "KnownMarketplace",
+          "kind": "type",
+          "lineStart": 11,
+          "lineEnd": 11,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "ad1ebc4f-5b05-4f3b-abee-938737105963",
+          "name": "sourceText",
+          "kind": "function",
+          "lineStart": 14,
+          "lineEnd": 14,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "089e23fa-1671-4e4a-a66d-c654cea84b64",
+          "name": "MAX_FILES",
+          "kind": "constant",
+          "lineStart": 37,
+          "lineEnd": 37,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "ad7fe168-aa6a-4fdd-a174-ddff968adb00",
+          "name": "MAX_BYTES",
+          "kind": "constant",
+          "lineStart": 38,
+          "lineEnd": 38,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "ee8150fb-70f7-4a28-b992-52bcd90e16eb",
+          "name": "unshareSkill",
+          "kind": "function",
+          "lineStart": 73,
+          "lineEnd": 73,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "af2642aa-4c23-4960-95a6-34d7dd4b65eb",
+          "name": "runInstallCommands",
+          "kind": "function",
+          "lineStart": 106,
+          "lineEnd": 114,
           "purpose": "",
           "source": "inferred"
         }
@@ -14675,16 +14995,45 @@
     {
       "id": "dfe5c559-2311-48b4-84cb-c0ac4fd5de10",
       "path": "packages/tracking/src/repo-sync.ts",
-      "purpose": "",
+      "purpose": "Exporta skills compartidas y restaura imágenes al importar o sincronizar",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
+        {
+          "id": "02b9dda5-5efe-4148-893b-1f78328a61c7",
+          "name": "exportSharedSkills",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Copia al repo las skills marcadas como compartidas",
+          "source": "reported"
+        },
+        {
+          "id": "586467f2-175d-4b3d-a93c-db5da133b034",
+          "name": "insertAttachments",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Guarda esas imágenes respetando requerimientos, criterios y features existentes",
+          "source": "reported"
+        },
+        {
+          "id": "7683ab2a-312b-4d33-8f21-b078a8fbf369",
+          "name": "readAttachments",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Lee y valida las imágenes listadas en project.json",
+          "source": "reported"
+        },
         {
           "id": "5d1686d5-2def-4288-81ab-bfaef28f9d5b",
           "name": "Tx",
           "kind": "type",
-          "lineStart": 18,
-          "lineEnd": 18,
+          "lineStart": 22,
+          "lineEnd": 22,
           "purpose": "",
           "source": "inferred"
         },
@@ -14692,8 +15041,8 @@
           "id": "b6fddc21-0d67-4a9e-8f40-d7157bc1a2a7",
           "name": "writeIfChanged",
           "kind": "function",
-          "lineStart": 20,
-          "lineEnd": 26,
+          "lineStart": 24,
+          "lineEnd": 30,
           "purpose": "",
           "source": "inferred"
         },
@@ -14701,8 +15050,17 @@
           "id": "ac3b9e39-7d53-4c4f-8601-d400861d97f3",
           "name": "writeRepoFiles",
           "kind": "function",
-          "lineStart": 32,
-          "lineEnd": 40,
+          "lineStart": 36,
+          "lineEnd": 45,
+          "purpose": "",
+          "source": "inferred"
+        },
+        {
+          "id": "01a6e3c4-e8de-4b27-abc7-3b09526bdf01",
+          "name": "FileAttachment",
+          "kind": "type",
+          "lineStart": 66,
+          "lineEnd": 66,
           "purpose": "",
           "source": "inferred"
         },
@@ -14710,8 +15068,8 @@
           "id": "b7aaac67-0b6b-4a73-a6b1-4963c132db73",
           "name": "exportAttachments",
           "kind": "function",
-          "lineStart": 46,
-          "lineEnd": 58,
+          "lineStart": 111,
+          "lineEnd": 123,
           "purpose": "",
           "source": "inferred"
         },
@@ -14719,8 +15077,8 @@
           "id": "fd4054ea-a09f-4443-97da-e7f06ad64636",
           "name": "readRepoFile",
           "kind": "function",
-          "lineStart": 61,
-          "lineEnd": 64,
+          "lineStart": 126,
+          "lineEnd": 129,
           "purpose": "",
           "source": "inferred"
         },
@@ -14728,8 +15086,8 @@
           "id": "51a4192f-2333-4541-bb35-b40f7dd096f8",
           "name": "absoluteSkillLocation",
           "kind": "function",
-          "lineStart": 66,
-          "lineEnd": 67,
+          "lineStart": 131,
+          "lineEnd": 132,
           "purpose": "",
           "source": "inferred"
         },
@@ -14737,8 +15095,8 @@
           "id": "b9068600-cc54-4098-a0e8-fe816483c920",
           "name": "insertChildren",
           "kind": "function",
-          "lineStart": 69,
-          "lineEnd": 91,
+          "lineStart": 134,
+          "lineEnd": 156,
           "purpose": "",
           "source": "inferred"
         },
@@ -14746,8 +15104,8 @@
           "id": "a0b81c73-6be4-40e8-a0a1-f81edb7c6e9d",
           "name": "insertProjectFile",
           "kind": "function",
-          "lineStart": 94,
-          "lineEnd": 99,
+          "lineStart": 159,
+          "lineEnd": 166,
           "purpose": "",
           "source": "inferred"
         },
@@ -14755,8 +15113,8 @@
           "id": "234fff54-47b7-4f5d-a88b-c484e2890f39",
           "name": "replaceFromFile",
           "kind": "function",
-          "lineStart": 102,
-          "lineEnd": 116,
+          "lineStart": 169,
+          "lineEnd": 189,
           "purpose": "",
           "source": "inferred"
         }
@@ -15080,5 +15438,6 @@
       "origin": "llm",
       "status": "proposed"
     }
-  ]
+  ],
+  "attachments": []
 }

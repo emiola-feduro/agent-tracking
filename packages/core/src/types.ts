@@ -44,6 +44,13 @@ export interface ProjectSkill {
   source: SkillSource;
   location: string;
   enabled: boolean;
+  /** Plugin that ships the skill and its marketplace, so others can install the same plugin. */
+  plugin: string | null;
+  marketplace: string | null;
+  /** Where the marketplace comes from (GitHub "owner/repo", URL or path), for `claude plugin marketplace add`. */
+  marketplaceSource: string | null;
+  /** Copied into the repository (.agent-tracking/skills) so collaborators can install it. */
+  shared: boolean;
 }
 
 export interface DodItem {

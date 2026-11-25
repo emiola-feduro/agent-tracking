@@ -154,3 +154,4 @@ export function skillTemplate(name: string, description: string, body = ""): str
     "",
   ].join("\n");
 }
+export * from "./portable";

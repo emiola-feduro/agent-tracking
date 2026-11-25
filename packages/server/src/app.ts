@@ -45,6 +45,7 @@ import { traceabilityRoutes } from "./traceability-routes";
 import { repoRoutes } from "./repo-routes";
 import { createAgentTurns, type TurnHookPayload } from "./agent-turns";
 import { attachmentRoutes } from "./attachment-routes";
+import { originFor, sharedPatch, skillRoutes } from "./skill-routes";
 import { createLiveActivity, type LiveActivity } from "./live-activity";
 
 export type { AppEvent, Emit } from "@agent-tracking/tracking";
@@ -361,7 +362,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       throw new HTTPException(409, { message: "Este repositorio ya está en Agent Tracking", cause: { projectId: existingProjectId } });
     }
     if (!projectFile) throw new HTTPException(400, { message: projectFileError ?? "El repositorio no tiene .agent-tracking/project.json" });
-    insertProjectFile(db, projectFile, repo.root);
+    await insertProjectFile(db, projectFile, repo.root);
     await writeRepoFiles(db, projectFile.project.id);
     emit({ type: "project.created", projectId: projectFile.project.id });
     return c.json(withProgress(await snapshotOr404(projectFile.project.id)), 201);
@@ -374,7 +375,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     const parsed = await readRepoFile(snap.project.repoPath);
     if (!parsed) throw new HTTPException(404, { message: "El repositorio no tiene .agent-tracking/project.json" });
     if (!parsed.ok) throw new HTTPException(400, { message: parsed.error });
-    replaceFromFile(db, id, parsed.file, snap.project.repoPath);
+    await replaceFromFile(db, id, parsed.file, snap.project.repoPath);
     emit({ type: "changed", projectId: id, entity: "project", id });
     return c.json(withProgress(await snapshotOr404(id)));
   });
@@ -400,10 +401,11 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       project.repoUrl ??= repo.remoteUrl;
     }
     const projectId = newId();
+    const origins = await Promise.all(skills.map((k) => originFor(k, claudeHome)));
     db.transaction((tx) => {
       tx.insert(s.projects).values({ id: projectId, ...project }).run();
       rules.forEach((text, i) => tx.insert(s.businessRules).values({ id: newId(), projectId, text, priority: i + 1 }).run());
-      skills.forEach((k) => tx.insert(s.projectSkills).values({ id: newId(), projectId, ...k }).run());
+      skills.forEach((k, i) => tx.insert(s.projectSkills).values({ id: newId(), projectId, ...k, ...origins[i] }).run());
       for (const { dod, ...r } of requirements) {
         const requirementId = newId();
         tx.insert(s.requirements).values({ id: requirementId, projectId, ...r }).run();
@@ -492,7 +494,14 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   });
   app.patch("/projects/:id/skills/:skillId", async (c) => {
     const { id: projectId, skillId } = c.req.param();
-    const input = await body(c, z.object({ enabled: z.boolean() }));
+    const input = await patchBody(c, sharedPatch);
+    if (input.shared) {
+      const skill = await db.query.projectSkills.findFirst({ where: and(eq(s.projectSkills.id, skillId), eq(s.projectSkills.projectId, projectId)) });
+      if (skill?.source === "repo") throw new HTTPException(400, { message: "Las skills del repo ya viajan con git" });
+      if (skill?.plugin || skill?.source === "plugin" || skill?.source === "catalog") {
+        throw new HTTPException(400, { message: "Las skills de un plugin se instalan desde su marketplace, no se copian al repo" });
+      }
+    }
     const [row] = await db
       .update(s.projectSkills)
       .set(input)
@@ -636,6 +645,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   });
 
   app.route("/", attachmentRoutes(db, tracker));
+  app.route("/", skillRoutes(db, tracker, { claudeHome }));
 
   app.get("/projects/:id/live", async (c) => {
     const id = c.req.param("id");

@@ -11,6 +11,7 @@ export const queryKeys = {
   worktreeDiff: (id: string, worktree: string) => ["projects", id, "worktree-diff", worktree] as const,
   file: (id: string, path: string, worktree = "") => ["projects", id, "file", worktree, path] as const,
   turns: (id: string) => ["projects", id, "turns"] as const,
+  skillStatus: (id: string) => ["projects", id, "skill-status"] as const,
   turn: (id: string, turnId: string) => ["projects", id, "turn", turnId] as const,
   // Outside the project prefix: hook events refresh only this, not the whole snapshot.
   live: (id: string) => ["live", id] as const,

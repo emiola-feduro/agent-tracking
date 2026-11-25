@@ -23,3 +23,9 @@ export const attachmentRepoPath = (a: Pick<Attachment, "id" | "filename">) => {
   const safe = a.filename.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "imagen";
   return `${ATTACHMENTS_DIR}/${a.id.slice(0, 8)}-${safe}`;
 };
+
+export const SHARED_SKILLS_DIR = ".agent-tracking/skills";
+
+/** Folder of a skill copied into the repository so collaborators can install it. */
+export const sharedSkillPath = (name: string) =>
+  `${SHARED_SKILLS_DIR}/${name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "skill"}`;

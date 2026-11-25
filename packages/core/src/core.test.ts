@@ -39,8 +39,8 @@ const base = (): ProjectSnapshot => ({
     { id: "b1", projectId: "p1", text: "Todo pedido requiere login", priority: 1 },
   ],
   skills: [
-    { id: "s1", projectId: "p1", name: "tdd", description: "Test first", source: "user", location: "", enabled: true },
-    { id: "s2", projectId: "p1", name: "off", description: "x", source: "user", location: "", enabled: false },
+    { id: "s1", projectId: "p1", name: "tdd", description: "Test first", source: "user", location: "", enabled: true, plugin: null, marketplace: null, marketplaceSource: null, shared: false },
+    { id: "s2", projectId: "p1", name: "off", description: "x", source: "user", location: "", enabled: false, plugin: null, marketplace: null, marketplaceSource: null, shared: false },
   ],
   requirements: [
     { id: "r1", projectId: "p1", title: "Checkout", description: "", type: "functional", area: "backend", weight: 1 },

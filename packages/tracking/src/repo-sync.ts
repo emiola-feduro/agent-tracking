@@ -1,6 +1,8 @@
 import {
   ATTACHMENTS_DIR,
   attachmentRepoPath,
+  SHARED_SKILLS_DIR,
+  sharedSkillPath,
   buildContextMarkdown,
   CONTEXT_FILE_PATH,
   parseProjectFile,
@@ -11,6 +13,8 @@ import {
   type ProjectFile,
 } from "@agent-tracking/core";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
+import { shareSkill } from "@agent-tracking/skills";
+import { sniffImage } from "./attachments";
 import { eq } from "drizzle-orm";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join } from "node:path";
@@ -36,7 +40,68 @@ export async function writeRepoFiles(db: Db, projectId: string): Promise<string 
   await writeIfChanged(join(root, PROJECT_FILE_PATH), serializeProjectFile(toProjectFile(snap)));
   await writeIfChanged(join(root, CONTEXT_FILE_PATH), buildContextMarkdown(snap));
   await exportAttachments(db, root, snap.attachments);
+  await exportSharedSkills(root, snap.skills);
   return join(root, PROJECT_FILE_PATH);
+}
+
+/**
+ * Copies the skills marked as shared into `.agent-tracking/skills`, so someone who clones the repo
+ * can install them. Skills that live in the repo already (.claude/skills) or come from a plugin are
+ * not copied: the first travel with git, the second are installed from their marketplace.
+ */
+async function exportSharedSkills(root: string, skills: { name: string; source: string; location: string; shared: boolean }[]) {
+  const shared = skills.filter((k) => k.shared && k.source !== "repo" && k.location);
+  const wanted = new Set(shared.map((k) => sharedSkillPath(k.name).slice(SHARED_SKILLS_DIR.length + 1)));
+  const dir = join(root, SHARED_SKILLS_DIR);
+  for (const name of await readdir(dir).catch(() => [] as string[])) {
+    if (!wanted.has(name)) await rm(join(dir, name), { recursive: true, force: true });
+  }
+  for (const k of shared) {
+    // On a machine that imported the project the original folder is not there: keep the copy as it is.
+    if (!(await Bun.file(k.location).exists())) continue;
+    await shareSkill(k.location, root, k.name).catch((e) => console.error(`No se pudo incluir la skill ${k.name}:`, e.message));
+  }
+}
+
+type FileAttachment = ProjectFile["attachments"][number];
+
+/** Reads the images listed in a project file from the repository; missing or invalid ones are skipped. */
+async function readAttachments(repoPath: string, list: FileAttachment[]) {
+  const out = new Map<string, { bytes: Buffer; mime: string }>();
+  for (const a of list) {
+    const bytes = await readFile(join(repoPath, attachmentRepoPath(a))).catch(() => null);
+    const mime = bytes && sniffImage(bytes);
+    if (bytes && mime) out.set(a.id, { bytes, mime });
+  }
+  return out;
+}
+
+function insertAttachments(tx: Tx, file: ProjectFile, projectId: string, bytes: Map<string, { bytes: Buffer; mime: string }>) {
+  const requirementIds = new Set(file.requirements.map((r) => r.id));
+  const dodIds = new Set(file.requirements.flatMap((r) => r.dod.map((d) => d.id)));
+  const featureIds = new Set(file.requirements.flatMap((r) => r.features.map((f) => f.id)));
+  for (const a of file.attachments) {
+    const image = bytes.get(a.id);
+    if (!image) continue;
+    tx.insert(s.attachments)
+      .values({
+        id: a.id,
+        projectId,
+        kind: a.kind,
+        requirementId: a.requirementId && requirementIds.has(a.requirementId) ? a.requirementId : null,
+        dodItemId: a.dodItemId && dodIds.has(a.dodItemId) ? a.dodItemId : null,
+        featureId: a.featureId && featureIds.has(a.featureId) ? a.featureId : null,
+        title: a.title,
+        route: a.route,
+        filename: a.filename,
+        mime: image.mime,
+        size: image.bytes.length,
+        data: image.bytes,
+        createdBy: a.createdBy,
+        ...(a.createdAt ? { createdAt: a.createdAt } : {}),
+      })
+      .run();
+  }
 }
 
 /**
@@ -91,17 +156,24 @@ function insertChildren(tx: Tx, file: ProjectFile, projectId: string, repoPath: 
 }
 
 /** Creates a project from a repository's project file, keeping its ids so both sides stay in sync. */
-export function insertProjectFile(db: Db, file: ProjectFile, repoPath: string) {
+export async function insertProjectFile(db: Db, file: ProjectFile, repoPath: string) {
+  const images = await readAttachments(repoPath, file.attachments);
   db.transaction((tx) => {
     tx.insert(s.projects).values({ ...file.project, repoPath }).run();
     insertChildren(tx, file, file.project.id, repoPath);
+    insertAttachments(tx, file, file.project.id, images);
   });
 }
 
 /** Replaces a project's content with what the repository file says (after a pull, for example). */
-export function replaceFromFile(db: Db, projectId: string, file: ProjectFile, repoPath: string) {
+export async function replaceFromFile(db: Db, projectId: string, file: ProjectFile, repoPath: string) {
   const { id: _ignored, ...project } = file.project;
+  const images = await readAttachments(repoPath, file.attachments);
+  // Images already stored keep their bytes even if their file is missing from this checkout.
+  const stored = await db.select({ id: s.attachments.id, data: s.attachments.data, mime: s.attachments.mime }).from(s.attachments).where(eq(s.attachments.projectId, projectId));
+  for (const row of stored) if (!images.has(row.id)) images.set(row.id, { bytes: row.data, mime: row.mime });
   db.transaction((tx) => {
+    tx.delete(s.attachments).where(eq(s.attachments.projectId, projectId)).run();
     tx.update(s.projects).set({ ...project, updatedAt: new Date().toISOString() }).where(eq(s.projects.id, projectId)).run();
     // Requirements cascade to DoD items and features.
     tx.delete(s.tests).where(eq(s.tests.projectId, projectId)).run();
@@ -112,5 +184,6 @@ export function replaceFromFile(db: Db, projectId: string, file: ProjectFile, re
     tx.delete(s.businessRules).where(eq(s.businessRules.projectId, projectId)).run();
     tx.delete(s.projectSkills).where(eq(s.projectSkills.projectId, projectId)).run();
     insertChildren(tx, file, projectId, repoPath);
+    insertAttachments(tx, file, projectId, images);
   });
 }
