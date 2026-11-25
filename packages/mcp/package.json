@@ -13,9 +13,9 @@
     "@agent-tracking/db": "workspace:*",
     "@agent-tracking/tracking": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "zod": "4"
-  },
-  "devDependencies": {
+    "zod": "4",
+    "@agent-tracking/agents": "workspace:*",
     "@agent-tracking/git": "workspace:*"
-  }
+  },
+  "devDependencies": {}
 }

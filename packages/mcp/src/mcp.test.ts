@@ -319,3 +319,21 @@ describe("creating a project from a plan", () => {
     expect((await call(client, "create_project", { repoPath: fresh, plan: "# X\nTipo: cli\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n" })).isError).toBe(true);
   });
 });
+
+describe("agents without hooks", () => {
+  test("reading the context and reporting leaves a turn with the agent, the summary and the diff", async () => {
+    await git(["config", "user.email", "t@t"], repo);
+    await git(["config", "user.name", "t"], repo);
+    await Bun.write(join(repo, "base.txt"), "base\n");
+    await git(["add", "-A"], repo);
+    await git(["commit", "-qm", "base"], repo);
+    const client = await connect({ project: repo }, "codex-mcp-client");
+    await call(client, "get_project_context");
+    await Bun.write(join(repo, "nuevo-por-codex.ts"), "export const x = 1;\n");
+    await call(client, "submit_report", { summary: "Agregué nuevo-por-codex.ts", features: [{ requirementId: REQ, name: "Algo de Codex" }] });
+    const rows = db.select().from(s.agentTurns).all();
+    const turn = rows.find((t) => t.agent === "codex")!;
+    expect(turn).toMatchObject({ summary: "Agregué nuevo-por-codex.ts" });
+    expect(turn.files.map((f) => f.path)).toContain("nuevo-por-codex.ts");
+  });
+});

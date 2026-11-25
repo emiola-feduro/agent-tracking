@@ -18,7 +18,9 @@ import {
   toPercent,
   type ProjectSnapshot,
 } from "@agent-tracking/core";
-import { createProject, saveAttachment, TrackingError, type Tracker } from "@agent-tracking/tracking";
+import { agentForClient } from "@agent-tracking/agents";
+import { inspectRepo } from "@agent-tracking/git";
+import { createAgentTurns, createProject, saveAttachment, TrackingError, type Tracker } from "@agent-tracking/tracking";
 import { readFile } from "node:fs/promises";
 import { isAbsolute, join, relative, resolve as resolvePath } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -89,6 +91,20 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
 
   const actor = () => session.actor ?? `agent:${server.server.getClientVersion()?.name ?? "desconocido"}`;
 
+  // Turns for agents seen only through MCP (no hooks): context read = start, final report = end.
+  const turns = createAgentTurns(tracker.db, { claudeHome: "" });
+  const mcpSession = `mcp:${crypto.randomUUID()}`;
+  const agentKind = () => {
+    const name = server.server.getClientVersion()?.name ?? "";
+    return agentForClient(name) ?? (name || "mcp");
+  };
+  /** The checkout the agent works in: its own folder when the session names one, else the project's repo. */
+  const checkoutOf = async (projectId: string) => {
+    const hint = session.project && isAbsolute(session.project) ? session.project : null;
+    const fromHint = hint ? (await inspectRepo(hint).catch(() => null))?.root : null;
+    return fromHint ?? (await tracker.snapshot(projectId)).project.repoPath ?? "";
+  };
+
   const resolve = async (ref: string | undefined) => {
     const value = ref ?? session.project;
     if (!value) throw new TrackingError("No sé de qué proyecto se trata: pasa `project` con su id o la ruta de su repositorio");
@@ -139,6 +155,8 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     },
     async (projectId) => {
       const snap = await tracker.snapshot(projectId);
+      const checkout = await checkoutOf(projectId);
+      if (checkout) await turns.startFromMcp(projectId, { sessionId: mcpSession, agent: agentKind(), checkout }).catch(() => false);
       return { result: `<!-- projectId: ${projectId} -->\n${buildContextMarkdown(snap)}` };
     },
   );
@@ -495,6 +513,9 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     async (projectId, actor, args) => {
       await refreshRepo(projectId);
       const result = await tracker.submitReport(projectId, actor, args);
+      const summary = args.summary?.trim() || `Reportó: ${args.features.map((f) => f.name).join(", ")}.`;
+      const closed = await turns.finishFromMcp(projectId, { sessionId: mcpSession, summary, cwd: await checkoutOf(projectId) }).catch(() => false);
+      if (closed) tracker.emit({ type: "changed", projectId, entity: "turn" });
       return {
         result,
         event: { summary: args.summary ?? "", ...result.counts, features: result.features.map((f) => f.name), pending: result.pending.length },

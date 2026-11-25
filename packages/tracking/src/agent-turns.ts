@@ -1,54 +1,19 @@
 import { schema as s, type Db } from "@agent-tracking/db";
 import { currentBranch, diffSince, snapshotWorkingTree } from "@agent-tracking/git";
 import { and, desc, eq, isNull } from "drizzle-orm";
-import { open } from "node:fs/promises";
-import { isAbsolute, relative, resolve } from "node:path";
-import type { HookPayload, LiveStep } from "./live-activity";
+import { claudeLastMessage, type AgentEvent } from "@agent-tracking/agents";
+
+export type LiveStep = { at: string; tool: string; label: string; target?: string };
 
 const MAX_PROMPT = 2_000;
 const MAX_SUMMARY = 8_000;
-/** Only the end of a transcript is read: the last answer is there. */
-const TRANSCRIPT_TAIL = 512 * 1024;
-
-export type TurnHookPayload = HookPayload & { prompt?: string; transcript_path?: string; last_assistant_message?: string };
+/** A hook event as the turns see it (see packages/agents). */
+export type TurnHookPayload = AgentEvent;
 
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 
-/**
- * The agent's final answer for the turn, read from the end of its transcript (a JSONL file that
- * Claude Code keeps under ~/.claude/projects). Paths outside `claudeHome` are never read.
- */
-export async function lastAssistantMessage(transcriptPath: string | undefined, claudeHome: string): Promise<string> {
-  if (!transcriptPath || !isAbsolute(transcriptPath) || !transcriptPath.endsWith(".jsonl")) return "";
-  const rel = relative(resolve(claudeHome), resolve(transcriptPath));
-  if (!rel || rel.startsWith("..") || isAbsolute(rel)) return "";
-  const file = await open(transcriptPath, "r").catch(() => null);
-  if (!file) return "";
-  try {
-    const { size } = await file.stat();
-    const start = Math.max(0, size - TRANSCRIPT_TAIL);
-    const buffer = Buffer.alloc(size - start);
-    await file.read(buffer, 0, buffer.length, start);
-    const lines = buffer.toString("utf8").split("\n").reverse();
-    for (const line of lines) {
-      if (!line.includes('"assistant"')) continue;
-      try {
-        const entry = JSON.parse(line) as { type?: string; message?: { content?: unknown } };
-        if (entry.type !== "assistant" || !Array.isArray(entry.message?.content)) continue;
-        const text = (entry.message.content as { type?: string; text?: string }[])
-          .filter((b) => b.type === "text" && b.text?.trim())
-          .map((b) => b.text!.trim())
-          .join("\n\n");
-        if (text) return text;
-      } catch {
-        /* a line cut by the tail window */
-      }
-    }
-    return "";
-  } finally {
-    await file.close();
-  }
-}
+/** Kept for callers of the old name: Claude Code's last answer read from its transcript. */
+export const lastAssistantMessage = claudeLastMessage;
 
 /**
  * Records each agent turn that changed the repository: what was asked, the steps, the final answer
@@ -73,6 +38,7 @@ export function createAgentTurns(db: Db, opts: { claudeHome: string }) {
     await db.insert(s.agentTurns).values({
       id: crypto.randomUUID(),
       projectId,
+      agent: payload.agent,
       sessionId: payload.session_id ?? null,
       cwd: checkout,
       branch: checkout ? await currentBranch(checkout).catch(() => null) : null,
@@ -95,7 +61,10 @@ export function createAgentTurns(db: Db, opts: { claudeHome: string }) {
       await db.delete(s.agentTurns).where(eq(s.agentTurns.id, turn.id));
       return false;
     }
-    const summary = payload.last_assistant_message?.trim() || (await lastAssistantMessage(payload.transcript_path, opts.claudeHome));
+    // Codex and Gemini send their last answer with the hook; Claude Code keeps it in its transcript.
+    const summary =
+      payload.last_assistant_message?.trim() ||
+      (payload.agent === "claude-code" ? await claudeLastMessage(payload.transcript_path, opts.claudeHome) : "");
     await db
       .update(s.agentTurns)
       .set({
@@ -161,11 +130,36 @@ export function createAgentTurns(db: Db, opts: { claudeHome: string }) {
       return finish(open, payload, ctx.steps);
     },
 
+    /**
+     * Turns for agents without hooks, seen only through MCP: reading the project context starts one
+     * (unless a hook-tracked turn is already open in the project) and the final report closes it with
+     * the report's summary and the diff since then.
+     */
+    async startFromMcp(projectId: string, input: { sessionId: string; agent: string; checkout: string }) {
+      // Agents with hooks already have their turn open: do not count the same work twice. Other MCP-only
+      // sessions do not block this one.
+      const open = await db
+        .select({ sessionId: s.agentTurns.sessionId, startedAt: s.agentTurns.startedAt })
+        .from(s.agentTurns)
+        .where(and(eq(s.agentTurns.projectId, projectId), isNull(s.agentTurns.endedAt)));
+      const hooked = open.some((t) => !t.sessionId?.startsWith("mcp:") && Date.now() - Date.parse(t.startedAt) < 2 * 60 * 60_000);
+      if (hooked || open.some((t) => t.sessionId === input.sessionId)) return false;
+      await start(projectId, { agent: input.agent as AgentEvent["agent"], hook_event_name: "UserPromptSubmit", session_id: input.sessionId, cwd: input.checkout }, input.checkout, "");
+      return true;
+    },
+
+    async finishFromMcp(projectId: string, input: { sessionId: string; summary: string; cwd: string }) {
+      const turn = await openTurn(projectId, input.sessionId);
+      if (!turn) return false;
+      return finish(turn, { agent: turn.agent as AgentEvent["agent"], hook_event_name: "Stop", cwd: input.cwd, last_assistant_message: input.summary }, turn.steps);
+    },
+
     async list(projectId: string, limit = 20) {
       return db
         .select({
           id: s.agentTurns.id,
           sessionId: s.agentTurns.sessionId,
+          agent: s.agentTurns.agent,
           cwd: s.agentTurns.cwd,
           branch: s.agentTurns.branch,
           prompt: s.agentTurns.prompt,

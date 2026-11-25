@@ -27,31 +27,31 @@ describe("live activity", () => {
     const live = createLiveActivity({ now: () => clock, idleAfterMs: 60_000 });
     expect(live.get("p").status).toBe("idle");
 
-    expect(live.record("p", { hook_event_name: "UserPromptSubmit" })).toBe(true);
-    live.record("p", { hook_event_name: "PreToolUse", tool_name: "Read", tool_input: { file_path: "/r/a.ts" } }, "/r");
+    expect(live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "UserPromptSubmit" })).toBe(true);
+    live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "PreToolUse", tool_name: "Read", tool_input: { file_path: "/r/a.ts" } }, "/r");
     clock += 1000;
-    live.record("p", { hook_event_name: "PreToolUse", tool_name: "Edit", tool_input: { file_path: "/r/a.ts" } }, "/r");
+    live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "PreToolUse", tool_name: "Edit", tool_input: { file_path: "/r/a.ts" } }, "/r");
     let state = live.get("p");
     expect(state.status).toBe("working");
     expect(state.steps.map((x) => x.label)).toEqual(["Edita", "Lee"]); // newest first
     expect(state.startedAt).toBe("2026-11-24T10:00:00.000Z");
 
-    expect(live.record("p", { hook_event_name: "Stop" })).toBe(true);
+    expect(live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "Stop" })).toBe(true);
     state = live.get("p");
     expect(state.status).toBe("idle");
     expect(state.steps).toHaveLength(2); // the last turn stays visible
-    expect(live.record("p", { hook_event_name: "Stop" })).toBe(false);
-    expect(live.record("p", { hook_event_name: "PostToolUse", tool_name: "Read" })).toBe(false);
+    expect(live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "Stop" })).toBe(false);
+    expect(live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "PostToolUse", tool_name: "Read" } as never)).toBe(false);
 
     // A tool call after a finished turn starts a new list.
-    live.record("p", { hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command: "ls" } });
+    live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command: "ls" } });
     expect(live.get("p").steps).toHaveLength(1);
   });
 
   test("silence counts as finished, and the list is capped", () => {
     let clock = 0;
     const live = createLiveActivity({ now: () => clock, idleAfterMs: 60_000 });
-    for (let i = 0; i < 40; i++) live.record("p", { hook_event_name: "PreToolUse", tool_name: "Read", tool_input: { file_path: `/f${i}` } });
+    for (let i = 0; i < 40; i++) live.record("p", { agent: "claude-code", cwd: "/r", hook_event_name: "PreToolUse", tool_name: "Read", tool_input: { file_path: `/f${i}` } });
     expect(live.get("p").steps).toHaveLength(30);
     clock += 61_000;
     expect(live.get("p").status).toBe("idle");

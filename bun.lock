@@ -38,6 +38,10 @@
         "vite": "7",
       },
     },
+    "packages/agents": {
+      "name": "@agent-tracking/agents",
+      "version": "0.1.0",
+    },
     "packages/analyzer": {
       "name": "@agent-tracking/analyzer",
       "version": "0.1.0",
@@ -94,20 +98,20 @@
         "agent-tracking-mcp": "src/stdio.ts",
       },
       "dependencies": {
+        "@agent-tracking/agents": "workspace:*",
         "@agent-tracking/core": "workspace:*",
         "@agent-tracking/db": "workspace:*",
+        "@agent-tracking/git": "workspace:*",
         "@agent-tracking/tracking": "workspace:*",
         "@modelcontextprotocol/sdk": "^1.32.2",
         "zod": "4",
-      },
-      "devDependencies": {
-        "@agent-tracking/git": "workspace:*",
       },
     },
     "packages/server": {
       "name": "@agent-tracking/server",
       "version": "0.1.0",
       "dependencies": {
+        "@agent-tracking/agents": "workspace:*",
         "@agent-tracking/analyzer": "workspace:*",
         "@agent-tracking/assistant": "workspace:*",
         "@agent-tracking/core": "workspace:*",
@@ -133,6 +137,7 @@
       "name": "@agent-tracking/tracking",
       "version": "0.1.0",
       "dependencies": {
+        "@agent-tracking/agents": "workspace:*",
         "@agent-tracking/analyzer": "workspace:*",
         "@agent-tracking/core": "workspace:*",
         "@agent-tracking/db": "workspace:*",
@@ -144,6 +149,8 @@
     },
   },
   "packages": {
+    "@agent-tracking/agents": ["@agent-tracking/agents@workspace:packages/agents"],
+
     "@agent-tracking/analyzer": ["@agent-tracking/analyzer@workspace:packages/analyzer"],
 
     "@agent-tracking/assistant": ["@agent-tracking/assistant@workspace:packages/assistant"],

@@ -1,0 +1,1 @@
+ALTER TABLE `agent_turns` ADD `agent` text DEFAULT 'claude-code' NOT NULL;

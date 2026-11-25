@@ -4,6 +4,7 @@ import { isPending } from "@/hooks/data/use-traceability";
 import useNow from "@/hooks/ui/use-now";
 import { formatEventTime } from "@/lib/activity";
 import type { ProjectView } from "@/lib/api";
+import { agentLabel } from "@/lib/labels";
 import { relativeTime } from "@/lib/relative-time";
 
 /** Files saved this recently count as work in progress even without hooks (the repo watcher sees them). */
@@ -12,8 +13,8 @@ const MAX_STEPS = 8;
 const MAX_FILES = 8;
 
 /**
- * Shown above the tabs while an agent works: its latest steps (Claude Code hooks) and the files it
- * has changed (repo watcher). It goes away once the turn ends and the changes are reported.
+ * Shown while agents work: each one's latest steps (from its hooks: Claude Code, Codex CLI, Gemini CLI)
+ * and the files changed (repo watcher). It goes away once the turns end and the changes are reported.
  */
 const ProjectDetailLive = ({ view }: { view: ProjectView }) => {
   const { data: live } = useLiveActivity(view.project.id);
@@ -28,6 +29,15 @@ const ProjectDetailLive = ({ view }: { view: ProjectView }) => {
 
   const steps = working ? (live?.steps ?? []) : [];
   const [current, ...previous] = steps;
+  const active = (live?.sessions ?? []).filter((s) => s.status === "working");
+  // The server puts the most recent working session first: that one is shown above in full.
+  const others = active.slice(1, 5);
+  const names = [...new Set(active.map((s) => agentLabel(s.agent)))];
+  const title = !working
+    ? "Hay cambios en curso en el repositorio"
+    : names.length > 1
+      ? `${names.slice(0, -1).join(", ")} y ${names.at(-1)} están trabajando`
+      : `${agentLabel(live?.agent)} está trabajando`;
 
   return (
     <section
@@ -41,7 +51,7 @@ const ProjectDetailLive = ({ view }: { view: ProjectView }) => {
           <span className="relative inline-flex size-2.5 rounded-full bg-brand" />
         </span>
         <h2 className="font-semibold text-ink">
-          {working ? "El agente está trabajando" : "Hay cambios en curso en el repositorio"}
+          {title}
         </h2>
         {working && live?.startedAt && <StatusPill tone="brand">empezó {relativeTime(live.startedAt, now)}</StatusPill>}
       </div>
@@ -53,6 +63,23 @@ const ProjectDetailLive = ({ view }: { view: ProjectView }) => {
         </p>
       )}
       {working && !current && <p className="text-ink-soft">Leyendo tu pedido y preparando el trabajo.</p>}
+      {others.length > 0 && (
+        <ul aria-label="Otros agentes trabajando" className="flex flex-col gap-1 border-t border-brand/20 pt-3">
+          {others.map((s) => (
+            <li key={`${s.agent}-${s.sessionId}`} className="flex min-w-0 flex-wrap items-baseline gap-x-2 text-sm">
+              <span className="font-medium text-ink">{agentLabel(s.agent)}</span>
+              {s.steps[0] ? (
+                <>
+                  <span className="text-ink-soft">{s.steps[0].label}</span>
+                  {s.steps[0].target && <code className="truncate font-mono text-[0.8125rem] text-ink">{s.steps[0].target}</code>}
+                </>
+              ) : (
+                <span className="text-muted">preparando el trabajo</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
 
       <div className="grid gap-5 md:grid-cols-2">
         {previous.length > 0 && (

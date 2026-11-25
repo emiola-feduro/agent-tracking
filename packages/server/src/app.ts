@@ -46,7 +46,8 @@ import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
 import { repoRoutes } from "./repo-routes";
-import { createAgentTurns, type TurnHookPayload } from "./agent-turns";
+import { adapterFor } from "@agent-tracking/agents";
+import { createAgentTurns, type TurnHookPayload } from "@agent-tracking/tracking";
 import { attachmentRoutes } from "./attachment-routes";
 import { originFor, sharedPatch, skillRoutes } from "./skill-routes";
 import { createLiveActivity, type LiveActivity } from "./live-activity";
@@ -651,8 +652,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   /** Absolute paths a tool call touches: files it reads or edits, and folders a shell command goes into. */
   const toolDirs = (payload: TurnHookPayload): string[] => {
     const input = (payload.tool_input ?? {}) as Record<string, unknown>;
-    const files = [input.file_path, input.notebook_path, input.path].filter((p): p is string => typeof p === "string" && isAbsolute(p));
-    const command = typeof input.command === "string" ? input.command : "";
+    const files = [input.file_path, input.notebook_path, input.path, input.dir_path].filter((p): p is string => typeof p === "string" && isAbsolute(p));
+    const command = typeof input.command === "string" ? input.command : Array.isArray(input.command) ? input.command.join(" ") : "";
     const shell = [...command.matchAll(/(?:^|[\s;&|(])cd\s+("?)(~?\/[^\s"';&|)]+)\1/g)].map((m) => m[2]!.replace(/^~(?=\/)/, homedir()));
     return [...files.map((f) => dirname(f)), ...shell];
   };
@@ -661,9 +662,15 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   /** Turn bookkeeping runs one event at a time per project. */
   const turnQueue = new Map<string, Promise<unknown>>();
 
+  /**
+   * Hooks of every supported agent: `?agent=codex` or `?agent=gemini-cli` (Claude Code when missing).
+   * Each adapter turns its agent's payload into the same event. The answer is always empty, so
+   * nothing reaches the agent's context and no tokens are spent.
+   */
   app.post("/agent/hook", async (c) => {
-    const payload = (await c.req.json().catch(() => null)) as TurnHookPayload | null;
-    if (!payload || typeof payload.cwd !== "string" || !isAbsolute(payload.cwd)) return c.body(null, 204);
+    const adapter = adapterFor(c.req.query("agent"));
+    const payload = adapter?.normalize(await c.req.json().catch(() => null)) ?? null;
+    if (!payload || !isAbsolute(payload.cwd)) return c.body(null, 204);
     turns.rememberPrompt(payload);
     // The project comes from the working directory, or from what the tool touches when the agent
     // works from a folder outside the repository.
@@ -679,13 +686,15 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     }
     const { projectId, root, checkout } = target;
     if (!projectId) return c.body(null, 204);
-    const before = live.get(projectId);
+    const sessionOf = () =>
+      live.get(projectId).sessions.find((x) => x.agent === payload.agent && x.sessionId === (payload.session_id ?? "sin-sesion"));
+    const before = sessionOf();
     if (live.record(projectId, payload, root)) emit({ type: "live", projectId });
     const ctx = {
       checkout: checkout ?? root ?? payload.cwd,
-      wasWorking: before.status === "working",
+      wasWorking: before?.status === "working",
       // The turn's steps in order; a new request replaces them, so they are taken from before it.
-      steps: [...(payload.hook_event_name === "UserPromptSubmit" ? before : live.get(projectId)).steps].reverse(),
+      steps: [...((payload.hook_event_name === "UserPromptSubmit" ? before : sessionOf())?.steps ?? [])].reverse(),
     };
     const next = (turnQueue.get(projectId) ?? Promise.resolve())
       .then(() => turns.record(projectId, payload, ctx))

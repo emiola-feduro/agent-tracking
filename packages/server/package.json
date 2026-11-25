@@ -17,7 +17,8 @@
     "@agent-tracking/mcp": "workspace:*",
     "@agent-tracking/analyzer": "workspace:*",
     "@agent-tracking/github": "workspace:*",
-    "@agent-tracking/assistant": "workspace:*"
+    "@agent-tracking/assistant": "workspace:*",
+    "@agent-tracking/agents": "workspace:*"
   },
   "scripts": {
     "start": "bun src/index.ts",

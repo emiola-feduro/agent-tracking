@@ -8,6 +8,7 @@ import { useAgentTurn, useAgentTurns } from "@/hooks/data/use-agent-turns";
 import useCheckoutView from "@/hooks/ui/use-checkout-view";
 import useNow from "@/hooks/ui/use-now";
 import { formatEventTime } from "@/lib/activity";
+import { agentLabel } from "@/lib/labels";
 import { relativeTime } from "@/lib/relative-time";
 
 const duration = (from: string, to: string) => {
@@ -50,7 +51,7 @@ const ProjectDetailLastTurn = ({ projectId }: { projectId: string }) => {
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <h2 id="last-turn-title" className="font-semibold text-ink">
-            {latest ? "Lo último que hizo el agente" : "Turno anterior del agente"}
+            {latest ? `Lo último que hizo ${agentLabel(turn.agent)}` : `Trabajo anterior de ${agentLabel(turn.agent)}`}
           </h2>
           <p className="text-sm text-muted">
             Terminó {relativeTime(turn.endedAt!, now)}, a las {formatEventTime(turn.endedAt!)}. Trabajó {duration(turn.startedAt, turn.endedAt!)}

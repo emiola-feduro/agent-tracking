@@ -216,6 +216,8 @@ export const agentTurns = sqliteTable(
     id: id(),
     projectId: projectRef(),
     sessionId: text("session_id"),
+    /** Agent kind (claude-code, codex, gemini-cli) or the MCP client name of an unknown agent. */
+    agent: text("agent").notNull().default("claude-code"),
     cwd: text("cwd").notNull().default(""),
     branch: text("branch"),
     /** Start of the request, as typed (clipped). */

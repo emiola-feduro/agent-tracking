@@ -1,132 +1,115 @@
+import { AGENTS, type AgentEvent, type AgentKind } from "@agent-tracking/agents";
 import { isAbsolute, relative } from "node:path";
 
 /**
- * What an agent is doing right now, fed by Claude Code hooks (UserPromptSubmit, PreToolUse, Stop).
- * Kept in memory only: it is a live view, not history. The final report is what gets stored.
+ * What agents are doing right now, fed by their hooks (Claude Code, Codex CLI, Gemini CLI; see
+ * packages/agents). Kept in memory only: it is a live view, not history. Each agent session has its
+ * own state, so two agents working on the same project show up side by side.
  */
 export type LiveStep = { at: string; tool: string; label: string; target?: string };
+export type LiveSession = {
+  agent: AgentKind;
+  sessionId: string;
+  status: "working" | "idle";
+  startedAt: string;
+  lastAt: string;
+  steps: LiveStep[];
+};
+/** The project's view: the most recent session's fields, plus every session still around. */
 export type LiveState = {
   status: "working" | "idle";
   startedAt: string | null;
   lastAt: string | null;
   steps: LiveStep[];
-};
-
-/** The subset of a Claude Code hook payload this module reads. Everything else is ignored. */
-export type HookPayload = {
-  hook_event_name?: string;
-  session_id?: string;
-  cwd?: string;
-  tool_name?: string;
-  tool_input?: Record<string, unknown>;
+  agent: AgentKind | null;
+  sessions: LiveSession[];
 };
 
 const MAX_STEPS = 30;
-const MAX_TARGET = 100;
 /** A turn with no news for this long is treated as finished (a Stop hook can be missed). */
 export const IDLE_AFTER_MS = 2 * 60_000;
-
-const LABELS: Record<string, string> = {
-  Read: "Lee",
-  Write: "Escribe",
-  Edit: "Edita",
-  MultiEdit: "Edita",
-  NotebookEdit: "Edita",
-  Bash: "Ejecuta",
-  Grep: "Busca",
-  Glob: "Busca archivos",
-  WebFetch: "Consulta",
-  WebSearch: "Busca en la web",
-  Task: "Delega",
-  Agent: "Delega",
-  TodoWrite: "Actualiza su lista de tareas",
-};
-
-const clip = (text: string) => {
-  const line = text.split("\n")[0]!.trim();
-  return line.length > MAX_TARGET ? `${line.slice(0, MAX_TARGET - 1)}…` : line;
-};
-
-const str = (v: unknown) => (typeof v === "string" && v.trim() ? v : undefined);
+/** Idle sessions are forgotten after this long. */
+const FORGET_AFTER_MS = 6 * 60 * 60_000;
 
 /** Paths inside the repository are shown relative to it. */
-const displayPath = (path: string, root: string | null) => {
-  if (!root || !isAbsolute(path)) return path;
+const displayPath = (path: string | undefined, root: string | null) => {
+  if (!path || !root || !isAbsolute(path)) return path;
   const rel = relative(root, path);
   return rel && !rel.startsWith("..") && !isAbsolute(rel) ? rel : path;
 };
 
-/** One readable line per tool call. File contents and long commands are never kept. */
-export function describeTool(tool: string, input: Record<string, unknown> = {}, root: string | null = null): LiveStep {
-  const at = new Date().toISOString();
-  const mcp = /^mcp__(.+?)__(.+)$/.exec(tool);
-  if (mcp) {
-    const [, server, name] = mcp;
-    return { at, tool, label: server === "agent-tracking" ? "Agent Tracking" : `MCP ${server}`, target: name!.replaceAll("_", " ") };
-  }
-  const path = str(input.file_path) ?? str(input.notebook_path) ?? str(input.path);
-  const target =
-    tool === "Bash"
-      ? str(input.description) ?? str(input.command)
-      : tool === "Grep" || tool === "Glob"
-        ? str(input.pattern)
-        : tool === "WebFetch"
-          ? str(input.url)
-          : tool === "WebSearch"
-            ? str(input.query)
-            : tool === "Task" || tool === "Agent"
-              ? str(input.description)
-              : path && displayPath(path, root);
-  return { at, tool, label: LABELS[tool] ?? tool, ...(target ? { target: clip(target) } : {}) };
+/** One readable line per tool call, from the agent's own adapter. File contents are never kept. */
+export function describeTool(tool: string, input: Record<string, unknown> = {}, root: string | null = null, agent: AgentKind = "claude-code"): LiveStep {
+  const { label, target } = AGENTS[agent].describeTool(tool, input);
+  const shown = target && root ? target.split(", ").map((t) => displayPath(t, root)).join(", ") : target;
+  return { at: new Date().toISOString(), tool, label, ...(shown ? { target: shown } : {}) };
 }
 
-const idle = (): LiveState => ({ status: "idle", startedAt: null, lastAt: null, steps: [] });
+const idle = (): LiveState => ({ status: "idle", startedAt: null, lastAt: null, steps: [], agent: null, sessions: [] });
 
 export function createLiveActivity(opts: { idleAfterMs?: number; now?: () => number } = {}) {
   const idleAfter = opts.idleAfterMs ?? IDLE_AFTER_MS;
   const now = opts.now ?? Date.now;
-  const states = new Map<string, LiveState>();
+  const projects = new Map<string, Map<string, LiveSession>>();
+
+  const fresh = (s: LiveSession): LiveSession =>
+    s.status === "working" && now() - Date.parse(s.lastAt) > idleAfter ? { ...s, status: "idle" } : s;
+
+  const sessionsOf = (projectId: string) => {
+    const map = projects.get(projectId);
+    if (!map) return [];
+    for (const [key, s] of map) if (now() - Date.parse(s.lastAt) > FORGET_AFTER_MS) map.delete(key);
+    return [...map.values()].map(fresh).sort((a, b) => b.lastAt.localeCompare(a.lastAt));
+  };
 
   const view = (projectId: string): LiveState => {
-    const state = states.get(projectId);
-    if (!state) return idle();
-    const stale = state.status === "working" && state.lastAt && now() - Date.parse(state.lastAt) > idleAfter;
-    return stale ? { ...state, status: "idle" } : state;
+    const sessions = sessionsOf(projectId);
+    const latest = sessions.find((s) => s.status === "working") ?? sessions[0];
+    if (!latest) return idle();
+    return {
+      status: sessions.some((s) => s.status === "working") ? "working" : "idle",
+      startedAt: latest.startedAt,
+      lastAt: latest.lastAt,
+      steps: latest.steps,
+      agent: latest.agent,
+      sessions,
+    };
   };
 
   return {
     get: view,
 
     /** Applies one hook event. Returns false when it says nothing worth showing. */
-    record(projectId: string, payload: HookPayload, repoRoot: string | null = null): boolean {
+    record(projectId: string, event: AgentEvent, repoRoot: string | null = null): boolean {
       const at = new Date(now()).toISOString();
-      const current = view(projectId);
-      switch (payload.hook_event_name) {
+      const key = `${event.agent}:${event.session_id ?? "sin-sesion"}`;
+      let map = projects.get(projectId);
+      if (!map) projects.set(projectId, (map = new Map()));
+      const stored = map.get(key);
+      const current = stored ? fresh(stored) : null;
+      const working = current?.status === "working";
+      const base = { agent: event.agent, sessionId: event.session_id ?? "sin-sesion" };
+      switch (event.hook_event_name) {
         case "UserPromptSubmit":
           // A message sent while the agent is still working joins the same turn and keeps its steps.
-          if (current.status === "working") {
-            states.set(projectId, { ...current, lastAt: at });
-            return true;
-          }
-          // A new request: start a fresh list. The prompt text itself is not kept here.
-          states.set(projectId, { status: "working", startedAt: at, lastAt: at, steps: [] });
+          map.set(key, working ? { ...current!, lastAt: at } : { ...base, status: "working", startedAt: at, lastAt: at, steps: [] });
           return true;
         case "PreToolUse": {
-          if (!payload.tool_name) return false;
-          const step = { ...describeTool(payload.tool_name, payload.tool_input, repoRoot), at };
-          const fresh = current.status !== "working";
-          states.set(projectId, {
+          if (!event.tool_name) return false;
+          const step = { ...describeTool(event.tool_name, event.tool_input, repoRoot, event.agent), at };
+          map.set(key, {
+            ...base,
             status: "working",
-            startedAt: fresh ? at : current.startedAt,
+            startedAt: working ? current!.startedAt : at,
             lastAt: at,
-            steps: [step, ...(fresh ? [] : current.steps)].slice(0, MAX_STEPS),
+            steps: [step, ...(working ? current!.steps : [])].slice(0, MAX_STEPS),
           });
           return true;
         }
         case "Stop":
         case "SessionEnd":
-          if (current.status !== "working") return false;
-          states.set(projectId, { ...current, status: "idle", lastAt: at });
+          if (!working) return false;
+          map.set(key, { ...current!, status: "idle", lastAt: at });
           return true;
         default:
           return false;
@@ -134,7 +117,7 @@ export function createLiveActivity(opts: { idleAfterMs?: number; now?: () => num
     },
 
     forget(projectId: string) {
-      states.delete(projectId);
+      projects.delete(projectId);
     },
   };
 }

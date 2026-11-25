@@ -57,7 +57,17 @@ export type ProjectView = ProjectSnapshot & {
 };
 /** What the agent is doing right now (Claude Code hooks, kept in memory by the server). */
 export type LiveStep = { at: string; tool: string; label: string; target?: string };
-export type LiveState = { status: "working" | "idle"; startedAt: string | null; lastAt: string | null; steps: LiveStep[] };
+/** One agent session (Claude Code, Codex CLI, Gemini CLI...) seen through its hooks. */
+export type LiveSession = { agent: string; sessionId: string; status: "working" | "idle"; startedAt: string; lastAt: string; steps: LiveStep[] };
+export type LiveState = {
+  status: "working" | "idle";
+  startedAt: string | null;
+  lastAt: string | null;
+  steps: LiveStep[];
+  /** Agent of the most recent session. */
+  agent: string | null;
+  sessions: LiveSession[];
+};
 export type GithubFileKind = "ci" | "prTemplate";
 export type GithubPublish = { owner: string; name: string; visibility: "private" | "public"; description?: string };
 /** Whether a project skill is on this machine and how to get it if not. */
@@ -91,6 +101,8 @@ export type LocalBranch = {
 export type AgentTurn = {
   id: string;
   sessionId: string | null;
+  /** claude-code, codex, gemini-cli, or the MCP client name of another agent. */
+  agent: string;
   cwd: string;
   branch: string | null;
   prompt: string;

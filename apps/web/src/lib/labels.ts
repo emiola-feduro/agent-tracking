@@ -82,3 +82,7 @@ export const REQUIREMENT_TYPE_OPTIONS = REQUIREMENT_TYPES.map((value) => ({ valu
 export const REQUIREMENT_AREA_OPTIONS = REQUIREMENT_AREAS.map((value) => ({ value, label: REQUIREMENT_AREA_LABEL[value] }));
 /** The areas that make sense for a type: parts of the system, or quality attributes. */
 export const areaOptionsFor = (type: (typeof REQUIREMENT_TYPES)[number]) => areasFor(type).map((value) => ({ value, label: REQUIREMENT_AREA_LABEL[value] }));
+
+export const AGENT_LABEL: Record<string, string> = { "claude-code": "Claude Code", codex: "Codex CLI", "gemini-cli": "Gemini CLI" };
+/** Name of an agent for the UI: the known ones by name, others as their MCP client reports itself. */
+export const agentLabel = (agent: string | null | undefined) => (agent ? (AGENT_LABEL[agent] ?? agent) : "El agente");
