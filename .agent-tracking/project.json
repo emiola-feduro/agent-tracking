@@ -110,6 +110,13 @@
           "description": "Parser de requerimientos y de planes completos, diálogo de importación con vista previa en el wizard y en el proyecto.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "855fbd27-5249-4b67-8a41-e7b18f0856ca",
+          "name": "Convenciones de commits",
+          "description": "Categorías, alcance, idioma y reglas propias, o Conventional Commits por defecto.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -251,6 +258,13 @@
           "description": "Sugiere archivos y símbolos existentes al escribir y antes de escribir.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "f1e0b768-0473-4877-a495-4eaf473a9157",
+          "name": "Features y carpetas plegables",
+          "description": "Plegados por defecto; la búsqueda abre lo que coincide.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -298,6 +312,13 @@
           "description": "Los turnos sin cambios en el repo ya no dejan resumen.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+          "name": "Resumen tras cada trabajo del agente",
+          "description": "Mensajes a mitad de turno se suman al turno, un Stop perdido se resuelve en el siguiente pedido, sesiones fuera del repo empiezan al tocar un archivo, ediciones a archivos sin commit cuentan, y un aviso anuncia el trabajo terminado.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -329,6 +350,13 @@
           "id": "fcec5305-a2d0-4043-a3ed-05b381b633f7",
           "name": "Pestaña Ramas y worktrees",
           "description": "",
+          "status": "done",
+          "agent": "claude-code"
+        },
+        {
+          "id": "3eb20a0d-6864-4eba-ac5a-88e24ff870b0",
+          "name": "Menú de rama y worktree",
+          "description": "Cambiar de rama con aviso de cambios sin commit, o mirar otro worktree con su código, diff y último turno.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -369,6 +397,13 @@
           "id": "88321b05-2eeb-4232-8bce-97b07a1d66cf",
           "name": "Pull requests, ramas y pipelines de GitHub",
           "description": "",
+          "status": "done",
+          "agent": "claude-code"
+        },
+        {
+          "id": "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
+          "name": "Crear el repositorio en GitHub",
+          "description": "Con gh: cuenta u organización, nombre y visibilidad; conecta origin y sube; desde el wizard o el Resumen.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -2947,6 +2982,69 @@
       "name": "classifyRequirement",
       "type": "unit",
       "lastResult": "passing"
+    },
+    {
+      "id": "1916f545-3c13-4d55-b1d3-20be3f13e0f2",
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "a message sent while the agent works joins the same turn",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "3d2197ba-a23d-4ecc-a30e-54dc2809c10d",
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "a turn whose Stop never came is summarized when the next request arrives",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "cde49411-586d-42ba-8b61-fd7ebfb92784",
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "path": "packages/server/src/features-v3.test.ts",
+      "name": "a session started outside the repo is tracked from the first file it touches",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "ef18ee69-9b07-401b-8420-cf7c1c3bbb27",
+      "featureId": "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "path": "packages/git/src/worktrees.test.ts",
+      "name": "an untracked file edited during the turn shows up",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "id": "0870260a-6c84-4b2c-a462-c932fd9c4446",
+      "featureId": "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
+      "requirementId": "d48566db-3202-417a-a0ff-2fa359fdc596",
+      "path": "packages/server/src/github-publish.test.ts",
+      "name": "a brand-new repo gets a first commit, is created, connected and pushed",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "0fd939ce-92ed-4941-b56d-b1e2946e190d",
+      "featureId": "855fbd27-5249-4b67-8a41-e7b18f0856ca",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "path": "packages/core/src/plan.test.ts",
+      "name": "commit conventions",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "id": "a2ffc199-dbac-4b4c-af49-ef9287dad0e1",
+      "featureId": "855fbd27-5249-4b67-8a41-e7b18f0856ca",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "path": "packages/server/src/new-repo.test.ts",
+      "name": "commit conventions are saved and written into CONTEXT.md",
+      "type": "integration",
+      "lastResult": "passing"
     }
   ],
   "files": [
@@ -3232,6 +3330,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "5fb34bc7-4341-417c-898c-e15bc28d279b",
+      "path": "apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx",
+      "purpose": "Editor de convenciones del wizard y del proyecto.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+      ],
+      "symbols": []
     },
     {
       "id": "a74e5148-0391-4971-b5e9-4fe3c17790bc",
@@ -3610,6 +3718,26 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "391654ae-744f-447d-ad3f-2877556f4464",
+      "path": "apps/web/src/components/dynamic/github-publish/github-publish-fields.tsx",
+      "purpose": "Campos de cuenta, nombre y visibilidad.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "80b6af85-99f4-4998-9c7b-1e9730a57adc",
+      "path": "apps/web/src/components/dynamic/github-publish/github-publish-panel.tsx",
+      "purpose": "Publicar desde el Resumen del proyecto.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+      ],
+      "symbols": []
     },
     {
       "id": "bc6b7607-af4c-4bd3-96e5-1e6c597d206f",
@@ -4003,11 +4131,23 @@
       ]
     },
     {
+      "id": "e9ab3d16-c6ec-4575-a1df-b501664a9f9e",
+      "path": "apps/web/src/components/dynamic/new-project/new-project-github-publish.tsx",
+      "purpose": "Opción del wizard para crear el repo en GitHub.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+      ],
+      "symbols": []
+    },
+    {
       "id": "2925c3a4-caf6-490c-903f-e6fbecfd91cb",
       "path": "apps/web/src/components/dynamic/new-project/new-project-goal.tsx",
-      "purpose": "",
+      "purpose": "Paso Objetivo y reglas con convenciones.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+      ],
       "symbols": [
         {
           "id": "4f68f0cb-b166-4f02-8b87-8e60f558af90",
@@ -4809,6 +4949,16 @@
       ]
     },
     {
+      "id": "47cf54a2-887c-4508-a18c-9eff2e7cb85c",
+      "path": "apps/web/src/components/dynamic/project-detail/project-detail-checkout-menu.tsx",
+      "purpose": "Menú desplegable de ramas y worktrees.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3eb20a0d-6864-4eba-ac5a-88e24ff870b0"
+      ],
+      "symbols": []
+    },
+    {
       "id": "3fcc2bd2-4ffd-4539-b532-8a2c7990a9c1",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-context.tsx",
       "purpose": "",
@@ -4825,6 +4975,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "e929d6f1-4a37-4e57-8ea5-8503a7e40b54",
+      "path": "apps/web/src/components/dynamic/project-detail/project-detail-conventions.tsx",
+      "purpose": "Convenciones editables en Reglas y convenciones.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+      ],
+      "symbols": []
     },
     {
       "id": "cc9fdf3c-4b09-4700-bdd3-5efe019dee10",
@@ -5445,9 +5605,10 @@
     {
       "id": "b95a4dbe-1dea-408f-b240-271fa4bde6f0",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-trace-by-file.tsx",
-      "purpose": "Archivos agrupados por carpeta con su requerimiento y feature",
+      "purpose": "Vista por archivo con carpetas plegables.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "f1e0b768-0473-4877-a495-4eaf473a9157",
         "ffddc27b-124c-442f-bfb1-788daca31510"
       ],
       "symbols": [
@@ -5456,7 +5617,7 @@
           "name": "ProjectDetailTraceByFileProps",
           "kind": "type",
           "lineStart": 6,
-          "lineEnd": 10,
+          "lineEnd": 12,
           "purpose": "",
           "source": "inferred"
         },
@@ -5464,8 +5625,8 @@
           "id": "09dbb989-9c0d-463b-909d-294fdb46d816",
           "name": "folderOf",
           "kind": "function",
-          "lineStart": 12,
-          "lineEnd": 15,
+          "lineStart": 14,
+          "lineEnd": 17,
           "purpose": "",
           "source": "inferred"
         },
@@ -5473,8 +5634,8 @@
           "id": "3f0739d1-ad60-41ff-b2b6-8fcdb125f755",
           "name": "ProjectDetailTraceByFile",
           "kind": "function",
-          "lineStart": 18,
-          "lineEnd": 47,
+          "lineStart": 20,
+          "lineEnd": 75,
           "purpose": "",
           "source": "inferred"
         }
@@ -5510,16 +5671,18 @@
     {
       "id": "d7a013b5-8848-40c6-bcd7-58f5b4f0578a",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-trace-feature.tsx",
-      "purpose": "",
+      "purpose": "Feature plegable con sus archivos.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "f1e0b768-0473-4877-a495-4eaf473a9157"
+      ],
       "symbols": [
         {
           "id": "7656bc27-96ef-448f-b140-353849b1cb43",
           "name": "ProjectDetailTraceFeatureProps",
           "kind": "type",
           "lineStart": 8,
-          "lineEnd": 14,
+          "lineEnd": 16,
           "purpose": "",
           "source": "inferred"
         },
@@ -5527,8 +5690,8 @@
           "id": "dca3f4d0-7e44-4044-a7c0-a8da0d8372ed",
           "name": "ProjectDetailTraceFeature",
           "kind": "function",
-          "lineStart": 16,
-          "lineEnd": 49,
+          "lineStart": 18,
+          "lineEnd": 83,
           "purpose": "",
           "source": "inferred"
         }
@@ -5584,16 +5747,18 @@
     {
       "id": "d53d2b1a-32ae-4ba7-b9bd-c15720565886",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-trace-requirement.tsx",
-      "purpose": "",
+      "purpose": "Requerimiento en la trazabilidad; pasa el plegado y la búsqueda a sus features.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "f1e0b768-0473-4877-a495-4eaf473a9157"
+      ],
       "symbols": [
         {
           "id": "6a26e5e3-ad6d-4022-8c30-40d3ddb5aa94",
           "name": "ProjectDetailTraceRequirementProps",
           "kind": "type",
           "lineStart": 8,
-          "lineEnd": 16,
+          "lineEnd": 17,
           "purpose": "",
           "source": "inferred"
         },
@@ -5601,8 +5766,8 @@
           "id": "8c61e59f-a894-4f6f-9cf6-88cded600c53",
           "name": "plural",
           "kind": "function",
-          "lineStart": 18,
-          "lineEnd": 18,
+          "lineStart": 19,
+          "lineEnd": 19,
           "purpose": "",
           "source": "inferred"
         },
@@ -5610,8 +5775,8 @@
           "id": "35346de7-88b8-4037-a9fd-acb9f68e290a",
           "name": "ProjectDetailTraceRequirement",
           "kind": "function",
-          "lineStart": 20,
-          "lineEnd": 65,
+          "lineStart": 21,
+          "lineEnd": 68,
           "purpose": "",
           "source": "inferred"
         }
@@ -5665,10 +5830,11 @@
     {
       "id": "47cc8ba5-0320-4cb7-849a-4e6db5dc47de",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx",
-      "purpose": "Trazabilidad con el buscador nuevo.",
+      "purpose": "Trazabilidad: plegado, búsqueda y vista de worktree.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e",
+        "f1e0b768-0473-4877-a495-4eaf473a9157",
         "ffddc27b-124c-442f-bfb1-788daca31510"
       ],
       "symbols": [
@@ -5682,24 +5848,35 @@
           "source": "inferred"
         },
         {
-          "id": "4d857b62-5c27-42af-af89-66b8ce54565e",
-          "name": "OPEN_BY_DEFAULT",
-          "kind": "constant",
-          "lineStart": 18,
-          "lineEnd": 18,
-          "purpose": "",
-          "source": "inferred"
-        },
-        {
           "id": "e62fbdc5-1849-41ee-b310-b45b8e50c146",
           "name": "ProjectDetailTraceability",
           "kind": "function",
-          "lineStart": 20,
-          "lineEnd": 125,
+          "lineStart": 18,
+          "lineEnd": 127,
           "purpose": "",
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "9d20534c-dd29-4daf-a97c-c2f91a821020",
+      "path": "apps/web/src/components/dynamic/project-detail/project-detail-turn-toast.tsx",
+      "purpose": "Aviso de trabajo terminado con enlace al resumen.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "4b2765d2-4003-480a-ad16-8b9c14c9681b",
+      "path": "apps/web/src/components/dynamic/project-detail/project-detail-worktree-banner.tsx",
+      "purpose": "Aviso y diff del worktree que se está viendo.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3eb20a0d-6864-4eba-ac5a-88e24ff870b0"
+      ],
+      "symbols": []
     },
     {
       "id": "bb23008e-198d-48d7-be5a-ce6c94b49c88",
@@ -5751,9 +5928,10 @@
     {
       "id": "81801470-d40d-4eae-ad0c-4f817ca9f80d",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail.tsx",
-      "purpose": "Página del proyecto con sidebar y Resumen.",
+      "purpose": "Página del proyecto con menú, aviso y secciones.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "3eb20a0d-6864-4eba-ac5a-88e24ff870b0",
         "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
       ],
       "symbols": [
@@ -7324,9 +7502,10 @@
     {
       "id": "cacccc3c-ccc7-4100-b06d-9d2bf2fafdaa",
       "path": "apps/web/src/hooks/form/use-create-project.ts",
-      "purpose": "Arma el proyecto del wizard y abre su Resumen.",
+      "purpose": "Crea el proyecto y luego lo publica si se pidió.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
         "d5c72587-3bd9-487f-bab5-74e76b919371"
       ],
       "symbols": [
@@ -7632,6 +7811,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "6b2b55fb-ab78-4235-a9f2-f434569a07b9",
+      "path": "apps/web/src/hooks/ui/use-checkout-view.ts",
+      "purpose": "Worktree que se mira, guardado en la URL.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3eb20a0d-6864-4eba-ac5a-88e24ff870b0"
+      ],
+      "symbols": []
     },
     {
       "id": "321dc75a-478f-440d-b575-ba24320a48fd",
@@ -9012,9 +9201,10 @@
     {
       "id": "52a308e9-034a-4e41-9f07-32a5ceb197e8",
       "path": "apps/web/src/router.tsx",
-      "purpose": "Rutas; Resumen por defecto.",
+      "purpose": "Rutas; parámetro wt.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "3eb20a0d-6864-4eba-ac5a-88e24ff870b0",
         "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
       ],
       "symbols": [
@@ -9136,6 +9326,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "efd88a77-bb08-4561-839b-11e0d0d90dac",
+      "path": "apps/web/src/stores/use-notice-store.ts",
+      "purpose": "Avisos de una sola vez para la página del proyecto.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+      ],
+      "symbols": []
     },
     {
       "id": "01f8c0bc-d2f1-43be-a27c-bcfef123babd",
@@ -11142,9 +11342,10 @@
     {
       "id": "2cbf47ad-923c-41b9-ae75-994fda07653d",
       "path": "packages/core/src/context.ts",
-      "purpose": "CONTEXT.md apunta a la copia compartida o al plugin de cada skill",
+      "purpose": "CONTEXT.md con convenciones de commits y ramas.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "855fbd27-5249-4b67-8a41-e7b18f0856ca",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
         "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
       ],
@@ -11175,6 +11376,35 @@
           "lineEnd": 111,
           "purpose": "",
           "source": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "9469a58f-becb-4850-9ce5-084c11a3e9fa",
+      "path": "packages/core/src/conventions.ts",
+      "purpose": "Modelo, valores por defecto y texto para CONTEXT.md.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "855fbd27-5249-4b67-8a41-e7b18f0856ca"
+      ],
+      "symbols": [
+        {
+          "id": "3b2276f0-1377-42ed-9432-024d6f3fa749",
+          "name": "COMMIT_TYPES",
+          "kind": "constant",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Categorías de commit con su rama",
+          "source": "reported"
+        },
+        {
+          "id": "c67e43f9-c1d1-4f4b-ae46-910c2f620dc2",
+          "name": "conventionsMarkdown",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Sección de convenciones del contexto",
+          "source": "reported"
         }
       ]
     },
@@ -11338,9 +11568,10 @@
     {
       "id": "3b387161-b48f-450d-8afa-23f64f974fc0",
       "path": "packages/core/src/plan.ts",
-      "purpose": "Lee requerimientos con su DoD y planes de proyecto en Markdown o JSON, y lista lo que falta preguntar.",
+      "purpose": "Planes con sección de convenciones.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "855fbd27-5249-4b67-8a41-e7b18f0856ca",
         "d5c72587-3bd9-487f-bab5-74e76b919371"
       ],
       "symbols": [
@@ -12830,9 +13061,10 @@
     {
       "id": "469f9ba1-3845-4afe-b5dc-3de9e561eab6",
       "path": "packages/db/src/schema.ts",
-      "purpose": "Columnas de origen y compartida en project_skills",
+      "purpose": "Columna commit_conventions.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "855fbd27-5249-4b67-8a41-e7b18f0856ca",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
       ],
       "symbols": [
@@ -13042,6 +13274,35 @@
       "createdBy": "repo:analysis",
       "featureIds": [],
       "symbols": []
+    },
+    {
+      "id": "2895b397-e76b-4fee-9931-fd7304a216d2",
+      "path": "packages/git/src/github-publish.ts",
+      "purpose": "Cuenta de GitHub y publicación del repo con gh.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
+      ],
+      "symbols": [
+        {
+          "id": "2ebe94dd-c7a0-4193-a2b4-5a15aacc8716",
+          "name": "githubAccount",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Cuenta y organizaciones",
+          "source": "reported"
+        },
+        {
+          "id": "869f96f3-5bcb-409b-949a-156b5a7d5b2c",
+          "name": "publishToGithub",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Crea, conecta origin y sube",
+          "source": "reported"
+        }
+      ]
     },
     {
       "id": "63422629-506a-4b3f-a572-357dd64b85c5",
@@ -13430,20 +13691,32 @@
     {
       "id": "185e5531-3a98-4e96-b3aa-8dc4446ad34c",
       "path": "packages/git/src/worktrees.test.ts",
-      "purpose": "",
+      "purpose": "Tests de worktrees, diff del turno y archivos sin commit.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+      ],
       "symbols": []
     },
     {
       "id": "63f2907c-eab9-4526-a699-534c4e707384",
       "path": "packages/git/src/worktrees.ts",
-      "purpose": "Lectura de archivos para vista previa, worktrees y diffs",
+      "purpose": "Foto del árbol con blobs de archivos sin commit y diff del turno.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5",
         "ffddc27b-124c-442f-bfb1-788daca31510"
       ],
       "symbols": [
+        {
+          "id": "c791eb25-3a13-440f-b5cc-c5c26f8fb759",
+          "name": "diffSince",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Cambios desde la foto, incluidos archivos sin commit editados",
+          "source": "reported"
+        },
         {
           "id": "3eea7056-b743-401a-b7fb-848851bad2a0",
           "name": "readRepoFile",
@@ -13451,6 +13724,15 @@
           "lineStart": null,
           "lineEnd": null,
           "purpose": "Lee un archivo del repo con límite de tamaño y detección de binarios",
+          "source": "reported"
+        },
+        {
+          "id": "c31ea9aa-2338-487c-9963-5f34fad6a4bf",
+          "name": "snapshotWorkingTree",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Estado al empezar, sin tocar el repo",
           "source": "reported"
         },
         {
@@ -13526,15 +13808,6 @@
           "source": "inferred"
         },
         {
-          "id": "c31ea9aa-2338-487c-9963-5f34fad6a4bf",
-          "name": "snapshotWorkingTree",
-          "kind": "function",
-          "lineStart": 112,
-          "lineEnd": 121,
-          "purpose": "",
-          "source": "inferred"
-        },
-        {
           "id": "ee56dd70-6dcd-49a7-84ed-793bcc7e3e1b",
           "name": "DiffFile",
           "kind": "type",
@@ -13576,15 +13849,6 @@
           "kind": "constant",
           "lineStart": 129,
           "lineEnd": 129,
-          "purpose": "",
-          "source": "inferred"
-        },
-        {
-          "id": "c791eb25-3a13-440f-b5cc-c5c26f8fb759",
-          "name": "diffSince",
-          "kind": "function",
-          "lineStart": 135,
-          "lineEnd": 163,
           "purpose": "",
           "source": "inferred"
         }
@@ -14575,12 +14839,22 @@
     {
       "id": "54473408-615d-4f68-a76b-71c999cdeb51",
       "path": "packages/server/src/agent-turns.ts",
-      "purpose": "Registra turnos del agente; descarta los que no cambiaron archivos.",
+      "purpose": "Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a"
+        "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+        "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
       ],
       "symbols": [
+        {
+          "id": "fc8521ea-a4ea-4921-a2a7-d8be4830d183",
+          "name": "createAgentTurns",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Registra turnos por proyecto y sesión",
+          "source": "reported"
+        },
         {
           "id": "7fd3e313-6eab-48a6-ac45-901a658b0f69",
           "name": "MAX_PROMPT",
@@ -14636,15 +14910,6 @@
           "source": "reported"
         },
         {
-          "id": "fc8521ea-a4ea-4921-a2a7-d8be4830d183",
-          "name": "createAgentTurns",
-          "kind": "function",
-          "lineStart": 57,
-          "lineEnd": 145,
-          "purpose": "Abre y cierra turnos con los hooks",
-          "source": "reported"
-        },
-        {
           "id": "4383c19e-cdab-47a9-a54c-f1434c079a59",
           "name": "AgentTurns",
           "kind": "type",
@@ -14666,11 +14931,12 @@
     {
       "id": "553410b3-6c29-4e18-924c-ed3654f5d583",
       "path": "packages/server/src/app.ts",
-      "purpose": "API HTTP; importación de requerimientos y clasificación deducida al crear o cambiar tipo.",
+      "purpose": "Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
-        "d5c72587-3bd9-487f-bab5-74e76b919371"
+        "d5c72587-3bd9-487f-bab5-74e76b919371",
+        "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
       ],
       "symbols": [
         {
@@ -14868,10 +15134,21 @@
     {
       "id": "a64c946e-5d1a-4c9c-a311-d2e23cb13186",
       "path": "packages/server/src/features-v3.test.ts",
-      "purpose": "Tests de integración de imágenes, turnos, worktrees e importación.",
+      "purpose": "Tests de turnos, imágenes, worktrees e importación.",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b"
+        "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+        "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "3796d81f-8d4a-4020-986d-301c068b831c",
+      "path": "packages/server/src/github-publish.test.ts",
+      "purpose": "Tests con un gh simulado.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1"
       ],
       "symbols": []
     },
@@ -15114,10 +15391,11 @@
     {
       "id": "4338ccae-93c6-46db-9e90-3b0299900700",
       "path": "packages/server/src/live-activity.ts",
-      "purpose": "Estado en memoria de lo que hace el agente",
+      "purpose": "Pasos en vivo; un mensaje a mitad de turno no los borra.",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a"
+        "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+        "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
       ],
       "symbols": [
         {
@@ -15285,10 +15563,11 @@
     {
       "id": "c6a93253-0783-406e-8978-77b8e689815f",
       "path": "packages/server/src/repo-routes.ts",
-      "purpose": "checkoutOf solo acepta worktrees del repositorio",
+      "purpose": "Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
+        "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
         "fcec5305-a2d0-4043-a3ed-05b381b633f7"
       ],
       "symbols": [

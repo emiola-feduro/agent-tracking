@@ -60,12 +60,20 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con clasificación deducida.
   - `apps/web/src/components/dynamic/new-project/new-project-requirements.tsx`: Paso de requerimientos del wizard con importación.
   - `apps/web/src/components/dynamic/requirements-import/requirements-import-dialog.tsx`: Diálogo para pegar o abrir Markdown o JSON con vista previa de lo entendido.
-  - `apps/web/src/hooks/form/use-create-project.ts`: Arma el proyecto del wizard y abre su Resumen.
+  - `apps/web/src/hooks/form/use-create-project.ts`: Crea el proyecto y luego lo publica si se pidió.
   - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard; requerimientos importados y clasificación opcional.
   - `packages/core/src/index.ts`: Exporta el núcleo, ahora con planes.
   - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
-  - `packages/core/src/plan.ts`: Lee requerimientos con su DoD y planes de proyecto en Markdown o JSON, y lista lo que falta preguntar.
-  - `packages/server/src/app.ts`: API HTTP; importación de requerimientos y clasificación deducida al crear o cambiar tipo.
+  - `packages/core/src/plan.ts`: Planes con sección de convenciones.
+  - `packages/server/src/app.ts`: Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.
+- Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
+  - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
+  - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-conventions.tsx`: Convenciones editables en Reglas y convenciones.
+  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
+  - `packages/core/src/conventions.ts`: Modelo, valores por defecto y texto para CONTEXT.md.
+  - `packages/core/src/plan.ts`: Planes con sección de convenciones.
+  - `packages/db/src/schema.ts`: Columna commit_conventions.
 
 ### Servidor MCP y reporte del agente — 100%
 
@@ -85,7 +93,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 **Features:**
 
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
-  - `packages/core/src/context.ts`: CONTEXT.md apunta a la copia compartida o al plugin de cada skill
+  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
   - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
   - `packages/mcp/src/server.ts`: Servidor MCP; herramientas get_plan_format y create_project.
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
@@ -137,16 +145,21 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
 **Features:**
 
 - Trazabilidad por archivo con vista de código — _done_ (`ffddc27b-124c-442f-bfb1-788daca31510`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-trace-by-file.tsx`: Archivos agrupados por carpeta con su requerimiento y feature
+  - `apps/web/src/components/dynamic/project-detail/project-detail-trace-by-file.tsx`: Vista por archivo con carpetas plegables.
   - `apps/web/src/components/dynamic/project-detail/project-detail-trace-file.tsx`: Tarjeta de archivo con pestañas Símbolos y Código
-  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad con el buscador nuevo.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad: plegado, búsqueda y vista de worktree.
   - `apps/web/src/components/ui/code-view/code-view.tsx`: Código con números de línea y rango marcado
-  - `packages/git/src/worktrees.ts`: Lectura de archivos para vista previa, worktrees y diffs
+  - `packages/git/src/worktrees.ts`: Foto del árbol con blobs de archivos sin commit y diff del turno.
 - Búsqueda con sugerencias y autocompletado con Tab — _done_ (`8529c6d3-1c4a-4eb4-8f31-e0bdf7bcbd0e`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad con el buscador nuevo.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad: plegado, búsqueda y vista de worktree.
   - `apps/web/src/components/ui/suggest-input/suggest-input.tsx`: Campo de búsqueda con lista de sugerencias y completado gris que Tab acepta.
   - `apps/web/src/hooks/ui/use-trace-suggestions.ts`: Archivos y símbolos sugeridos para la trazabilidad.
   - `apps/web/src/lib/fuzzy.ts`: Puntaje de coincidencia y texto que completa.
+- Features y carpetas plegables — _done_ (`f1e0b768-0473-4877-a495-4eaf473a9157`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-trace-by-file.tsx`: Vista por archivo con carpetas plegables.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-trace-feature.tsx`: Feature plegable con sus archivos.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-trace-requirement.tsx`: Requerimiento en la trazabilidad; pasa el plegado y la búsqueda a sus features.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad: plegado, búsqueda y vista de worktree.
 
 ### Actividad en vivo y turnos del agente — 100%
 
@@ -169,8 +182,16 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `apps/web/src/components/dynamic/project-detail/project-detail-last-turn.tsx`: Resumen del último turno con cambios.
   - `apps/web/src/components/dynamic/project-detail/project-detail-live.tsx`: Panel con el paso actual y los anteriores
   - `apps/web/src/components/ui/diff-view/diff-view.tsx`: Diff por archivo con líneas coloreadas
-  - `packages/server/src/agent-turns.ts`: Registra turnos del agente; descarta los que no cambiaron archivos.
-  - `packages/server/src/live-activity.ts`: Estado en memoria de lo que hace el agente
+  - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
+  - `packages/server/src/live-activity.ts`: Pasos en vivo; un mensaje a mitad de turno no los borra.
+- Resumen tras cada trabajo del agente — _done_ (`d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-turn-toast.tsx`: Aviso de trabajo terminado con enlace al resumen.
+  - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
+  - `packages/git/src/worktrees.ts`: Foto del árbol con blobs de archivos sin commit y diff del turno.
+  - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
+  - `packages/server/src/app.ts`: Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.
+  - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
+  - `packages/server/src/live-activity.ts`: Pasos en vivo; un mensaje a mitad de turno no los borra.
 
 ### Ramas y worktrees — 100%
 
@@ -190,7 +211,13 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 - Pestaña Ramas y worktrees — _done_ (`fcec5305-a2d0-4043-a3ed-05b381b633f7`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Worktrees con progreso y diff, y cambio de rama local
   - `packages/git/src/repo.ts`: resolveRepoPath valida rutas dentro del repo siguiendo enlaces
-  - `packages/server/src/repo-routes.ts`: checkoutOf solo acepta worktrees del repositorio
+  - `packages/server/src/repo-routes.ts`: Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.
+- Menú de rama y worktree — _done_ (`3eb20a0d-6864-4eba-ac5a-88e24ff870b0`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-checkout-menu.tsx`: Menú desplegable de ramas y worktrees.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-worktree-banner.tsx`: Aviso y diff del worktree que se está viendo.
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Página del proyecto con menú, aviso y secciones.
+  - `apps/web/src/hooks/ui/use-checkout-view.ts`: Worktree que se mira, guardado en la URL.
+  - `apps/web/src/router.tsx`: Rutas; parámetro wt.
 
 ### Integración con GitHub — 100%
 
@@ -213,6 +240,15 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `packages/github/src/client.ts`: Cliente de la API de GitHub
   - `packages/server/src/github-routes.ts`: Rutas de PRs, ramas y ejecuciones
   - `packages/server/src/github-watcher.ts`: Sondeo en segundo plano
+- Crear el repositorio en GitHub — _done_ (`8c5456a5-9aa0-46c3-9471-175fde0ba9c1`)
+  - `apps/web/src/components/dynamic/github-publish/github-publish-fields.tsx`: Campos de cuenta, nombre y visibilidad.
+  - `apps/web/src/components/dynamic/github-publish/github-publish-panel.tsx`: Publicar desde el Resumen del proyecto.
+  - `apps/web/src/components/dynamic/new-project/new-project-github-publish.tsx`: Opción del wizard para crear el repo en GitHub.
+  - `apps/web/src/hooks/form/use-create-project.ts`: Crea el proyecto y luego lo publica si se pidió.
+  - `apps/web/src/stores/use-notice-store.ts`: Avisos de una sola vez para la página del proyecto.
+  - `packages/git/src/github-publish.ts`: Cuenta de GitHub y publicación del repo con gh.
+  - `packages/server/src/github-publish.test.ts`: Tests con un gh simulado.
+  - `packages/server/src/repo-routes.ts`: Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.
 
 ### Asistente con Claude — 100%
 
@@ -291,7 +327,7 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
-  - `packages/server/src/features-v3.test.ts`: Tests de integración de imágenes, turnos, worktrees e importación.
+  - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
 
 ### Apariencia — 100%
 
@@ -335,10 +371,10 @@ Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 39
 - Navegación con sidebar — _done_ (`b667d6f3-afef-4d8c-926e-a68abe6d09bf`)
   - `apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx`: Resultado de inspección del repo; enlaza al Resumen.
   - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Sidebar de secciones del proyecto con conteos.
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Página del proyecto con sidebar y Resumen.
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Página del proyecto con menú, aviso y secciones.
   - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
   - `apps/web/src/hooks/form/use-repo-source.ts`: Importa o clona el repo y abre el Resumen.
-  - `apps/web/src/router.tsx`: Rutas; Resumen por defecto.
+  - `apps/web/src/router.tsx`: Rutas; parámetro wt.
 
 ### La app se recupera sola de reinicios del servidor — 100%
 
@@ -377,7 +413,7 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
 
 - Validación de rutas y worktrees — _done_ (`229342a4-9fb9-48b6-9ad5-3532951f1d1b`)
   - `packages/git/src/repo.ts`: resolveRepoPath valida rutas dentro del repo siguiendo enlaces
-  - `packages/server/src/repo-routes.ts`: checkoutOf solo acepta worktrees del repositorio
+  - `packages/server/src/repo-routes.ts`: Rutas de repo: cuenta de GitHub, publicar, ramas con cambios bloqueantes.
 
 ### Gestión de cambios y detección de conflictos — 0%
 
@@ -426,14 +462,14 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
   - `apps/web/src/lib/api.ts`: Cliente de la API.
   - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
-  - `packages/core/src/context.ts`: CONTEXT.md apunta a la copia compartida o al plugin de cada skill
+  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
   - `packages/core/src/core.test.ts`: Fixtures de skills con su origen
   - `packages/core/src/project-file.ts`: project.json guarda la lista de imágenes y el origen de cada skill
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
-  - `packages/db/src/schema.ts`: Columnas de origen y compartida en project_skills
-  - `packages/server/src/app.ts`: API HTTP; importación de requerimientos y clasificación deducida al crear o cambiar tipo.
+  - `packages/db/src/schema.ts`: Columna commit_conventions.
+  - `packages/server/src/app.ts`: Ruta de hooks: proyecto por cwd o por los archivos que toca la herramienta.
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Exporta las funciones para llevar skills entre equipos
