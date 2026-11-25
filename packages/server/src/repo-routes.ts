@@ -2,6 +2,9 @@ import { AnalysisCache, analyzeFile, analyzeRepo, type RepoAnalysis } from "@age
 import { schema as s, type Db } from "@agent-tracking/db";
 import {
   branchProgress,
+  githubAccount,
+  publishToGithub,
+  toHttpsUrl,
   changedFilesBetween,
   diffSince,
   git,
@@ -19,6 +22,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { z } from "zod";
+import { writeRepoFiles } from "@agent-tracking/tracking";
 import type { Emit } from "./app";
 
 const STATUS: Record<GitError["code"], ContentfulStatusCode> = {
@@ -96,6 +100,29 @@ export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
     if (!found) throw new HTTPException(400, { message: "Ese worktree no pertenece al repositorio del proyecto" });
     return found.path;
   };
+
+  app.get("/github/account", async (c) => c.json(await githubAccount()));
+
+  /** Creates the project's repository on GitHub with gh, connects it as origin and pushes. */
+  app.post("/projects/:id/github/publish", async (c) => {
+    const id = c.req.param("id");
+    const root = await repoOf(id);
+    const parsed = z
+      .object({
+        owner: z.string().min(1).max(100),
+        name: z.string().min(1).max(100),
+        visibility: z.enum(["private", "public"]).default("private"),
+        description: z.string().max(300).optional(),
+      })
+      .safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) throw new HTTPException(400, { message: z.prettifyError(parsed.error) });
+    const result = await guard(() => publishToGithub(root, parsed.data));
+    const repoUrl = toHttpsUrl(result.url);
+    await db.update(s.projects).set({ repoUrl, updatedAt: new Date().toISOString() }).where(eq(s.projects.id, id));
+    await writeRepoFiles(db, id).catch(() => {});
+    emit({ type: "changed", projectId: id, entity: "project" });
+    return c.json({ ...result, repoUrl }, 201);
+  });
 
   app.get("/projects/:id/repo/file", async (c) => {
     const root = await repoOf(c.req.param("id"));

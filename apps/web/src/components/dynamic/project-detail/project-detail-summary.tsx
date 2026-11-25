@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import GithubPublishPanel from "@/components/dynamic/github-publish/github-publish-panel";
 import Alert from "@/components/ui/alert/alert";
+import useNoticeStore from "@/stores/use-notice-store";
 import Button from "@/components/ui/button/button";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
 import Skeleton from "@/components/ui/skeleton/skeleton";
@@ -14,6 +16,8 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
   const { id, goal, kind, platforms, stack, databases, repoPath, repoUrl } = project;
   const { sync } = useProjectActions(id);
   const branch = useCurrentBranch(id, !!repoPath);
+  const notice = useNoticeStore((s) => s.notices[id]);
+  const setNotice = useNoticeStore((s) => s.set);
 
   return (
     <section className="flex flex-col gap-5 rounded-lg border border-line bg-surface p-5">
@@ -49,6 +53,15 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
                 Actualizar desde el repo
               </Button>
             </dd>
+            {!repoUrl && (
+              <>
+                <dt className="text-muted">GitHub</dt>
+                <dd className="flex flex-wrap items-center gap-2">
+                  <span className="text-muted">Sin repositorio remoto</span>
+                  <GithubPublishPanel project={project} />
+                </dd>
+              </>
+            )}
             <dt className="text-muted">Rama actual</dt>
             <dd aria-live="polite" className="flex flex-wrap items-center gap-2">
               {branch.isPending ? (
@@ -70,6 +83,14 @@ const ProjectDetailSummary = ({ view }: { view: ProjectView }) => {
         )}
       </dl>
       {sync.isError && <Alert>{sync.error.message}</Alert>}
+      {notice && (
+        <div className="flex items-start justify-between gap-3">
+          <Alert tone={notice.tone}>{notice.text}</Alert>
+          <Button size="sm" variant="ghost" onClick={() => setNotice(id, null)}>
+            Cerrar
+          </Button>
+        </div>
+      )}
     </section>
   );
 };

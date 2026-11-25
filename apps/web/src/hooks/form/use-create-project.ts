@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { api, type NewProject } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
+import useNoticeStore from "@/stores/use-notice-store";
 import useWizardStore from "@/stores/use-wizard-store";
 
 const buildPayload = (): NewProject => {
@@ -46,7 +47,22 @@ const useCreateProject = () => {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: () => api.createProject(buildPayload()),
+    mutationFn: async () => {
+      const view = await api.createProject(buildPayload());
+      const { publish } = useWizardStore.getState();
+      // The project exists already; a GitHub failure is reported on its page, where it can be retried.
+      if (view.project.repoPath && publish?.enabled) {
+        try {
+          const { enabled: _enabled, ...data } = publish;
+          const done = await api.publishGithub(view.project.id, { ...data, description: view.project.goal });
+          useNoticeStore.getState().set(view.project.id, { tone: "info", text: `Repositorio creado en GitHub: ${done.repoUrl}` });
+          return { ...view, project: { ...view.project, repoUrl: done.repoUrl } };
+        } catch (e) {
+          useNoticeStore.getState().set(view.project.id, { tone: "warn", text: `El proyecto se creó, pero no se pudo crear el repositorio en GitHub: ${(e as Error).message}` });
+        }
+      }
+      return view;
+    },
     onSuccess: (view) => {
       queryClient.setQueryData(queryKeys.project(view.project.id), view);
       queryClient.invalidateQueries({ queryKey: queryKeys.projects, exact: true });

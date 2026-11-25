@@ -102,3 +102,4 @@ export async function writeNewFiles(root: string, files: { path: string; content
   return written;
 }
 export * from "./worktrees";
+export * from "./github-publish";

@@ -58,6 +58,7 @@ export type ProjectView = ProjectSnapshot & {
 export type LiveStep = { at: string; tool: string; label: string; target?: string };
 export type LiveState = { status: "working" | "idle"; startedAt: string | null; lastAt: string | null; steps: LiveStep[] };
 export type GithubFileKind = "ci" | "prTemplate";
+export type GithubPublish = { owner: string; name: string; visibility: "private" | "public"; description?: string };
 /** Whether a project skill is on this machine and how to get it if not. */
 export type SkillAvailability = { skillId: string; installed: boolean; install: "shared" | "plugin" | null; commands: string[] | null };
 export type FileContent = { path: string; content: string; lines: number; truncated: boolean; binary: boolean };
@@ -212,6 +213,9 @@ export const api = {
   deleteDod: (id: string, reqId: string, dodId: string) =>
     request<void>("DELETE", `${p(id)}/requirements/${reqId}/dod/${dodId}`),
 
+  githubAccount: () => request<{ ok: true; account: { login: string; orgs: string[] } } | { ok: false; reason: string }>("GET", "/github/account"),
+  publishGithub: (id: string, data: GithubPublish) =>
+    request<{ url: string; repoUrl: string; committed: boolean; pushed: boolean }>("POST", `${p(id)}/github/publish`, data),
   repoBranch: (id: string) => request<{ current: string | null }>("GET", `${p(id)}/repo/branches`),
   localBranches: (id: string) => request<{ current: string | null; branches: LocalBranch[] }>("GET", `${p(id)}/repo/branches`),
   checkout: (id: string, branch: string) => request<{ branch: string; previous: string | null }>("POST", `${p(id)}/repo/checkout`, { branch }),

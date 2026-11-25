@@ -1,6 +1,6 @@
 import { kindPlatforms, PROJECT_KIND_INFO, toggleStackOption } from "@agent-tracking/core";
 import { create } from "zustand";
-import type { AssistantBrief, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
+import type { AssistantBrief, GithubPublish, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
 
 export const WIZARD_STEPS = [
   { id: "source", label: "Origen" },
@@ -36,6 +36,8 @@ type WizardData = {
   repo: RepoInspection | null;
   /** Starter `.github` files to write into the repo when the project is created. */
   githubFiles: GithubFileKind[];
+  /** Create the repository on GitHub too (only for local repos without a remote). */
+  publish: (GithubPublish & { enabled: boolean }) | null;
   /** Pull request template as edited in the summary; null until edited (then it follows the requirements). */
   prTemplate: string | null;
   name: string;
@@ -81,6 +83,7 @@ const initial = (): WizardData => ({
   source: "scratch",
   repo: null,
   githubFiles: [],
+  publish: null,
   prTemplate: null,
   name: "",
   kind: "fullstack",
@@ -111,6 +114,7 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
     set((s) => ({
       repo,
       name: repo && !s.name ? repo.repo.name : s.name,
+      publish: null,
       repoUrl: repo?.repo.remoteUrl ?? s.repoUrl,
       // A different repo can expose different repo-level skills.
       skillsPreselected: false,

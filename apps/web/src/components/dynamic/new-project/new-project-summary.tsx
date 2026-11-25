@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { platformList } from "@/lib/labels";
 import useWizardStore, { WIZARD_STEPS, type StepId } from "@/stores/use-wizard-store";
 import NewProjectGithubFiles from "./new-project-github-files";
+import NewProjectGithubPublish from "./new-project-github-publish";
 
 const stepIndex = (id: StepId) => WIZARD_STEPS.findIndex((s) => s.id === id);
 
@@ -67,6 +68,7 @@ const NewProjectSummary = () => {
         </Row>
       </dl>
       {repo && !repo.existingProjectId && !repo.projectFile && <NewProjectGithubFiles />}
+      {repo && !repo.existingProjectId && !repo.projectFile && <NewProjectGithubPublish />}
     </div>
   );
 };
