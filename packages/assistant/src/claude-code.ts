@@ -1,6 +1,6 @@
-import { mkdtemp } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { defaultSpawn, isolatedCwd, serialQueue, type Queue, type Spawn, type SpawnResult } from "./spawn";
+
+export type { Spawn, SpawnResult } from "./spawn";
 
 /**
  * Runs the assistant through the locally installed Claude Code CLI (`claude -p`) with the person's
@@ -8,15 +8,11 @@ import { join } from "node:path";
  * the person's own machine; distributed installs should use an API key per user.
  */
 
-export type SpawnResult = { code: number; stdout: string; stderr: string };
-export type Spawn = (cmd: string[], opts: { cwd: string; stdin: string; env: Record<string, string | undefined>; timeoutMs: number }) => Promise<SpawnResult>;
-
 export type ClaudeCli = {
   bin: string;
   spawn: Spawn;
   timeoutMs: number;
-  /** Requests run one after another so a burst of clicks does not start many CLI processes. */
-  queue: { run: <T>(task: () => Promise<T>) => Promise<T> };
+  queue: Queue;
 };
 
 export type CliRequest = {
@@ -36,29 +32,6 @@ export class ClaudeCliError extends Error {
   }
 }
 
-const defaultSpawn: Spawn = async (cmd, { cwd, stdin, env, timeoutMs }) => {
-  const proc = Bun.spawn(cmd, { cwd, env, stdin: new Blob([stdin]), stdout: "pipe", stderr: "pipe" });
-  const timer = setTimeout(() => proc.kill(), timeoutMs);
-  const [stdout, stderr, code] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-    proc.exited,
-  ]);
-  clearTimeout(timer);
-  return { code, stdout, stderr };
-};
-
-const serialQueue = (): ClaudeCli["queue"] => {
-  let tail: Promise<unknown> = Promise.resolve();
-  return {
-    run: <T>(task: () => Promise<T>) => {
-      const next = tail.then(task, task);
-      tail = next.catch(() => {});
-      return next;
-    },
-  };
-};
-
 /**
  * Environment for the child process. Markers of a parent Claude Code session are removed so the
  * CLI does not treat itself as nested; credentials (login, OAuth token) are left untouched.
@@ -68,9 +41,7 @@ const childEnv = (env: Record<string, string | undefined>) => {
   return rest;
 };
 
-let emptyDir: Promise<string> | undefined;
-/** An empty working directory, so no CLAUDE.md or project settings are picked up. */
-const isolatedCwd = () => (emptyDir ??= mkdtemp(join(tmpdir(), "agent-tracking-claude-")));
+const isolated = () => isolatedCwd("claude");
 
 export function createClaudeCli(opts: { bin?: string; spawn?: Spawn; timeoutMs?: number } = {}): ClaudeCli {
   return {
@@ -85,7 +56,7 @@ export function createClaudeCli(opts: { bin?: string; spawn?: Spawn; timeoutMs?:
 export async function claudeCliAvailable(cli: ClaudeCli, env: Record<string, string | undefined> = process.env): Promise<boolean> {
   try {
     const res = await cli.spawn([cli.bin, "auth", "status"], {
-      cwd: await isolatedCwd(),
+      cwd: await isolated(),
       stdin: "",
       env: childEnv(env),
       timeoutMs: 15_000,
@@ -126,7 +97,7 @@ export async function runClaudeCli(cli: ClaudeCli, req: CliRequest, env: Record<
     let res: SpawnResult;
     try {
       res = await cli.spawn(cliArgs(cli.bin, req), {
-        cwd: await isolatedCwd(),
+        cwd: await isolated(),
         stdin: req.prompt,
         env: childEnv(env),
         timeoutMs: cli.timeoutMs,

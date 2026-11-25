@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/button/button";
 import Segmented from "@/components/ui/segmented/segmented";
 import useAppearanceStore, { type TextSize } from "@/stores/use-appearance-store";
+import AssistantProviderPicker from "@/components/dynamic/assistant/assistant-provider-picker";
 import AppearanceFontList from "./appearance-font-list";
 import AppearanceThemeGrid from "./appearance-theme-grid";
 
-type Section = "themes" | "fonts";
+type Section = "themes" | "fonts" | "assistant";
 
 type AppearanceDialogProps = { open: boolean; onClose: () => void };
 
-/** Theme, fonts and text size, the same choices ER Studio offers. Changes apply at once. */
+/** Theme, fonts and text size, the same choices ER Studio offers, plus the assistant provider. Changes apply at once. */
 const AppearanceDialog = ({ open, onClose }: AppearanceDialogProps) => {
   const ref = useRef<HTMLDialogElement>(null);
   const [section, setSection] = useState<Section>("themes");
@@ -49,6 +50,7 @@ const AppearanceDialog = ({ open, onClose }: AppearanceDialogProps) => {
             items={[
               { value: "themes", label: "Temas" },
               { value: "fonts", label: "Fuentes" },
+              { value: "assistant", label: "Asistente" },
             ]}
           />
           <div className="flex flex-wrap items-center gap-3">
@@ -68,7 +70,7 @@ const AppearanceDialog = ({ open, onClose }: AppearanceDialogProps) => {
             </Button>
           </div>
         </div>
-        <div className="overflow-y-auto px-5 py-4">{section === "themes" ? <AppearanceThemeGrid /> : <AppearanceFontList />}</div>
+        <div className="overflow-y-auto px-5 py-4">{section === "themes" ? <AppearanceThemeGrid /> : section === "fonts" ? <AppearanceFontList /> : <AssistantProviderPicker />}</div>
       </div>
     </dialog>
   );

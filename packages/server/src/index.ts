@@ -1,4 +1,4 @@
-import { providerOf, resolveAssistantConfig } from "@agent-tracking/assistant";
+import { PROVIDER_INFO, providerOf, resolveAssistantProviders } from "@agent-tracking/assistant";
 import { openDb } from "@agent-tracking/db";
 import { isAllowedOrigin } from "./origin";
 import { createMcpHttpHandler } from "@agent-tracking/mcp";
@@ -28,13 +28,14 @@ repoWatchers = createRepoWatchers(db, inference, {
   onBranchChange: (projectId) => emit({ type: "changed", projectId, entity: "repo" }),
 });
 const syncRepo = (projectId: string, scope: "changes" | "all") => repoWatchers!.sync(projectId, scope);
-// An API key, or else the local Claude Code CLI with the person's own login (see README).
-const assistant = await resolveAssistantConfig();
+// Claude first (API key, then the local Claude Code login), then OpenAI, Gemini, Codex CLI and Gemini CLI (see README).
+const { available: assistantProviders, active: assistant } = await resolveAssistantProviders();
 // Background GitHub polling for projects open in the UI (GITHUB_POLL_MS=0 disables it).
 const app = createApp(db, {
   tracker,
   syncRepo,
   assistant,
+  assistantProviders,
   github: { watcher: { intervalMs: Number(process.env.GITHUB_POLL_MS ?? 60_000) } },
 });
 /** MCP for agents (Streamable HTTP). stdio agents reach it through packages/mcp/src/stdio.ts. */
@@ -86,10 +87,12 @@ if (process.env.AGENT_TRACKING_WATCH !== "0") {
   const watched = await repoWatchers.startAll();
   console.log(`Analizando ${watched} repositorio(s) de proyectos en segundo plano`);
 }
+const otherProviders = assistantProviders.filter((p) => p !== assistant).map((p) => PROVIDER_INFO[providerOf(p)].label);
 console.log(
-  !assistant
-    ? "Asistente con Claude desactivado (sin ANTHROPIC_API_KEY ni sesión de Claude Code)"
-    : providerOf(assistant) === "api"
-      ? "Asistente con Claude activo (API key)"
-      : "Asistente con Claude activo (tu Claude Code instalado)",
+  (!assistant
+    ? assistantProviders.length
+      ? "Asistente desactivado (el proveedor pedido en AGENT_TRACKING_ASSISTANT_PROVIDER no está disponible)"
+      : "Asistente desactivado (sin claves de Claude, OpenAI ni Gemini, ni sesión de Claude Code, Codex CLI o Gemini CLI)"
+    : `Asistente activo con ${PROVIDER_INFO[providerOf(assistant)].label}`) +
+    (otherProviders.length ? `; disponibles para elegir: ${otherProviders.join(", ")}` : ""),
 );

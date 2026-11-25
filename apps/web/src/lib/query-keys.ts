@@ -21,6 +21,7 @@ export const queryKeys = {
   catalogSkills: ["skills", "catalog"] as const,
   cloneRoot: ["import", "clone-root"] as const,
   assistant: ["assistant"] as const,
+  assistantProviders: ["assistant", "providers"] as const,
   githubAccount: ["github", "account"] as const,
   agents: ["agents"] as const,
 };

@@ -1,17 +1,21 @@
 import type { ComponentProps } from "react";
 import Button from "@/components/ui/button/button";
+import useAssistantStatus from "@/hooks/data/use-assistant-status";
 
 /**
- * A button whose click calls Claude and spends tokens. A slow sheen and a twinkling spark set it
+ * A button whose click calls the active assistant provider and spends its tokens. A slow sheen and a twinkling spark set it
  * apart from free actions; both stop with reduced motion and while it is working.
  */
 const TokenButton = ({ children, className = "", title, isLoading, ...rest }: ComponentProps<typeof Button>) => {
+  const { vendor } = useAssistantStatus();
+  const spends = vendor ? `Usa tokens de ${vendor}` : "Usa tokens del asistente";
+
   return (
     <Button
       {...rest}
       isLoading={isLoading}
-      title={title ?? "Usa tokens de Claude"}
-      aria-description="Usa tokens de Claude"
+      title={title ?? spends}
+      aria-description={spends}
       className={`${isLoading ? "" : "token-button"} ${className}`}
     >
       {!isLoading && (

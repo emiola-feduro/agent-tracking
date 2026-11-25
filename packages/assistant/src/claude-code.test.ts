@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { createClaudeCli, type Spawn } from "./claude-code";
+import { createClaudeCli, type ClaudeCli, type Spawn } from "./claude-code";
+import { createCliTool } from "./codex-cli";
 import { ask, AssistantError, resolveAssistantConfig, type AssistantConfig } from "./client";
 import { suggestDod } from "./dod";
 import { z } from "zod";
@@ -19,30 +20,36 @@ const fakeCli = (opts: { loggedIn?: boolean; installed?: boolean; answer?: (call
   return { cli: createClaudeCli({ spawn }), calls };
 };
 
+/** Codex and Gemini CLIs that are not installed, so only Claude is detected. */
+const onlyClaude = (cli: ClaudeCli) => {
+  const missing = createCliTool("missing", { spawn: async () => { throw new Error("ENOENT"); } });
+  return { claude: cli, codex: missing, geminiCli: missing };
+};
+
 const success = (structured: unknown) => ({ type: "result", subtype: "success", is_error: false, structured_output: structured });
 
 describe("resolveAssistantConfig", () => {
   test("an API key wins in auto mode", async () => {
     const { cli } = fakeCli({});
-    const config = await resolveAssistantConfig({ ANTHROPIC_API_KEY: "sk-test" }, cli);
+    const config = await resolveAssistantConfig({ ANTHROPIC_API_KEY: "sk-test" }, onlyClaude(cli));
     expect(config?.provider).toBe("api");
   });
 
   test("without a key, a logged-in Claude Code is used", async () => {
     const { cli } = fakeCli({ loggedIn: true });
-    expect((await resolveAssistantConfig({}, cli))?.provider).toBe("claude-code");
+    expect((await resolveAssistantConfig({}, onlyClaude(cli)))?.provider).toBe("claude-code");
   });
 
   test("not logged in or not installed means no assistant", async () => {
-    expect(await resolveAssistantConfig({}, fakeCli({ loggedIn: false }).cli)).toBeNull();
-    expect(await resolveAssistantConfig({}, fakeCli({ installed: false }).cli)).toBeNull();
+    expect(await resolveAssistantConfig({}, onlyClaude(fakeCli({ loggedIn: false }).cli))).toBeNull();
+    expect(await resolveAssistantConfig({}, onlyClaude(fakeCli({ installed: false }).cli))).toBeNull();
   });
 
   test("the provider can be forced or turned off", async () => {
     const { cli } = fakeCli({ loggedIn: true });
-    expect(await resolveAssistantConfig({ AGENT_TRACKING_ASSISTANT_PROVIDER: "off", ANTHROPIC_API_KEY: "sk" }, cli)).toBeNull();
-    expect(await resolveAssistantConfig({ AGENT_TRACKING_ASSISTANT_PROVIDER: "api" }, cli)).toBeNull();
-    const forced = await resolveAssistantConfig({ AGENT_TRACKING_ASSISTANT_PROVIDER: "claude-code", ANTHROPIC_API_KEY: "sk" }, cli);
+    expect(await resolveAssistantConfig({ AGENT_TRACKING_ASSISTANT_PROVIDER: "off", ANTHROPIC_API_KEY: "sk" }, onlyClaude(cli))).toBeNull();
+    expect(await resolveAssistantConfig({ AGENT_TRACKING_ASSISTANT_PROVIDER: "api" }, onlyClaude(cli))).toBeNull();
+    const forced = await resolveAssistantConfig({ AGENT_TRACKING_ASSISTANT_PROVIDER: "claude-code", ANTHROPIC_API_KEY: "sk" }, onlyClaude(cli));
     expect(forced?.provider).toBe("claude-code");
   });
 });
