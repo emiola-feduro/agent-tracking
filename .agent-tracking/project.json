@@ -5,7 +5,6 @@
     "name": "Agent Tracking",
     "goal": "Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimientos y Definition of Done, features, archivos, símbolos y tests, ramas, pull requests y pipelines, con un CONTEXT.md para que cualquier agente se sume al proyecto.",
     "kind": "fullstack",
-    "commitConventions": null,
     "platforms": [
       "web",
       "desktop"
@@ -172,6 +171,13 @@
           "description": "get_plan_format y create_project; devuelve preguntas cuando falta lo obligatorio.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+          "name": "Conectar agentes y sus instrucciones",
+          "description": "Sección Agentes con conexión previsualizada y bloques en CLAUDE.md, AGENTS.md y GEMINI.md.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -320,6 +326,13 @@
           "description": "Mensajes a mitad de turno se suman al turno, un Stop perdido se resuelve en el siguiente pedido, sesiones fuera del repo empiezan al tocar un archivo, ediciones a archivos sin commit cuentan, y un aviso anuncia el trabajo terminado.",
           "status": "done",
           "agent": "claude-code"
+        },
+        {
+          "id": "a8021746-6f16-480d-af64-7d9a91068c3e",
+          "name": "Seguimiento de Codex CLI y Gemini CLI",
+          "description": "Adaptadores por agente, actividad en vivo por sesión, turnos con agente y respaldo por MCP.",
+          "status": "done",
+          "agent": "claude-code"
         }
       ]
     },
@@ -459,6 +472,13 @@
           "id": "abd40f70-d2b9-4a69-bedd-08d4841a629d",
           "name": "Botones que gastan tokens",
           "description": "Brillo y chispa sutiles en los botones que llaman a Claude.",
+          "status": "done",
+          "agent": "claude-code"
+        },
+        {
+          "id": "cd9f791e-6d22-496a-933c-50a50921b753",
+          "name": "Proveedores del asistente",
+          "description": "OpenAI y Gemini por API, Codex CLI y Gemini CLI locales, además de Claude por API o Claude Code; se elige en Apariencia o con AGENT_TRACKING_ASSISTANT_PROVIDER.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -678,6 +698,13 @@
           "id": "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
           "name": "Validación de rutas y worktrees",
           "description": "",
+          "status": "done",
+          "agent": "claude-code"
+        },
+        {
+          "id": "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+          "name": "Solo páginas de este equipo",
+          "description": "La API, el WebSocket y /mcp rechazan otros orígenes.",
           "status": "done",
           "agent": "claude-code"
         }
@@ -3078,9 +3105,91 @@
       "name": "deleting branches on GitHub",
       "type": "integration",
       "lastResult": "passing"
+    },
+    {
+      "id": "07c00d74-22e7-4c79-9c66-46cb77e9a0ac",
+      "featureId": "a8021746-6f16-480d-af64-7d9a91068c3e",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "path": "packages/agents/src/agents.test.ts",
+      "name": "adapters",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "id": "6eda58a7-43a1-4923-b6cb-5b95e2018509",
+      "featureId": "a8021746-6f16-480d-af64-7d9a91068c3e",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "path": "packages/server/src/agents-flow.test.ts",
+      "name": "several agents",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "96df933c-db32-4740-9f10-69ffd2193d59",
+      "featureId": "a8021746-6f16-480d-af64-7d9a91068c3e",
+      "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+      "path": "packages/mcp/src/mcp.test.ts",
+      "name": "agents without hooks",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "41f09187-a9b2-4cfa-ac70-27e90538a07b",
+      "featureId": "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+      "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
+      "path": "packages/agents/src/connect.test.ts",
+      "name": "connecting agents",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "id": "615f5370-6fb7-4f48-b45c-88e47a87d6f8",
+      "featureId": "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+      "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
+      "path": "packages/server/src/agent-routes.test.ts",
+      "name": "agent routes",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "800d95b7-b6e4-4ad7-8c15-7864f68f5254",
+      "featureId": "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+      "requirementId": "d9d9a456-5385-4793-918a-de1ab104db5e",
+      "path": "packages/server/src/origin.test.ts",
+      "name": "who may call the API",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "id": "d7285baa-a888-4a1f-944f-b445ef283f6c",
+      "featureId": "cd9f791e-6d22-496a-933c-50a50921b753",
+      "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
+      "path": "packages/assistant/src/providers.test.ts",
+      "name": "assistant providers",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "id": "831fa1dc-51d8-417a-9ca8-b23569110185",
+      "featureId": "cd9f791e-6d22-496a-933c-50a50921b753",
+      "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
+      "path": "packages/server/src/assistant.test.ts",
+      "name": "assistant routes",
+      "type": "integration",
+      "lastResult": "passing"
     }
   ],
   "files": [
+    {
+      "id": "1e82d488-978c-4c70-9d9f-57b6a250dc7b",
+      "path": "apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx",
+      "purpose": "Diálogo con el diff de cada archivo antes de conectar.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
+    },
     {
       "id": "a08ad7bd-a1ff-4853-84d8-5677bd77efbc",
       "path": "apps/web/src/components/dynamic/appearance/appearance-dialog.tsx",
@@ -3244,6 +3353,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "c7ff530e-96b2-4555-bec9-14ad4da079b9",
+      "path": "apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx",
+      "purpose": "Selector de proveedor del asistente.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
     },
     {
       "id": "2f23853e-714c-4fcc-b87d-595d00a89727",
@@ -4040,9 +4159,10 @@
     {
       "id": "390b3ee9-cdd7-438e-a837-6e0798b7c9f1",
       "path": "apps/web/src/components/dynamic/new-project/new-project-basics.tsx",
-      "purpose": "Paso Proyecto: nombre, tipo de proyecto y plataformas",
+      "purpose": "Wizard: agentes del proyecto.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
         "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
       ],
       "symbols": [
@@ -4986,6 +5106,16 @@
       ]
     },
     {
+      "id": "67bb0180-b260-4612-97d3-0677e10fea6a",
+      "path": "apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx",
+      "purpose": "Sección Agentes.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
+    },
+    {
       "id": "47cf54a2-887c-4508-a18c-9eff2e7cb85c",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-checkout-menu.tsx",
       "purpose": "Menú desplegable de ramas y worktrees.",
@@ -5156,10 +5286,11 @@
     {
       "id": "34b839b1-02f0-4438-ba04-39710afc500e",
       "path": "apps/web/src/components/dynamic/project-detail/project-detail-live.tsx",
-      "purpose": "Panel con el paso actual y los anteriores",
+      "purpose": "Panel en vivo con el nombre de cada agente.",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a"
+        "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
       ],
       "symbols": [
         {
@@ -6902,10 +7033,11 @@
     {
       "id": "5777c95e-613e-4f82-9937-959e824da347",
       "path": "apps/web/src/components/ui/token-button/token-button.tsx",
-      "purpose": "Botón que indica que usa tokens de Claude.",
+      "purpose": "Dice de quién son los tokens que gasta.",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "abd40f70-d2b9-4a69-bedd-08d4841a629d"
+        "abd40f70-d2b9-4a69-bedd-08d4841a629d",
+        "cd9f791e-6d22-496a-933c-50a50921b753"
       ],
       "symbols": [
         {
@@ -6945,6 +7077,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "d940bcd8-67de-4a5c-bc7f-ade321503749",
+      "path": "apps/web/src/hooks/data/use-assistant-providers.ts",
+      "purpose": "Proveedores disponibles y cambio de proveedor.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
     },
     {
       "id": "2b77b2b1-cb4a-4c88-b0d7-27b62245e521",
@@ -9079,6 +9221,16 @@
       ]
     },
     {
+      "id": "bd76dbcd-31e3-44ca-bd6c-5e9446a04a2f",
+      "path": "apps/web/src/lib/line-diff.ts",
+      "purpose": "Diff por líneas para archivos de configuración.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
+    },
+    {
       "id": "e8100081-67a8-495a-8213-3a0a7d0318d4",
       "path": "apps/web/src/lib/query-client.ts",
       "purpose": "Reintentos para errores de red y del servidor",
@@ -9555,6 +9707,125 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "217d3a3b-c470-4783-b9e2-b4bf036c6f37",
+      "path": "packages/agents/src/agents.test.ts",
+      "purpose": "Tests de los adaptadores con los formatos documentados.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "1b433395-4c77-455e-bd25-3a9a51345cf5",
+      "path": "packages/agents/src/claude-code.ts",
+      "purpose": "Adaptador de Claude Code y lectura del último mensaje del transcript.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "8e142cb5-826f-4940-b880-aae18c8dec51",
+      "path": "packages/agents/src/codex.ts",
+      "purpose": "Adaptador de Codex CLI: hooks y herramientas shell/apply_patch.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "2a409706-31c4-4be8-abe3-73960e5daddd",
+      "path": "packages/agents/src/connect.test.ts",
+      "purpose": "Tests de conexión en un HOME temporal.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "2ef4e3a7-e26d-4d26-8f7d-ff5c4e6402f3",
+      "path": "packages/agents/src/connect.ts",
+      "purpose": "Planes de conexión y desconexión por agente, y su aplicación con copias .bak.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": [
+        {
+          "id": "7642f73f-6642-430a-a2cd-7d4b077343b4",
+          "name": "applyChanges",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Escribe lo planeado si los archivos no cambiaron",
+          "source": "reported"
+        },
+        {
+          "id": "ec0a531e-8e5d-491a-8e31-f7023723d734",
+          "name": "connectPlan",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Qué cambiaría conectar, sin escribir nada",
+          "source": "reported"
+        }
+      ]
+    },
+    {
+      "id": "0423adf0-fc19-41f4-95ed-a26b4b6cff23",
+      "path": "packages/agents/src/describe.ts",
+      "purpose": "Utilidades para describir herramientas sin guardar contenidos.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "e8732d8c-5a5d-4254-b363-4f42b034f279",
+      "path": "packages/agents/src/gemini-cli.ts",
+      "purpose": "Adaptador de Gemini CLI: BeforeAgent, BeforeTool, AfterAgent.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "7777ff55-0f01-48cb-a807-3f26075a2ab1",
+      "path": "packages/agents/src/index.ts",
+      "purpose": "Registro de adaptadores y utilidades (adapterFor, agentForClient, agentLabel).",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": [
+        {
+          "id": "fd7414eb-3fac-47b4-9e0f-f7d9473f674c",
+          "name": "adapterFor",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Adaptador del parámetro ?agent=, Claude por defecto",
+          "source": "reported"
+        }
+      ]
+    },
+    {
+      "id": "494bf68c-88a9-44d8-afeb-3b4a288f50de",
+      "path": "packages/agents/src/types.ts",
+      "purpose": "Tipos comunes: AgentKind, AgentEvent y AgentAdapter.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": []
     },
     {
       "id": "a15c7e49-bfc3-4b39-81df-51d18e300b9f",
@@ -10761,9 +11032,10 @@
     {
       "id": "a6d387e8-a3a6-4788-bcde-18b6717dd927",
       "path": "packages/assistant/src/claude-code.ts",
-      "purpose": "Usa el Claude Code instalado como proveedor",
+      "purpose": "Proveedor Claude Code CLI.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753",
         "eb414879-3201-4d99-9b1e-a3043e0aed50"
       ],
       "symbols": [
@@ -10898,9 +11170,11 @@
     {
       "id": "0f69e543-d92a-47cf-9920-82ca2fa61b4e",
       "path": "packages/assistant/src/client.ts",
-      "purpose": "",
+      "purpose": "Configuración y elección del proveedor del asistente; ask() por proveedor.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
       "symbols": [
         {
           "id": "cf63328b-df06-49b0-9312-7fb05dc74211",
@@ -11049,6 +11323,16 @@
       ]
     },
     {
+      "id": "dff3af44-613f-4a37-be94-45edde3f837f",
+      "path": "packages/assistant/src/codex-cli.ts",
+      "purpose": "Proveedor Codex CLI no interactivo.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
+    },
+    {
       "id": "508a3bf3-50d3-4d1d-9a01-5ea356c86aec",
       "path": "packages/assistant/src/dod.ts",
       "purpose": "Criterios del DoD sugeridos",
@@ -11123,11 +11407,51 @@
       ]
     },
     {
+      "id": "07de4795-8a4a-4f06-9b05-f318ae2b7914",
+      "path": "packages/assistant/src/errors.ts",
+      "purpose": "Errores del asistente.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "f2797827-be7e-49bb-ac59-01b96ef1098c",
+      "path": "packages/assistant/src/gemini-cli.ts",
+      "purpose": "Proveedor Gemini CLI no interactivo.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "d50d6b9c-3d23-465e-a44c-999c1a8c5ba3",
+      "path": "packages/assistant/src/gemini.ts",
+      "purpose": "Proveedor Gemini por API con esquema de respuesta.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
+    },
+    {
       "id": "25010955-82b8-4376-96fd-646abc7ce76e",
       "path": "packages/assistant/src/index.ts",
       "purpose": "",
       "createdBy": "repo:analysis",
       "featureIds": [],
+      "symbols": []
+    },
+    {
+      "id": "4bce997c-97a9-4cce-b613-00e207681352",
+      "path": "packages/assistant/src/openai.ts",
+      "purpose": "Proveedor OpenAI con salida estructurada.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
       "symbols": []
     },
     {
@@ -11174,6 +11498,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "9d150cc6-5cd6-4488-9e21-87fbc3b31868",
+      "path": "packages/assistant/src/providers.test.ts",
+      "purpose": "Tests de los proveedores con fetch y spawn simulados.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
     },
     {
       "id": "b33ddda5-401b-4006-8e70-48394b02769f",
@@ -11237,6 +11571,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "b014f935-5654-4b6c-a36f-7f333f3f5a8a",
+      "path": "packages/assistant/src/spawn.ts",
+      "purpose": "Ejecución de CLIs con tiempo límite y carpeta aislada.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
+      "symbols": []
     },
     {
       "id": "0466e52e-440b-42ba-8790-1662696b2fa3",
@@ -11392,6 +11736,16 @@
           "source": "inferred"
         }
       ]
+    },
+    {
+      "id": "77e324e2-2616-4cb0-9a62-09e8002b5cba",
+      "path": "packages/core/src/agent-context.ts",
+      "purpose": "Bloque administrado para los archivos de instrucciones de cada agente.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
     },
     {
       "id": "2cbf47ad-923c-41b9-ae75-994fda07653d",
@@ -14629,10 +14983,11 @@
     {
       "id": "261bab90-13b2-47a2-b64d-5fdaa0b6ee1b",
       "path": "packages/mcp/src/server.ts",
-      "purpose": "Servidor MCP; herramientas get_plan_format y create_project.",
+      "purpose": "MCP: turnos para agentes sin hooks.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "40490b16-9821-49bc-a246-7d81b01eb54a",
+        "a8021746-6f16-480d-af64-7d9a91068c3e",
         "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
       ],
       "symbols": [
@@ -14921,6 +15276,36 @@
       ]
     },
     {
+      "id": "bb382d96-acf8-4aa2-b29e-7bad190dbc36",
+      "path": "packages/server/src/agent-files.test.ts",
+      "purpose": "Tests de los archivos de instrucciones.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "9ccd64ec-2e99-4abc-b6c9-e786bbdd5c74",
+      "path": "packages/server/src/agent-routes.test.ts",
+      "purpose": "Tests de las rutas de agentes.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "0af9f426-693f-46cc-bd45-7bb3f9f11bc6",
+      "path": "packages/server/src/agent-routes.ts",
+      "purpose": "Rutas /agents: estado, planes, conectar y desconectar.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+      ],
+      "symbols": []
+    },
+    {
       "id": "54473408-615d-4f68-a76b-71c999cdeb51",
       "path": "packages/server/src/agent-turns.ts",
       "purpose": "Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.",
@@ -15005,6 +15390,16 @@
       ]
     },
     {
+      "id": "9776b276-3caa-40f1-81e7-4edf9cca1bce",
+      "path": "packages/server/src/agents-flow.test.ts",
+      "purpose": "Codex y Gemini a la vez: sesiones en vivo y turnos.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": []
+    },
+    {
       "id": "345afc30-891c-477f-aa72-6662d952c96a",
       "path": "packages/server/src/app.test.ts",
       "purpose": "",
@@ -15015,11 +15410,13 @@
     {
       "id": "553410b3-6c29-4e18-924c-ed3654f5d583",
       "path": "packages/server/src/app.ts",
-      "purpose": "agentOnBranch compartido por las rutas de repo y de GitHub.",
+      "purpose": "Rutas para listar y cambiar el proveedor del asistente.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
         "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+        "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+        "cd9f791e-6d22-496a-933c-50a50921b753",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
         "d5c72587-3bd9-487f-bab5-74e76b919371",
         "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
@@ -15192,9 +15589,11 @@
     {
       "id": "1b2628ea-475f-4f92-824d-23161521e0f0",
       "path": "packages/server/src/assistant.test.ts",
-      "purpose": "",
+      "purpose": "Tests de las rutas del asistente.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
       "symbols": []
     },
     {
@@ -15355,9 +15754,12 @@
     {
       "id": "5c2eea4c-3011-4883-98c8-32a9ed67c899",
       "path": "packages/server/src/index.ts",
-      "purpose": "",
+      "purpose": "Mensaje de inicio con el proveedor activo.",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+        "cd9f791e-6d22-496a-933c-50a50921b753"
+      ],
       "symbols": [
         {
           "id": "8658d4aa-d74f-498c-bf89-30c41c3b5ea6",
@@ -15498,10 +15900,11 @@
     {
       "id": "4338ccae-93c6-46db-9e90-3b0299900700",
       "path": "packages/server/src/live-activity.ts",
-      "purpose": "Pasos en vivo; un mensaje a mitad de turno no los borra.",
+      "purpose": "Actividad en vivo por sesión y agente.",
       "createdBy": "repo:analysis",
       "featureIds": [
         "41655f5e-8ac6-4b7b-b47c-39410ac5ff7a",
+        "a8021746-6f16-480d-af64-7d9a91068c3e",
         "d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5"
       ],
       "symbols": [
@@ -15640,6 +16043,36 @@
       "createdBy": "repo:analysis",
       "featureIds": [],
       "symbols": []
+    },
+    {
+      "id": "e43b6508-6dfb-4ca8-b1d9-66e79bdea5d6",
+      "path": "packages/server/src/origin.test.ts",
+      "purpose": "Tests de orígenes permitidos.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "2643a8cc-df59-4ebb-a845-e574b2b3ebc7"
+      ],
+      "symbols": []
+    },
+    {
+      "id": "caac3e20-7894-4d8e-aa8b-5e215209e7c9",
+      "path": "packages/server/src/origin.ts",
+      "purpose": "Qué orígenes pueden llamar al servidor.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "2643a8cc-df59-4ebb-a845-e574b2b3ebc7"
+      ],
+      "symbols": [
+        {
+          "id": "d288b40e-c1e1-4cbd-b7f8-f58b8418828f",
+          "name": "isAllowedOrigin",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Sin Origin, local o la misma dirección",
+          "source": "reported"
+        }
+      ]
     },
     {
       "id": "5438a20b-d8a8-4af6-b187-6173a7fb3d6e",
@@ -15857,9 +16290,10 @@
     {
       "id": "187e9c56-f4d8-443d-9c82-36ac32d77165",
       "path": "packages/skills/src/index.ts",
-      "purpose": "Exporta las funciones para llevar skills entre equipos",
+      "purpose": "Skills también en .agents/skills y en la carpeta de Gemini.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
       ],
       "symbols": [
@@ -16092,6 +16526,35 @@
       "symbols": []
     },
     {
+      "id": "79ca28dd-6679-4341-a811-806b6a396e3d",
+      "path": "packages/tracking/src/agent-turns.ts",
+      "purpose": "Turnos con agente, y turnos por MCP para agentes sin hooks.",
+      "createdBy": "agent:claude-code",
+      "featureIds": [
+        "a8021746-6f16-480d-af64-7d9a91068c3e"
+      ],
+      "symbols": [
+        {
+          "id": "85524108-63ea-4f0f-b5e8-4bf664a097a2",
+          "name": "finishFromMcp",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Cierra el turno con el reporte final",
+          "source": "reported"
+        },
+        {
+          "id": "3c9c36ea-56a6-412a-a516-e565bcedf1ab",
+          "name": "startFromMcp",
+          "kind": "function",
+          "lineStart": null,
+          "lineEnd": null,
+          "purpose": "Abre un turno al leer el contexto",
+          "source": "reported"
+        }
+      ]
+    },
+    {
       "id": "eaa69d23-89a5-49a9-868c-1639bcd6753e",
       "path": "packages/tracking/src/attachments.ts",
       "purpose": "Valida y guarda imágenes, compartido por la API y el MCP",
@@ -16308,9 +16771,10 @@
     {
       "id": "dfe5c559-2311-48b4-84cb-c0ac4fd5de10",
       "path": "packages/tracking/src/repo-sync.ts",
-      "purpose": "Exporta skills compartidas y restaura imágenes al importar o sincronizar",
+      "purpose": "Escribe y quita el bloque en CLAUDE.md, AGENTS.md y GEMINI.md.",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
         "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
       ],
       "symbols": [
@@ -16751,6 +17215,5 @@
       "origin": "llm",
       "status": "proposed"
     }
-  ],
-  "attachments": []
+  ]
 }

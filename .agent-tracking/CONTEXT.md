@@ -16,25 +16,6 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
 - **Avance global:** 85%
 
-## Convenciones de commits y ramas
-
-_No se definieron convenciones: se usan Conventional Commits por defecto._
-
-- **Formato del mensaje:** `<tipo>(<alcance opcional>): <descripción>`, en español, en imperativo y sin punto final.
-- **Ramas:** `<tipo>/<tema-corto>`, por ejemplo `feat/busqueda-por-fecha`. No se trabaja directo en main.
-- **Tipos permitidos:**
-  - `feat`: Una funcionalidad nueva
-  - `fix`: Corrige un error
-  - `docs`: Solo documentación
-  - `style`: Formato, espacios o punto y coma, sin cambiar la lógica
-  - `refactor`: Cambia el código sin corregir errores ni agregar funciones
-  - `perf`: Mejora el rendimiento
-  - `test`: Agrega o corrige tests
-  - `build`: Build o dependencias
-  - `ci`: Configuración de integración continua
-  - `chore`: Tareas de mantenimiento que no tocan el código de la app
-  - `revert`: Revierte un commit anterior
-
 ## Reglas de negocio
 
 1. El código y los comentarios van en inglés; el texto de la interfaz, en español
@@ -67,7 +48,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
 **Features:**
 
 - Wizard de nuevo proyecto — _done_ (`4ee5653d-ad1a-4033-ac57-3f5dad3c08e1`)
-  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Paso Proyecto: nombre, tipo de proyecto y plataformas
+  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Wizard: agentes del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-github-files.tsx`: CI y plantilla de PR editable en Markdown en el Resumen
   - `apps/web/src/components/dynamic/new-project/new-project-source.tsx`: Paso Origen: desde cero, repo nuevo, local o clonado
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Opciones del stack con grupos exclusivos y dependencias deshabilitadas
@@ -85,7 +66,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/index.ts`: Exporta el núcleo, ahora con planes.
   - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
+  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
 - Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
@@ -115,15 +96,28 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
   - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
   - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
-  - `packages/mcp/src/server.ts`: Servidor MCP; herramientas get_plan_format y create_project.
+  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
   - `packages/tracking/src/tracker.ts`: Escritura de features, archivos, símbolos y tests, y resolución del proyecto por ruta o worktree
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
   - `packages/mcp/src/mcp.test.ts`: Tests de las herramientas MCP, incluida la creación desde un plan.
-  - `packages/mcp/src/server.ts`: Servidor MCP; herramientas get_plan_format y create_project.
+  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
   - `packages/tracking/src/create-project.ts`: Creación de proyectos compartida por la API y el MCP.
   - `packages/tracking/src/index.ts`: Exporta createProject.
+- Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
+  - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Diálogo con el diff de cada archivo antes de conectar.
+  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Wizard: agentes del proyecto.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Sección Agentes.
+  - `apps/web/src/lib/line-diff.ts`: Diff por líneas para archivos de configuración.
+  - `packages/agents/src/connect.test.ts`: Tests de conexión en un HOME temporal.
+  - `packages/agents/src/connect.ts`: Planes de conexión y desconexión por agente, y su aplicación con copias .bak.
+  - `packages/core/src/agent-context.ts`: Bloque administrado para los archivos de instrucciones de cada agente.
+  - `packages/server/src/agent-files.test.ts`: Tests de los archivos de instrucciones.
+  - `packages/server/src/agent-routes.test.ts`: Tests de las rutas de agentes.
+  - `packages/server/src/agent-routes.ts`: Rutas /agents: estado, planes, conectar y desconectar.
+  - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
+  - `packages/tracking/src/repo-sync.ts`: Escribe y quita el bloque en CLAUDE.md, AGENTS.md y GEMINI.md.
 
 ### Análisis del repositorio en vivo — 100%
 
@@ -200,18 +194,31 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
 
 - Hooks en vivo y resumen de turnos — _done_ (`41655f5e-8ac6-4b7b-b47c-39410ac5ff7a`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-last-turn.tsx`: Resumen del último turno con cambios.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-live.tsx`: Panel con el paso actual y los anteriores
+  - `apps/web/src/components/dynamic/project-detail/project-detail-live.tsx`: Panel en vivo con el nombre de cada agente.
   - `apps/web/src/components/ui/diff-view/diff-view.tsx`: Diff por archivo con líneas coloreadas
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/live-activity.ts`: Pasos en vivo; un mensaje a mitad de turno no los borra.
+  - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
 - Resumen tras cada trabajo del agente — _done_ (`d9f0e399-e47e-4dfa-a37b-c5f0efd76cb5`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-turn-toast.tsx`: Aviso de trabajo terminado con enlace al resumen.
   - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
+  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
-  - `packages/server/src/live-activity.ts`: Pasos en vivo; un mensaje a mitad de turno no los borra.
+  - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
+- Seguimiento de Codex CLI y Gemini CLI — _done_ (`a8021746-6f16-480d-af64-7d9a91068c3e`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-live.tsx`: Panel en vivo con el nombre de cada agente.
+  - `packages/agents/src/agents.test.ts`: Tests de los adaptadores con los formatos documentados.
+  - `packages/agents/src/claude-code.ts`: Adaptador de Claude Code y lectura del último mensaje del transcript.
+  - `packages/agents/src/codex.ts`: Adaptador de Codex CLI: hooks y herramientas shell/apply_patch.
+  - `packages/agents/src/describe.ts`: Utilidades para describir herramientas sin guardar contenidos.
+  - `packages/agents/src/gemini-cli.ts`: Adaptador de Gemini CLI: BeforeAgent, BeforeTool, AfterAgent.
+  - `packages/agents/src/index.ts`: Registro de adaptadores y utilidades (adapterFor, agentForClient, agentLabel).
+  - `packages/agents/src/types.ts`: Tipos comunes: AgentKind, AgentEvent y AgentAdapter.
+  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
+  - `packages/server/src/agents-flow.test.ts`: Codex y Gemini a la vez: sesiones en vivo y turnos.
+  - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
+  - `packages/tracking/src/agent-turns.ts`: Turnos con agente, y turnos por MCP para agentes sin hooks.
 
 ### Ramas y worktrees — 100%
 
@@ -244,7 +251,7 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
   - `apps/web/src/lib/api.ts`: Cliente de la API con deleteBranch.
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
-  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
+  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
   - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 
@@ -284,7 +291,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/hooks/data/use-github-branches.ts`: Lista y borrado de ramas con doble confirmación.
   - `apps/web/src/lib/github-api.ts`: Cliente web de las rutas de GitHub.
   - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
-  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
+  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
   - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
   - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
 
@@ -304,14 +311,30 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
 **Features:**
 
 - Asistente de stack, DoD y skills — _done_ (`eb414879-3201-4d99-9b1e-a3043e0aed50`)
-  - `packages/assistant/src/claude-code.ts`: Usa el Claude Code instalado como proveedor
+  - `packages/assistant/src/claude-code.ts`: Proveedor Claude Code CLI.
   - `packages/assistant/src/dod.ts`: Criterios del DoD sugeridos
   - `packages/assistant/src/stack.ts`: Sugerencia de stack normalizada con el catálogo
 - Botones que gastan tokens — _done_ (`abd40f70-d2b9-4a69-bedd-08d4841a629d`)
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-dod.tsx`: DoD del wizard; Sugerir con IA con TokenButton.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-assistant.tsx`: Sugerencia de stack con TokenButton.
   - `apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx`: DoD del proyecto; Generar criterios con TokenButton.
-  - `apps/web/src/components/ui/token-button/token-button.tsx`: Botón que indica que usa tokens de Claude.
+  - `apps/web/src/components/ui/token-button/token-button.tsx`: Dice de quién son los tokens que gasta.
+- Proveedores del asistente — _done_ (`cd9f791e-6d22-496a-933c-50a50921b753`)
+  - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Selector de proveedor del asistente.
+  - `apps/web/src/components/ui/token-button/token-button.tsx`: Dice de quién son los tokens que gasta.
+  - `apps/web/src/hooks/data/use-assistant-providers.ts`: Proveedores disponibles y cambio de proveedor.
+  - `packages/assistant/src/claude-code.ts`: Proveedor Claude Code CLI.
+  - `packages/assistant/src/client.ts`: Configuración y elección del proveedor del asistente; ask() por proveedor.
+  - `packages/assistant/src/codex-cli.ts`: Proveedor Codex CLI no interactivo.
+  - `packages/assistant/src/errors.ts`: Errores del asistente.
+  - `packages/assistant/src/gemini-cli.ts`: Proveedor Gemini CLI no interactivo.
+  - `packages/assistant/src/gemini.ts`: Proveedor Gemini por API con esquema de respuesta.
+  - `packages/assistant/src/openai.ts`: Proveedor OpenAI con salida estructurada.
+  - `packages/assistant/src/providers.test.ts`: Tests de los proveedores con fetch y spawn simulados.
+  - `packages/assistant/src/spawn.ts`: Ejecución de CLIs con tiempo límite y carpeta aislada.
+  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/assistant.test.ts`: Tests de las rutas del asistente.
+  - `packages/server/src/index.ts`: Mensaje de inicio con el proveedor activo.
 
 ### Referencias visuales y galería de vistas — 100%
 
@@ -371,7 +394,7 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
 
 ID: `f66fb380-a480-42a5-b45f-433928f2a081`
 
-**Tipo:** No funcional, área usabilidad
+**Tipo:** No funcional, área experiencia de uso
 
 Temas, fuentes y tamaño de texto como en ER Studio.
 
@@ -392,7 +415,7 @@ Temas, fuentes y tamaño de texto como en ER Studio.
 
 ID: `308a7bc8-83d9-46e1-a443-745d4fef719d`
 
-**Tipo:** No funcional, área usabilidad
+**Tipo:** No funcional, área experiencia de uso
 
 Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 390 px.
 
@@ -452,6 +475,11 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
 - Validación de rutas y worktrees — _done_ (`229342a4-9fb9-48b6-9ad5-3532951f1d1b`)
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
+- Solo páginas de este equipo — _done_ (`2643a8cc-df59-4ebb-a845-e574b2b3ebc7`)
+  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
+  - `packages/server/src/index.ts`: Mensaje de inicio con el proveedor activo.
+  - `packages/server/src/origin.test.ts`: Tests de orígenes permitidos.
+  - `packages/server/src/origin.ts`: Qué orígenes pueden llamar al servidor.
 
 ### Gestión de cambios y detección de conflictos — 0%
 
@@ -507,12 +535,12 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/types.ts`: Tipos del dominio; áreas funcionales y de calidad.
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
   - `packages/db/src/schema.ts`: Columna commit_conventions.
-  - `packages/server/src/app.ts`: agentOnBranch compartido por las rutas de repo y de GitHub.
+  - `packages/server/src/app.ts`: Rutas para listar y cambiar el proveedor del asistente.
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
-  - `packages/skills/src/index.ts`: Exporta las funciones para llevar skills entre equipos
+  - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
   - `packages/skills/src/portable.ts`: Origen de las skills, copia al repo e instalación en otro equipo
-  - `packages/tracking/src/repo-sync.ts`: Exporta skills compartidas y restaura imágenes al importar o sincronizar
+  - `packages/tracking/src/repo-sync.ts`: Escribe y quita el bloque en CLAUDE.md, AGENTS.md y GEMINI.md.
 
 ## Ideas de tests pendientes
 
