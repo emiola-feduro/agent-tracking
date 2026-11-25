@@ -14,8 +14,6 @@ import { TraceContext } from "./trace-context";
 
 type Mode = "requirements" | "files";
 
-/** Small trees start open; bigger ones start as a list of files to scan. */
-const OPEN_BY_DEFAULT = 4;
 
 const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
   const { requirements, features, progress } = view;
@@ -24,7 +22,8 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
   const [mode, setMode] = useState<Mode>("requirements");
   const [query, setQuery] = useState("");
   const suggestions = useTraceSuggestions(view, query);
-  const expanded = useExpanded(allFiles.length <= OPEN_BY_DEFAULT ? allFiles.map((f) => f.id) : []);
+  // Features, folders and files all start folded; searching opens what matches.
+  const expanded = useExpanded();
 
   const matches = (fileId: string) => {
     const file = allFiles.find((f) => f.id === fileId);
@@ -37,7 +36,9 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
   );
   const shownFiles = allFiles.filter((f) => matches(f.id));
   const shownUnlinked = unlinkedFiles.filter((f) => matches(f.id));
-  const allOpen = shownFiles.length > 0 && shownFiles.every((f) => expanded.isOpen(f.id));
+  const folderKeys = [...new Set(shownFiles.map((f) => `folder:${f.path.slice(0, f.path.lastIndexOf("/") + 1)}`))];
+  const groupKeys = mode === "files" ? folderKeys : features.map((f) => `feature:${f.id}`);
+  const allOpen = groupKeys.length > 0 && groupKeys.every((k) => expanded.isOpen(k));
 
   return (
     <TraceContext.Provider value={{ projectId: view.project.id, canPreview: !!view.project.repoPath }}>
@@ -68,7 +69,7 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
             <Button
               variant="secondary"
               disabled={shownFiles.length === 0}
-              onClick={() => expanded.setAll(allOpen ? [] : shownFiles.map((f) => f.id))}
+              onClick={() => expanded.setAll(allOpen ? [] : [...groupKeys, ...shownFiles.map((f) => f.id)])}
             >
               {allOpen ? "Contraer todo" : "Expandir todo"}
             </Button>
@@ -81,7 +82,7 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
           allFiles.length === 0 ? (
             <p className="text-muted">Todavía no hay archivos reportados ni detectados.</p>
           ) : (
-            <ProjectDetailTraceByFile files={shownFiles} trace={trace} expanded={expanded} />
+            <ProjectDetailTraceByFile files={shownFiles} trace={trace} expanded={expanded} forceOpen={searching} />
           )
         ) : (
           <>
@@ -96,6 +97,7 @@ const ProjectDetailTraceability = ({ view }: { view: ProjectView }) => {
                 trace={trace}
                 visibleFiles={visibleFiles}
                 expanded={expanded}
+                forceOpen={searching}
               />
             ))}
             {shownUnlinked.length > 0 && (

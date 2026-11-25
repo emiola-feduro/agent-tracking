@@ -13,6 +13,7 @@ type ProjectDetailTraceRequirementProps = {
   /** Files of a feature after the search filter. */
   visibleFiles: (featureId: string) => FileArtifact[];
   expanded: Expanded;
+  forceOpen?: boolean;
 };
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -24,6 +25,7 @@ const ProjectDetailTraceRequirement = ({
   trace,
   visibleFiles,
   expanded,
+  forceOpen,
 }: ProjectDetailTraceRequirementProps) => {
   const { id, title } = requirement;
   const files = features.flatMap((f) => trace.filesOf(f.id));
@@ -56,6 +58,7 @@ const ProjectDetailTraceRequirement = ({
               files={visibleFiles(feature.id)}
               symbolsOf={trace.symbolsOf}
               expanded={expanded}
+              forceOpen={forceOpen}
             />
           ))}
         </ul>
