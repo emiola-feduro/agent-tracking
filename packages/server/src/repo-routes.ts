@@ -2,6 +2,7 @@ import { AnalysisCache, analyzeFile, analyzeRepo, type RepoAnalysis } from "@age
 import { schema as s, type Db } from "@agent-tracking/db";
 import {
   branchProgress,
+  deleteBranch,
   githubAccount,
   publishToGithub,
   toHttpsUrl,
@@ -32,6 +33,8 @@ const STATUS: Record<GitError["code"], ContentfulStatusCode> = {
   too_large: 413,
   not_found: 404,
   dirty: 409,
+  unmerged: 409,
+  in_use: 409,
   git_failed: 500,
 };
 
@@ -65,7 +68,14 @@ const intParam = (v: string | undefined, def: number) => {
  *   GET  /projects/:id/repo/worktrees                     → { base, worktrees: Worktree & { progress } }
  *   GET  /projects/:id/repo/worktree-diff?worktree        → TurnDiff against where it left the base branch
  */
-export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
+export function repoRoutes(
+  db: Db,
+  opts: {
+    emit?: Emit;
+    /** Whether an agent is working on that branch right now (see agent turns); its branch is not deleted. */
+    agentOnBranch?: (projectId: string, branch: string) => Promise<boolean>;
+  } = {},
+) {
   const emit: Emit = opts.emit ?? (() => {});
   const caches = new Map<string, AnalysisCache>();
   const running = new Map<string, Promise<RepoAnalysis>>();
@@ -83,6 +93,8 @@ export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
   };
 
   const app = new Hono();
+
+  const baseRef = async (root: string) => (await baseBranch(root)) ?? "HEAD";
 
   /** The branch the others are compared with: main, else master, else whatever the main checkout has. */
   const baseBranch = async (root: string) => {
@@ -159,7 +171,14 @@ export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
     return c.json(
       await guard(async () => ({
         current: await currentBranch(root),
-        branches: await listBranches(root),
+        branches: await Promise.all(
+          (await listBranches(root)).map(async (b) => ({
+            ...b,
+            // Commits only this branch has (compared with main): what deleting it would lose.
+            unmerged: Number((await git(["rev-list", "--count", `${await baseRef(root)}..refs/heads/${b.name}`], root)).stdout) || 0,
+            agent: (await opts.agentOnBranch?.(c.req.param("id"), b.name)) ?? false,
+          })),
+        ),
         // Tracked files with uncommitted changes: while there are any, switching branch is refused.
         dirty: (await workingTreeChanges(root)).filter((f) => f.status !== "untracked").map((f) => f.path),
       })),
@@ -173,6 +192,18 @@ export function repoRoutes(db: Db, opts: { emit?: Emit } = {}) {
     if (!parsed.success) throw new HTTPException(400, { message: "Falta el nombre de la rama" });
     const result = await guard(() => checkoutBranch(root, parsed.data.branch));
     if (result.previous !== result.branch) emit({ type: "changed", projectId: id, entity: "repo" });
+    return c.json(result);
+  });
+
+  app.delete("/projects/:id/repo/branches/:branch{.+}", async (c) => {
+    const id = c.req.param("id");
+    const branch = decodeURIComponent(c.req.param("branch"));
+    const root = await repoOf(id);
+    if (await opts.agentOnBranch?.(id, branch)) {
+      throw new HTTPException(409, { message: `Un agente está trabajando en ${branch} ahora mismo: espera a que termine para borrarla`, cause: { code: "agent" } });
+    }
+    const result = await guard(() => deleteBranch(root, branch, { force: c.req.query("force") === "1" }));
+    emit({ type: "changed", projectId: id, entity: "repo" });
     return c.json(result);
   });
 

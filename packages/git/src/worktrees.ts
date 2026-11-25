@@ -200,3 +200,38 @@ export async function diffSince(root: string, since: TreeSnapshot): Promise<Turn
   const patch = parts.join("");
   return { files, patch: patch.slice(0, MAX_PATCH), truncated: patch.length > MAX_PATCH };
 }
+
+/**
+ * Deletes a local branch. Git's rules are checked first with clear messages: never the branch the
+ * main checkout is on, never one open in a worktree, and one with commits that no other branch has
+ * only when `force` says so (those commits would be lost).
+ */
+export async function deleteBranch(root: string, branch: string, opts: { force?: boolean } = {}): Promise<{ branch: string; sha: string }> {
+  if (!branch || branch.startsWith("-") || /[\0\s]/.test(branch)) throw new GitError(`Nombre de rama inválido: ${branch}`, "invalid_ref");
+  const sha = await git(["rev-parse", "--verify", "-q", `refs/heads/${branch}`], root);
+  if (!sha.ok) throw new GitError(`La rama ${branch} no existe`, "not_found");
+  const open = (await listWorktrees(root)).find((w) => w.branch === branch);
+  if (open) {
+    throw new GitError(
+      open.main
+        ? `${branch} es la rama actual del checkout principal: cambia a otra antes de borrarla`
+        : `${branch} está abierta en el worktree ${open.path}: elimina ese worktree o cambia su rama primero`,
+      "in_use",
+      { worktree: open.path },
+    );
+  }
+  const res = await git(["branch", opts.force ? "-D" : "-d", "--", branch], root);
+  if (!res.ok) {
+    if (/not fully merged/i.test(res.stderr)) {
+      const base = (await git(["show-ref", "--verify", "--quiet", "refs/heads/main"], root)).ok ? "main" : "HEAD";
+      const ahead = Number((await git(["rev-list", "--count", `${base}..refs/heads/${branch}`], root)).stdout) || 0;
+      throw new GitError(
+        `${branch} tiene ${ahead === 1 ? "1 commit que no está" : `${ahead} commits que no están`} en ${base}. Si la borras, ${ahead === 1 ? "se pierde" : "se pierden"}.`,
+        "unmerged",
+        { ahead },
+      );
+    }
+    throw new GitError(res.stderr.split("\n").filter(Boolean).at(-1) || `No se pudo borrar ${branch}`, "git_failed");
+  }
+  return { branch, sha: sha.stdout };
+}

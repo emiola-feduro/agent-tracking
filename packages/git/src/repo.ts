@@ -6,7 +6,7 @@ import { git, gitRaw } from "./run";
 export class GitError extends Error {
   constructor(
     message: string,
-    readonly code: "not_repo" | "invalid_ref" | "not_found" | "dirty" | "invalid_path" | "too_large" | "git_failed",
+    readonly code: "not_repo" | "invalid_ref" | "not_found" | "dirty" | "unmerged" | "in_use" | "invalid_path" | "too_large" | "git_failed",
     readonly details?: unknown,
   ) {
     super(message);

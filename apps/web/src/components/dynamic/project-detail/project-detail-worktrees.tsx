@@ -4,8 +4,8 @@ import DiffView from "@/components/ui/diff-view/diff-view";
 import Skeleton from "@/components/ui/skeleton/skeleton";
 import StatusPill from "@/components/ui/status-pill/status-pill";
 import { useAgentTurns } from "@/hooks/data/use-agent-turns";
-import { useCheckout, useLocalBranches, useWorktreeDiff, useWorktrees } from "@/hooks/data/use-worktrees";
-import type { Worktree } from "@/lib/api";
+import { useCheckout, useDeleteBranch, useLocalBranches, useWorktreeDiff, useWorktrees } from "@/hooks/data/use-worktrees";
+import type { LocalBranch, Worktree } from "@/lib/api";
 import { formatRelative } from "@/lib/activity";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -88,6 +88,52 @@ const WorktreeCard = ({ projectId, worktree, base }: { projectId: string; worktr
   );
 };
 
+/** Why a branch cannot be deleted right now, or null when it can. */
+const blockedReason = (b: LocalBranch, openIn: string | undefined) =>
+  b.current
+    ? "Es la rama actual del checkout principal"
+    : openIn
+      ? `Está abierta en el worktree ${openIn.split("/").pop()}`
+      : b.agent
+        ? "Un agente está trabajando en esta rama"
+        : null;
+
+const BranchDelete = ({ projectId, branch, openIn, base }: { projectId: string; branch: LocalBranch; openIn?: string; base: string }) => {
+  const remove = useDeleteBranch(projectId);
+  const reason = blockedReason(branch, openIn);
+  const ask = () => {
+    const lost = branch.unmerged;
+    const message = lost
+      ? `${branch.name} tiene ${lost === 1 ? "1 commit que no está" : `${lost} commits que no están`} en ${base}. Si la borras, ${lost === 1 ? "ese commit se pierde" : "esos commits se pierden"}. ¿Borrarla igual?`
+      : `Borrar la rama ${branch.name}. Sus cambios ya están en ${base}.`;
+    if (confirm(message)) remove.mutate({ branch: branch.name, force: lost > 0 });
+  };
+
+  return (
+    <span className="flex items-center gap-2">
+      {branch.agent && <StatusPill tone="brand">Agente trabajando</StatusPill>}
+      {openIn && (
+        <span className="text-xs text-muted" title={openIn}>
+          Abierta en un worktree
+        </span>
+      )}
+      {remove.isError && <span className="text-xs text-danger">{(remove.error as Error).message}</span>}
+      <button
+        type="button"
+        onClick={ask}
+        disabled={!!reason || remove.isPending}
+        title={reason ?? `Borrar ${branch.name}`}
+        aria-label={reason ? `No se puede borrar ${branch.name}: ${reason}` : `Borrar la rama ${branch.name}`}
+        className="grid size-8 place-items-center rounded-md text-muted transition-colors duration-150 hover:bg-danger-soft hover:text-danger disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted"
+      >
+        <svg aria-hidden viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5M7 7v4M9 7v4" />
+        </svg>
+      </button>
+    </span>
+  );
+};
+
 /**
  * Every checkout of the repository (main and `git worktree add` ones) with what each agent's branch
  * holds compared to the base, plus the local branches to switch the main checkout to.
@@ -127,7 +173,10 @@ const ProjectDetailWorktrees = ({ projectId }: { projectId: string }) => {
 
       <section className="flex flex-col gap-3">
         <h2 className="font-semibold text-ink">Ramas locales</h2>
-        <p className="-mt-2 text-sm text-muted">Cambia la rama del checkout principal. Si hay cambios sin commit, git no deja cambiar.</p>
+        <p className="-mt-2 text-sm text-muted">
+          Cambia la rama del checkout principal o borra las que ya no sirven. No se puede borrar la rama actual, una abierta en un worktree ni una en
+          la que esté trabajando un agente.
+        </p>
         {checkout.isError && <p className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{(checkout.error as Error).message}</p>}
         {branches.isPending && <Skeleton className="h-24" />}
         <ul className="flex flex-col divide-y divide-line rounded-lg border border-line bg-surface">
@@ -142,15 +191,12 @@ const ProjectDetailWorktrees = ({ projectId }: { projectId: string }) => {
                   {formatRelative(b.lastCommitDate)}: {b.subject}
                 </span>
               </span>
-              {b.current ? null : inWorktree.has(b.name) ? (
-                <span className="text-xs text-muted" title={inWorktree.get(b.name)}>
-                  Abierta en un worktree
-                </span>
-              ) : (
+              {!b.current && !inWorktree.has(b.name) && (
                 <Button size="sm" isLoading={checkout.isPending && checkout.variables === b.name} onClick={() => checkout.mutate(b.name)}>
                   Cambiar a esta rama
                 </Button>
               )}
+              <BranchDelete projectId={projectId} branch={b} openIn={inWorktree.get(b.name)} base={worktrees.data?.base ?? "main"} />
             </li>
           ))}
         </ul>

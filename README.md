@@ -192,6 +192,9 @@ uno primero.
 - El menú de arriba del sidebar cambia la rama del checkout principal (avisa antes si git no lo
   permitiría por cambios sin commit) o pasa a mirar otro worktree: su rama, su código, su diff y lo
   último que hizo un agente ahí.
+- En **Ramas y worktrees** también se borran ramas locales. No se puede borrar la rama actual, una
+  abierta en un worktree ni una en la que esté trabajando un agente (un turno abierto en esa rama). Si
+  la rama tiene commits que no están en `main`, se avisa cuántos se perderían antes de borrarla.
 - **Ramas y worktrees** lista cada checkout del repositorio (`git worktree list`) con cuántos commits
   lleva frente a `main`, lo que tiene sin commit, el diff y el último turno de un agente ahí. También
   permite cambiar la rama del checkout principal. Los hooks que llegan desde un worktree cuentan para

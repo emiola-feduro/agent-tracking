@@ -33,7 +33,7 @@ import {
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
 import { cloneGithub, initRepo, inspectRepo, writeNewFiles } from "@agent-tracking/git";
 import { discoverCatalogSkills, discoverSkills, skillTemplate } from "@agent-tracking/skills";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
@@ -717,7 +717,19 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.route("/", traceabilityRoutes(tracker));
   // Branches, commits, checkout and code analysis (packages/git + packages/analyzer).
-  app.route("/", repoRoutes(db, { emit }));
+  /**
+   * An agent counts as being on a branch while one of its turns started there is still open and it
+   * is active (a step in the last minutes) or the turn began less than half an hour ago.
+   */
+  const agentOnBranch = async (projectId: string, branch: string) => {
+    const open = await db
+      .select({ startedAt: s.agentTurns.startedAt })
+      .from(s.agentTurns)
+      .where(and(eq(s.agentTurns.projectId, projectId), eq(s.agentTurns.branch, branch), isNull(s.agentTurns.endedAt)));
+    if (open.length === 0) return false;
+    return live.get(projectId).status === "working" || open.some((t) => Date.now() - Date.parse(t.startedAt) < 30 * 60_000);
+  };
+  app.route("/", repoRoutes(db, { emit, agentOnBranch }));
 
   return app;
 }

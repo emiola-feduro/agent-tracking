@@ -75,7 +75,18 @@ export type BranchProgress = {
   lastCommit: { sha: string; subject: string; date: string } | null;
 };
 export type Worktree = { path: string; branch: string | null; head: string; main: boolean; locked: boolean; prunable: boolean; progress: BranchProgress | null };
-export type LocalBranch = { name: string; sha: string; current: boolean; upstream: string | null; lastCommitDate: string; subject: string };
+export type LocalBranch = {
+  name: string;
+  sha: string;
+  current: boolean;
+  upstream: string | null;
+  lastCommitDate: string;
+  subject: string;
+  /** Commits only this branch has, compared with the base: what deleting it would lose. */
+  unmerged: number;
+  /** An agent is working on it right now. */
+  agent: boolean;
+};
 /** One request to an agent: what was asked, its steps, its final answer and the files it changed. */
 export type AgentTurn = {
   id: string;
@@ -221,6 +232,8 @@ export const api = {
     request<{ url: string; repoUrl: string; committed: boolean; pushed: boolean }>("POST", `${p(id)}/github/publish`, data),
   repoBranch: (id: string) => request<{ current: string | null }>("GET", `${p(id)}/repo/branches`),
   localBranches: (id: string) => request<{ current: string | null; branches: LocalBranch[]; dirty: string[] }>("GET", `${p(id)}/repo/branches`),
+  deleteBranch: (id: string, branch: string, force = false) =>
+    request<{ branch: string; sha: string }>("DELETE", `${p(id)}/repo/branches/${encodeURIComponent(branch)}${force ? "?force=1" : ""}`),
   checkout: (id: string, branch: string) => request<{ branch: string; previous: string | null }>("POST", `${p(id)}/repo/checkout`, { branch }),
   worktrees: (id: string) => request<{ base: string | null; worktrees: Worktree[] }>("GET", `${p(id)}/repo/worktrees`),
   worktreeDiff: (id: string, worktree: string) => request<Diff>("GET", `${p(id)}/repo/worktree-diff?worktree=${encodeURIComponent(worktree)}`),

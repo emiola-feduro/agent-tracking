@@ -16,6 +16,15 @@ export const useWorktreeDiff = (projectId: string, worktree: string | null) =>
     enabled: !!worktree,
   });
 
+/** Deletes a local branch; `force` also deletes commits no other branch has. */
+export const useDeleteBranch = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ branch, force }: { branch: string; force: boolean }) => api.deleteBranch(projectId, branch, force),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.project(projectId) }),
+  });
+};
+
 /** Switches the main checkout to another local branch; everything about the project is refetched. */
 export const useCheckout = (projectId: string) => {
   const queryClient = useQueryClient();
