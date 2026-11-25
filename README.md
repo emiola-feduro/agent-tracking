@@ -76,27 +76,35 @@ ambos: quien clone el repo puede elegir "Repositorio local" o "Clonar de GitHub"
 importar el mismo proyecto con sus ids, avance y DoD. Después de un `git pull`, el botón "Actualizar
 desde el repo" vuelve a leer el archivo.
 
-## Conectar agentes (MCP)
+## Conectar agentes
 
-Con el servidor corriendo (`bun run start` o la app de escritorio), cada llamada del agente aparece en
-vivo en las pestañas Trazabilidad, Actividad y Tests del proyecto.
+Agent Tracking funciona con **Claude Code**, **Codex CLI** y **Gemini CLI** (y con cualquier agente que
+hable MCP). La forma fácil es la sección **Agentes** de un proyecto: muestra cada agente instalado en el
+equipo y, con **Conectar**, enseña el diff exacto de cada archivo de configuración antes de escribirlo
+(guarda una copia `.bak`; **Desconectar** quita solo lo que agregó Agent Tracking).
 
-Claude Code, desde la raíz del repo del proyecto (el proyecto se identifica por la ruta):
+| Agente | MCP | Hooks (en vivo y resumen de cada trabajo) | Instrucciones en el repo |
+|---|---|---|---|
+| Claude Code | `claude mcp add` | `~/.claude/settings.json`: UserPromptSubmit, PreToolUse, Stop | `CLAUDE.md` |
+| Codex CLI | `~/.codex/config.toml` (`[mcp_servers.agent-tracking]`) | `~/.codex/hooks.json`: los mismos eventos (Codex pide confiar en ellos la primera vez) | `AGENTS.md` |
+| Gemini CLI | `~/.gemini/settings.json` (`mcpServers`) | `~/.gemini/settings.json`: BeforeAgent, BeforeTool, AfterAgent, SessionEnd | `GEMINI.md` |
 
-```bash
-claude mcp add agent-tracking -- bun /ruta/a/agent-tracking/packages/mcp/src/stdio.ts
-```
+Los hooks llaman a `POST /api/agent/hook?agent=<claude-code|codex|gemini-cli>` y la respuesta es vacía:
+no gastan tokens. Un agente sin hooks también deja su resumen: leer el contexto (`get_project_context`)
+abre el trabajo y el reporte final (`submit_report`) lo cierra con su resumen y su diff.
 
-O por HTTP, sin proceso intermedio:
+En cada proyecto se eligen los agentes que trabajan en él: su archivo de instrucciones del repo recibe un
+bloque corto, entre marcas `<!-- agent-tracking:start/end -->`, que apunta a `.agent-tracking/CONTEXT.md`
+y explica cómo reportar. El resto del archivo no se toca. Las skills se buscan también en
+`.agents/skills`, `~/.agents/skills` y `~/.gemini/skills`, además de las de Claude.
 
-```bash
-claude mcp add --transport http agent-tracking "http://127.0.0.1:4317/mcp?project=$(pwd)"
-```
+A mano, el servidor MCP es el comando `bun packages/mcp/src/stdio.ts` con `--agent <nombre>` y,
+opcionalmente, `--project <id|ruta>` (por defecto el cwd) y `--url <servidor>`; o la URL
+`http://127.0.0.1:4317/mcp?project=<id|ruta>&agent=<nombre>`. Si el servidor no está corriendo,
+`--db <archivo>` escribe directo en la base.
 
-Otros agentes (Cursor, Codex, etc.) usan la misma configuración: comando
-`bun packages/mcp/src/stdio.ts` con argumentos opcionales `--project <id|ruta>` (por defecto el cwd),
-`--agent <nombre>` y `--url <servidor>`; o la URL `http://127.0.0.1:4317/mcp?project=<id|ruta>&agent=<nombre>`.
-Si el servidor no está corriendo, `--db <archivo>` escribe directo en la base.
+La API solo responde a páginas de este equipo (o a la dirección desde la que se sirve la app); las
+herramientas sin cabecera `Origin`, como los hooks y los clientes MCP, no se ven afectadas.
 
 Herramientas: `get_project_context`, `get_project_skills`, `list_requirements`, `get_requirement`,
 `start_feature`, `complete_feature`, `report_file`, `report_symbol`, `report_test`, `mark_dod_item`,
