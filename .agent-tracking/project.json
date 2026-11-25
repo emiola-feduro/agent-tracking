@@ -7421,10 +7421,11 @@
     {
       "id": "0bb13765-2920-4330-9abf-7981824d2dfc",
       "path": "apps/web/src/lib/api.ts",
-      "purpose": "Cliente HTTP con tiempo límite en lecturas",
+      "purpose": "Llamadas para estado, instalación y compartir skills",
       "createdBy": "repo:analysis",
       "featureIds": [
-        "4e182ef9-9a67-474a-81f0-7b4b51e2a032"
+        "4e182ef9-9a67-474a-81f0-7b4b51e2a032",
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
       ],
       "symbols": [
         {
@@ -8347,9 +8348,11 @@
     {
       "id": "ef609d54-43db-423e-a5b1-d075b1cabc80",
       "path": "apps/web/src/lib/query-keys.ts",
-      "purpose": "",
+      "purpose": "Clave de consulta del estado de las skills",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
         {
           "id": "6e63c779-2b55-4b08-89dc-bc424c8cd123",
@@ -10656,9 +10659,11 @@
     {
       "id": "6edba047-a702-439b-b09e-b24d461da49e",
       "path": "packages/core/src/core.test.ts",
-      "purpose": "",
+      "purpose": "Fixtures de skills con su origen",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": []
     },
     {
@@ -11046,9 +11051,10 @@
     {
       "id": "4f202979-b6cf-4b6c-84e1-6c56978fd962",
       "path": "packages/core/src/requirements.ts",
-      "purpose": "Etiquetas de tipo y área, y rutas de imágenes exportadas",
+      "purpose": "Ruta de la copia compartida de una skill en el repo",
       "createdBy": "repo:analysis",
       "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
         "e20e7af5-350b-42e3-9997-73c58a0975ad"
       ],
       "symbols": [
@@ -11518,9 +11524,11 @@
     {
       "id": "add7ce19-db85-4b05-b454-978e30c1b2ef",
       "path": "packages/core/src/types.ts",
-      "purpose": "",
+      "purpose": "ProjectSkill con plugin, marketplace y compartida",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
         {
           "id": "ea9cf457-cd02-4f9e-bc80-84b5476d64cb",
@@ -11940,9 +11948,11 @@
     {
       "id": "5cc6ae94-9ba3-4be3-bafe-81c6963fb831",
       "path": "packages/db/src/migrations.gen.ts",
-      "purpose": "",
+      "purpose": "Migración con plugin, marketplace y compartida en las skills",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
         {
           "id": "8a24cb34-5408-4263-860a-1fccea53393a",
@@ -11958,9 +11968,11 @@
     {
       "id": "469f9ba1-3845-4afe-b5dc-3de9e561eab6",
       "path": "packages/db/src/schema.ts",
-      "purpose": "",
+      "purpose": "Columnas de origen y compartida en project_skills",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
         {
           "id": "b1e43730-39e2-40e8-a2c2-a9324dba0225",
@@ -13789,9 +13801,11 @@
     {
       "id": "553410b3-6c29-4e18-924c-ed3654f5d583",
       "path": "packages/server/src/app.ts",
-      "purpose": "",
+      "purpose": "Origen de las skills al crear el proyecto y casilla de compartir",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
         {
           "id": "1df6e7b1-4e2c-4bb4-a64a-8cbe5c3f3d5b",
@@ -14377,9 +14391,11 @@
     {
       "id": "5438a20b-d8a8-4af6-b187-6173a7fb3d6e",
       "path": "packages/server/src/portable.test.ts",
-      "purpose": "",
+      "purpose": "Test de un proyecto que pasa de un equipo a otro con imágenes y skills",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": []
     },
     {
@@ -14586,9 +14602,11 @@
     {
       "id": "187e9c56-f4d8-443d-9c82-36ac32d77165",
       "path": "packages/skills/src/index.ts",
-      "purpose": "",
+      "purpose": "Exporta las funciones para llevar skills entre equipos",
       "createdBy": "repo:analysis",
-      "featureIds": [],
+      "featureIds": [
+        "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+      ],
       "symbols": [
         {
           "id": "16fa7b25-1820-4db4-92eb-2d2d580ae2fa",

@@ -254,7 +254,7 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
 - Tipo, área y filtros de requerimientos — _done_ (`e20e7af5-350b-42e3-9997-73c58a0975ad`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Tipo y área editables, referencias visuales y DoD
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Agrupa por tipo y filtra por tipo, área y texto
-  - `packages/core/src/requirements.ts`: Etiquetas de tipo y área, y rutas de imágenes exportadas
+  - `packages/core/src/requirements.ts`: Ruta de la copia compartida de una skill en el repo
 
 ### Apariencia — 100%
 
@@ -313,7 +313,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: Cliente HTTP con tiempo límite en lecturas
+  - `apps/web/src/lib/api.ts`: Llamadas para estado, instalación y compartir skills
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 
 ### Seguridad de rutas y datos locales — 100%
@@ -380,9 +380,19 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
+  - `apps/web/src/lib/api.ts`: Llamadas para estado, instalación y compartir skills
+  - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
   - `packages/core/src/context.ts`: CONTEXT.md apunta a la copia compartida o al plugin de cada skill
+  - `packages/core/src/core.test.ts`: Fixtures de skills con su origen
   - `packages/core/src/project-file.ts`: project.json guarda la lista de imágenes y el origen de cada skill
+  - `packages/core/src/requirements.ts`: Ruta de la copia compartida de una skill en el repo
+  - `packages/core/src/types.ts`: ProjectSkill con plugin, marketplace y compartida
+  - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
+  - `packages/db/src/schema.ts`: Columnas de origen y compartida en project_skills
+  - `packages/server/src/app.ts`: Origen de las skills al crear el proyecto y casilla de compartir
+  - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
+  - `packages/skills/src/index.ts`: Exporta las funciones para llevar skills entre equipos
   - `packages/skills/src/portable.ts`: Origen de las skills, copia al repo e instalación en otro equipo
   - `packages/tracking/src/repo-sync.ts`: Exporta skills compartidas y restaura imágenes al importar o sincronizar
 
