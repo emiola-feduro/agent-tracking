@@ -38,6 +38,11 @@ export function traceabilityRoutes(tracker: Tracker) {
     const input = await parse(c.req.raw, z.object({ status: z.enum(TEST_IDEA_STATUSES), text: z.string().trim().min(1) }).partial());
     return c.json(await tracker.updateTestIdea(projectId, LOCAL_USER, ideaId, input));
   });
+  app.delete("/projects/:id/tests/:testId", async (c) => {
+    const { id: projectId, testId } = c.req.param();
+    await tracker.deleteTest(projectId, testId);
+    return c.body(null, 204);
+  });
   app.delete("/projects/:id/test-ideas/:ideaId", async (c) => {
     const { id: projectId, ideaId } = c.req.param();
     await tracker.deleteTestIdea(projectId, ideaId);

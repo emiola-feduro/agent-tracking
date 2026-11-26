@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type ProjectView, type TestIdeaStatus } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 
-/** Mutations for a project's test ideas. Status changes and removals are optimistic. */
+/** Mutations for a project's tests and test ideas. Status changes and removals are optimistic. */
 const useTestIdeaActions = (projectId: string) => {
   const queryClient = useQueryClient();
   const key = queryKeys.project(projectId);
@@ -40,7 +40,12 @@ const useTestIdeaActions = (projectId: string) => {
     ...optimistic<string>((view, ideaId) => ({ ...view, testIdeas: view.testIdeas.filter((t) => t.id !== ideaId) })),
   });
 
-  return { addIdea, setStatus, removeIdea };
+  const removeTest = useMutation({
+    mutationFn: (testId: string) => api.deleteTest(projectId, testId),
+    ...optimistic<string>((view, testId) => ({ ...view, tests: view.tests.filter((t) => t.id !== testId) })),
+  });
+
+  return { addIdea, setStatus, removeIdea, removeTest };
 };
 
 export default useTestIdeaActions;

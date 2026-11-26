@@ -37,3 +37,16 @@ test("activity log and test ideas", async () => {
   expect(view).toHaveProperty("files");
   expect((await req("DELETE", `/projects/p/test-ideas/${idea.id}`)).status).toBe(204);
 });
+
+test("a test reported by mistake can be removed", async () => {
+  const db = openDb(":memory:");
+  const tracker = createTracker(db);
+  const app = createApp(db, { tracker });
+  await db.insert(s.projects).values({ id: "p", name: "P", platforms: ["web"] });
+  const reported = await tracker.reportTest("p", "agent:a", { path: "scratchpad/e2e/lang.ts", name: "e2e fuera del repo", result: "passing" });
+  const del = (id: string, project = "p") => app.request(`/api/projects/${project}/tests/${id}`, { method: "DELETE" });
+  expect((await del(reported.id, "nope")).status).toBe(404);
+  expect((await del(reported.id)).status).toBe(204);
+  expect((await (await app.request("/api/projects/p")).json()).tests).toHaveLength(0);
+  expect((await del(reported.id)).status).toBe(404);
+});

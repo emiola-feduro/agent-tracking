@@ -324,6 +324,7 @@ export const api = {
     request<TestIdea>("POST", `${p(id)}/test-ideas`, data),
   setTestIdeaStatus: (id: string, ideaId: string, status: TestIdeaStatus) =>
     request<TestIdea>("PATCH", `${p(id)}/test-ideas/${ideaId}`, { status }),
+  deleteTest: (id: string, testId: string) => request<void>("DELETE", `${p(id)}/tests/${testId}`),
   deleteTestIdea: (id: string, ideaId: string) => request<void>("DELETE", `${p(id)}/test-ideas/${ideaId}`),
   assistantStatus: () =>
     request<{ configured: boolean; provider?: AssistantProviderId; label?: string; vendor?: string }>("GET", "/assistant"),

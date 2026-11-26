@@ -323,6 +323,17 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
       return test!;
     },
 
+    /**
+     * Takes a test out of the project (one reported by mistake, or that no longer exists). A test the
+     * analyzer finds in the code comes back on the next sync while its file still has it.
+     */
+    async deleteTest(projectId: string, testId: string) {
+      await projectOr404(projectId);
+      const [removed] = await db.delete(s.tests).where(and(eq(s.tests.id, testId), eq(s.tests.projectId, projectId))).returning({ id: s.tests.id });
+      if (!removed) throw new TrackingError("Test no encontrado", 404);
+      await touch(projectId, "test", testId);
+    },
+
     /** Updates a Definition of Done item. Used by the UI checkboxes and by agents with evidence. */
     async updateDod(
       projectId: string,

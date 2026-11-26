@@ -1,3 +1,4 @@
+import RemoveButton from "@/components/ui/remove-button/remove-button";
 import StatusPill from "@/components/ui/status-pill/status-pill";
 import type { TestCase } from "@/lib/api";
 import { TEST_RESULT_LABEL, TEST_RESULT_TONE, TEST_TYPE_LABEL } from "@/lib/labels";
@@ -5,9 +6,10 @@ import { TEST_RESULT_LABEL, TEST_RESULT_TONE, TEST_TYPE_LABEL } from "@/lib/labe
 type ProjectDetailTestGroupProps = {
   label: string;
   tests: TestCase[];
+  onRemove: (testId: string) => void;
 };
 
-const ProjectDetailTestGroup = ({ label, tests }: ProjectDetailTestGroupProps) => {
+const ProjectDetailTestGroup = ({ label, tests, onRemove }: ProjectDetailTestGroupProps) => {
   const passing = tests.filter((t) => t.lastResult === "passing").length;
 
   return (
@@ -28,7 +30,10 @@ const ProjectDetailTestGroup = ({ label, tests }: ProjectDetailTestGroupProps) =
                 <span>{TEST_TYPE_LABEL[type]}</span>
               </span>
             </span>
-            <StatusPill tone={TEST_RESULT_TONE[lastResult]}>{TEST_RESULT_LABEL[lastResult]}</StatusPill>
+            <span className="flex shrink-0 items-center gap-1">
+              <StatusPill tone={TEST_RESULT_TONE[lastResult]}>{TEST_RESULT_LABEL[lastResult]}</StatusPill>
+              <RemoveButton label={`Quitar el test ${name}`} onClick={() => onRemove(id)} />
+            </span>
           </li>
         ))}
       </ul>

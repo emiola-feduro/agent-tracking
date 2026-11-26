@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useTestIdeaActions from "@/hooks/data/use-test-idea-actions";
 import useTestGroups, { type TestGrouping } from "@/hooks/ui/use-test-groups";
 import type { ProjectView } from "@/lib/api";
 import ProjectDetailTestGroup from "./project-detail-test-group";
@@ -14,6 +15,7 @@ const ProjectDetailTests = ({ view }: { view: ProjectView }) => {
   const [grouping, setGrouping] = useState<TestGrouping>("type");
   const groups = useTestGroups(view, grouping);
   const { tests } = view;
+  const { removeTest } = useTestIdeaActions(view.project.id);
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -38,7 +40,7 @@ const ProjectDetailTests = ({ view }: { view: ProjectView }) => {
         {tests.length === 0 && <p className="text-muted">Aparecerán aquí cuando un agente los reporte con report_test.</p>}
         <div key={grouping} className="flex animate-enter flex-col gap-5">
           {groups.map((group) => (
-            <ProjectDetailTestGroup key={group.key || "none"} label={group.label} tests={group.tests} />
+            <ProjectDetailTestGroup key={group.key || "none"} label={group.label} tests={group.tests} onRemove={(id) => removeTest.mutate(id)} />
           ))}
         </div>
       </section>
