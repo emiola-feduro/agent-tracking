@@ -6,6 +6,38 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <link rel="preload" href="/fonts/arima/arima-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>Agent Tracking</title>
+    <style>
+      /* Boot screen: painted with the first bytes, in the saved theme, until the app renders. */
+      html { background: var(--t-bg, #f6f6f9); }
+      body { margin: 0; }
+      #boot {
+        position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center;
+        background: var(--t-bg, #f6f6f9); color: var(--t-muted, #6b6d7e);
+        font: 15px/1.5 var(--t-font-ui, ui-sans-serif, system-ui, sans-serif);
+        transition: opacity 280ms ease, visibility 280ms;
+      }
+      #boot.done { opacity: 0; visibility: hidden; }
+      #boot .boot-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; animation: boot-in 360ms ease-out 150ms both; }
+      #boot svg { width: 72px; height: 72px; overflow: visible; }
+      #boot .lens { stroke: var(--t-accent, #3f3cbb); transform-origin: 27px 27px; animation: boot-scan 2.4s ease-in-out infinite; }
+      #boot .handle { stroke: var(--t-accent, #3f3cbb); }
+      #boot .trail { stroke: var(--t-success, #0f7a54); stroke-dasharray: 32; animation: boot-draw 1.8s ease-in-out infinite; }
+      #boot .dot { fill: var(--t-success, #0f7a54); transform-box: fill-box; transform-origin: center; animation: boot-pop 1.8s ease-in-out infinite; }
+      #boot .dot:nth-of-type(2) { animation-delay: 150ms; }
+      #boot .dot:nth-of-type(3) { animation-delay: 300ms; }
+      #boot .bar { width: 120px; height: 3px; border-radius: 3px; overflow: hidden; background: color-mix(in oklab, var(--t-accent, #3f3cbb) 14%, transparent); }
+      #boot .bar::after { content: ""; display: block; width: 40%; height: 100%; border-radius: inherit; background: var(--t-accent, #3f3cbb); animation: boot-bar 1.2s ease-in-out infinite; }
+      @keyframes boot-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+      @keyframes boot-scan { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+      @keyframes boot-draw { 0% { stroke-dashoffset: 32; } 45%, 100% { stroke-dashoffset: 0; } }
+      @keyframes boot-pop { 0%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1.15); opacity: 1; } }
+      @keyframes boot-bar { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+      @media (prefers-reduced-motion: reduce) {
+        #boot *, #boot *::after { animation: none !important; }
+        #boot .boot-inner { opacity: 1; }
+        #boot .bar { display: none; }
+      }
+    </style>
     <script>
       // Starts in the saved theme before the bundle loads, instead of flashing the default one.
       (function () {
@@ -27,6 +59,20 @@
     </script>
   </head>
   <body>
+    <div id="boot" role="status" aria-live="polite">
+      <div class="boot-inner">
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <circle class="lens" cx="27" cy="27" r="19" stroke-width="5" />
+          <path class="handle" d="M41 41l15 15" stroke-width="7" stroke-linecap="round" />
+          <path class="trail" d="M19 33l8-12 8 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <circle class="dot" cx="19" cy="33" r="3.5" />
+          <circle class="dot" cx="27" cy="21" r="3.5" />
+          <circle class="dot" cx="35" cy="33" r="3.5" />
+        </svg>
+        <span>Preparando Agent Tracking</span>
+        <div class="bar"></div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

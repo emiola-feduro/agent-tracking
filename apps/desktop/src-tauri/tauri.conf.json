@@ -10,7 +10,7 @@
   },
   "app": {
     "windows": [
-      { "title": "Agent Tracking", "width": 1280, "height": 820, "url": "http://127.0.0.1:4317/" }
+      { "title": "Agent Tracking", "width": 1280, "height": 820, "url": "http://127.0.0.1:4317/", "backgroundColor": "#f6f6f9" }
     ],
     "security": { "csp": null }
   },
