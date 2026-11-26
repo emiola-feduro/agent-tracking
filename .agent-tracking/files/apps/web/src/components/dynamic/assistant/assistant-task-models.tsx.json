@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/assistant/assistant-task-models.tsx",
+  "purpose": "Selector de modelo por tarea",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "4b340d32-362f-4378-bb2c-c250c397cd83"
+  ],
+  "symbols": [
+    {
+      "name": "AssistantTaskModels",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

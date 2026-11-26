@@ -57,6 +57,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-25T16:49:01.559Z"
+    },
+    {
+      "id": "e6efc11f-d764-4277-b6d7-54fc78371946",
+      "name": "Quitar un test del proyecto",
+      "description": "Borra un test reportado por error desde la página Tests o la API",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T20:42:39.499Z"
     }
   ]
 }

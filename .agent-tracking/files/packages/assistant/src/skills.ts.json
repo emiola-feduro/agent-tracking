@@ -1,0 +1,9 @@
+{
+  "path": "packages/assistant/src/skills.ts",
+  "purpose": "Usa el modelo de la tarea skills",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "4b340d32-362f-4378-bb2c-c250c397cd83"
+  ],
+  "symbols": []
+}

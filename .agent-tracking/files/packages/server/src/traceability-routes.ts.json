@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/traceability-routes.ts",
+  "purpose": "Ruta DELETE /projects/:id/tests/:testId",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "e6efc11f-d764-4277-b6d7-54fc78371946"
+  ],
+  "symbols": []
+}

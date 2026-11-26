@@ -1,11 +1,18 @@
 {
   "path": "packages/tracking/src/tracker.ts",
-  "purpose": "Escritura de features, archivos, símbolos y tests, y resolución del proyecto por ruta o worktree",
+  "purpose": "deleteTest quita un test del proyecto",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "e6efc11f-d764-4277-b6d7-54fc78371946",
     "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
   ],
   "symbols": [
+    {
+      "name": "deleteTest",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
     {
       "name": "createTracker",
       "kind": "function",

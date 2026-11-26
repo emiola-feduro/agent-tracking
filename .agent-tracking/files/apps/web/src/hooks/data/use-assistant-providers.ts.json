@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/hooks/data/use-assistant-providers.ts",
-  "purpose": "Proveedores disponibles y cambio de proveedor.",
+  "purpose": "setModel",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "4b340d32-362f-4378-bb2c-c250c397cd83",
     "cd9f791e-6d22-496a-933c-50a50921b753"
   ],
   "symbols": []

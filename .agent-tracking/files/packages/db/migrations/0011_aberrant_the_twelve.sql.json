@@ -1,0 +1,9 @@
+{
+  "path": "packages/db/migrations/0011_aberrant_the_twelve.sql",
+  "purpose": "Migración de app_settings",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "4b340d32-362f-4378-bb2c-c250c397cd83"
+  ],
+  "symbols": []
+}

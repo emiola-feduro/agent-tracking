@@ -95,7 +95,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
 - Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
@@ -103,7 +103,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/core/src/conventions.ts`: Modelo, valores por defecto y texto para CONTEXT.md.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/db/src/schema.ts`: Columna reply_language con valor por defecto es
+  - `packages/db/src/schema.ts`: Tabla app_settings
 - Stack guiado por lenguaje — _done_ (`86707f6b-1269-48bc-820a-3ff1d4e937a7`)
   - `apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx`: Lenguajes compartidos entre piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Sección del stack con botones para agregar lenguajes que abren más opciones.
@@ -113,10 +113,10 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
 - Rama inicial del repositorio nuevo — _done_ (`af7e04d4-633c-4100-99e2-46e3093f6834`)
   - `apps/web/src/components/dynamic/new-project/new-project-source-new.tsx`: Origen Repositorio nuevo con selector de rama principal.
-  - `apps/web/src/lib/api.ts`: Tipos de creación y actualización con replyLanguage
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
   - `packages/git/src/repo.test.ts`: Tests de repositorios, incluida la rama inicial.
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
 - Tipos de tests para los agentes — _done_ (`339c5862-66c9-4283-80c0-d72c47b8a3ab`)
   - `apps/web/src/components/dynamic/new-project/new-project-test-types.tsx`: Elección de los tests que deben escribir los agentes.
   - `packages/core/src/test-policy.ts`: Tipos de tests, sugeridos por tipo de proyecto, y su Markdown.
@@ -153,6 +153,13 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `apps/web/src/components/dynamic/project-detail/project-detail-trace-feature.tsx`: Feature plegable con sus archivos.
   - `apps/web/src/components/dynamic/project-detail/project-detail-trace-requirement.tsx`: Requerimiento en la trazabilidad; pasa el plegado y la búsqueda a sus features.
   - `apps/web/src/components/dynamic/project-detail/project-detail-traceability.tsx`: Trazabilidad: plegado, búsqueda y vista de worktree.
+- Quitar un test del proyecto — _done_ (`e6efc11f-d764-4277-b6d7-54fc78371946`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-test-group.tsx`: Botón para quitar cada test
+  - `apps/web/src/components/dynamic/project-detail/project-detail-tests.tsx`: Conecta el borrado con la lista
+  - `apps/web/src/hooks/data/use-test-idea-actions.ts`: removeTest optimista
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `packages/server/src/traceability-routes.ts`: Ruta DELETE /projects/:id/tests/:testId
+  - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 
 ### Análisis del repositorio en vivo — 100%
 
@@ -200,7 +207,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
   - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
-  - `packages/tracking/src/tracker.ts`: Escritura de features, archivos, símbolos y tests, y resolución del proyecto por ruta o worktree
+  - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
   - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
   - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
@@ -248,7 +255,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
 - Seguimiento de Codex CLI y Gemini CLI — _done_ (`a8021746-6f16-480d-af64-7d9a91068c3e`)
@@ -293,10 +300,10 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 - Borrar ramas locales — _done_ (`1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
   - `apps/web/src/hooks/data/use-worktrees.ts`: Consultas y mutaciones de ramas y worktrees.
-  - `apps/web/src/lib/api.ts`: Tipos de creación y actualización con replyLanguage
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 
@@ -336,7 +343,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/hooks/data/use-github-branches.ts`: Lista y borrado de ramas con doble confirmación.
   - `apps/web/src/lib/github-api.ts`: Cliente web de las rutas de GitHub.
   - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
   - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
 - CI de Agent Tracking en GitHub Actions — _done_ (`5ad82298-fbd4-4fd2-96ed-1c656f6b8e28`)
@@ -359,19 +366,19 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
 
 - Asistente de stack, DoD y skills — _done_ (`eb414879-3201-4d99-9b1e-a3043e0aed50`)
   - `packages/assistant/src/claude-code.ts`: Proveedor Claude Code CLI.
-  - `packages/assistant/src/dod.ts`: Criterios del DoD sugeridos
-  - `packages/assistant/src/stack.ts`: Sugerencia de stack normalizada con el catálogo
+  - `packages/assistant/src/dod.ts`: Usa el modelo de la tarea dod
+  - `packages/assistant/src/stack.ts`: Usa el modelo de la tarea stack
 - Botones que gastan tokens — _done_ (`abd40f70-d2b9-4a69-bedd-08d4841a629d`)
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-dod.tsx`: DoD del wizard; Sugerir con IA con TokenButton.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-assistant.tsx`: Sugerencia de stack con TokenButton.
   - `apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx`: DoD del proyecto; Generar criterios con TokenButton.
   - `apps/web/src/components/ui/token-button/token-button.tsx`: Dice de quién son los tokens que gasta.
 - Proveedores del asistente — _done_ (`cd9f791e-6d22-496a-933c-50a50921b753`)
-  - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Selector de proveedor del asistente.
+  - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Muestra los modelos en uso y el selector por tarea
   - `apps/web/src/components/ui/token-button/token-button.tsx`: Dice de quién son los tokens que gasta.
-  - `apps/web/src/hooks/data/use-assistant-providers.ts`: Proveedores disponibles y cambio de proveedor.
+  - `apps/web/src/hooks/data/use-assistant-providers.ts`: setModel
   - `packages/assistant/src/claude-code.ts`: Proveedor Claude Code CLI.
-  - `packages/assistant/src/client.ts`: Configuración y elección del proveedor del asistente; ask() por proveedor.
+  - `packages/assistant/src/client.ts`: Tareas del asistente, modelos sugeridos y modelFor
   - `packages/assistant/src/codex-cli.ts`: Proveedor Codex CLI no interactivo.
   - `packages/assistant/src/errors.ts`: Errores del asistente.
   - `packages/assistant/src/gemini-cli.ts`: Proveedor Gemini CLI no interactivo.
@@ -379,9 +386,21 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `packages/assistant/src/openai.ts`: Proveedor OpenAI con salida estructurada.
   - `packages/assistant/src/providers.test.ts`: Tests de los proveedores con fetch y spawn simulados.
   - `packages/assistant/src/spawn.ts`: Ejecución de CLIs con tiempo límite y carpeta aislada.
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/server/src/assistant.test.ts`: Tests de las rutas del asistente.
   - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
+- Modelo por tarea del asistente — _done_ (`4b340d32-362f-4378-bb2c-c250c397cd83`)
+  - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Muestra los modelos en uso y el selector por tarea
+  - `apps/web/src/components/dynamic/assistant/assistant-task-models.tsx`: Selector de modelo por tarea
+  - `apps/web/src/hooks/data/use-assistant-providers.ts`: setModel
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `packages/assistant/src/client.ts`: Tareas del asistente, modelos sugeridos y modelFor
+  - `packages/assistant/src/dod.ts`: Usa el modelo de la tarea dod
+  - `packages/assistant/src/skills.ts`: Usa el modelo de la tarea skills
+  - `packages/assistant/src/stack.ts`: Usa el modelo de la tarea stack
+  - `packages/db/migrations/0011_aberrant_the_twelve.sql`: Migración de app_settings
+  - `packages/db/src/schema.ts`: Tabla app_settings
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
 
 ### Referencias visuales y galería de vistas — 100%
 
@@ -448,7 +467,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: Tipos de creación y actualización con replyLanguage
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 - Comando bun run dev — _done_ (`0adf724c-6460-4bbf-9154-c3bd491dbb35`)
   - `README.md`: Documenta bun run dev.
@@ -481,7 +500,7 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
   - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
   - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
-  - `apps/web/src/lib/api.ts`: Tipos de creación y actualización con replyLanguage
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Project.replyLanguage
@@ -553,7 +572,7 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 - Solo páginas de este equipo — _done_ (`2643a8cc-df59-4ebb-a845-e574b2b3ebc7`)
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
   - `packages/server/src/origin.test.ts`: Tests de orígenes permitidos.
   - `packages/server/src/origin.ts`: Qué orígenes pueden llamar al servidor.
@@ -577,7 +596,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
-  - `apps/web/src/lib/api.ts`: Tipos de creación y actualización con replyLanguage
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/core/src/core.test.ts`: Tests del catálogo y del stack guiado por lenguaje.
@@ -585,8 +604,8 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
-  - `packages/db/src/schema.ts`: Columna reply_language con valor por defecto es
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/db/src/schema.ts`: Tabla app_settings
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
@@ -605,7 +624,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
   - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
   - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
   - `packages/server/src/repo-watchers.ts`: El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.
   - `packages/tracking/src/inference.ts`: Análisis del repo; INFERRED_ACTOR ahora viene de core.
@@ -645,7 +664,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `apps/web/src/components/dynamic/new-project/new-project-stack.tsx`: Paso Stack con piezas, herramienta y tests.
   - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
   - `apps/web/src/hooks/form/use-stack-defaults.ts`: Recomendación por pieza.
-  - `apps/web/src/lib/api.ts`: Tipos de creación y actualización con replyLanguage
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
   - `packages/core/src/agent-context.ts`: El bloque de los agentes incluye la regla del idioma
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
@@ -656,8 +675,8 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/db/migrations/0009_jazzy_banshee.sql`: Migración de estructura, piezas, herramienta y tests.
-  - `packages/db/src/schema.ts`: Columna reply_language con valor por defecto es
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/db/src/schema.ts`: Tabla app_settings
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
 - Árbol propuesto y scaffolding — _done_ (`51788bf5-ecb2-4f79-9da1-1b92108b75ee`)
   - `apps/web/src/components/dynamic/new-project/new-project-scaffold.tsx`: Árbol de carpetas propuesto y casilla para crearlo.
@@ -699,7 +718,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Idioma de los agentes en el resumen
   - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Sección Idioma con el usuario que guarda al cambiar
   - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
-  - `apps/web/src/lib/api.ts`: Tipos de creación y actualización con replyLanguage
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
   - `packages/agents/src/claude-code.ts`: Claude Code acepta contexto por pedido
   - `packages/agents/src/codex.ts`: Codex acepta contexto por pedido
@@ -711,8 +730,8 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `packages/core/src/reply-language.ts`: Idiomas disponibles, etiquetas y la regla que reciben los agentes
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/db/migrations/0010_safe_deathbird.sql`: Migración que agrega reply_language
-  - `packages/db/src/schema.ts`: Columna reply_language con valor por defecto es
-  - `packages/server/src/app.ts`: Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma
+  - `packages/db/src/schema.ts`: Tabla app_settings
+  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
 
 ## Ideas de tests pendientes

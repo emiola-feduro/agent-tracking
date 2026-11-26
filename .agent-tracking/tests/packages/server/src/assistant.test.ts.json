@@ -9,6 +9,13 @@
       "lastResult": "passing"
     },
     {
+      "featureId": "4b340d32-362f-4378-bb2c-c250c397cd83",
+      "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
+      "name": "each task can use its own model, stored across restarts, and empty goes back to the default",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "eb414879-3201-4d99-9b1e-a3043e0aed50",
       "requirementId": "765effdd-4d83-4567-90eb-483ec5c56034",
       "name": "rutas del asistente",

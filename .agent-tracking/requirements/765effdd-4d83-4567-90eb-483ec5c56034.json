@@ -49,6 +49,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-25T19:42:14.102Z"
+    },
+    {
+      "id": "4b340d32-362f-4378-bb2c-c250c397cd83",
+      "name": "Modelo por tarea del asistente",
+      "description": "Modelo elegido por tarea y proveedor, guardado en app_settings y editable en la pestaña Asistente",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T20:42:39.536Z"
     }
   ]
 }

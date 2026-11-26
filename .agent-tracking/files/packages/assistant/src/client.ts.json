@@ -1,9 +1,29 @@
 {
   "path": "packages/assistant/src/client.ts",
-  "purpose": "Configuración y elección del proveedor del asistente; ask() por proveedor.",
+  "purpose": "Tareas del asistente, modelos sugeridos y modelFor",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "4b340d32-362f-4378-bb2c-c250c397cd83",
     "cd9f791e-6d22-496a-933c-50a50921b753"
   ],
-  "symbols": []
+  "symbols": [
+    {
+      "name": "ASSISTANT_TASKS",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "SUGGESTED_MODELS",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "modelFor",
+      "kind": "function",
+      "purpose": "Modelo de una tarea: el elegido o el de su nivel",
+      "source": "reported"
+    }
+  ]
 }

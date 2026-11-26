@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx",
-  "purpose": "Selector de proveedor del asistente.",
+  "purpose": "Muestra los modelos en uso y el selector por tarea",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "4b340d32-362f-4378-bb2c-c250c397cd83",
     "cd9f791e-6d22-496a-933c-50a50921b753"
   ],
   "symbols": []

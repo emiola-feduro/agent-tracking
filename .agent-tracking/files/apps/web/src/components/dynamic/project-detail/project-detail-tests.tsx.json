@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-tests.tsx",
+  "purpose": "Conecta el borrado con la lista",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "e6efc11f-d764-4277-b6d7-54fc78371946"
+  ],
+  "symbols": []
+}
