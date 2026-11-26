@@ -35,3 +35,11 @@ export function describeMcp(tool: string, separator: "__" | "_"): ToolStep | nul
   const [, server, name] = m;
   return step(server === "agent-tracking" || server === "agent_tracking" ? "Agent Tracking" : `MCP ${server}`, name!.replaceAll("_", " "));
 }
+
+/** PreToolUse denial in Claude Code's protocol, which Codex follows too. */
+export const denyPreToolUse = (reason: string) => ({
+  hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: reason },
+});
+
+/** Stop hook answer that makes the agent go on with `reason` as its next instruction. */
+export const blockStop = (reason: string) => ({ decision: "block", reason });

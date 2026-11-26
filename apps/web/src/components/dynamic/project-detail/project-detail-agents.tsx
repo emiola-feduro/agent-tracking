@@ -10,6 +10,7 @@ import { formatRelative } from "@/lib/activity";
 import { queryKeys } from "@/lib/query-keys";
 
 const NOTES: Partial<Record<AgentKind, string>> = {
+  codex: "Codex solo ejecuta hooks en los que confías. Después de conectar, abre Codex, escribe /hooks y confía en los de Agent Tracking; si no, no verás nada en vivo.",
   "gemini-cli": "En el plan gratuito y en Google One, Gemini CLI fue reemplazado por Antigravity CLI en junio de 2026.",
 };
 
@@ -65,17 +66,20 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
                 </div>
                 <div className="flex flex-col gap-1">
                   <Check ok={a.mcp} label="MCP: lee el contexto y reporta" />
-                  <Check ok={a.hooks} label="Hooks: en vivo y resumen" />
+                  <Check ok={a.hooks} label="Hooks: en vivo, resumen y protección de main" />
                 </div>
+                {a.hooksOutdated && (
+                  <p className="text-xs text-warn">Los hooks son de una versión anterior y no protegen main ni recuerdan reportar: conéctalo de nuevo para actualizarlos.</p>
+                )}
                 <p className="text-xs text-muted">
                   Instrucciones en <code className="font-mono">{a.contextFile}</code>
-                  {a.lastSeen ? `. Último trabajo ${formatRelative(a.lastSeen)}.` : "."}
+                  {a.lastSeen ? `. Último trabajo ${formatRelative(a.lastSeen)}.` : a.mcp || a.hooks ? ". Todavía no llegó ningún trabajo suyo." : "."}
                 </p>
                 {NOTES[a.kind] && <p className="text-xs text-muted">{NOTES[a.kind]}</p>}
                 <div className="mt-auto flex gap-2">
                   {!connected && (
                     <Button size="sm" variant="primary" onClick={() => setDialog({ agent: a, action: "connect" })}>
-                      Conectar
+                      {a.hooksOutdated ? "Actualizar" : "Conectar"}
                     </Button>
                   )}
                   {(a.mcp || a.hooks) && (
@@ -93,8 +97,9 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
       <section className="flex flex-col gap-2 rounded-lg border border-line bg-surface p-4">
         <h2 className="font-semibold text-ink">Agentes que trabajan en este proyecto</h2>
         <p className="text-sm text-muted">
-          A cada uno se le agrega, en su archivo de instrucciones del repositorio, un bloque corto que apunta al contexto del proyecto y explica cómo
-          reportar. El resto del archivo no se toca.
+          A cada uno se le agrega, en su archivo de instrucciones del repositorio, un bloque corto que apunta al contexto del proyecto, explica cómo
+          reportar y fija las reglas de git (trabajar en ramas, hacer commits, no tocar main). El resto del archivo no se toca. Un agente se agrega
+          solo la primera vez que trabaja en el proyecto.
         </p>
         {!project.repoPath && <p className="text-sm text-warn">El proyecto no tiene repositorio local: no hay dónde escribir esos archivos.</p>}
         {(agents.data ?? []).map((a) => (

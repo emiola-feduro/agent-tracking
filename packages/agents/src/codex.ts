@@ -1,17 +1,19 @@
-import { commandText, describeMcp, patchFiles, str, step } from "./describe";
+import { blockStop, commandText, denyPreToolUse, describeMcp, patchFiles, str, step } from "./describe";
 import type { AgentAdapter, AgentEvent } from "./types";
 
 /**
- * Codex CLI. Its hooks use the same event and field names as Claude Code (UserPromptSubmit,
- * PreToolUse with tool_name/tool_input, Stop with last_assistant_message), configured in
- * $CODEX_HOME/hooks.json. Tool names are not documented, so the description reads the usual
- * argument shapes: a shell command (string or argv), an apply_patch body, a file path.
+ * Codex CLI. Its hooks follow Claude Code's protocol (event names, fields, PreToolUse denial, Stop
+ * `decision: block`), configured in $CODEX_HOME/hooks.json; Codex runs them only after the person
+ * trusts them with /hooks. Shell commands arrive as `Bash` (also unified exec) with
+ * `tool_input.command`; file edits as `apply_patch` with the patch in `tool_input.command`.
  */
 export const codex: AgentAdapter = {
   kind: "codex",
   label: "Codex CLI",
   contextFile: "AGENTS.md",
   clientNames: ["codex", "codex-mcp-client", "codex-cli"],
+  denyTool: denyPreToolUse,
+  continueWith: blockStop,
   normalize(payload) {
     const p = (payload ?? {}) as Record<string, unknown>;
     if (typeof p.cwd !== "string") return null;
@@ -27,13 +29,14 @@ export const codex: AgentAdapter = {
       tool_input: (p.tool_input && typeof p.tool_input === "object" ? p.tool_input : undefined) as AgentEvent["tool_input"],
       last_assistant_message: str(p.last_assistant_message),
       transcript_path: str(p.transcript_path),
+      stop_hook_active: p.stop_hook_active === true,
     };
   },
   describeTool(tool, input) {
     const mcp = describeMcp(tool, "__");
     if (mcp) return mcp;
     const name = tool.toLowerCase();
-    const patch = patchFiles(input.patch ?? input.input ?? input.content);
+    const patch = patchFiles(input.patch ?? input.input ?? input.content ?? (name === "apply_patch" ? input.command : undefined));
     if (name.includes("patch") || patch.length) return step(patch.length ? "Edita" : "Aplica un parche", patch.join(", "));
     const command = commandText(input.command ?? input.cmd ?? input.argv);
     if (command || /shell|exec|command|bash/.test(name)) return step("Ejecuta", command);

@@ -1,3 +1,4 @@
+import { GIT_WORK_RULES } from "./conventions";
 import { CONTEXT_FILE_PATH } from "./project-file";
 import { sharedSkillPath } from "./requirements";
 import type { ProjectSnapshot } from "./types";
@@ -21,6 +22,10 @@ export function agentContextBlock(s: ProjectSnapshot): string {
     "- Al empezar, llama a `get_project_context` del servidor MCP `agent-tracking`.",
     "- Al terminar, llama una vez a `submit_report` con lo que hiciste, por requerimiento y feature: archivos, funciones o tipos, tests y criterios del DoD cumplidos.",
     "- Si cambiaste una vista de la app, guarda una captura y repórtala con `report_screen`.",
+    "",
+    "### Git",
+    "",
+    ...GIT_WORK_RULES.map((l) => `- ${l}`),
     ...(skills.length ? ["- Skills del proyecto (léelas cuando apliquen):", ...skills.map((k) => `  - \`${sharedSkillPath(k.name)}/SKILL.md\`: ${k.description}`)] : []),
     BLOCK_END,
   ].join("\n");

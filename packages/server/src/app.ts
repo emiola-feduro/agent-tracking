@@ -33,7 +33,7 @@ import {
   type ProjectBrief,
 } from "@agent-tracking/assistant";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
-import { cloneGithub, initRepo, inspectRepo, writeNewFiles } from "@agent-tracking/git";
+import { cloneGithub, git, initRepo, inspectRepo, writeNewFiles } from "@agent-tracking/git";
 import { discoverCatalogSkills, discoverSkills, skillTemplate } from "@agent-tracking/skills";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { Hono, type Context } from "hono";
@@ -48,7 +48,8 @@ import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
 import { repoRoutes } from "./repo-routes";
-import { adapterFor, AGENT_KINDS } from "@agent-tracking/agents";
+import { adapterFor, AGENT_KINDS, gitGuard } from "@agent-tracking/agents";
+import { blockMessage } from "@agent-tracking/mcp";
 import { createAgentTurns, type TurnHookPayload } from "@agent-tracking/tracking";
 import { agentRoutes } from "./agent-routes";
 import { isAllowedOrigin } from "./origin";
@@ -699,15 +700,40 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   /** Turn bookkeeping runs one event at a time per project. */
   const turnQueue = new Map<string, Promise<unknown>>();
 
+  /** Branches the git guard protects in a folder, and the one checked out there. */
+  const branchContext = async (dir: string) => {
+    const [current, remoteHead] = await Promise.all([
+      git(["symbolic-ref", "--short", "-q", "HEAD"], dir, 3000),
+      git(["symbolic-ref", "--short", "-q", "refs/remotes/origin/HEAD"], dir, 3000),
+    ]);
+    const remoteDefault = remoteHead.ok ? remoteHead.stdout.replace(/^origin\//, "") : "";
+    return { protected: [...new Set(["main", "master", ...(remoteDefault ? [remoteDefault] : [])])], current: current.ok && current.stdout ? current.stdout : null };
+  };
+
+  /** Projects list the agents that work on them; the first activity of a new one adds it (and its instruction file). */
+  const noteAgent = async (projectId: string, agent: string) => {
+    const project = await db.query.projects.findFirst({ where: eq(s.projects.id, projectId), columns: { agents: true } });
+    if (!project || project.agents.includes(agent)) return;
+    await db.update(s.projects).set({ agents: [...project.agents, agent] }).where(eq(s.projects.id, projectId));
+    await tracker.touch(projectId, "project", projectId);
+  };
+
   /**
    * Hooks of every supported agent: `?agent=codex` or `?agent=gemini-cli` (Claude Code when missing).
-   * Each adapter turns its agent's payload into the same event. The answer is always empty, so
-   * nothing reaches the agent's context and no tokens are spent.
+   * Each adapter turns its agent's payload into the same event. The answer is empty (no tokens spent)
+   * except in two cases, for agents whose hooks can take it: a git command that would destroy shared
+   * history is denied with the reason, and an agent that finishes with changed files it did not
+   * report is asked once to call submit_report.
    */
   app.post("/agent/hook", async (c) => {
     const adapter = adapterFor(c.req.query("agent"));
     const payload = adapter?.normalize(await c.req.json().catch(() => null)) ?? null;
     if (!payload || !isAbsolute(payload.cwd)) return c.body(null, 204);
+    const command = payload.tool_input?.command;
+    if (adapter?.denyTool && payload.hook_event_name === "PreToolUse" && typeof command === "string" && /\bgit\b/.test(command)) {
+      const reason = gitGuard(command, await branchContext(payload.cwd));
+      if (reason) return c.json(adapter.denyTool(`Agent Tracking: ${reason}`) as object);
+    }
     turns.rememberPrompt(payload);
     // The project comes from the working directory, or from what the tool touches when the agent
     // works from a folder outside the repository.
@@ -723,6 +749,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     }
     const { projectId, root, checkout } = target;
     if (!projectId) return c.body(null, 204);
+    // Before the turn's starting snapshot, so the instruction file it may write is not part of the turn.
+    if (payload.hook_event_name === "UserPromptSubmit") await noteAgent(projectId, payload.agent).catch(() => {});
     const sessionOf = () =>
       live.get(projectId).sessions.find((x) => x.agent === payload.agent && x.sessionId === (payload.session_id ?? "sin-sesion"));
     const before = sessionOf();
@@ -740,6 +768,12 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     turnQueue.set(projectId, next);
     // The starting snapshot must exist before the agent edits anything; it takes milliseconds.
     if (payload.hook_event_name === "UserPromptSubmit" || payload.hook_event_name === "PreToolUse") await next;
+    if (adapter?.continueWith && payload.hook_event_name === "Stop" && !payload.stop_hook_active && before?.startedAt) {
+      // Only what changed during this turn and is still unreported; asked once (stop_hook_active).
+      if (opts.syncRepo) await opts.syncRepo(projectId, "changes").catch(() => {});
+      const pending = (await tracker.pendingChanges(projectId)).filter((f) => f.changedAt >= before.startedAt);
+      if (pending.length > 0) return c.json(adapter.continueWith(blockMessage(pending)) as object);
+    }
     return c.body(null, 204);
   });
 

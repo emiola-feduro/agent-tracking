@@ -24,15 +24,31 @@ export type ConnectOptions = {
   home?: string;
 };
 
-export type AgentStatus = { kind: AgentKind; installed: boolean; mcp: boolean; hooks: boolean; configPath: string };
+export type AgentStatus = {
+  kind: AgentKind;
+  installed: boolean;
+  mcp: boolean;
+  /** Our hooks are there, in their current form. */
+  hooks: boolean;
+  /** Our hooks are there but written by an older Agent Tracking: connecting again updates them. */
+  hooksOutdated: boolean;
+  configPath: string;
+};
 
 export const MCP_NAME = "agent-tracking";
 const HOOK_MARK = "/api/agent/hook";
 
 export const homeDir = (opts?: { home?: string }) => opts?.home ?? process.env.AGENT_TRACKING_HOME ?? homedir();
 
+/**
+ * Version of the hook command. Version 2 passes the server's answer on to the agent (a denied git
+ * command, a reminder to report) and waits up to 10 s; version 1 dropped the answer after 1 s.
+ */
+const HOOK_VERSION = "v=2";
+
+/** The hook posts the event to Agent Tracking and prints its answer (empty when there is nothing to say). */
 const hookCommand = (serverUrl: string, kind: AgentKind) =>
-  `curl -s -o /dev/null -m 1 -X POST -H content-type:application/json --data-binary @- "${serverUrl.replace(/\/$/, "")}${HOOK_MARK}?agent=${kind}" || true`;
+  `curl -sf -m 10 -X POST -H content-type:application/json --data-binary @- "${serverUrl.replace(/\/$/, "")}${HOOK_MARK}?agent=${kind}&${HOOK_VERSION}" || true`;
 
 const readText = async (path: string) => readFile(path, "utf8").catch(() => null);
 const readJson = (text: string | null): Record<string, any> => {
@@ -48,13 +64,15 @@ const json = (v: unknown) => `${JSON.stringify(v, null, 2)}\n`;
 
 type HookGroup = { matcher?: string; hooks: { type: string; command: string; timeout?: number; name?: string }[] };
 const isOurs = (h: { command?: string }) => typeof h.command === "string" && h.command.includes(HOOK_MARK);
+const isCurrent = (h: { command?: string }) => isOurs(h) && h.command!.includes(HOOK_VERSION);
 
-/** Adds our hook to each event, once; the rest of the file stays as it was. */
+/** Adds our hook to each event, once, replacing an older version of it; the rest stays as it was. */
 function withHooks(config: Record<string, any>, events: string[], hook: HookGroup["hooks"][number], matcher?: string) {
   const hooks = { ...(config.hooks ?? {}) } as Record<string, HookGroup[]>;
   for (const event of events) {
-    const groups = [...(hooks[event] ?? [])];
-    if (groups.some((g) => g.hooks?.some(isOurs))) continue;
+    const groups = (hooks[event] ?? []).map((g) => ({ ...g, hooks: (g.hooks ?? []).map((h) => (isOurs(h) && !isCurrent(h) ? hook : h)) }));
+    hooks[event] = groups;
+    if (groups.some((g) => g.hooks.some(isOurs))) continue;
     groups.push({ ...(matcher !== undefined ? { matcher } : {}), hooks: [hook] });
     hooks[event] = groups;
   }
@@ -73,8 +91,8 @@ function withoutHooks(config: Record<string, any>) {
   return Object.keys(hooks).length ? { ...rest, hooks } : rest;
 }
 
-const hasHooks = (config: Record<string, any>, events: string[]) =>
-  events.every((e) => ((config.hooks?.[e] ?? []) as HookGroup[]).some((g) => g.hooks?.some(isOurs)));
+const hasHooks = (config: Record<string, any>, events: string[], test = isCurrent) =>
+  events.every((e) => ((config.hooks?.[e] ?? []) as HookGroup[]).some((g) => g.hooks?.some(test)));
 
 /* ---------- Per agent ---------- */
 
@@ -112,7 +130,8 @@ export async function agentStatus(kind: AgentKind, opts: { home?: string } = {})
     mcp = !!config.mcpServers?.[MCP_NAME] || perProject.some((proj) => !!proj?.mcpServers?.[MCP_NAME]);
   }
   const events = kind === "gemini-cli" ? GEMINI_EVENTS : kind === "codex" ? CODEX_EVENTS : CLAUDE_EVENTS;
-  return { kind, installed, mcp, hooks: hasHooks(hooksConfig, events), configPath: p.hooks };
+  const hooks = hasHooks(hooksConfig, events);
+  return { kind, installed, mcp, hooks, hooksOutdated: !hooks && hasHooks(hooksConfig, events, isOurs), configPath: p.hooks };
 }
 
 /** What connecting `kind` would change. Nothing is written here. */
@@ -146,7 +165,13 @@ export async function connectPlan(kind: AgentKind, opts: ConnectOptions): Promis
     if (!status.hooks) {
       const before = await readText(p.hooks);
       const after = json(withHooks(readJson(before), CODEX_EVENTS, { type: "command", command: hook }));
-      changes.push({ type: "file", path: p.hooks, description: "Hooks de Codex (Codex pide confiar en ellos la primera vez)", before, after });
+      changes.push({
+        type: "file",
+        path: p.hooks,
+        description: "Hooks de Codex. Codex no los ejecuta hasta que confías en ellos: abre Codex, escribe /hooks y confía en los de Agent Tracking",
+        before,
+        after,
+      });
     }
   }
 

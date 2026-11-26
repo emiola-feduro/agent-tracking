@@ -148,16 +148,29 @@ equipo y, con **Conectar**, enseña el diff exacto de cada archivo de configurac
 | Agente | MCP | Hooks (en vivo y resumen de cada trabajo) | Instrucciones en el repo |
 |---|---|---|---|
 | Claude Code | `claude mcp add` | `~/.claude/settings.json`: UserPromptSubmit, PreToolUse, Stop | `CLAUDE.md` |
-| Codex CLI | `~/.codex/config.toml` (`[mcp_servers.agent-tracking]`) | `~/.codex/hooks.json`: los mismos eventos (Codex pide confiar en ellos la primera vez) | `AGENTS.md` |
+| Codex CLI | `~/.codex/config.toml` (`[mcp_servers.agent-tracking]`) | `~/.codex/hooks.json`: los mismos eventos. **Codex no los ejecuta hasta que confías en ellos:** abre Codex, escribe `/hooks` y confía en los de Agent Tracking | `AGENTS.md` |
 | Gemini CLI | `~/.gemini/settings.json` (`mcpServers`) | `~/.gemini/settings.json`: BeforeAgent, BeforeTool, AfterAgent, SessionEnd | `GEMINI.md` |
 
-Los hooks llaman a `POST /api/agent/hook?agent=<claude-code|codex|gemini-cli>` y la respuesta es vacía:
-no gastan tokens. Un agente sin hooks también deja su resumen: leer el contexto (`get_project_context`)
-abre el trabajo y el reporte final (`submit_report`) lo cierra con su resumen y su diff.
+Los hooks llaman a `POST /api/agent/hook?agent=<claude-code|codex|gemini-cli>`. Casi siempre la
+respuesta es vacía y no gastan tokens, salvo en dos casos (en Claude Code y Codex):
 
-En cada proyecto se eligen los agentes que trabajan en él: su archivo de instrucciones del repo recibe un
-bloque corto, entre marcas `<!-- agent-tracking:start/end -->`, que apunta a `.agent-tracking/CONTEXT.md`
-y explica cómo reportar. El resto del archivo no se toca. Las skills se buscan también en
+- **Protección de git:** un comando que borraría, renombraría, recrearía o forzaría `main`, `master` o la
+  rama principal del remoto (`git branch -D main`, `git push --force` a main, `git push --delete`,
+  `git checkout --orphan`, `git reset --hard` estando en main), `git clean -f` o una reescritura de la
+  historia se rechaza con el motivo, y el agente busca otro camino.
+- **Recordatorio de reporte (Codex):** si termina con archivos cambiados en ese trabajo que no reportó,
+  se le pide una vez que llame a `submit_report`.
+
+Si conectaste un agente con una versión anterior, la sección Agentes muestra **Actualizar** para
+reescribir sus hooks. Un agente sin hooks también deja su resumen: leer el contexto
+(`get_project_context`) abre el trabajo y el reporte final (`submit_report`) lo cierra con su resumen y su
+diff.
+
+En cada proyecto se eligen los agentes que trabajan en él, y un agente se agrega solo la primera vez que
+trabaja en el proyecto. Su archivo de instrucciones del repo recibe un bloque corto, entre marcas
+`<!-- agent-tracking:start/end -->`, que apunta a `.agent-tracking/CONTEXT.md`, explica cómo reportar y
+fija las reglas de git: trabajar en una rama `feat/` o `fix/`, hacer commits, no tocar main. El resto del
+archivo no se toca. Las skills se buscan también en
 `.agents/skills`, `~/.agents/skills` y `~/.gemini/skills`, además de las de Claude.
 
 A mano, el servidor MCP es el comando `bun packages/mcp/src/stdio.ts` con `--agent <nombre>` y,

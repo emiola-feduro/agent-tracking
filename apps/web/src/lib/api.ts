@@ -76,6 +76,8 @@ export type AgentInfo = {
   installed: boolean;
   mcp: boolean;
   hooks: boolean;
+  /** Hooks written by an older Agent Tracking: connecting again updates them. */
+  hooksOutdated: boolean;
   configPath: string;
   contextFile: string;
   lastSeen: string | null;

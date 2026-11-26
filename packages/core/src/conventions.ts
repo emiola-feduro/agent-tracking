@@ -39,6 +39,18 @@ export const DEFAULT_COMMIT_CONVENTIONS: CommitConventions = {
 /** The conventions in force: the project's, or the defaults when it set none. */
 export const effectiveConventions = (c: CommitConventions | null | undefined): CommitConventions => c ?? DEFAULT_COMMIT_CONVENTIONS;
 
+/**
+ * How an agent works with git in any project tracked by Agent Tracking. The dangerous commands are
+ * also stopped by the hooks (see gitGuard in @agent-tracking/agents); this tells the agent why.
+ */
+export const GIT_WORK_RULES = [
+  "Antes de cambiar código, crea una rama desde la rama actual con `git switch -c <tipo>/<tema>` (por ejemplo `feat/exportar-csv`), salvo que ya estés en una rama de trabajo.",
+  "Haz commits pequeños mientras avanzas y uno al terminar cada tarea, con el formato de estas convenciones. No dejes el trabajo sin commit.",
+  "Nunca borres, renombres, recrees ni reescribas `main` o `master` (ni la rama principal del remoto): nada de `git branch -D`, `git push --force`, `git push --delete`, `git checkout --orphan` ni `git reset --hard` sobre ella.",
+  "No uses `git clean -f`, `git filter-branch` ni comandos que descarten trabajo ajeno. Si algo sobra, bórralo por su nombre.",
+  "No hagas push ni fusiones a main salvo que te lo pidan.",
+];
+
 /** Markdown for CONTEXT.md, so every agent writes commits and branches the same way. */
 export function conventionsMarkdown(c: CommitConventions | null | undefined): string[] {
   const conv = effectiveConventions(c);
@@ -58,5 +70,6 @@ export function conventionsMarkdown(c: CommitConventions | null | undefined): st
     .map((l) => l.trim())
     .filter(Boolean);
   if (custom.length) out.push("- **Reglas del equipo:**", ...custom.map((l) => `  - ${l.replace(/^[-*]\s*/, "")}`));
+  out.push("- **Trabajo con git:**", ...GIT_WORK_RULES.map((l) => `  - ${l}`));
   return out.filter((l, i) => i > 0 || l);
 }

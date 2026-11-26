@@ -20,6 +20,8 @@ export type AgentEvent = {
   /** The agent's final answer, when the hook carries it (Codex and Gemini do; Claude has a transcript). */
   last_assistant_message?: string;
   transcript_path?: string;
+  /** Stop only: the agent is already continuing because of a Stop hook (never block twice). */
+  stop_hook_active?: boolean;
 };
 
 /** One line describing a tool call for the live view. */
@@ -36,4 +38,8 @@ export interface AgentAdapter {
   contextFile: "CLAUDE.md" | "AGENTS.md" | "GEMINI.md";
   /** Names the agent reports as MCP client (clientInfo.name), lowercased, to recognize it in reports. */
   clientNames: string[];
+  /** Hook answer that stops a tool call with a reason the agent reads; absent when the agent has none. */
+  denyTool?(reason: string): unknown;
+  /** Hook answer that keeps the agent working (Stop hook) with an instruction; absent when unsupported. */
+  continueWith?(reason: string): unknown;
 }
