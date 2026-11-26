@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/main.tsx",
+  "purpose": "Retira la pantalla de carga tras el primer frame",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "8d8933d7-208e-4949-89ee-9858ddbd952a"
+  ],
+  "symbols": [
+    {
+      "name": "dismissBoot",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

@@ -526,6 +526,10 @@ Temas, fuentes y tamaño de texto como en ER Studio.
   - `apps/web/src/hooks/ui/use-apply-appearance.ts`: Aplica variables, fuentes y tamaño al documento
   - `apps/web/src/lib/appearance/fonts.ts`: Fuentes por categoría y carga desde Google Fonts
   - `apps/web/src/lib/appearance/themes.ts`: Temas de ER Studio más los de Agent Tracking
+- Pantalla de carga inicial — _done_ (`8d8933d7-208e-4949-89ee-9858ddbd952a`)
+  - `apps/desktop/src-tauri/tauri.conf.json`: Color de fondo de la ventana de escritorio
+  - `apps/web/index.html`: Estilos y marcado de la pantalla de carga con el logo animado
+  - `apps/web/src/main.tsx`: Retira la pantalla de carga tras el primer frame
 
 ### Web multiusuario y colaboración — 0%
 

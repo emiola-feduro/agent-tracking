@@ -1,0 +1,9 @@
+{
+  "path": "apps/desktop/src-tauri/tauri.conf.json",
+  "purpose": "Color de fondo de la ventana de escritorio",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "8d8933d7-208e-4949-89ee-9858ddbd952a"
+  ],
+  "symbols": []
+}
