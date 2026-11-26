@@ -45,7 +45,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join } from "node:path";
 import { z } from "zod";
-import { createProject as createProjectRecord, createTracker, LOCAL_USER, TrackingError, type Emit, type Tracker } from "@agent-tracking/tracking";
+import { createProject as createProjectRecord, createTracker, detectStructure, LOCAL_USER, TrackingError, type Emit, type Tracker } from "@agent-tracking/tracking";
 import { githubRoutes, type GithubOptions } from "./github-routes";
 import { insertProjectFile, readRepoFile, replaceFromFile, writeRepoFiles } from "./repo-sync";
 import { traceabilityRoutes } from "./traceability-routes";
@@ -278,6 +278,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       projectFile: parsed?.ok ? parsed.file : null,
       projectFileError: parsed && !parsed.ok ? parsed.error : null,
       existingProjectId: await projectForRepo(repo.root, fileProjectId),
+      // A repo that is already a monorepo: its pieces are proposed in the wizard.
+      structure: await detectStructure(repo.root).catch(() => null),
     };
   };
 
