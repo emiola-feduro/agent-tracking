@@ -2,7 +2,7 @@ import type { Platform } from "./types";
 import { CATEGORY_PLATFORM, STACK_OPTIONS, type StackCategory, type StackOption } from "./stack";
 
 /** What is being built, in broad terms. It decides which parts of the stack apply. */
-export const PROJECT_KINDS = ["fullstack", "frontend", "api", "desktop", "mobile", "cli", "library"] as const;
+export const PROJECT_KINDS = ["fullstack", "app", "frontend", "api", "desktop", "mobile", "cli", "library"] as const;
 export type ProjectKind = (typeof PROJECT_KINDS)[number];
 
 export type ProjectKindInfo = {
@@ -25,6 +25,14 @@ export const PROJECT_KIND_INFO: Record<ProjectKind, ProjectKindInfo> = {
     ui: true,
     server: true,
     categories: ["frontend", "crossplatform", "desktop", "mobile", "backend", "language", "orm", "testing"],
+  },
+  app: {
+    label: "App multiplataforma",
+    description: "Una interfaz para web, escritorio y móvil, sin backend propio",
+    platforms: null,
+    ui: true,
+    server: false,
+    categories: ["crossplatform", "frontend", "desktop", "mobile", "language", "orm", "testing"],
   },
   frontend: {
     label: "Sitio o app web",
