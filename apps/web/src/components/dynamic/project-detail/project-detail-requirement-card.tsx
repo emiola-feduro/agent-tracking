@@ -1,3 +1,4 @@
+import PartChips from "@/components/dynamic/requirement-parts/part-chips";
 import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL } from "@agent-tracking/core";
 import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
 import AttachmentThumbs from "@/components/dynamic/attachments/attachment-thumbs";
@@ -34,7 +35,9 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
   };
 
   return (
-    <article className={`animate-enter overflow-hidden rounded-lg border bg-surface transition-colors duration-150 ${open ? "border-line-strong" : "border-line"}`}>
+    <article
+      className={`animate-enter overflow-hidden rounded-lg border bg-surface transition-colors duration-150 ${open ? "border-line-strong" : "border-line"}`}
+    >
       <div className="flex items-stretch">
         <button
           type="button"
@@ -58,7 +61,9 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
             <span className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-ink">{title}</span>
               <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-                <span className={`rounded-full px-2 py-0.5 font-medium ${type === "functional" ? "bg-brand-soft text-brand" : "bg-warn-soft text-warn"}`}>
+                <span
+                  className={`rounded-full px-2 py-0.5 font-medium ${type === "functional" ? "bg-brand-soft text-brand" : "bg-warn-soft text-warn"}`}
+                >
                   {REQUIREMENT_TYPE_LABEL[type]}
                 </span>
                 <span className="rounded-full bg-subtle px-2 py-0.5 text-ink-soft">{REQUIREMENT_AREA_LABEL[area]}</span>
@@ -87,6 +92,13 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
             kind={project.kind ?? "fullstack"}
             onChange={(change) => updateRequirement.mutate({ reqId: id, ...change })}
           />
+          {project.structure === "monorepo" && (
+            <PartChips
+              parts={project.parts ?? []}
+              value={requirement.parts ?? []}
+              onChange={(parts) => updateRequirement.mutate({ reqId: id, parts })}
+            />
+          )}
           <section className="flex flex-col gap-2">
             <h3 className="text-sm font-semibold text-ink">
               Referencias visuales {references.length > 0 && <span className="font-normal text-muted">({references.length})</span>}

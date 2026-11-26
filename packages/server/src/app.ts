@@ -633,6 +633,11 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     const { id: projectId, reqId } = c.req.param();
     await requirementIn(projectId, reqId);
     const input = await patchBody(c, requirementInput.omit({ dod: true }).partial());
+    if (input.parts) {
+      // Only pieces of this project.
+      const known = new Set(((await snapshotOr404(projectId)).project.parts ?? []).map((p) => p.id));
+      input.parts = input.parts.filter((p) => known.has(p));
+    }
     // Changing the type keeps the area only if it still makes sense (a quality for non functional ones).
     if (input.type && !input.area) {
       const current = (await db.query.requirements.findFirst({ where: eq(s.requirements.id, reqId) }))!;

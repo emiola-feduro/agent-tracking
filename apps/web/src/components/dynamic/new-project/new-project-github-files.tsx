@@ -4,7 +4,8 @@ import CheckOption from "@/components/ui/check-option/check-option";
 import MarkdownPreview from "@/components/ui/markdown-preview/markdown-preview";
 import Segmented from "@/components/ui/segmented/segmented";
 import { GITHUB_FILE_LABELS } from "@/lib/labels";
-import useWizardStore from "@/stores/use-wizard-store";
+import { useShallow } from "zustand/react/shallow";
+import useWizardStore, { projectShape } from "@/stores/use-wizard-store";
 
 type Mode = "write" | "preview";
 
@@ -17,7 +18,7 @@ const NewProjectGithubFiles = () => {
   const selected = useWizardStore((s) => s.githubFiles);
   const toggle = useWizardStore((s) => s.toggleGithubFile);
   const name = useWizardStore((s) => s.name);
-  const stack = useWizardStore((s) => s.stack);
+  const stack = useWizardStore(useShallow((s) => projectShape(s).stack));
   const requirements = useWizardStore((s) => s.requirements);
   const edited = useWizardStore((s) => s.prTemplate);
   const patch = useWizardStore((s) => s.patch);

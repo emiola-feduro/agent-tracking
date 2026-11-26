@@ -1,12 +1,12 @@
 import { DATABASE_KIND_LABEL, DATABASE_OPTIONS, suggestDatabases } from "@agent-tracking/core";
 import { useCallback } from "react";
-import useWizardStore from "@/stores/use-wizard-store";
+import useWizardStore, { selectPlatforms } from "@/stores/use-wizard-store";
 import NewProjectSuggestField from "./new-project-suggest-field";
 
 const featured = new Map(DATABASE_OPTIONS.map((o) => [o.name.toLowerCase(), o.name]));
 
 const NewProjectDatabaseSearch = ({ others }: { others: string[] }) => {
-  const platforms = useWizardStore((s) => s.platforms);
+  const platforms = useWizardStore(selectPlatforms);
   const databases = useWizardStore((s) => s.databases);
   const toggleIn = useWizardStore((s) => s.toggleIn);
 

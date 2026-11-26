@@ -100,9 +100,9 @@ const useProjectActions = (projectId: string) => {
 
   /** Type and area change instantly; the server confirms afterwards. */
   const updateRequirement = useMutation({
-    mutationFn: ({ reqId, ...data }: { reqId: string; type?: RequirementType; area?: RequirementArea; title?: string; description?: string }) =>
+    mutationFn: ({ reqId, ...data }: { reqId: string; type?: RequirementType; area?: RequirementArea; title?: string; description?: string; parts?: string[] }) =>
       api.updateRequirement(projectId, reqId, data),
-    ...optimistic<{ reqId: string; type?: RequirementType; area?: RequirementArea; title?: string; description?: string }>((view, { reqId, ...data }) => ({
+    ...optimistic<{ reqId: string; type?: RequirementType; area?: RequirementArea; title?: string; description?: string; parts?: string[] }>((view, { reqId, ...data }) => ({
       ...view,
       requirements: view.requirements.map((r) => (r.id === reqId ? { ...r, ...data } : r)),
     })),

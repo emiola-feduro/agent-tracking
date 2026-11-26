@@ -13,7 +13,9 @@ import type {
   Project,
   ProjectFile,
   ProjectKind,
+  ProjectPart,
   ProjectSkill,
+  ProjectStructure,
   ProjectSnapshot,
   Requirement,
   RequirementArea,
@@ -24,6 +26,7 @@ import type {
   TestCase,
   TestIdea,
   TestIdeaStatus,
+  TestType,
 } from "@agent-tracking/core";
 
 export type {
@@ -40,6 +43,9 @@ export type {
   Project,
   ProjectFile,
   ProjectKind,
+  ProjectPart,
+  ProjectStructure,
+  TestType,
   ProjectSkill,
   Requirement,
   RequirementArea,
@@ -137,6 +143,8 @@ export type RepoInspection = {
   projectFile: ProjectFile | null;
   projectFileError: string | null;
   existingProjectId: string | null;
+  /** The repo is already a monorepo: its pieces, proposed in the wizard. */
+  structure: { structure: ProjectStructure; tool: string | null; parts: ProjectPart[] } | null;
 };
 export type SkillInput = Pick<ProjectSkill, "name" | "description" | "source" | "location" | "enabled">;
 export type NewProject = {
@@ -155,7 +163,20 @@ export type NewProject = {
   prTemplate?: string;
   rules: string[];
   skills: SkillInput[];
-  requirements: { title: string; description: string; type?: RequirementType; area?: RequirementArea; dod: { criterion: string; origin: "human" | "llm" }[] }[];
+  requirements: {
+    title: string;
+    description: string;
+    type?: RequirementType;
+    area?: RequirementArea;
+    parts?: string[];
+    dod: { criterion: string; origin: "human" | "llm" }[];
+  }[];
+  structure: ProjectStructure;
+  parts: ProjectPart[];
+  monorepoTool: string | null;
+  testTypes: TestType[];
+  /** Write the starting folders and manifests into the repository. */
+  scaffold: boolean;
 };
 
 export type AssistantProviderId = "api" | "claude-code" | "openai-api" | "gemini-api" | "codex-cli" | "gemini-cli";
@@ -255,7 +276,7 @@ export const api = {
     request<{ id: string }>("POST", `${p(id)}/requirements`, data),
   importRequirements: (id: string, text: string) =>
     request<{ created: number; ids: string[]; warnings: string[] }>("POST", `${p(id)}/requirements/import`, { text }),
-  updateRequirement: (id: string, reqId: string, data: Partial<{ title: string; description: string; type: RequirementType; area: RequirementArea }>) =>
+  updateRequirement: (id: string, reqId: string, data: Partial<{ title: string; description: string; type: RequirementType; area: RequirementArea; parts: string[] }>) =>
     request<{ id: string }>("PATCH", `${p(id)}/requirements/${reqId}`, data),
   deleteRequirement: (id: string, reqId: string) => request<void>("DELETE", `${p(id)}/requirements/${reqId}`),
   addDod: (id: string, reqId: string, criterion: string, origin: "human" | "llm" = "human") =>

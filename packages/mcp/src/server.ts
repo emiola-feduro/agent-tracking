@@ -557,7 +557,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
           "",
           PLAN_TEMPLATE,
           "Opcional: una sección ## Convenciones de commits con las reglas del equipo, una por línea; sin ella se usan Conventional Commits (feat, fix, docs...) y ramas tipo/tema.",
-          "Obligatorio: nombre (# Título), Tipo, Objetivo y al menos un requerimiento. Plataformas solo si el tipo es aplicación completa.",
+          "Obligatorio: nombre (# Título), Tipo, Objetivo y al menos un requerimiento. Plataformas solo si el tipo es aplicación completa o app multiplataforma.",
           "Cada requerimiento debería tener criterios del Definition of Done (lista o checklist debajo de su título).",
           `Tipos de proyecto: ${PROJECT_KINDS.map((k) => `${k} (${PROJECT_KIND_INFO[k].label})`).join(", ")}.`,
           `Plataformas: ${PLATFORMS.join(", ")}.`,

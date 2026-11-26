@@ -10,7 +10,7 @@ import {
   type StackOption,
 } from "@agent-tracking/core";
 import { useMemo } from "react";
-import useWizardStore from "@/stores/use-wizard-store";
+import useWizardStore, { selectKind, selectPlatforms, selectStack } from "@/stores/use-wizard-store";
 
 export type StackSection = {
   category: StackCategory;
@@ -44,9 +44,9 @@ const useStackSections = (): {
   chosenLanguages: string[];
   sections: StackSection[];
 } => {
-  const kind = useWizardStore((s) => s.kind);
-  const platforms = useWizardStore((s) => s.platforms);
-  const stack = useWizardStore((s) => s.stack);
+  const kind = useWizardStore(selectKind);
+  const platforms = useWizardStore(selectPlatforms);
+  const stack = useWizardStore(selectStack);
 
   return useMemo(() => {
     const applies = new Set(stackOptionsFor(kind, platforms).map((o) => o.name));

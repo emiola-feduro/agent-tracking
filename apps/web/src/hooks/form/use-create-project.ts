@@ -1,21 +1,30 @@
-import { kindPlatforms } from "@agent-tracking/core";
+import { partPlatforms, recommendMonorepoTool } from "@agent-tracking/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { api, type NewProject } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import useNoticeStore from "@/stores/use-notice-store";
-import useWizardStore from "@/stores/use-wizard-store";
+import useWizardStore, { effectiveTestTypes, projectShape } from "@/stores/use-wizard-store";
 
 const buildPayload = (): NewProject => {
   const s = useWizardStore.getState();
+  const monorepo = s.structure === "monorepo";
+  // In a monorepo the project is what its pieces add up to.
+  const shape = projectShape(s);
+  const parts = monorepo ? s.parts.map((p) => ({ ...p, name: p.name.trim(), path: p.path.trim().replace(/\/+$/, ""), platforms: partPlatforms(p) })) : [];
   return {
     name: s.name.trim(),
     goal: s.goal.trim(),
-    kind: s.kind,
+    kind: shape.kind,
     commitConventions: s.commitConventions,
     agents: s.repo ? s.agents : [],
-    platforms: kindPlatforms(s.kind, s.platforms),
-    stack: s.stack,
+    platforms: shape.platforms,
+    stack: shape.stack,
+    structure: s.structure,
+    parts,
+    monorepoTool: monorepo ? (s.monorepoTool ?? recommendMonorepoTool(parts)) : null,
+    testTypes: effectiveTestTypes(s),
+    scaffold: !!s.repo && s.scaffold,
     databases: s.databases,
     repoPath: s.repo?.repo.root ?? null,
     repoUrl: s.repoUrl.trim() || null,
@@ -36,6 +45,7 @@ const buildPayload = (): NewProject => {
         description: r.description.trim(),
         type: r.type ?? undefined,
         area: r.area ?? undefined,
+        parts: monorepo ? r.parts : [],
         dod: [
           ...r.dod.map((d) => d.trim()).filter(Boolean).map((criterion) => ({ criterion, origin: "human" as const })),
           ...r.llmDod.map((criterion) => ({ criterion, origin: "llm" as const })),

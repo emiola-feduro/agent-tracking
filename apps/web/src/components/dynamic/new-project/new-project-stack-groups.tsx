@@ -1,6 +1,7 @@
-import { STACK_OPTIONS } from "@agent-tracking/core";
+import { STACK_LANGUAGES, STACK_OPTIONS } from "@agent-tracking/core";
+import { useShallow } from "zustand/react/shallow";
 import useStackSections from "@/hooks/form/use-stack-sections";
-import useWizardStore from "@/stores/use-wizard-store";
+import useWizardStore, { activePartOf, selectStack } from "@/stores/use-wizard-store";
 import NewProjectTechSearch from "./new-project-tech-search";
 import NewProjectStackSection from "./new-project-stack-section";
 
@@ -23,8 +24,18 @@ const Step = ({ n, title, hint }: { n: number; title: string; hint: string }) =>
  * libraries and tests that work with those languages on the chosen platforms.
  */
 const NewProjectStackGroups = () => {
-  const stack = useWizardStore((s) => s.stack);
+  const stack = useWizardStore(selectStack);
   const { languages, chosenLanguages, sections } = useStackSections();
+  const toggleIn = useWizardStore((s) => s.toggleIn);
+  // In a monorepo, the languages the other pieces use are one click away (shared code, one toolchain).
+  const shared = useWizardStore(
+    useShallow((s) => {
+      const part = activePartOf(s);
+      if (!part) return [];
+      const used = new Set(s.parts.filter((p) => p.id !== part.id).flatMap((p) => p.stack));
+      return STACK_LANGUAGES.filter((l) => used.has(l) && !part.stack.includes(l));
+    }),
+  );
 
   return (
     <section className="flex flex-col gap-6">
@@ -38,6 +49,21 @@ const NewProjectStackGroups = () => {
         <div className="max-w-xl">
           <NewProjectStackSection section={languages} columns />
         </div>
+        {shared.length > 0 && (
+          <p className="flex flex-wrap items-center gap-1 text-sm text-muted">
+            Las otras piezas usan
+            {shared.map((language) => (
+              <button
+                key={language}
+                type="button"
+                onClick={() => toggleIn("stack", language)}
+                className="rounded-sm border border-line px-1.5 py-0.5 text-xs text-ink-soft transition-colors hover:border-brand hover:text-ink"
+              >
+                + {language}
+              </button>
+            ))}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-3">

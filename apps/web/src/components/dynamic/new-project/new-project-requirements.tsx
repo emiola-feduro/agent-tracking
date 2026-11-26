@@ -2,14 +2,14 @@ import { useState } from "react";
 import AssistantSetupNote from "@/components/dynamic/assistant/assistant-setup-note";
 import RequirementsImportDialog from "@/components/dynamic/requirements-import/requirements-import-dialog";
 import Button from "@/components/ui/button/button";
-import useWizardStore from "@/stores/use-wizard-store";
+import useWizardStore, { projectShape } from "@/stores/use-wizard-store";
 import NewProjectRequirementCard from "./new-project-requirement-card";
 
 const NewProjectRequirements = () => {
   const requirements = useWizardStore((s) => s.requirements);
   const addRequirement = useWizardStore((s) => s.addRequirement);
   const importRequirements = useWizardStore((s) => s.importRequirements);
-  const kind = useWizardStore((s) => s.kind);
+  const kind = useWizardStore((s) => projectShape(s).kind);
   const [importing, setImporting] = useState(false);
 
   return (

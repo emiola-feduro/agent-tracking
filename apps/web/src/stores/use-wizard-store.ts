@@ -1,4 +1,17 @@
-import { type CommitConventions, kindPlatforms, PROJECT_KIND_INFO, toggleStackOption } from "@agent-tracking/core";
+import {
+  type CommitConventions,
+  defaultTestTypes,
+  kindPlatforms,
+  newPart,
+  partsProblems,
+  PROJECT_KIND_INFO,
+  suggestPartPath,
+  summarizeParts,
+  toggleStackOption,
+  type ProjectPart,
+  type ProjectStructure,
+  type TestType,
+} from "@agent-tracking/core";
 import { create } from "zustand";
 import type { AgentKind, AssistantBrief, GithubPublish, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
 
@@ -26,6 +39,8 @@ export type RequirementDraft = {
   dod: string[];
   /** Criteria suggested by the assistant and accepted; saved with origin "llm". */
   llmDod: string[];
+  /** Pieces of the monorepo it touches. */
+  parts: string[];
 };
 
 type WizardData = {
@@ -52,6 +67,19 @@ type WizardData = {
   stack: string[];
   databases: string[];
   stackTouched: boolean;
+  /** One app, or a monorepo of pieces, each with its own kind, platforms, folder and stack. */
+  structure: ProjectStructure;
+  parts: ProjectPart[];
+  /** Pieces whose stack the person edited (the recommendation no longer replaces it). */
+  partsTouched: string[];
+  /** Piece shown in the stack step. */
+  activePart: string | null;
+  /** null: the recommended one for the languages of the pieces. */
+  monorepoTool: string | null;
+  /** null: the defaults for the kind of project. */
+  testTypes: TestType[] | null;
+  /** Write the starting folders and manifests into the repository. */
+  scaffold: boolean;
   skills: Record<string, SelectedSkill>;
   skillsPreselected: boolean;
   /** Why the assistant preselected a skill, by skill key. */
@@ -70,6 +98,13 @@ type WizardActions = {
   patch: (data: Partial<WizardData>) => void;
   togglePlatform: (platform: Platform) => void;
   toggleIn: (field: "stack" | "databases", value: string) => void;
+  /** Replaces the stack of the project, or of the piece being edited in a monorepo. */
+  setStack: (stack: string[], databases: string[] | null, touched: boolean) => void;
+  setStructure: (structure: ProjectStructure) => void;
+  addPart: (kind: ProjectPart["kind"]) => void;
+  updatePart: (id: string, data: Partial<Omit<ProjectPart, "id">>) => void;
+  removePart: (id: string) => void;
+  toggleTestType: (type: TestType) => void;
   toggleSkill: (skill: SelectedSkill) => void;
   setRequirement: (key: string, data: Partial<RequirementDraft>) => void;
   addRequirement: () => void;
@@ -79,7 +114,7 @@ type WizardActions = {
   reset: () => void;
 };
 
-const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", type: null, area: null, dod: [""], llmDod: [] });
+const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", type: null, area: null, dod: [""], llmDod: [], parts: [] });
 
 const initial = (): WizardData => ({
   step: 0,
@@ -98,6 +133,13 @@ const initial = (): WizardData => ({
   stack: [],
   databases: [],
   stackTouched: false,
+  structure: "single",
+  parts: [],
+  partsTouched: [],
+  activePart: null,
+  monorepoTool: null,
+  testTypes: null,
+  scaffold: false,
   skills: {},
   skillsPreselected: false,
   skillReasons: {},
@@ -112,7 +154,8 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
   ...initial(),
   goTo: (step) => set((s) => ({ step, reached: Math.max(s.reached, step) })),
   // A brand-new repo starts with CI and a PR template; existing repos opt in.
-  setSource: (source) => set({ source, repo: null, githubFiles: source === "new" ? ["ci", "prTemplate"] : [] }),
+  // A brand-new repo also starts with its folders and manifests.
+  setSource: (source) => set({ source, repo: null, githubFiles: source === "new" ? ["ci", "prTemplate"] : [], scaffold: source === "new" }),
   toggleGithubFile: (kind) => set((s) => ({ githubFiles: toggle(s.githubFiles, kind) })),
   // Another kind of project brings another recommendation, so the stack follows it again.
   setKind: (kind) => set((s) => (s.kind === kind ? {} : { kind, stackTouched: false })),
@@ -124,16 +167,77 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
       repoUrl: repo?.repo.remoteUrl ?? s.repoUrl,
       // A different repo can expose different repo-level skills.
       skillsPreselected: false,
+      // A repo that is already a monorepo brings its pieces, unless some were set up already.
+      ...(repo?.structure && s.parts.length === 0
+        ? {
+            structure: repo.structure.structure,
+            parts: repo.structure.parts,
+            partsTouched: repo.structure.parts.map((p) => p.id),
+            activePart: repo.structure.parts[0]?.id ?? null,
+            monorepoTool: repo.structure.tool,
+          }
+        : {}),
     })),
   patch: (data) => set(data),
   togglePlatform: (platform) => set((s) => ({ platforms: toggle(s.platforms, platform) })),
   // The stack keeps exclusive groups and requirements consistent; databases are a free list.
   toggleIn: (field, value) =>
-    set((s) =>
-      field === "stack"
-        ? { stack: toggleStackOption(s.stack, value), stackTouched: true }
-        : { databases: toggle(s.databases, value), stackTouched: true },
-    ),
+    set((s) => {
+      if (field === "databases") return { databases: toggle(s.databases, value), stackTouched: true };
+      const part = activePartOf(s);
+      if (!part) return { stack: toggleStackOption(s.stack, value), stackTouched: true };
+      return withPart(s, part.id, { stack: toggleStackOption(part.stack, value) }, true);
+    }),
+  setStack: (stack, databases, touched) =>
+    set((s) => {
+      const part = activePartOf(s);
+      const dbs = databases === null ? {} : { databases };
+      if (!part) return { stack, ...dbs, stackTouched: touched };
+      // Databases are shared by the pieces: a piece's recommendation only adds to them.
+      const merged = databases === null ? {} : { databases: [...new Set([...s.databases, ...databases])] };
+      return { ...withPart(s, part.id, { stack }, touched), ...(touched ? dbs : merged) };
+    }),
+  setStructure: (structure) =>
+    set((s) => {
+      if (structure === s.structure) return {};
+      if (structure === "single") return { structure };
+      // The first piece starts as what was described so far.
+      const parts = s.parts.length ? s.parts : [{ ...newPart(s.kind), platforms: kindPlatforms(s.kind, s.platforms) }];
+      return { structure, parts, activePart: s.activePart ?? parts[0]!.id };
+    }),
+  addPart: (kind) =>
+    set((s) => {
+      const part = newPart(kind, s.parts);
+      return { parts: [...s.parts, part], activePart: s.activePart ?? part.id };
+    }),
+  updatePart: (id, data) =>
+    set((s) => {
+      const current = s.parts.find((p) => p.id === id);
+      if (!current) return {};
+      const others = s.parts.filter((p) => p.id !== id).map((p) => p.path);
+      const next = { ...current, ...data };
+      // The folder follows the name and kind until the person writes one of their own.
+      if (data.path === undefined && current.path === suggestPartPath(current.kind, current.name, others)) {
+        next.path = suggestPartPath(next.kind, next.name, others);
+      }
+      if (data.kind && data.kind !== current.kind) {
+        next.platforms = PROJECT_KIND_INFO[data.kind].platforms ?? current.platforms;
+        // Another kind brings another recommendation.
+        return { parts: s.parts.map((p) => (p.id === id ? next : p)), partsTouched: s.partsTouched.filter((x) => x !== id) };
+      }
+      return { parts: s.parts.map((p) => (p.id === id ? next : p)) };
+    }),
+  removePart: (id) =>
+    set((s) => {
+      const parts = s.parts.filter((p) => p.id !== id);
+      return {
+        parts,
+        partsTouched: s.partsTouched.filter((x) => x !== id),
+        activePart: s.activePart === id ? (parts[0]?.id ?? null) : s.activePart,
+        requirements: s.requirements.map((r) => ({ ...r, parts: r.parts.filter((x) => x !== id) })),
+      };
+    }),
+  toggleTestType: (type) => set((s) => ({ testTypes: toggle(effectiveTestTypes(s), type) })),
   toggleSkill: (skill) =>
     set((s) => {
       const skills = { ...s.skills };
@@ -155,13 +259,45 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
   reset: () => set(initial()),
 }));
 
+/** The piece edited in the stack step, in a monorepo; null for a single app. */
+export const activePartOf = (s: Pick<WizardData, "structure" | "parts" | "activePart">): ProjectPart | null =>
+  s.structure === "monorepo" ? (s.parts.find((p) => p.id === s.activePart) ?? s.parts[0] ?? null) : null;
+
+function withPart(s: WizardData, id: string, data: Partial<ProjectPart>, touched: boolean): Partial<WizardData> {
+  return {
+    parts: s.parts.map((p) => (p.id === id ? { ...p, ...data } : p)),
+    partsTouched: touched ? [...new Set([...s.partsTouched, id])] : s.partsTouched,
+  };
+}
+
+/** Stack step selectors: the piece being edited in a monorepo, the project otherwise. */
+export const selectKind = (s: WizardData) => activePartOf(s)?.kind ?? s.kind;
+export const selectPlatforms = (s: WizardData) => {
+  const part = activePartOf(s);
+  return part ? (PROJECT_KIND_INFO[part.kind].platforms ?? part.platforms) : s.platforms;
+};
+export const selectStack = (s: WizardData) => activePartOf(s)?.stack ?? s.stack;
+export const selectStackTouched = (s: WizardData) => {
+  const part = activePartOf(s);
+  return part ? s.partsTouched.includes(part.id) : s.stackTouched;
+};
+
+/** Kind, platforms and stack of the whole project (the union of the pieces in a monorepo). */
+export const projectShape = (s: WizardData) =>
+  s.structure === "monorepo" && s.parts.length
+    ? summarizeParts(s.parts)
+    : { kind: s.kind, platforms: kindPlatforms(s.kind, s.platforms), stack: s.stack };
+
+/** The tests agents must write: what the person chose, or the defaults for the kind of project. */
+export const effectiveTestTypes = (s: WizardData): TestType[] => s.testTypes ?? defaultTestTypes(projectShape(s).kind);
+
 /** What the assistant gets to know about the project being created. */
 export const wizardBrief = (state: WizardData): AssistantBrief => ({
   name: state.name.trim(),
   goal: state.goal.trim(),
-  kind: state.kind,
-  platforms: kindPlatforms(state.kind, state.platforms),
-  stack: state.stack,
+  kind: selectKind(state),
+  platforms: selectPlatforms(state),
+  stack: selectStack(state),
   databases: state.databases,
   rules: state.rules.map((r) => r.trim()).filter(Boolean),
   requirements: state.requirements
@@ -179,9 +315,11 @@ export const isStepValid = (state: WizardData, step: number): boolean => {
         (state.repo !== null && !state.repo.existingProjectId && !state.repo.projectFile)
       );
     case "basics":
-      return state.name.trim() !== "" && (PROJECT_KIND_INFO[state.kind].platforms !== null || state.platforms.length > 0);
+      if (state.name.trim() === "") return false;
+      if (state.structure === "monorepo") return partsProblems(state.parts).length === 0;
+      return PROJECT_KIND_INFO[state.kind].platforms !== null || state.platforms.length > 0;
     case "stack":
-      return state.stack.length > 0;
+      return state.structure === "monorepo" ? state.parts.every((p) => p.stack.length > 0) : state.stack.length > 0;
     case "goal":
       return state.goal.trim() !== "";
     case "requirements":

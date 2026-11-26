@@ -1,7 +1,8 @@
-import { PROJECT_KIND_INFO } from "@agent-tracking/core";
+import { monorepoToolLabel, PROJECT_KIND_INFO, recommendMonorepoTool, testTypeLabel } from "@agent-tracking/core";
 import type { ReactNode } from "react";
 import { platformList } from "@/lib/labels";
-import useWizardStore, { WIZARD_STEPS, type StepId } from "@/stores/use-wizard-store";
+import useWizardStore, { effectiveTestTypes, projectShape, WIZARD_STEPS, type StepId } from "@/stores/use-wizard-store";
+import NewProjectScaffold from "./new-project-scaffold";
 import NewProjectGithubFiles from "./new-project-github-files";
 import NewProjectGithubPublish from "./new-project-github-publish";
 
@@ -26,7 +27,9 @@ const Row = ({ label, step, children }: RowProps) => {
 
 const NewProjectSummary = () => {
   const s = useWizardStore();
-  const { name, kind, platforms, stack, databases, repo, repoUrl, skills, goal, rules, requirements } = s;
+  const { name, databases, repo, repoUrl, skills, goal, rules, requirements } = s;
+  const { kind, platforms, stack } = projectShape(s);
+  const monorepo = s.structure === "monorepo";
   const filledRequirements = requirements.filter((r) => r.title.trim());
   const criteria = filledRequirements.reduce((n, r) => n + r.dod.filter((d) => d.trim()).length + r.llmDod.length, 0);
   const skillNames = Object.values(skills).map((k) => k.name);
@@ -40,6 +43,18 @@ const NewProjectSummary = () => {
         <Row label="Tipo de proyecto" step="basics">
           {PROJECT_KIND_INFO[kind].label}
         </Row>
+        {monorepo && (
+          <Row label="Monorepo" step="stack">
+            {s.parts.length} piezas con {monorepoToolLabel(s.monorepoTool ?? recommendMonorepoTool(s.parts))}
+          </Row>
+        )}
+        {monorepo &&
+          s.parts.map((p) => (
+            <Row key={p.id} label={p.name} step="basics">
+              <span className="text-ink-soft">{PROJECT_KIND_INFO[p.kind].label}</span> en <code className="font-mono text-[0.8125rem]">{p.path}</code>
+              {p.stack.length > 0 && <span className="text-ink-soft">: {p.stack.join(", ")}</span>}
+            </Row>
+          ))}
         {PROJECT_KIND_INFO[kind].platforms === null && (
           <Row label="Plataformas" step="basics">
             {platformList(platforms)}
@@ -53,6 +68,9 @@ const NewProjectSummary = () => {
         </Row>
         <Row label="Bases de datos" step="stack">
           {databases.join(", ") || "Sin definir"}
+        </Row>
+        <Row label="Tests" step="stack">
+          {effectiveTestTypes(s).map(testTypeLabel).join(", ") || "Ninguno"}
         </Row>
         <Row label="Skills" step="skills">
           {skillNames.length ? skillNames.join(", ") : "Ninguna"}
@@ -72,6 +90,7 @@ const NewProjectSummary = () => {
           {filledRequirements.length} con {criteria} criterios de Definition of Done
         </Row>
       </dl>
+      <NewProjectScaffold />
       {repo && !repo.existingProjectId && !repo.projectFile && <NewProjectGithubFiles />}
       {repo && !repo.existingProjectId && !repo.projectFile && <NewProjectGithubPublish />}
     </div>

@@ -1,7 +1,7 @@
 import { canSelectStackOption, STACK_CATEGORY_LABEL, STACK_GROUP_LABEL, STACK_OPTIONS, type StackOption } from "@agent-tracking/core";
 import CheckOption from "@/components/ui/check-option/check-option";
 import type { StackSection } from "@/hooks/form/use-stack-sections";
-import useWizardStore from "@/stores/use-wizard-store";
+import useWizardStore, { selectStack } from "@/stores/use-wizard-store";
 
 /** "Necesita un framework web": why an option cannot be picked with the current selection. */
 const NeedsHint = ({ option }: { option: StackOption }) => {
@@ -20,7 +20,7 @@ type NewProjectStackSectionProps = {
 
 const NewProjectStackSection = ({ section, columns = false }: NewProjectStackSectionProps) => {
   const { category, groups, loose, moreWith } = section;
-  const stack = useWizardStore((s) => s.stack);
+  const stack = useWizardStore(selectStack);
   const toggleIn = useWizardStore((s) => s.toggleIn);
   const blocked = (o: StackOption) => !canSelectStackOption(o.name, stack);
 
