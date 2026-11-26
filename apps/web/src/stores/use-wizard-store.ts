@@ -5,6 +5,7 @@ import {
   newPart,
   partsProblems,
   PROJECT_KIND_INFO,
+  recommendStack,
   suggestPartPath,
   summarizeParts,
   toggleStackOption,
@@ -13,7 +14,18 @@ import {
   type TestType,
 } from "@agent-tracking/core";
 import { create } from "zustand";
-import type { AgentKind, AssistantBrief, GithubPublish, DiscoveredSkill, GithubFileKind, Platform, ProjectKind, RepoInspection, RequirementArea, RequirementType } from "@/lib/api";
+import type {
+  AgentKind,
+  AssistantBrief,
+  GithubPublish,
+  DiscoveredSkill,
+  GithubFileKind,
+  Platform,
+  ProjectKind,
+  RepoInspection,
+  RequirementArea,
+  RequirementType,
+} from "@/lib/api";
 
 export const WIZARD_STEPS = [
   { id: "source", label: "Origen" },
@@ -114,7 +126,16 @@ type WizardActions = {
   reset: () => void;
 };
 
-const newRequirement = (): RequirementDraft => ({ key: crypto.randomUUID(), title: "", description: "", type: null, area: null, dod: [""], llmDod: [], parts: [] });
+const newRequirement = (): RequirementDraft => ({
+  key: crypto.randomUUID(),
+  title: "",
+  description: "",
+  type: null,
+  area: null,
+  dod: [""],
+  llmDod: [],
+  parts: [],
+});
 
 const initial = (): WizardData => ({
   step: 0,
@@ -201,13 +222,26 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
     set((s) => {
       if (structure === s.structure) return {};
       if (structure === "single") return { structure };
-      // The first piece starts as what was described so far.
-      const parts = s.parts.length ? s.parts : [{ ...newPart(s.kind), platforms: kindPlatforms(s.kind, s.platforms) }];
+      // The first pieces come from what was described so far: a full app splits into its
+      // interfaces (one per platform) and its API.
+      const seed = (): ProjectPart[] => {
+        if (s.kind !== "fullstack") return [recommended({ ...newPart(s.kind), platforms: kindPlatforms(s.kind, s.platforms) })];
+        const out: ProjectPart[] = [];
+        const kinds: ProjectPart["kind"][] = [
+          ...(s.platforms.includes("web") || s.platforms.length === 0 ? (["frontend"] as const) : []),
+          ...(s.platforms.includes("mobile") ? (["mobile"] as const) : []),
+          ...(s.platforms.includes("desktop") ? (["desktop"] as const) : []),
+          "api",
+        ];
+        for (const kind of kinds) out.push(recommended(newPart(kind, out)));
+        return out;
+      };
+      const parts = s.parts.length ? s.parts : seed();
       return { structure, parts, activePart: s.activePart ?? parts[0]!.id };
     }),
   addPart: (kind) =>
     set((s) => {
-      const part = newPart(kind, s.parts);
+      const part = recommended(newPart(kind, s.parts));
       return { parts: [...s.parts, part], activePart: s.activePart ?? part.id };
     }),
   updatePart: (id, data) =>
@@ -223,7 +257,13 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
       if (data.kind && data.kind !== current.kind) {
         next.platforms = PROJECT_KIND_INFO[data.kind].platforms ?? current.platforms;
         // Another kind brings another recommendation.
-        return { parts: s.parts.map((p) => (p.id === id ? next : p)), partsTouched: s.partsTouched.filter((x) => x !== id) };
+        const fresh = recommended(next);
+        return { parts: s.parts.map((p) => (p.id === id ? fresh : p)), partsTouched: s.partsTouched.filter((x) => x !== id) };
+      }
+      // A piece that chose its first platforms gets its recommendation then.
+      if (data.platforms && current.platforms.length === 0 && !s.partsTouched.includes(id)) {
+        const fresh = recommended(next);
+        return { parts: s.parts.map((p) => (p.id === id ? fresh : p)) };
       }
       return { parts: s.parts.map((p) => (p.id === id ? next : p)) };
     }),
@@ -245,15 +285,21 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
       else skills[skill.key] = skill;
       return { skills };
     }),
-  setRequirement: (key, data) =>
-    set((s) => ({ requirements: s.requirements.map((r) => (r.key === key ? { ...r, ...data } : r)) })),
+  setRequirement: (key, data) => set((s) => ({ requirements: s.requirements.map((r) => (r.key === key ? { ...r, ...data } : r)) })),
   addRequirement: () => set((s) => ({ requirements: [...s.requirements, newRequirement()] })),
   removeRequirement: (key) => set((s) => ({ requirements: s.requirements.filter((r) => r.key !== key) })),
   importRequirements: (list) =>
     set((s) => ({
       requirements: [
         ...s.requirements.filter((r) => r.title.trim() || r.description.trim() || r.dod.some((d) => d.trim())),
-        ...list.map((r) => ({ ...newRequirement(), title: r.title, description: r.description, type: r.type, area: r.area, dod: r.dod.length ? r.dod : [""] })),
+        ...list.map((r) => ({
+          ...newRequirement(),
+          title: r.title,
+          description: r.description,
+          type: r.type,
+          area: r.area,
+          dod: r.dod.length ? r.dod : [""],
+        })),
       ],
     })),
   reset: () => set(initial()),
@@ -262,6 +308,12 @@ const useWizardStore = create<WizardData & WizardActions>((set) => ({
 /** The piece edited in the stack step, in a monorepo; null for a single app. */
 export const activePartOf = (s: Pick<WizardData, "structure" | "parts" | "activePart">): ProjectPart | null =>
   s.structure === "monorepo" ? (s.parts.find((p) => p.id === s.activePart) ?? s.parts[0] ?? null) : null;
+
+/** A piece starts with the recommended stack for its kind and platforms, as a single app does. */
+const recommended = (part: ProjectPart): ProjectPart => {
+  const platforms = PROJECT_KIND_INFO[part.kind].platforms ?? part.platforms;
+  return { ...part, stack: recommendStack(platforms, part.kind).stack };
+};
 
 function withPart(s: WizardData, id: string, data: Partial<ProjectPart>, touched: boolean): Partial<WizardData> {
   return {
@@ -300,9 +352,7 @@ export const wizardBrief = (state: WizardData): AssistantBrief => ({
   stack: selectStack(state),
   databases: state.databases,
   rules: state.rules.map((r) => r.trim()).filter(Boolean),
-  requirements: state.requirements
-    .filter((r) => r.title.trim())
-    .map((r) => ({ title: r.title.trim(), description: r.description.trim() })),
+  requirements: state.requirements.filter((r) => r.title.trim()).map((r) => ({ title: r.title.trim(), description: r.description.trim() })),
 });
 
 /** Whether the data of a step is complete enough to move past it. */
@@ -310,10 +360,7 @@ export const isStepValid = (state: WizardData, step: number): boolean => {
   switch (WIZARD_STEPS[step]?.id) {
     case "source":
       // A repo that already has a project file is imported, not configured again.
-      return (
-        state.source === "scratch" ||
-        (state.repo !== null && !state.repo.existingProjectId && !state.repo.projectFile)
-      );
+      return state.source === "scratch" || (state.repo !== null && !state.repo.existingProjectId && !state.repo.projectFile);
     case "basics":
       if (state.name.trim() === "") return false;
       if (state.structure === "monorepo") return partsProblems(state.parts).length === 0;
@@ -330,7 +377,6 @@ export const isStepValid = (state: WizardData, step: number): boolean => {
 };
 
 /** A step can be opened when every step before it is valid. */
-export const canOpenStep = (state: WizardData, step: number) =>
-  Array.from({ length: step }, (_, i) => i).every((i) => isStepValid(state, i));
+export const canOpenStep = (state: WizardData, step: number) => Array.from({ length: step }, (_, i) => i).every((i) => isStepValid(state, i));
 
 export default useWizardStore;

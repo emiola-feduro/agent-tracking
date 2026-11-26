@@ -1,5 +1,5 @@
 import { PROJECT_KIND_INFO, type ProjectKind } from "./project-kind";
-import { STACK_LANGUAGES, stackLanguages } from "./stack";
+import { STACK_LANGUAGES, STACK_OPTIONS, stackLanguages } from "./stack";
 import type { Platform } from "./types";
 
 /**
@@ -56,6 +56,24 @@ export function stackLanguagesOf(stack: string[]): string[] {
   const out = new Set<string>();
   for (const name of stack) for (const l of stackLanguages(name) ?? []) out.add(l);
   return [...out];
+}
+
+const FRAMEWORK_CATEGORIES = new Set(["crossplatform", "mobile", "frontend", "desktop", "backend"]);
+
+/** The frameworks of a stack (Flutter, React, Hono), what a piece is mostly made of. */
+export const stackFrameworks = (stack: string[]) =>
+  stack.filter((name) => FRAMEWORK_CATEGORIES.has(STACK_OPTIONS.find((o) => o.name === name)?.category ?? ""));
+
+/**
+ * The language a piece is written in: the one of its main framework (Flutter makes it Dart even if
+ * TypeScript is also chosen), else the first language chosen.
+ */
+export function mainLanguage(stack: string[]): string | null {
+  for (const framework of stackFrameworks(stack)) {
+    const langs = stackLanguages(framework);
+    if (langs?.length) return langs.find((l) => stack.includes(l)) ?? langs[0]!;
+  }
+  return stackLanguagesOf(stack)[0] ?? null;
 }
 
 /** Tools that fit the languages of the pieces, best first. "Solo carpetas" always fits. */
@@ -185,17 +203,18 @@ export type ScaffoldFile = { path: string; content: string; note?: string };
 const json = (v: unknown) => `${JSON.stringify(v, null, 2)}\n`;
 const snake = (text: string) => slugify(text).replace(/-/g, "_");
 const join = (dir: string, file: string) => (dir && dir !== "." ? `${dir}/${file}` : file);
-const isJs = (stack: string[]) => stackLanguagesOf(stack).some((l) => JS.includes(l));
+const isJs = (stack: string[]) => JS.includes(mainLanguage(stack) ?? "");
 
 /** The manifest a piece starts with, from its main language; none when the language has no simple one. */
 function partManifest(input: ScaffoldInput, part: ProjectPart): ScaffoldFile | null {
-  const languages = stackLanguagesOf(part.stack);
+  const main = mainLanguage(part.stack);
+  const languages = main ? [main] : [];
   const dir = input.structure === "single" ? "" : part.path.trim();
   const root = slugify(input.name);
   const name = input.structure === "single" ? root : `${root}-${slugify(part.name)}`;
-  if (isJs(part.stack)) {
+  if (main && JS.includes(main)) {
     const pkg = { name: input.structure === "single" ? root : `@${root}/${slugify(part.name)}`, version: "0.1.0", private: true, type: "module" };
-    return { path: join(dir, "package.json"), content: json(pkg), note: "package.json" };
+    return { path: join(dir, "package.json"), content: json(pkg) };
   }
   if (languages.includes("Dart")) {
     const flutter = part.stack.includes("Flutter");
@@ -211,18 +230,18 @@ function partManifest(input: ScaffoldInput, part: ProjectPart): ScaffoldFile | n
       ...(input.tool === "melos" && input.structure === "monorepo" ? ["", "resolution: workspace"] : []),
       "",
     ];
-    return { path: join(dir, "pubspec.yaml"), content: lines.join("\n"), note: "pubspec.yaml" };
+    return { path: join(dir, "pubspec.yaml"), content: lines.join("\n") };
   }
   if (languages.includes("Python")) {
-    return { path: join(dir, "pyproject.toml"), content: `[project]\nname = "${name}"\nversion = "0.1.0"\nrequires-python = ">=3.11"\ndependencies = []\n`, note: "pyproject.toml" };
+    return { path: join(dir, "pyproject.toml"), content: `[project]\nname = "${name}"\nversion = "0.1.0"\nrequires-python = ">=3.11"\ndependencies = []\n` };
   }
-  if (languages.includes("Go")) return { path: join(dir, "go.mod"), content: `module ${name}\n\ngo 1.22\n`, note: "go.mod" };
+  if (languages.includes("Go")) return { path: join(dir, "go.mod"), content: `module ${name}\n\ngo 1.22\n` };
   if (languages.includes("Rust")) {
-    return { path: join(dir, "Cargo.toml"), content: `[package]\nname = "${snake(name)}"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\n`, note: "Cargo.toml" };
+    return { path: join(dir, "Cargo.toml"), content: `[package]\nname = "${snake(name)}"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\n` };
   }
   if (languages.includes("Kotlin") || languages.includes("Java")) {
     const plugin = languages.includes("Kotlin") ? '    kotlin("jvm") version "2.1.0"\n' : "    java\n";
-    return { path: join(dir, "build.gradle.kts"), content: `plugins {\n${plugin}}\n`, note: "build.gradle.kts" };
+    return { path: join(dir, "build.gradle.kts"), content: `plugins {\n${plugin}}\n` };
   }
   return null;
 }
@@ -358,10 +377,11 @@ export function proposedTree(input: ScaffoldInput): string {
         .trim()
         .split("/")
         .reduce<Node | undefined>((n, s) => n?.children.get(`${s}/`), root);
-      if (node) node.note = `${p.name}: ${PROJECT_KIND_INFO[p.kind].label}${p.stack.length ? ` (${p.stack.slice(0, 3).join(", ")})` : ""}`;
+      const made = stackFrameworks(p.stack).length ? stackFrameworks(p.stack) : stackLanguagesOf(p.stack);
+      if (node) node.note = `${p.name}: ${PROJECT_KIND_INFO[p.kind].label}${made.length ? ` (${made.join(", ")})` : ""}`;
     }
   }
-  insert(".agent-tracking/", "contexto y datos de Agent Tracking");
+  root.children.set(".agent-tracking/", { children: new Map(), note: "contexto y datos de Agent Tracking" });
   const lines = [`${slugify(input.name)}/`];
   const walk = (node: Node, prefix: string) => {
     const entries = [...node.children.entries()].sort(([a], [b]) => {

@@ -80,6 +80,13 @@ describe("project parts", () => {
     expect(JSON.parse(files.find((f) => f.path === "apps/api/package.json")!.content).name).toBe("@tienda/api");
   });
 
+  test("the main framework decides the manifest: Flutter with TypeScript also chosen is Dart", () => {
+    const flutter = { ...mobile, stack: ["TypeScript", "Bun", "Dart", "Flutter"] };
+    const files = scaffoldFiles({ name: "Tienda", structure: "monorepo", parts: [flutter, api], tool: "bun-workspaces" });
+    expect(files.map((f) => f.path)).toContain("apps/mobile/pubspec.yaml");
+    expect(JSON.parse(files.find((f) => f.path === "package.json")!.content).workspaces).toEqual(["apps/api"]);
+  });
+
   test("a single app is scaffolded at the root", () => {
     const files = scaffoldFiles({ name: "Gastos", structure: "single", parts: [{ ...api, path: "." }], tool: null });
     expect(files.map((f) => f.path)).toEqual(["README.md", "package.json"]);
@@ -89,7 +96,9 @@ describe("project parts", () => {
     const tree = proposedTree({ name: "Tienda", structure: "monorepo", parts: [mobile, api], tool: "turborepo" });
     expect(tree.split("\n")[0]).toBe("tienda/");
     expect(tree).toContain("├── apps/");
-    expect(tree).toContain("mobile/  # Móvil: App móvil (Dart, Flutter)");
+    expect(tree).toContain("mobile/  # Móvil: App móvil (Flutter)");
+    expect(tree).toContain("├── .agent-tracking/  # contexto y datos de Agent Tracking");
+    expect(tree).not.toContain("package.json  # package.json");
     expect(tree).toContain("turbo.json");
     expect(tree).toContain(".agent-tracking/");
   });
