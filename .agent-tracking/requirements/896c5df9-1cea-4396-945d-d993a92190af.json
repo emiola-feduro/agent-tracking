@@ -1,0 +1,118 @@
+{
+  "id": "896c5df9-1cea-4396-945d-d993a92190af",
+  "title": "Wizard de scaffolding: proyectos multiplataforma y monorepos",
+  "description": "Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), así que no se puede describir una app multiplataforma ni un monorepo con varias piezas (por ejemplo app móvil + API + panel web + librería compartida). El wizard debe permitir describir el proyecto por piezas o apps, cada una con su tipo, plataformas, ubicación en el repo y stack, y usar esa estructura para guiar el stack, el CONTEXT.md y las convenciones, y para proponer el scaffolding inicial del repositorio.",
+  "type": "functional",
+  "area": "frontend",
+  "weight": 2,
+  "parts": [],
+  "createdAt": "2026-11-26T14:58:32.050Z",
+  "dod": [
+    {
+      "id": "02b517f5-582e-4241-9a96-4fb340c4f95f",
+      "criterion": "Un tipo de proyecto con interfaz admite varias plataformas a la vez (web, escritorio y móvil) y ofrece frameworks multiplataforma como Flutter, Kotlin Multiplatform o .NET MAUI",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "0ea60ac0-08c3-4274-92b3-7a98de5313f0",
+      "criterion": "El paso Stack muestra un stack por pieza, guiado por lenguaje, y permite compartir lenguaje y herramientas entre piezas",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "1698c6c6-9908-45de-bf24-802b0d6c8d72",
+      "criterion": "En un monorepo se agregan, editan y quitan piezas, cada una con nombre, tipo (web, móvil, escritorio, API, CLI, librería), plataformas y carpeta (por ejemplo apps/mobile, apps/api, packages/shared)",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "29bfe2c3-b21e-455f-be48-e8d96ff89267",
+      "criterion": "El resumen muestra un árbol de carpetas propuesto antes de crear el proyecto, y se puede crear ese scaffolding mínimo (carpetas, manifiestos y README por pieza) sin pisar archivos existentes",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "c7c3c749-c588-494b-9643-ae2e63467a7b",
+      "criterion": "El paso Proyecto permite elegir estructura: una sola app o monorepo con varias piezas",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "dcb0aa5e-5247-4418-92c6-5fb8b08ac50d",
+      "criterion": "La estructura por piezas se guarda en .agent-tracking y aparece en CONTEXT.md, para que los agentes sepan dónde va cada cosa; los requerimientos pueden asociarse a una o varias piezas",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "f319dd2c-0c8d-4d22-b976-2f750e29152b",
+      "criterion": "Se elige la herramienta del monorepo cuando aplica (workspaces de Bun, pnpm o npm, Turborepo, Nx, Melos para Flutter, Gradle multiproyecto)",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "ffd0210f-9404-44f4-9ff7-f43553dc2d57",
+      "criterion": "Importar un repositorio existente detecta un monorepo (workspaces, pubspec, settings.gradle) y propone sus piezas",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.050Z"
+    },
+    {
+      "id": "cb2cf0e8-9fe9-4cc0-abec-4c87ba4f2d69",
+      "criterion": "Hay tests del modelo de piezas, del árbol propuesto y del scaffolding, y una prueba en el navegador de crear un monorepo móvil + API + web",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T14:58:32.051Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "b8ace81c-984b-4166-979b-ffb57f50780b",
+      "name": "Monorepos y piezas en el wizard",
+      "description": "Estructura una app o monorepo, piezas con tipo, plataformas, carpeta y stack propio; herramienta del monorepo; tipo App multiplataforma.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T16:08:46.991Z"
+    },
+    {
+      "id": "51788bf5-ecb2-4f79-9da1-1b92108b75ee",
+      "name": "Árbol propuesto y scaffolding",
+      "description": "Resumen con árbol de carpetas y opción de crearlo sin pisar archivos.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T16:08:47.122Z"
+    },
+    {
+      "id": "c0cb7044-3df7-4e2e-8c97-184687d1417c",
+      "name": "Piezas por requerimiento",
+      "description": "Requerimientos asociados a piezas en el wizard y en el proyecto.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T16:08:47.150Z"
+    },
+    {
+      "id": "55ee76eb-d776-438f-90f8-64ac3f500bf0",
+      "name": "Detectar monorepos al importar",
+      "description": "Workspaces de JS, Dart, Gradle, Cargo, go.work, uv y carpetas apps/packages.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T16:08:47.168Z"
+    }
+  ]
+}

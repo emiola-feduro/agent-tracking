@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-test-types.tsx",
+  "purpose": "Elección de los tests que deben escribir los agentes.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "339c5862-66c9-4283-80c0-d72c47b8a3ab"
+  ],
+  "symbols": []
+}

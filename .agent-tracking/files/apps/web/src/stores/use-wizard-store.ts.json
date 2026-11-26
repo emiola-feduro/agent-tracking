@@ -1,10 +1,24 @@
 {
   "path": "apps/web/src/stores/use-wizard-store.ts",
-  "purpose": "Estado del wizard; requerimientos importados y clasificación opcional.",
+  "purpose": "Estado del wizard con estructura, piezas, pieza activa, herramienta, tests y scaffolding.",
   "createdBy": "repo:analysis",
   "featureIds": [
     "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+    "b8ace81c-984b-4166-979b-ffb57f50780b",
     "d5c72587-3bd9-487f-bab5-74e76b919371"
   ],
-  "symbols": []
+  "symbols": [
+    {
+      "name": "activePartOf",
+      "kind": "function",
+      "purpose": "Pieza que se edita en el paso Stack",
+      "source": "reported"
+    },
+    {
+      "name": "projectShape",
+      "kind": "function",
+      "purpose": "Proyecto entero a partir de las piezas",
+      "source": "reported"
+    }
+  ]
 }

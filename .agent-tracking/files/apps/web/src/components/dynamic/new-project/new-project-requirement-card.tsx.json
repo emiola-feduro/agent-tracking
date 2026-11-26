@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx",
-  "purpose": "Requerimiento del wizard con clasificación deducida.",
+  "purpose": "Requerimiento del wizard con sus piezas.",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "c0cb7044-3df7-4e2e-8c97-184687d1417c",
     "d5c72587-3bd9-487f-bab5-74e76b919371"
   ],
   "symbols": []

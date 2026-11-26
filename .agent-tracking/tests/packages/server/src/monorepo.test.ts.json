@@ -1,0 +1,19 @@
+{
+  "path": "packages/server/src/monorepo.test.ts",
+  "tests": [
+    {
+      "featureId": "51788bf5-ecb2-4f79-9da1-1b92108b75ee",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "monorepo projects > created with its pieces, tool, tests and scaffolding; requirements point at pieces",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "b8ace81c-984b-4166-979b-ffb57f50780b",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "monorepo projects > invalid pieces are refused",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

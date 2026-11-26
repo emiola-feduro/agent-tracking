@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/requirement-parts/part-chips.tsx",
+  "purpose": "Selector de piezas que toca un requerimiento.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "c0cb7044-3df7-4e2e-8c97-184687d1417c"
+  ],
+  "symbols": []
+}

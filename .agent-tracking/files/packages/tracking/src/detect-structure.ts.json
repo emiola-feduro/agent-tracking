@@ -1,0 +1,16 @@
+{
+  "path": "packages/tracking/src/detect-structure.ts",
+  "purpose": "Detecta las piezas de un monorepo existente con su tipo y stack.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "55ee76eb-d776-438f-90f8-64ac3f500bf0"
+  ],
+  "symbols": [
+    {
+      "name": "detectStructure",
+      "kind": "function",
+      "purpose": "Estructura y piezas de un repositorio",
+      "source": "reported"
+    }
+  ]
+}

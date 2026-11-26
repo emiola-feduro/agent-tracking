@@ -1,0 +1,16 @@
+{
+  "path": "packages/core/src/test-policy.ts",
+  "purpose": "Tipos de tests, sugeridos por tipo de proyecto, y su Markdown.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "339c5862-66c9-4283-80c0-d72c47b8a3ab"
+  ],
+  "symbols": [
+    {
+      "name": "defaultTestTypes",
+      "kind": "function",
+      "purpose": "Tests habituales por tipo de proyecto",
+      "source": "reported"
+    }
+  ]
+}

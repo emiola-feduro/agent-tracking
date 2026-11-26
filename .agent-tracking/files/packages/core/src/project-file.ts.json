@@ -1,9 +1,10 @@
 {
   "path": "packages/core/src/project-file.ts",
-  "purpose": "Esquema del archivo compartido (v1 y v2) y exportación sin datos inferidos ni números de línea.",
+  "purpose": "Archivo compartido con estructura, piezas, herramienta, tests y piezas por requerimiento.",
   "createdBy": "repo:analysis",
   "featureIds": [
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+    "b8ace81c-984b-4166-979b-ffb57f50780b",
     "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
   ],
   "symbols": []

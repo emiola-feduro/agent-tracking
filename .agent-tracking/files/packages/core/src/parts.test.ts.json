@@ -1,0 +1,9 @@
+{
+  "path": "packages/core/src/parts.test.ts",
+  "purpose": "Tests del modelo de piezas, herramientas, árbol y scaffolding.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "51788bf5-ecb2-4f79-9da1-1b92108b75ee"
+  ],
+  "symbols": []
+}

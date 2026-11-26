@@ -1,9 +1,10 @@
 {
   "path": "packages/tracking/src/index.ts",
-  "purpose": "Exporta createProject.",
+  "purpose": "Exporta el paquete tracking.",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "40490b16-9821-49bc-a246-7d81b01eb54a"
+    "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "55ee76eb-d776-438f-90f8-64ac3f500bf0"
   ],
   "symbols": []
 }

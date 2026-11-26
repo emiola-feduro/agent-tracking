@@ -1,10 +1,11 @@
 {
   "path": "packages/core/src/types.ts",
-  "purpose": "Tipos del dominio; createdAt y createdBy opcionales para ordenar y filtrar la exportación.",
+  "purpose": "Tipos del dominio con estructura, piezas, herramienta, tests y piezas por requerimiento.",
   "createdBy": "repo:analysis",
   "featureIds": [
     "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
+    "b8ace81c-984b-4166-979b-ffb57f50780b",
     "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
   ],
   "symbols": []

@@ -1,0 +1,19 @@
+{
+  "path": "packages/tracking/src/detect-structure.test.ts",
+  "tests": [
+    {
+      "featureId": "55ee76eb-d776-438f-90f8-64ac3f500bf0",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "detectStructure > Gradle, Cargo and go.work declarations",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "55ee76eb-d776-438f-90f8-64ac3f500bf0",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "detectStructure > bun workspaces with turbo: mobile, api and a shared library",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

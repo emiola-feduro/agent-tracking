@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/monorepo.test.ts",
+  "purpose": "Tests de proyectos monorepo: creación, scaffolding, piezas y detección.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "51788bf5-ecb2-4f79-9da1-1b92108b75ee"
+  ],
+  "symbols": []
+}

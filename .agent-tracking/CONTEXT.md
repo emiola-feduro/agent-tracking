@@ -14,7 +14,7 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
-- **Avance global:** 85%
+- **Avance global:** 76%
 
 ## Convenciones de commits y ramas
 
@@ -73,46 +73,49 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
 **Features:**
 
 - Wizard de nuevo proyecto — _done_ (`4ee5653d-ad1a-4033-ac57-3f5dad3c08e1`)
-  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Wizard: agentes del proyecto.
+  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Paso Proyecto con elección de estructura.
   - `apps/web/src/components/dynamic/new-project/new-project-github-files.tsx`: CI y plantilla de PR editable en Markdown en el Resumen
   - `apps/web/src/components/dynamic/new-project/new-project-source.tsx`: Paso Origen: desde cero, repo nuevo, local o clonado
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Sección del stack con botones para agregar lenguajes que abren más opciones.
-  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard; requerimientos importados y clasificación opcional.
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard con estructura, piezas, pieza activa, herramienta, tests y scaffolding.
   - `packages/core/src/github-files.ts`: Genera ci.yml según el stack y la plantilla de pull request
-  - `packages/core/src/project-kind.ts`: Tipos de proyecto; incluyen la categoría Multiplataforma.
-  - `packages/core/src/stack.ts`: Catálogo del stack con categoría Multiplataforma, nuevos frameworks y lenguajes de cada opción.
+  - `packages/core/src/project-kind.ts`: Tipos de proyecto, con App multiplataforma.
+  - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
   - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
 - Importar requerimientos y planes desde Markdown o JSON — _done_ (`d5c72587-3bd9-487f-bab5-74e76b919371`)
-  - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con clasificación deducida.
+  - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con sus piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-requirements.tsx`: Paso de requerimientos del wizard con importación.
   - `apps/web/src/components/dynamic/requirements-import/requirements-import-dialog.tsx`: Diálogo para pegar o abrir Markdown o JSON con vista previa de lo entendido.
-  - `apps/web/src/hooks/form/use-create-project.ts`: Crea el proyecto y luego lo publica si se pidió.
-  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard; requerimientos importados y clasificación opcional.
+  - `apps/web/src/hooks/form/use-create-project.ts`: Payload con piezas, herramienta, tests y scaffolding.
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard con estructura, piezas, pieza activa, herramienta, tests y scaffolding.
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
 - Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
   - `apps/web/src/components/dynamic/project-detail/project-detail-conventions.tsx`: Convenciones editables en Reglas y convenciones.
-  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
+  - `packages/core/src/context.ts`: CONTEXT.md con Estructura del repositorio, Tests y Piezas por requerimiento.
   - `packages/core/src/conventions.ts`: Modelo, valores por defecto y texto para CONTEXT.md.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/db/src/schema.ts`: Columna commit_conventions.
+  - `packages/db/src/schema.ts`: Columnas structure, parts, monorepo_tool, test_types y requirements.parts.
 - Stack guiado por lenguaje — _done_ (`86707f6b-1269-48bc-820a-3ff1d4e937a7`)
-  - `apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx`: Paso Tecnologías en dos pasos: lenguajes y luego frameworks, datos y tests.
+  - `apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx`: Lenguajes compartidos entre piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Sección del stack con botones para agregar lenguajes que abren más opciones.
   - `apps/web/src/hooks/form/use-stack-sections.ts`: Secciones del paso Stack: lenguajes aparte y opciones filtradas por lenguaje con los lenguajes que abren más.
   - `packages/core/src/core.test.ts`: Tests del catálogo y del stack guiado por lenguaje.
-  - `packages/core/src/project-kind.ts`: Tipos de proyecto; incluyen la categoría Multiplataforma.
-  - `packages/core/src/stack.ts`: Catálogo del stack con categoría Multiplataforma, nuevos frameworks y lenguajes de cada opción.
+  - `packages/core/src/project-kind.ts`: Tipos de proyecto, con App multiplataforma.
+  - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
 - Rama inicial del repositorio nuevo — _done_ (`af7e04d4-633c-4100-99e2-46e3093f6834`)
   - `apps/web/src/components/dynamic/new-project/new-project-source-new.tsx`: Origen Repositorio nuevo con selector de rama principal.
-  - `apps/web/src/lib/api.ts`: initRepo con rama.
+  - `apps/web/src/lib/api.ts`: Tipos de la API con piezas y estructura.
   - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
   - `packages/git/src/repo.test.ts`: Tests de repositorios, incluida la rama inicial.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
+- Tipos de tests para los agentes — _done_ (`339c5862-66c9-4283-80c0-d72c47b8a3ab`)
+  - `apps/web/src/components/dynamic/new-project/new-project-test-types.tsx`: Elección de los tests que deben escribir los agentes.
+  - `packages/core/src/test-policy.ts`: Tipos de tests, sugeridos por tipo de proyecto, y su Markdown.
 
 ### Trazabilidad requerimiento, feature, archivo y símbolo — 100%
 
@@ -188,7 +191,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 **Features:**
 
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
-  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
+  - `packages/core/src/context.ts`: CONTEXT.md con Estructura del repositorio, Tests y Piezas por requerimiento.
   - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
   - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
@@ -197,16 +200,16 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
   - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
   - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
-  - `packages/tracking/src/create-project.ts`: Creación de proyectos compartida por la API y el MCP.
-  - `packages/tracking/src/index.ts`: Exporta createProject.
+  - `packages/tracking/src/create-project.ts`: Crea el proyecto con piezas y escribe el scaffolding sin pisar archivos.
+  - `packages/tracking/src/index.ts`: Exporta el paquete tracking.
 - Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
   - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Diálogo con el diff de cada archivo antes de conectar.
-  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Wizard: agentes del proyecto.
+  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Paso Proyecto con elección de estructura.
   - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Sección Agentes.
   - `apps/web/src/lib/line-diff.ts`: Diff por líneas para archivos de configuración.
   - `packages/agents/src/connect.test.ts`: Tests de conexión en un HOME temporal.
   - `packages/agents/src/connect.ts`: Planes de conexión y desconexión por agente, y su aplicación con copias .bak.
-  - `packages/core/src/agent-context.ts`: Bloque administrado para los archivos de instrucciones de cada agente.
+  - `packages/core/src/agent-context.ts`: Instrucciones de los agentes con tests y carpetas del monorepo.
   - `packages/server/src/agent-files.test.ts`: Tests de los archivos de instrucciones.
   - `packages/server/src/agent-routes.test.ts`: Tests de las rutas de agentes.
   - `packages/server/src/agent-routes.ts`: Rutas /agents: estado, planes, conectar y desconectar.
@@ -241,7 +244,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
 - Seguimiento de Codex CLI y Gemini CLI — _done_ (`a8021746-6f16-480d-af64-7d9a91068c3e`)
@@ -286,10 +289,10 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 - Borrar ramas locales — _done_ (`1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
   - `apps/web/src/hooks/data/use-worktrees.ts`: Consultas y mutaciones de ramas y worktrees.
-  - `apps/web/src/lib/api.ts`: initRepo con rama.
+  - `apps/web/src/lib/api.ts`: Tipos de la API con piezas y estructura.
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
   - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 
@@ -318,7 +321,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/components/dynamic/github-publish/github-publish-fields.tsx`: Campos de cuenta, nombre y visibilidad.
   - `apps/web/src/components/dynamic/github-publish/github-publish-panel.tsx`: Publicar desde el Resumen del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-github-publish.tsx`: Opción del wizard para crear el repo en GitHub.
-  - `apps/web/src/hooks/form/use-create-project.ts`: Crea el proyecto y luego lo publica si se pidió.
+  - `apps/web/src/hooks/form/use-create-project.ts`: Payload con piezas, herramienta, tests y scaffolding.
   - `apps/web/src/stores/use-notice-store.ts`: Avisos de una sola vez para la página del proyecto.
   - `packages/git/src/github-publish.ts`: Cuenta de GitHub y publicación del repo con gh.
   - `packages/server/src/github-publish.test.ts`: Tests con un gh simulado.
@@ -329,7 +332,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/hooks/data/use-github-branches.ts`: Lista y borrado de ramas con doble confirmación.
   - `apps/web/src/lib/github-api.ts`: Cliente web de las rutas de GitHub.
   - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
   - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
   - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
 - CI de Agent Tracking en GitHub Actions — _done_ (`5ad82298-fbd4-4fd2-96ed-1c656f6b8e28`)
@@ -372,7 +375,7 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `packages/assistant/src/openai.ts`: Proveedor OpenAI con salida estructurada.
   - `packages/assistant/src/providers.test.ts`: Tests de los proveedores con fetch y spawn simulados.
   - `packages/assistant/src/spawn.ts`: Ejecución de CLIs con tiempo límite y carpeta aislada.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
   - `packages/server/src/assistant.test.ts`: Tests de las rutas del asistente.
   - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
 
@@ -441,7 +444,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: initRepo con rama.
+  - `apps/web/src/lib/api.ts`: Tipos de la API con piezas y estructura.
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 - Comando bun run dev — _done_ (`0adf724c-6460-4bbf-9154-c3bd491dbb35`)
   - `README.md`: Documenta bun run dev.
@@ -464,20 +467,20 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
 **Features:**
 
 - Tipo, área y filtros de requerimientos — _done_ (`e20e7af5-350b-42e3-9997-73c58a0975ad`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento plegado en una línea; abierto muestra todo.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento del proyecto con sus piezas editables.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
 - Clasificación por parte del sistema o atributo de calidad — _done_ (`11fce3fd-7e0f-46db-ae30-20e2566cbb7b`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento plegado en una línea; abierto muestra todo.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento del proyecto con sus piezas editables.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-classification.tsx`: Edición de tipo y área explicada, con sugerencia del texto.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-form.tsx`: Formulario de nuevo requerimiento.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
   - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
-  - `apps/web/src/hooks/data/use-project-actions.ts`: Mutaciones del proyecto, incluida la importación.
-  - `apps/web/src/lib/api.ts`: initRepo con rama.
+  - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
+  - `apps/web/src/lib/api.ts`: Tipos de la API con piezas y estructura.
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-  - `packages/core/src/types.ts`: Tipos del dominio; createdAt y createdBy opcionales para ordenar y filtrar la exportación.
+  - `packages/core/src/types.ts`: Tipos del dominio con estructura, piezas, herramienta, tests y piezas por requerimiento.
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
 
 ### Apariencia — 100%
@@ -546,7 +549,7 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 - Solo páginas de este equipo — _done_ (`2643a8cc-df59-4ebb-a845-e574b2b3ebc7`)
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
   - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
   - `packages/server/src/origin.test.ts`: Tests de orígenes permitidos.
   - `packages/server/src/origin.ts`: Qué orígenes pueden llamar al servidor.
@@ -570,16 +573,16 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
-  - `apps/web/src/lib/api.ts`: initRepo con rama.
+  - `apps/web/src/lib/api.ts`: Tipos de la API con piezas y estructura.
   - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
-  - `packages/core/src/context.ts`: CONTEXT.md con convenciones de commits y ramas.
+  - `packages/core/src/context.ts`: CONTEXT.md con Estructura del repositorio, Tests y Piezas por requerimiento.
   - `packages/core/src/core.test.ts`: Tests del catálogo y del stack guiado por lenguaje.
-  - `packages/core/src/project-file.ts`: Esquema del archivo compartido (v1 y v2) y exportación sin datos inferidos ni números de línea.
+  - `packages/core/src/project-file.ts`: Archivo compartido con estructura, piezas, herramienta, tests y piezas por requerimiento.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-  - `packages/core/src/types.ts`: Tipos del dominio; createdAt y createdBy opcionales para ordenar y filtrar la exportación.
+  - `packages/core/src/types.ts`: Tipos del dominio con estructura, piezas, herramienta, tests y piezas por requerimiento.
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
-  - `packages/db/src/schema.ts`: Columna commit_conventions.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/db/src/schema.ts`: Columnas structure, parts, monorepo_tool, test_types y requirements.parts.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
@@ -591,14 +594,14 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/json-merge.ts`: Merge de 3 vías de JSON: objetos por clave, entidades por id, ruta o nombre, y listas simples como conjuntos.
   - `packages/core/src/merge-layout.test.ts`: Tests del merge JSON y del formato v2.
-  - `packages/core/src/project-file.ts`: Esquema del archivo compartido (v1 y v2) y exportación sin datos inferidos ni números de línea.
+  - `packages/core/src/project-file.ts`: Archivo compartido con estructura, piezas, herramienta, tests y piezas por requerimiento.
   - `packages/core/src/project-tree.ts`: Formato v2 de .agent-tracking: parte y reúne el proyecto en archivos por entidad con orden estable.
-  - `packages/core/src/types.ts`: Tipos del dominio; createdAt y createdBy opcionales para ordenar y filtrar la exportación.
+  - `packages/core/src/types.ts`: Tipos del dominio con estructura, piezas, herramienta, tests y piezas por requerimiento.
   - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
   - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
   - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
   - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
-  - `packages/server/src/app.ts`: POST /import/init recibe la rama.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
   - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
   - `packages/server/src/repo-watchers.ts`: El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.
   - `packages/tracking/src/inference.ts`: Análisis del repo; INFERRED_ACTOR ahora viene de core.
@@ -606,6 +609,66 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/tracking/src/merge-driver.ts`: Script que git ejecuta como driver: combina JSON por entradas, conserva CONTEXT.md y cae al merge de líneas en conflictos reales.
   - `packages/tracking/src/repo-sync.test.ts`: Tests con git real: merges en dos ramas, conflictos, importación tras pull, checkout, marcas y migración v1.
   - `packages/tracking/src/repo-sync.ts`: Sincroniza la base y .agent-tracking: importa lo que llega por git con merge de 3 vías, escribe el formato v2, registra el driver y aplica el proyecto conservando lo inferido.
+
+### Wizard de scaffolding: proyectos multiplataforma y monorepos — 0%
+
+ID: `896c5df9-1cea-4396-945d-d993a92190af`
+
+**Tipo:** Funcional, área frontend
+
+Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), así que no se puede describir una app multiplataforma ni un monorepo con varias piezas (por ejemplo app móvil + API + panel web + librería compartida). El wizard debe permitir describir el proyecto por piezas o apps, cada una con su tipo, plataformas, ubicación en el repo y stack, y usar esa estructura para guiar el stack, el CONTEXT.md y las convenciones, y para proponer el scaffolding inicial del repositorio.
+
+**Definition of Done:**
+
+- [ ] Un tipo de proyecto con interfaz admite varias plataformas a la vez (web, escritorio y móvil) y ofrece frameworks multiplataforma como Flutter, Kotlin Multiplatform o .NET MAUI (`02b517f5-582e-4241-9a96-4fb340c4f95f`)
+- [ ] El paso Stack muestra un stack por pieza, guiado por lenguaje, y permite compartir lenguaje y herramientas entre piezas (`0ea60ac0-08c3-4274-92b3-7a98de5313f0`)
+- [ ] En un monorepo se agregan, editan y quitan piezas, cada una con nombre, tipo (web, móvil, escritorio, API, CLI, librería), plataformas y carpeta (por ejemplo apps/mobile, apps/api, packages/shared) (`1698c6c6-9908-45de-bf24-802b0d6c8d72`)
+- [ ] El resumen muestra un árbol de carpetas propuesto antes de crear el proyecto, y se puede crear ese scaffolding mínimo (carpetas, manifiestos y README por pieza) sin pisar archivos existentes (`29bfe2c3-b21e-455f-be48-e8d96ff89267`)
+- [ ] El paso Proyecto permite elegir estructura: una sola app o monorepo con varias piezas (`c7c3c749-c588-494b-9643-ae2e63467a7b`)
+- [ ] La estructura por piezas se guarda en .agent-tracking y aparece en CONTEXT.md, para que los agentes sepan dónde va cada cosa; los requerimientos pueden asociarse a una o varias piezas (`dcb0aa5e-5247-4418-92c6-5fb8b08ac50d`)
+- [ ] Se elige la herramienta del monorepo cuando aplica (workspaces de Bun, pnpm o npm, Turborepo, Nx, Melos para Flutter, Gradle multiproyecto) (`f319dd2c-0c8d-4d22-b976-2f750e29152b`)
+- [ ] Importar un repositorio existente detecta un monorepo (workspaces, pubspec, settings.gradle) y propone sus piezas (`ffd0210f-9404-44f4-9ff7-f43553dc2d57`)
+- [ ] Hay tests del modelo de piezas, del árbol propuesto y del scaffolding, y una prueba en el navegador de crear un monorepo móvil + API + web (`cb2cf0e8-9fe9-4cc0-abec-4c87ba4f2d69`)
+
+**Features:**
+
+- Monorepos y piezas en el wizard — _done_ (`b8ace81c-984b-4166-979b-ffb57f50780b`)
+  - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Paso Proyecto con elección de estructura.
+  - `apps/web/src/components/dynamic/new-project/new-project-monorepo-tool.tsx`: Elección de la herramienta del monorepo.
+  - `apps/web/src/components/dynamic/new-project/new-project-parts.tsx`: Editor de piezas del monorepo.
+  - `apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx`: Lenguajes compartidos entre piezas.
+  - `apps/web/src/components/dynamic/new-project/new-project-stack-parts.tsx`: Pestañas de stack por pieza.
+  - `apps/web/src/components/dynamic/new-project/new-project-stack.tsx`: Paso Stack con piezas, herramienta y tests.
+  - `apps/web/src/hooks/form/use-create-project.ts`: Payload con piezas, herramienta, tests y scaffolding.
+  - `apps/web/src/hooks/form/use-stack-defaults.ts`: Recomendación por pieza.
+  - `apps/web/src/lib/api.ts`: Tipos de la API con piezas y estructura.
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado del wizard con estructura, piezas, pieza activa, herramienta, tests y scaffolding.
+  - `packages/core/src/agent-context.ts`: Instrucciones de los agentes con tests y carpetas del monorepo.
+  - `packages/core/src/context.ts`: CONTEXT.md con Estructura del repositorio, Tests y Piezas por requerimiento.
+  - `packages/core/src/index.ts`: Exporta los módulos de core.
+  - `packages/core/src/parts.ts`: Modelo de piezas, herramientas de monorepo, validación, árbol propuesto, scaffolding y Markdown de estructura.
+  - `packages/core/src/project-file.ts`: Archivo compartido con estructura, piezas, herramienta, tests y piezas por requerimiento.
+  - `packages/core/src/project-kind.ts`: Tipos de proyecto, con App multiplataforma.
+  - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
+  - `packages/core/src/types.ts`: Tipos del dominio con estructura, piezas, herramienta, tests y piezas por requerimiento.
+  - `packages/db/migrations/0009_jazzy_banshee.sql`: Migración de estructura, piezas, herramienta y tests.
+  - `packages/db/src/schema.ts`: Columnas structure, parts, monorepo_tool, test_types y requirements.parts.
+  - `packages/server/src/app.ts`: Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.
+  - `packages/tracking/src/create-project.ts`: Crea el proyecto con piezas y escribe el scaffolding sin pisar archivos.
+- Árbol propuesto y scaffolding — _done_ (`51788bf5-ecb2-4f79-9da1-1b92108b75ee`)
+  - `apps/web/src/components/dynamic/new-project/new-project-scaffold.tsx`: Árbol de carpetas propuesto y casilla para crearlo.
+  - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Resumen con monorepo, piezas, tests y estructura.
+  - `packages/core/src/parts.test.ts`: Tests del modelo de piezas, herramientas, árbol y scaffolding.
+  - `packages/server/src/monorepo.test.ts`: Tests de proyectos monorepo: creación, scaffolding, piezas y detección.
+- Piezas por requerimiento — _done_ (`c0cb7044-3df7-4e2e-8c97-184687d1417c`)
+  - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con sus piezas.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento del proyecto con sus piezas editables.
+  - `apps/web/src/components/dynamic/requirement-parts/part-chips.tsx`: Selector de piezas que toca un requerimiento.
+  - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
+- Detectar monorepos al importar — _done_ (`55ee76eb-d776-438f-90f8-64ac3f500bf0`)
+  - `packages/tracking/src/detect-structure.test.ts`: Tests de detección de monorepos.
+  - `packages/tracking/src/detect-structure.ts`: Detecta las piezas de un monorepo existente con su tipo y stack.
+  - `packages/tracking/src/index.ts`: Exporta el paquete tracking.
 
 ## Ideas de tests pendientes
 

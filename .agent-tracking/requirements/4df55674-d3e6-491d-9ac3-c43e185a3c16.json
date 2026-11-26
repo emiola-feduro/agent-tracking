@@ -5,6 +5,7 @@
   "type": "functional",
   "area": "frontend",
   "weight": 1,
+  "parts": [],
   "createdAt": "2026-11-25T13:33:02.681Z",
   "dod": [
     {
@@ -80,6 +81,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-26T13:24:18.215Z"
+    },
+    {
+      "id": "339c5862-66c9-4283-80c0-d72c47b8a3ab",
+      "name": "Tipos de tests para los agentes",
+      "description": "El wizard elige los tipos de tests que escriben los agentes; van a CONTEXT.md y a sus instrucciones.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T16:08:47.190Z"
     }
   ]
 }

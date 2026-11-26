@@ -32,7 +32,11 @@
     "databases": [
       "SQLite"
     ],
-    "repoUrl": "https://github.com/emiola-feduro/agent-tracking"
+    "repoUrl": "https://github.com/emiola-feduro/agent-tracking",
+    "structure": "single",
+    "parts": [],
+    "monorepoTool": null,
+    "testTypes": []
   },
   "rules": [
     {

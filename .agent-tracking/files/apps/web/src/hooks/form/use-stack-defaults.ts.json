@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/hooks/form/use-stack-defaults.ts",
+  "purpose": "Recomendación por pieza.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "b8ace81c-984b-4166-979b-ffb57f50780b"
+  ],
+  "symbols": []
+}

@@ -1,9 +1,10 @@
 {
   "path": "packages/tracking/src/create-project.ts",
-  "purpose": "Creación de proyectos compartida por la API y el MCP.",
+  "purpose": "Crea el proyecto con piezas y escribe el scaffolding sin pisar archivos.",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "40490b16-9821-49bc-a246-7d81b01eb54a"
+    "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "b8ace81c-984b-4166-979b-ffb57f50780b"
   ],
   "symbols": [
     {

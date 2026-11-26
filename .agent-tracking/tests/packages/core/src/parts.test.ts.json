@@ -1,0 +1,40 @@
+{
+  "path": "packages/core/src/parts.test.ts",
+  "tests": [
+    {
+      "featureId": "b8ace81c-984b-4166-979b-ffb57f50780b",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "project parts > monorepo tools follow the languages of the pieces",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "b8ace81c-984b-4166-979b-ffb57f50780b",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "project parts > problems: names, folders that leave the repo or overlap, missing platforms",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "51788bf5-ecb2-4f79-9da1-1b92108b75ee",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "project parts > scaffolding: tool files, a README and a manifest per piece",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "51788bf5-ecb2-4f79-9da1-1b92108b75ee",
+      "requirementId": "896c5df9-1cea-4396-945d-d993a92190af",
+      "name": "project parts > the proposed tree shows the folders, what each piece is and .agent-tracking",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "339c5862-66c9-4283-80c0-d72c47b8a3ab",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "test policy > defaults follow the kind of project",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

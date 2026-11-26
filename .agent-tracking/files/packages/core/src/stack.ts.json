@@ -1,10 +1,11 @@
 {
   "path": "packages/core/src/stack.ts",
-  "purpose": "Catálogo del stack con categoría Multiplataforma, nuevos frameworks y lenguajes de cada opción.",
+  "purpose": "Catálogo y recomendación del stack, con App multiplataforma (Flutter).",
   "createdBy": "repo:analysis",
   "featureIds": [
     "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
-    "86707f6b-1269-48bc-820a-3ff1d4e937a7"
+    "86707f6b-1269-48bc-820a-3ff1d4e937a7",
+    "b8ace81c-984b-4166-979b-ffb57f50780b"
   ],
   "symbols": [
     {

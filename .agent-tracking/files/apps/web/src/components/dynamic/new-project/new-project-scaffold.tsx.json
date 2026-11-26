@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-scaffold.tsx",
+  "purpose": "Árbol de carpetas propuesto y casilla para crearlo.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "51788bf5-ecb2-4f79-9da1-1b92108b75ee"
+  ],
+  "symbols": []
+}

@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx",
-  "purpose": "Paso Tecnologías en dos pasos: lenguajes y luego frameworks, datos y tests.",
+  "purpose": "Lenguajes compartidos entre piezas.",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "86707f6b-1269-48bc-820a-3ff1d4e937a7"
+    "86707f6b-1269-48bc-820a-3ff1d4e937a7",
+    "b8ace81c-984b-4166-979b-ffb57f50780b"
   ],
   "symbols": []
 }

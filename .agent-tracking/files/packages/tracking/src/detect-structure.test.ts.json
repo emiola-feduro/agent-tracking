@@ -1,0 +1,9 @@
+{
+  "path": "packages/tracking/src/detect-structure.test.ts",
+  "purpose": "Tests de detección de monorepos.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "55ee76eb-d776-438f-90f8-64ac3f500bf0"
+  ],
+  "symbols": []
+}
