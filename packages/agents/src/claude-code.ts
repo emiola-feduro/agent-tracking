@@ -1,6 +1,6 @@
 import { open } from "node:fs/promises";
 import { isAbsolute, relative, resolve } from "node:path";
-import { denyPreToolUse, describeMcp, str, step } from "./describe";
+import { denyPreToolUse, describeMcp, promptContext, str, step } from "./describe";
 import type { AgentAdapter, AgentEvent } from "./types";
 
 const LABELS: Record<string, string> = {
@@ -28,6 +28,7 @@ export const claudeCode: AgentAdapter = {
   contextFile: "CLAUDE.md",
   clientNames: ["claude-code", "claude"],
   denyTool: denyPreToolUse,
+  withPromptContext: promptContext,
   normalize(payload) {
     const p = (payload ?? {}) as Partial<ClaudeHook>;
     if (typeof p.cwd !== "string") return null;

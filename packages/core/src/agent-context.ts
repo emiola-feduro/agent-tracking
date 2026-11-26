@@ -1,4 +1,5 @@
 import { GIT_WORK_RULES } from "./conventions";
+import { replyLanguageRule } from "./reply-language";
 import { testTypeLabel } from "./test-policy";
 import { CONTEXT_FILE_PATH } from "./project-file";
 import { sharedSkillPath } from "./requirements";
@@ -23,6 +24,7 @@ export function agentContextBlock(s: ProjectSnapshot): string {
     "- Al empezar, llama a `get_project_context` del servidor MCP `agent-tracking`.",
     "- Al terminar, llama una vez a `submit_report` con lo que hiciste, por requerimiento y feature: archivos, funciones o tipos, tests y criterios del DoD cumplidos.",
     "- Si cambiaste una vista de la app, guarda una captura y repórtala con `report_screen`.",
+    ...(replyLanguageRule(s.project.replyLanguage) ? [`- ${replyLanguageRule(s.project.replyLanguage)}`] : []),
     ...(s.project.testTypes?.length
       ? [`- Escribe tests ${s.project.testTypes.map((t) => testTypeLabel(t).toLowerCase()).join(", ")} para lo que construyas y repórtalos con su resultado.`]
       : []),

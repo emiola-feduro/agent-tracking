@@ -71,6 +71,13 @@
       "when": 1795708578486,
       "tag": "0009_jazzy_banshee",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1795714165679,
+      "tag": "0010_safe_deathbird",
+      "breakpoints": true
     }
   ]
 }

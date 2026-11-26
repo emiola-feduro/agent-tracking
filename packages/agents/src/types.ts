@@ -40,6 +40,8 @@ export interface AgentAdapter {
   clientNames: string[];
   /** Hook answer that stops a tool call with a reason the agent reads; absent when the agent has none. */
   denyTool?(reason: string): unknown;
+  /** UserPromptSubmit answer that adds context to the request (project settings that may change mid-session). */
+  withPromptContext?(text: string): unknown;
   /** Hook answer that keeps the agent working (Stop hook) with an instruction; absent when unsupported. */
   continueWith?(reason: string): unknown;
 }

@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import AgentPlanDialog from "@/components/dynamic/agents/agent-plan-dialog";
+import ReplyLanguageField from "@/components/dynamic/agents/reply-language-field";
 import Button from "@/components/ui/button/button";
 import CheckOption from "@/components/ui/check-option/check-option";
 import Skeleton from "@/components/ui/skeleton/skeleton";
 import StatusPill from "@/components/ui/status-pill/status-pill";
+import type { ReplyLanguage } from "@agent-tracking/core";
 import { api, type AgentInfo, type AgentKind, type ProjectView } from "@/lib/api";
 import { formatRelative } from "@/lib/activity";
 import { queryKeys } from "@/lib/query-keys";
@@ -37,6 +39,15 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
   const save = useMutation({
     mutationFn: (next: AgentKind[]) => (setChosen(next), api.updateProject(project.id, { agents: next })),
     onError: () => setChosen(saved),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) }),
+  });
+
+  const savedLanguage = project.replyLanguage ?? null;
+  const [language, setLanguage] = useState(savedLanguage);
+  useEffect(() => setLanguage(savedLanguage), [savedLanguage]);
+  const saveLanguage = useMutation({
+    mutationFn: (next: ReplyLanguage | null) => (setLanguage(next), api.updateProject(project.id, { replyLanguage: next })),
+    onError: () => setLanguage(savedLanguage),
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) }),
   });
 
@@ -112,6 +123,16 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
           />
         ))}
         {save.isError && <p className="text-sm text-danger">{(save.error as Error).message}</p>}
+      </section>
+
+      <section className="flex flex-col gap-2 rounded-lg border border-line bg-surface p-4">
+        <h2 className="font-semibold text-ink">Idioma con el usuario</h2>
+        <p className="text-sm text-muted">
+          Va en el contexto del proyecto y en el archivo de instrucciones de cada agente. Claude Code y Codex lo reciben además con cada pedido, así
+          que un cambio aplica también en las sesiones que ya están abiertas.
+        </p>
+        <ReplyLanguageField value={language} onChange={(v) => saveLanguage.mutate(v)} />
+        {saveLanguage.isError && <p className="text-sm text-danger">{(saveLanguage.error as Error).message}</p>}
       </section>
 
       <AgentPlanDialog agent={dialog?.agent ?? null} action={dialog?.action ?? "connect"} onClose={() => setDialog(null)} />

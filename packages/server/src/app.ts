@@ -20,6 +20,9 @@ import {
   STACK_OPTIONS,
   toPercent,
   type ProjectSnapshot,
+  DEFAULT_REPLY_LANGUAGE,
+  REPLY_LANGUAGES,
+  replyLanguageRule,
 } from "@agent-tracking/core";
 import {
   ASSISTANT_PROVIDERS,
@@ -130,6 +133,8 @@ const projectFields = z.object({
   parts: z.array(projectPart).max(30).default([]),
   monorepoTool: z.string().max(40).nullable().default(null),
   testTypes: z.array(z.enum(["unit", "integration", "e2e", "component", "contract", "performance", "other"])).default([]),
+  /** Language agents use with the person; null for none. */
+  replyLanguage: z.enum(REPLY_LANGUAGES).nullable().default(DEFAULT_REPLY_LANGUAGE),
 });
 const createProject = projectFields
   .extend({
@@ -805,6 +810,12 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     turnQueue.set(projectId, next);
     // The starting snapshot must exist before the agent edits anything; it takes milliseconds.
     if (payload.hook_event_name === "UserPromptSubmit" || payload.hook_event_name === "PreToolUse") await next;
+    if (adapter?.withPromptContext && payload.hook_event_name === "UserPromptSubmit") {
+      // Read on every request, so a change made in the app reaches sessions that are already open.
+      const project = await db.query.projects.findFirst({ where: eq(s.projects.id, projectId), columns: { replyLanguage: true } });
+      const rule = replyLanguageRule(project?.replyLanguage);
+      if (rule) return c.json(adapter.withPromptContext(`Agent Tracking: ${rule}`) as object);
+    }
     if (adapter?.continueWith && payload.hook_event_name === "Stop" && !payload.stop_hook_active && before?.startedAt) {
       // Only what changed during this turn and is still unreported; asked once (stop_hook_active).
       if (opts.syncRepo) await opts.syncRepo(projectId, "changes").catch(() => {});

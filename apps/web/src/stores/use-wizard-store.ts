@@ -1,5 +1,6 @@
 import {
   type CommitConventions,
+  DEFAULT_REPLY_LANGUAGE,
   defaultTestTypes,
   kindPlatforms,
   newPart,
@@ -11,6 +12,7 @@ import {
   toggleStackOption,
   type ProjectPart,
   type ProjectStructure,
+  type ReplyLanguage,
   type TestType,
 } from "@agent-tracking/core";
 import { create } from "zustand";
@@ -69,6 +71,8 @@ type WizardData = {
   commitConventions: CommitConventions | null;
   /** Agents that will work on the project; their instruction files get the Agent Tracking block. */
   agents: AgentKind[];
+  /** Language agents use with the person; null leaves it to each agent. */
+  replyLanguage: ReplyLanguage | null;
   /** Pull request template as edited in the summary; null until edited (then it follows the requirements). */
   prTemplate: string | null;
   name: string;
@@ -146,6 +150,7 @@ const initial = (): WizardData => ({
   publish: null,
   commitConventions: null,
   agents: [],
+  replyLanguage: DEFAULT_REPLY_LANGUAGE,
   prTemplate: null,
   name: "",
   kind: "fullstack",

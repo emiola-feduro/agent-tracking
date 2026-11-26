@@ -1,5 +1,6 @@
 import { conventionsMarkdown } from "./conventions";
 import { partsMarkdown } from "./parts";
+import { replyLanguageRule } from "./reply-language";
 import { testPolicyMarkdown } from "./test-policy";
 import { PROJECT_KIND_INFO } from "./project-kind";
 import { attachmentRepoPath, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, sharedSkillPath } from "./requirements";
@@ -39,6 +40,9 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
 
   const tests = testPolicyMarkdown(p.testTypes);
   if (tests.length) out.push("## Tests", "", ...tests, "");
+
+  const language = replyLanguageRule(p.replyLanguage);
+  if (language) out.push("## Idioma con el usuario", "", language, "");
 
   out.push("## Convenciones de commits y ramas", "");
   out.push(...conventionsMarkdown(p.commitConventions), "");

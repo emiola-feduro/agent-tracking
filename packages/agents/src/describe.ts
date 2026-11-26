@@ -41,5 +41,8 @@ export const denyPreToolUse = (reason: string) => ({
   hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: reason },
 });
 
+/** UserPromptSubmit answer that adds `text` to what the agent reads with the request. */
+export const promptContext = (text: string) => ({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: text } });
+
 /** Stop hook answer that makes the agent go on with `reason` as its next instruction. */
 export const blockStop = (reason: string) => ({ decision: "block", reason });

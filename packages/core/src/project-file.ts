@@ -1,3 +1,4 @@
+import { DEFAULT_REPLY_LANGUAGE, REPLY_LANGUAGES } from "./reply-language";
 import { z } from "zod";
 import { PROJECT_STRUCTURES } from "./parts";
 import { PROJECT_KINDS } from "./project-kind";
@@ -54,6 +55,8 @@ export const projectFileSchema = z.object({
       .default([]),
     monorepoTool: z.string().nullable().default(null),
     testTypes: z.array(z.enum(["unit", "integration", "e2e", "component", "contract", "performance", "other"])).default([]),
+    /** Files written before it existed get the default, like the projects already in the database. */
+    replyLanguage: z.enum(REPLY_LANGUAGES).nullable().default(DEFAULT_REPLY_LANGUAGE),
   }),
   rules: z.array(z.object({ id, text: z.string().min(1), priority: z.number().int().default(100) })).default([]),
   skills: z
@@ -211,6 +214,7 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       parts: p.parts ?? [],
       monorepoTool: p.monorepoTool ?? null,
       testTypes: p.testTypes ?? [],
+      replyLanguage: p.replyLanguage === undefined ? DEFAULT_REPLY_LANGUAGE : p.replyLanguage,
     },
     rules: [...s.rules]
       .sort((a, b) => a.priority - b.priority)

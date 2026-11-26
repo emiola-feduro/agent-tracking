@@ -24,6 +24,7 @@ const buildPayload = (): NewProject => {
     parts,
     monorepoTool: monorepo ? (s.monorepoTool ?? recommendMonorepoTool(parts)) : null,
     testTypes: effectiveTestTypes(s),
+    replyLanguage: s.replyLanguage,
     scaffold: !!s.repo && s.scaffold,
     databases: s.databases,
     repoPath: s.repo?.repo.root ?? null,

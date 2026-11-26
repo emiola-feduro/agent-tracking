@@ -1,4 +1,4 @@
-import type { AttachmentKind, CommitConventions, Platform, ProjectKind, ProjectPart, ProjectStructure, TestType, RequirementArea, RequirementType, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
+import type { AttachmentKind, CommitConventions, Platform, ProjectKind, ProjectPart, ProjectStructure, ReplyLanguage, TestType, RequirementArea, RequirementType, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
 import { sql } from "drizzle-orm";
 import { blob, index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
@@ -33,6 +33,8 @@ export const projects = sqliteTable("projects", {
   monorepoTool: text("monorepo_tool"),
   /** Kinds of tests agents are expected to write (see packages/core/src/test-policy.ts). */
   testTypes: text("test_types", { mode: "json" }).$type<TestType[]>().notNull().default(sql`'[]'`),
+  /** Language agents use with the person; null when the project sets none (see packages/core/src/reply-language.ts). */
+  replyLanguage: text("reply_language").$type<ReplyLanguage | null>().default("es"),
   ...audit,
 });
 

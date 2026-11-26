@@ -1,4 +1,4 @@
-import { monorepoToolLabel, PROJECT_KIND_INFO, recommendMonorepoTool, testTypeLabel } from "@agent-tracking/core";
+import { monorepoToolLabel, PROJECT_KIND_INFO, REPLY_LANGUAGE_INFO, recommendMonorepoTool, testTypeLabel } from "@agent-tracking/core";
 import type { ReactNode } from "react";
 import { platformList } from "@/lib/labels";
 import useWizardStore, { effectiveTestTypes, projectShape, WIZARD_STEPS, type StepId } from "@/stores/use-wizard-store";
@@ -71,6 +71,9 @@ const NewProjectSummary = () => {
         </Row>
         <Row label="Tests" step="stack">
           {effectiveTestTypes(s).map(testTypeLabel).join(", ") || "Ninguno"}
+        </Row>
+        <Row label="Idioma de los agentes" step="basics">
+          {s.replyLanguage ? REPLY_LANGUAGE_INFO[s.replyLanguage].label : "Sin indicar"}
         </Row>
         <Row label="Skills" step="skills">
           {skillNames.length ? skillNames.join(", ") : "Ninguna"}

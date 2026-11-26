@@ -35,6 +35,8 @@ export interface Project {
   monorepoTool?: string | null;
   /** Kinds of tests agents are expected to write; empty means none were set. */
   testTypes?: TestType[];
+  /** Language agents use with the person (answers, summaries, reports); null when not set. */
+  replyLanguage?: import("./reply-language").ReplyLanguage | null;
   createdAt: string;
   updatedAt: string;
 }

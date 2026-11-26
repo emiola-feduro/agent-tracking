@@ -1,4 +1,4 @@
-import { blockStop, commandText, denyPreToolUse, describeMcp, patchFiles, str, step } from "./describe";
+import { blockStop, commandText, denyPreToolUse, describeMcp, patchFiles, promptContext, str, step } from "./describe";
 import type { AgentAdapter, AgentEvent } from "./types";
 
 /**
@@ -13,6 +13,7 @@ export const codex: AgentAdapter = {
   contextFile: "AGENTS.md",
   clientNames: ["codex", "codex-mcp-client", "codex-cli"],
   denyTool: denyPreToolUse,
+  withPromptContext: promptContext,
   continueWith: blockStop,
   normalize(payload) {
     const p = (payload ?? {}) as Record<string, unknown>;

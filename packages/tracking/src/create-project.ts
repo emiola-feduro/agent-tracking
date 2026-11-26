@@ -13,6 +13,8 @@ import {
   type RequirementArea,
   type RequirementType,
   type SkillSource,
+  DEFAULT_REPLY_LANGUAGE,
+  type ReplyLanguage,
 } from "@agent-tracking/core";
 import { schema as s, type Db } from "@agent-tracking/db";
 import { inspectRepo, writeNewFiles } from "@agent-tracking/git";
@@ -52,6 +54,7 @@ export type NewProjectInput = {
   parts?: ProjectPart[];
   monorepoTool?: string | null;
   testTypes?: TestType[];
+  replyLanguage?: ReplyLanguage | null;
   /** Write the starting folders, READMEs and manifests (see scaffoldFiles); existing files stay. */
   scaffold?: boolean;
 };
@@ -98,6 +101,7 @@ export async function createProject(db: Db, emit: Emit, input: NewProjectInput, 
         parts: input.structure === "monorepo" ? (input.parts ?? []) : [],
         monorepoTool: input.structure === "monorepo" ? (input.monorepoTool ?? null) : null,
         testTypes: input.testTypes ?? [],
+        replyLanguage: input.replyLanguage === undefined ? DEFAULT_REPLY_LANGUAGE : input.replyLanguage,
         ...audit,
       })
       .run();

@@ -65,6 +65,26 @@ describe("agent hooks", () => {
     const agents = await readFile(join(repo, "AGENTS.md"), "utf8");
     expect(agents).toContain("submit_report");
     expect(agents).toContain("Nunca borres");
+    // New projects ask agents to talk to the person in Spanish.
+    expect(agents).toContain("Háblale al usuario en español");
+  });
+
+  test("each new request reminds the reply language, and a change applies at once", async () => {
+    const prompt = await codex({ hook_event_name: "UserPromptSubmit", prompt: "Sigue" });
+    expect(prompt.status).toBe(200);
+    expect(prompt.data.hookSpecificOutput).toMatchObject({ hookEventName: "UserPromptSubmit" });
+    expect(prompt.data.hookSpecificOutput.additionalContext).toContain("español");
+
+    expect((await call("PATCH", `/projects/${projectId}`, { replyLanguage: "en" })).status).toBe(200);
+    const english = await call("POST", "/agent/hook", { cwd: repo, session_id: "c2", hook_event_name: "UserPromptSubmit", prompt: "Go on" });
+    expect(english.data.hookSpecificOutput.additionalContext).toContain("inglés (English)");
+    expect(await readFile(join(repo, "AGENTS.md"), "utf8")).toContain("inglés (English)");
+    expect(await readFile(join(repo, ".agent-tracking", "CONTEXT.md"), "utf8")).toContain("## Idioma con el usuario");
+
+    expect((await call("PATCH", `/projects/${projectId}`, { replyLanguage: null })).status).toBe(200);
+    expect((await codex({ hook_event_name: "UserPromptSubmit", prompt: "Sigue" })).status).toBe(204);
+    expect(await readFile(join(repo, "AGENTS.md"), "utf8")).not.toContain("Háblale al usuario");
+    expect((await call("PATCH", `/projects/${projectId}`, { replyLanguage: "es" })).status).toBe(200);
   });
 
   test("Codex edits show the patched files in the live view", async () => {

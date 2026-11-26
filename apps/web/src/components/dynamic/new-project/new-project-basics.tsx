@@ -1,4 +1,5 @@
 import { PROJECT_KIND_INFO, PROJECT_KINDS } from "@agent-tracking/core";
+import ReplyLanguageField from "@/components/dynamic/agents/reply-language-field";
 import CheckOption from "@/components/ui/check-option/check-option";
 import ChoiceCard from "@/components/ui/choice-card/choice-card";
 import TextField from "@/components/ui/text-field/text-field";
@@ -24,6 +25,7 @@ const NewProjectBasics = () => {
   const platforms = useWizardStore((s) => s.platforms);
   const repoUrl = useWizardStore((s) => s.repoUrl);
   const agents = useWizardStore((s) => s.agents);
+  const replyLanguage = useWizardStore((s) => s.replyLanguage);
   const hasLocalRepo = useWizardStore((s) => s.repo !== null);
   const patch = useWizardStore((s) => s.patch);
   const setKind = useWizardStore((s) => s.setKind);
@@ -110,6 +112,7 @@ const NewProjectBasics = () => {
           ))}
         </div>
       </fieldset>
+      <ReplyLanguageField value={replyLanguage} onChange={(v) => patch({ replyLanguage: v })} />
       <TextField
         label="Repositorio en GitHub"
         type="url"
