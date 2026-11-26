@@ -14,10 +14,10 @@
         position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center;
         background: var(--t-bg, #f6f6f9); color: var(--t-muted, #6b6d7e);
         font: 15px/1.5 var(--t-font-ui, ui-sans-serif, system-ui, sans-serif);
-        transition: opacity 280ms ease, visibility 280ms;
+        transition: opacity 120ms ease, visibility 120ms;
       }
       #boot.done { opacity: 0; visibility: hidden; }
-      #boot .boot-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; animation: boot-in 360ms ease-out 150ms both; }
+      #boot .boot-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; animation: boot-in 240ms ease-out both; }
       #boot svg { width: 72px; height: 72px; overflow: visible; }
       #boot .lens { stroke: var(--t-accent, #3f3cbb); transform-origin: 27px 27px; animation: boot-scan 2.4s ease-in-out infinite; }
       #boot .handle { stroke: var(--t-accent, #3f3cbb); }
