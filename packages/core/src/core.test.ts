@@ -213,7 +213,9 @@ describe("recommendStack", () => {
     const cases = [
       ...(["web", "desktop", "mobile"] as const).map((p) => ["fullstack", [p]] as const),
       ["fullstack", ["web", "desktop", "mobile"]] as const,
-      ...PROJECT_KINDS.filter((k) => k !== "fullstack").map((k) => [k, []] as const),
+      ["app", ["web", "desktop", "mobile"]] as const,
+      ["app", ["mobile"]] as const,
+      ...PROJECT_KINDS.filter((k) => k !== "fullstack" && k !== "app").map((k) => [k, []] as const),
     ];
     for (const [kind, platforms] of cases) {
       const rec = recommendStack([...platforms], kind);

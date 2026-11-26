@@ -8,6 +8,7 @@ import m5 from "../migrations/0005_thankful_vulcan.sql" with { type: "text" };
 import m6 from "../migrations/0006_low_talisman.sql" with { type: "text" };
 import m7 from "../migrations/0007_striped_jetstream.sql" with { type: "text" };
 import m8 from "../migrations/0008_steady_korg.sql" with { type: "text" };
+import m9 from "../migrations/0009_jazzy_banshee.sql" with { type: "text" };
 
 export const MIGRATIONS: { tag: string; sql: string }[] = [
   { tag: "0000_nosy_patch", sql: m0 },
@@ -19,4 +20,5 @@ export const MIGRATIONS: { tag: string; sql: string }[] = [
   { tag: "0006_low_talisman", sql: m6 },
   { tag: "0007_striped_jetstream", sql: m7 },
   { tag: "0008_steady_korg", sql: m8 },
+  { tag: "0009_jazzy_banshee", sql: m9 },
 ];

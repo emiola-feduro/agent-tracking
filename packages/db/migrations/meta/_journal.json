@@ -64,6 +64,13 @@
       "when": 1795633042697,
       "tag": "0008_steady_korg",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1795708578486,
+      "tag": "0009_jazzy_banshee",
+      "breakpoints": true
     }
   ]
 }

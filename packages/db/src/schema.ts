@@ -1,4 +1,4 @@
-import type { AttachmentKind, CommitConventions, Platform, ProjectKind, RequirementArea, RequirementType, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
+import type { AttachmentKind, CommitConventions, Platform, ProjectKind, ProjectPart, ProjectStructure, TestType, RequirementArea, RequirementType, SymbolKind, TestIdeaStatus } from "@agent-tracking/core";
 import { sql } from "drizzle-orm";
 import { blob, index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
@@ -26,6 +26,13 @@ export const projects = sqliteTable("projects", {
   databases: text("databases", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
   repoPath: text("repo_path").unique(),
   repoUrl: text("repo_url"),
+  /** One app at the root, or a monorepo of several pieces (see packages/core/src/parts.ts). */
+  structure: text("structure").$type<ProjectStructure>().notNull().default("single"),
+  parts: text("parts", { mode: "json" }).$type<ProjectPart[]>().notNull().default(sql`'[]'`),
+  /** Monorepo tool id (MONOREPO_TOOLS); null for a single app. */
+  monorepoTool: text("monorepo_tool"),
+  /** Kinds of tests agents are expected to write (see packages/core/src/test-policy.ts). */
+  testTypes: text("test_types", { mode: "json" }).$type<TestType[]>().notNull().default(sql`'[]'`),
   ...audit,
 });
 
@@ -65,6 +72,8 @@ export const requirements = sqliteTable("requirements", {
   type: text("type").$type<RequirementType>().notNull().default("functional"),
   area: text("area").$type<RequirementArea>().notNull().default("general"),
   weight: real("weight").notNull().default(1),
+  /** Ids of the project's pieces it touches (monorepos); empty when it is about the whole project. */
+  parts: text("parts", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
   ...audit,
 });
 

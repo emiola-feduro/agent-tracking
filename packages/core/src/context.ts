@@ -1,4 +1,6 @@
 import { conventionsMarkdown } from "./conventions";
+import { partsMarkdown } from "./parts";
+import { testPolicyMarkdown } from "./test-policy";
 import { PROJECT_KIND_INFO } from "./project-kind";
 import { attachmentRepoPath, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, sharedSkillPath } from "./requirements";
 import { projectProgress, requirementProgress, toPercent } from "./progress";
@@ -32,6 +34,12 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
   if (p.repoUrl) out.push(`- **Repositorio:** ${p.repoUrl}`);
   out.push(`- **Avance global:** ${toPercent(projectProgress(s))}%`, "");
 
+  const parts = p.parts ?? [];
+  out.push(...partsMarkdown(p.structure ?? "single", parts, p.monorepoTool ?? null));
+
+  const tests = testPolicyMarkdown(p.testTypes);
+  if (tests.length) out.push("## Tests", "", ...tests, "");
+
   out.push("## Convenciones de commits y ramas", "");
   out.push(...conventionsMarkdown(p.commitConventions), "");
 
@@ -62,6 +70,8 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
     out.push(`### ${r.title} — ${toPercent(requirementProgress(s, r.id))}%`, "");
     out.push(`ID: \`${r.id}\``, "");
     out.push(`**Tipo:** ${REQUIREMENT_TYPE_LABEL[r.type ?? "functional"]}, área ${REQUIREMENT_AREA_LABEL[r.area ?? "general"].toLowerCase()}`, "");
+    const touched = parts.filter((x) => r.parts?.includes(x.id));
+    if (touched.length) out.push(`**Piezas:** ${touched.map((x) => `${x.name} (\`${x.path}\`)`).join(", ")}`, "");
     if (r.description.trim()) out.push(r.description.trim(), "");
     const dodIds = new Set(s.dod.filter((d) => d.requirementId === r.id).map((d) => d.id));
     const refs = (s.attachments ?? []).filter((a) => a.kind === "reference" && (a.requirementId === r.id || (a.dodItemId && dodIds.has(a.dodItemId))));

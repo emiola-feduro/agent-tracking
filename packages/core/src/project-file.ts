@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROJECT_STRUCTURES } from "./parts";
 import { PROJECT_KINDS } from "./project-kind";
 import { PLATFORMS, REQUIREMENT_AREAS, REQUIREMENT_TYPES, SYMBOL_KINDS, TEST_IDEA_STATUSES, type ProjectSnapshot } from "./types";
 
@@ -38,6 +39,21 @@ export const projectFileSchema = z.object({
     stack: z.array(z.string()).default([]),
     databases: z.array(z.string()).default([]),
     repoUrl: z.string().nullable().default(null),
+    structure: z.enum(PROJECT_STRUCTURES).default("single"),
+    parts: z
+      .array(
+        z.object({
+          id,
+          name: z.string().min(1),
+          kind: z.enum(PROJECT_KINDS),
+          platforms: z.array(z.enum(PLATFORMS)).default([]),
+          path: z.string().min(1),
+          stack: z.array(z.string()).default([]),
+        }),
+      )
+      .default([]),
+    monorepoTool: z.string().nullable().default(null),
+    testTypes: z.array(z.enum(["unit", "integration", "e2e", "component", "contract", "performance", "other"])).default([]),
   }),
   rules: z.array(z.object({ id, text: z.string().min(1), priority: z.number().int().default(100) })).default([]),
   skills: z
@@ -66,6 +82,7 @@ export const projectFileSchema = z.object({
         type: z.enum(REQUIREMENT_TYPES).default("functional"),
         area: z.enum(REQUIREMENT_AREAS).default("general"),
         weight: z.number().positive().default(1),
+        parts: z.array(z.string()).default([]),
         /** Keeps the order of requirements, DoD criteria and features across machines. */
         createdAt: z.string().optional(),
         dod: z
@@ -190,6 +207,10 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       stack: p.stack,
       databases: p.databases,
       repoUrl: p.repoUrl,
+      structure: p.structure ?? "single",
+      parts: p.parts ?? [],
+      monorepoTool: p.monorepoTool ?? null,
+      testTypes: p.testTypes ?? [],
     },
     rules: [...s.rules]
       .sort((a, b) => a.priority - b.priority)
@@ -212,6 +233,7 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       type: r.type,
       area: r.area,
       weight: r.weight,
+      parts: r.parts ?? [],
       createdAt: r.createdAt,
       dod: s.dod
         .filter((d) => d.requirementId === r.id)

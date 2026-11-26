@@ -7,6 +7,8 @@ import {
   PLATFORMS,
   PROJECT_KIND_INFO,
   PROJECT_KINDS,
+  PROJECT_STRUCTURES,
+  partsProblems,
   parseRequirements,
   projectProgress,
   settleClassification,
@@ -70,6 +72,20 @@ const withKindPlatforms = <T extends { kind: z.infer<typeof projectKind>; platfo
   }
 };
 
+const projectPart = z.object({
+  id: z.string().min(1).max(64),
+  name: z.string().trim().min(1).max(60),
+  kind: projectKind,
+  platforms: platforms.default([]),
+  path: z.string().trim().min(1).max(200),
+  stack: z.array(z.string()).default([]),
+});
+/** A monorepo needs valid pieces (names, folders inside the repo that do not overlap, platforms). */
+const withValidParts = <T extends { structure?: string; parts?: z.infer<typeof projectPart>[] }>(value: T, ctx: z.RefinementCtx) => {
+  if (value.structure !== "monorepo") return;
+  for (const message of partsProblems(value.parts ?? [])) ctx.addIssue({ code: "custom", path: ["parts"], message });
+};
+
 const dodInput = z.object({ criterion: z.string().min(1), origin: z.enum(["human", "llm"]).default("human") });
 const requirementInput = z.object({
   title: z.string().min(1),
@@ -78,6 +94,8 @@ const requirementInput = z.object({
   type: z.enum(REQUIREMENT_TYPES).optional(),
   area: z.enum(REQUIREMENT_AREAS).optional(),
   weight: z.number().positive().default(1),
+  /** Ids of the pieces it touches (monorepos). */
+  parts: z.array(z.string()).default([]),
   dod: z.array(dodInput).default([]),
 });
 const skillInput = z.object({
@@ -108,6 +126,10 @@ const projectFields = z.object({
   databases: z.array(z.string()).default([]),
   repoPath: z.string().nullable().default(null),
   repoUrl: z.string().nullable().default(null),
+  structure: z.enum(PROJECT_STRUCTURES).default("single"),
+  parts: z.array(projectPart).max(30).default([]),
+  monorepoTool: z.string().max(40).nullable().default(null),
+  testTypes: z.array(z.enum(["unit", "integration", "e2e", "component", "contract", "performance", "other"])).default([]),
 });
 const createProject = projectFields
   .extend({
@@ -120,8 +142,11 @@ const createProject = projectFields
     rules: z.array(z.string().min(1)).default([]),
     skills: z.array(skillInput).default([]),
     requirements: z.array(requirementInput).default([]),
+    /** Write the starting folders and manifests into the repository (existing files are never replaced). */
+    scaffold: z.boolean().default(false),
   })
-  .superRefine(withKindPlatforms);
+  .superRefine(withKindPlatforms)
+  .superRefine(withValidParts);
 
 async function body<T extends z.ZodType>(c: Context, schema: T): Promise<z.infer<T>> {
   const parsed = schema.safeParse(await c.req.json().catch(() => ({})));
@@ -447,7 +472,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.post("/projects", async (c) => {
     const input = await body(c, createProject);
-    const { rules, skills, requirements, githubFiles: githubKinds, prTemplate, ...project } = input;
+    const { rules, skills, requirements, githubFiles: githubKinds, prTemplate, scaffold, ...project } = input;
     project.platforms = kindPlatforms(project.kind, project.platforms);
     if (project.repoPath) {
       const repo = await repoRootOr400(project.repoPath);
@@ -464,6 +489,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       requirements,
       githubFiles: githubKinds,
       prTemplate,
+      scaffold,
     });
     return c.json(withProgress(await snapshotOr404(projectId)), 201);
   });
@@ -474,6 +500,10 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     const id = c.req.param("id");
     await snapshotOr404(id);
     const input = await patchBody(c, projectFields.partial());
+    if (input.parts && (input.structure ?? (await snapshotOr404(id)).project.structure) === "monorepo") {
+      const problems = partsProblems(input.parts);
+      if (problems.length) throw new HTTPException(400, { message: problems.join("\n") });
+    }
     if (input.repoPath) input.repoPath = (await repoRootOr400(input.repoPath)).root;
     await db.update(s.projects).set({ ...input, updatedAt: nowIso() }).where(eq(s.projects.id, id));
     await touch(id, "project", id);

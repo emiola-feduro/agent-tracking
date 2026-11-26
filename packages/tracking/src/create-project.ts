@@ -1,5 +1,9 @@
 import {
   githubFiles,
+  scaffoldFiles,
+  type ProjectPart,
+  type ProjectStructure,
+  type TestType,
   kindPlatforms,
   settleClassification,
   type CommitConventions,
@@ -23,6 +27,8 @@ export type NewProjectRequirement = {
   type?: RequirementType;
   area?: RequirementArea;
   weight?: number;
+  /** Ids of the pieces it touches (monorepos). */
+  parts?: string[];
   dod?: { criterion: string; origin?: "human" | "llm" }[];
 };
 
@@ -42,6 +48,12 @@ export type NewProjectInput = {
   prTemplate?: string;
   commitConventions?: CommitConventions | null;
   agents?: string[];
+  structure?: ProjectStructure;
+  parts?: ProjectPart[];
+  monorepoTool?: string | null;
+  testTypes?: TestType[];
+  /** Write the starting folders, READMEs and manifests (see scaffoldFiles); existing files stay. */
+  scaffold?: boolean;
 };
 
 /**
@@ -82,20 +94,34 @@ export async function createProject(db: Db, emit: Emit, input: NewProjectInput, 
         databases: input.databases ?? [],
         repoPath,
         repoUrl,
+        structure: input.structure ?? "single",
+        parts: input.structure === "monorepo" ? (input.parts ?? []) : [],
+        monorepoTool: input.structure === "monorepo" ? (input.monorepoTool ?? null) : null,
+        testTypes: input.testTypes ?? [],
         ...audit,
       })
       .run();
     (input.rules ?? []).forEach((text, i) => tx.insert(s.businessRules).values({ id: crypto.randomUUID(), projectId: id, text, priority: i + 1, ...audit }).run());
     for (const k of input.skills ?? []) tx.insert(s.projectSkills).values({ id: crypto.randomUUID(), projectId: id, ...k, ...audit } as never).run();
-    for (const { dod = [], title, description, type, area, weight } of requirements) {
+    const partIds = new Set((input.parts ?? []).map((p) => p.id));
+    for (const { dod = [], title, description, type, area, weight, parts } of requirements) {
       const requirementId = crypto.randomUUID();
-      tx.insert(s.requirements).values({ id: requirementId, projectId: id, title, description, type, area, weight: weight ?? 1, ...audit }).run();
+      const touched = (parts ?? []).filter((p) => partIds.has(p));
+      tx.insert(s.requirements).values({ id: requirementId, projectId: id, title, description, type, area, weight: weight ?? 1, parts: touched, ...audit }).run();
       for (const d of dod) {
         tx.insert(s.dodItems).values({ id: crypto.randomUUID(), requirementId, criterion: d.criterion, origin: d.origin ?? "human", ...audit }).run();
       }
     }
   });
   await writeRepoFiles(db, id);
+  if (repoPath && input.scaffold) {
+    const structure = input.structure ?? "single";
+    const parts: ProjectPart[] =
+      structure === "monorepo"
+        ? (input.parts ?? [])
+        : [{ id: "root", name: input.name, kind, platforms, path: ".", stack: input.stack ?? [] }];
+    await writeNewFiles(repoPath, scaffoldFiles({ name: input.name, structure, parts, tool: input.monorepoTool ?? null }));
+  }
   const kinds = input.githubFiles ?? [];
   if (repoPath && kinds.length > 0) {
     const files = githubFiles({ name: input.name, stack: input.stack ?? [], requirements }, kinds).map((f) =>

@@ -29,6 +29,12 @@ export interface Project {
   databases: string[];
   repoPath: string | null;
   repoUrl: string | null;
+  /** One app, or a monorepo of pieces; older projects are "single". See parts.ts. */
+  structure?: import("./parts").ProjectStructure;
+  parts?: import("./parts").ProjectPart[];
+  monorepoTool?: string | null;
+  /** Kinds of tests agents are expected to write; empty means none were set. */
+  testTypes?: TestType[];
   createdAt: string;
   updatedAt: string;
 }
@@ -88,6 +94,8 @@ export interface Requirement {
   area: RequirementArea;
   /** Peso relativo para el % global del proyecto (por defecto 1). */
   weight: number;
+  /** Ids of the project's pieces it touches (monorepos); empty when it is about the whole project. */
+  parts?: string[];
   /** Set by the database; orders the entries and travels in the project file. */
   createdAt?: string;
 }

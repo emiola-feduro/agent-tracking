@@ -360,6 +360,17 @@ export function recommendStack(platforms: Platform[], kind: ProjectKind = "fulls
     ]);
   }
 
+  if (kind === "app") {
+    // One codebase for every platform: Flutter covers web, desktop and mobile.
+    const local = desktop || mobile;
+    const stack = ["Dart", "Flutter", ...(local ? ["Drift"] : []), "Flutter test", ...(mobile ? ["Patrol"] : [])];
+    const ts = unique(["TypeScript", "Bun", "Vitest", ...(web || desktop ? ["React", "Tailwind CSS", "Playwright"] : []), ...(desktop ? ["Tauri", "Rust"] : []), ...(mobile ? ["React Native", "Expo"] : [])]);
+    return result(stack, local ? ["SQLite"] : [], ["Flutter con una sola base de código en Dart para todas las plataformas", local ? "Drift sobre SQLite para datos locales" : ""], [
+      { stack: ts, databases: local ? ["SQLite"] : [], when: "El equipo trabaja en TypeScript y prefiere React" },
+      ...(desktop || mobile ? [{ stack: ["Kotlin", "Kotlin Multiplatform"], databases: local ? ["SQLite"] : [], when: "Quieres interfaces nativas en Android, iOS y escritorio con Kotlin" }] : []),
+    ]);
+  }
+
   const server = info.server;
   const ui = web || desktop ? ["React", "Tailwind CSS"] : [];
   const stack = unique([
