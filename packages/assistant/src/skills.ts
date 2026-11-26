@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ask, AssistantError, type AssistantConfig } from "./client";
+import { ask, AssistantError, modelFor, type AssistantConfig } from "./client";
 import { projectBrief, type ProjectBrief } from "./prompt";
 
 /** Larger catalogs are cut; the heuristic in the UI still covers the rest. */
@@ -31,7 +31,7 @@ export async function suggestSkills(config: AssistantConfig, project: ProjectBri
   const schema = z.object({ skills: z.array(z.object({ id: z.enum(ids), reason: z.string() })) });
   const catalog = list.map((c) => `<skill id="${c.id}">\n${c.name}: ${c.description.trim() || "(sin descripción)"}\n</skill>`).join("\n");
   const answer = await ask(config, {
-    model: config.models.default,
+    model: modelFor(config, "skills"),
     effort: "low",
     system: SYSTEM,
     prompt: `${projectBrief(project)}\n\nInstalled skills:\n${catalog}`,

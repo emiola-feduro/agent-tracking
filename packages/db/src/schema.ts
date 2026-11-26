@@ -249,3 +249,10 @@ export const agentTurns = sqliteTable(
   },
   (t) => [index("agent_turns_project_started_idx").on(t.projectId, t.startedAt)],
 );
+
+/** Settings of this Agent Tracking installation, not of a project (for example the assistant's models). */
+export const appSettings = sqliteTable("app_settings", {
+  key: text("key").primaryKey(),
+  value: text("value", { mode: "json" }).$type<unknown>().notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

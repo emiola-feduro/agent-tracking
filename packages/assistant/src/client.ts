@@ -20,7 +20,25 @@ export type Effort = "low" | "medium" | "high";
 /** The part of the Anthropic client the assistant uses; tests pass a client with a fake `fetch`. */
 export type AssistantClient = Pick<Anthropic, "beta">;
 
-export type Models = { default: string; heavy: string };
+/** What the assistant is asked for; each one can use its own model. */
+export const ASSISTANT_TASKS = ["stack", "dod", "skills"] as const;
+export type AssistantTask = (typeof ASSISTANT_TASKS)[number];
+
+export const ASSISTANT_TASK_INFO: Record<AssistantTask, { label: string; description: string; tier: "default" | "heavy" }> = {
+  stack: { label: "Stack", description: "Recomienda lenguajes, frameworks y bases de datos", tier: "heavy" },
+  dod: { label: "Criterios del DoD", description: "Propone criterios de aceptación para un requerimiento", tier: "default" },
+  skills: { label: "Skills", description: "Elige las skills que sirven al proyecto", tier: "default" },
+};
+
+/**
+ * `default` for short, structured answers and `heavy` where the answer weighs trade-offs; `tasks`
+ * are the person's own choices per task, which win over both. Empty means the provider's default.
+ */
+export type Models = { default: string; heavy: string; tasks?: Partial<Record<AssistantTask, string>> };
+
+/** The model a task runs with: the one chosen for it, else its tier's. Empty on a CLI means the CLI's default. */
+export const modelFor = (config: { models: Models }, task: AssistantTask): string =>
+  config.models.tasks?.[task]?.trim() || config.models[ASSISTANT_TASK_INFO[task].tier];
 type Env = Record<string, string | undefined>;
 
 /**
@@ -40,6 +58,20 @@ export type AssistantConfig =
 export const ASSISTANT_PROVIDERS = ["api", "claude-code", "openai-api", "gemini-api", "codex-cli", "gemini-cli"] as const;
 export type AssistantProvider = (typeof ASSISTANT_PROVIDERS)[number];
 export const providerOf = (config: AssistantConfig): AssistantProvider => config.provider ?? "api";
+
+/**
+ * Model names offered in the UI for each provider (any other name can be typed). The CLIs take the
+ * same names as their vendor's API.
+ */
+const CLAUDE_MODELS = ["claude-fable-5-2", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"];
+export const SUGGESTED_MODELS: Record<AssistantProvider, string[]> = {
+  api: CLAUDE_MODELS,
+  "claude-code": CLAUDE_MODELS,
+  "openai-api": [OPENAI_HEAVY_MODEL, OPENAI_DEFAULT_MODEL],
+  "gemini-api": [GEMINI_HEAVY_MODEL, GEMINI_DEFAULT_MODEL],
+  "codex-cli": [OPENAI_HEAVY_MODEL, OPENAI_DEFAULT_MODEL],
+  "gemini-cli": [GEMINI_HEAVY_MODEL, GEMINI_DEFAULT_MODEL],
+};
 
 /** How the UI and the logs name each provider; `vendor` is whose tokens a request spends. */
 export const PROVIDER_INFO: Record<AssistantProvider, { label: string; vendor: string }> = {

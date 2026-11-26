@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 
-/** Providers the server can use and the active one; `choose` switches it for the running server. */
+/** Providers the server can use and the active one; `choose` switches it for the running server, `setModel` picks a task's model. */
 const useAssistantProviders = () => {
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: queryKeys.assistantProviders, queryFn: api.assistantProviders });
@@ -14,7 +14,15 @@ const useAssistantProviders = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.assistant, exact: true });
     },
   });
+  const models = useMutation({
+    mutationFn: api.setAssistantModel,
+    onSuccess: (data) => queryClient.setQueryData(queryKeys.assistantProviders, data),
+  });
   return {
+    tasks: query.data?.tasks ?? [],
+    setModel: models.mutate,
+    isSavingModel: models.isPending,
+    modelError: models.error,
     providers: query.data?.providers ?? [],
     active: query.data?.active ?? null,
     isLoading: query.isPending,

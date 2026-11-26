@@ -4,17 +4,20 @@ import Skeleton from "@/components/ui/skeleton/skeleton";
 import useAssistantProviders from "@/hooks/data/use-assistant-providers";
 import type { AssistantProviderInfo } from "@/lib/api";
 import AssistantSetupNote from "./assistant-setup-note";
+import AssistantTaskModels from "./assistant-task-models";
 
-const modelsText = ({ models }: AssistantProviderInfo) => {
-  if (!models.default && !models.heavy) return "Usa el modelo configurado en el CLI.";
-  if (!models.heavy || models.default === models.heavy) return `Modelo ${models.default || models.heavy}.`;
-  if (!models.default) return `Modelo del CLI y ${models.heavy} para el stack.`;
-  return `Modelos ${models.default} y ${models.heavy} para el stack.`;
+/** The distinct models a provider runs with, after the person's choices per task. */
+const modelsText = ({ models, taskDefaults }: AssistantProviderInfo) => {
+  const used = [...new Set(Object.entries(taskDefaults).map(([task, fallback]) => models.tasks?.[task as keyof typeof taskDefaults] || fallback))];
+  const named = used.filter(Boolean);
+  if (named.length === 0) return "Usa el modelo configurado en el CLI.";
+  return `${named.length === 1 ? "Modelo" : "Modelos"} ${named.join(", ")}${used.length > named.length ? " y el del CLI" : ""}.`;
 };
 
 /** Chooses which available provider answers the stack, DoD and skill suggestions. */
 const AssistantProviderPicker = () => {
-  const { providers, active, isLoading, isError, choose, isSwitching, switchError } = useAssistantProviders();
+  const { providers, active, isLoading, isError, choose, isSwitching, switchError, tasks, setModel, modelError } = useAssistantProviders();
+  const current = providers.find((p) => p.id === active);
 
   if (isLoading) return <Skeleton className="h-24 w-full" />;
   if (isError) return <Alert>No se pudo leer la lista de proveedores del asistente.</Alert>;
@@ -39,6 +42,10 @@ const AssistantProviderPicker = () => {
         ))}
       </div>
       {switchError && <Alert>{switchError.message}</Alert>}
+      {current && tasks.length > 0 && (
+        <AssistantTaskModels provider={current} tasks={tasks} onSave={(task, model) => setModel({ provider: current.id, task, model })} />
+      )}
+      {modelError && <Alert>{modelError.message}</Alert>}
     </div>
   );
 };

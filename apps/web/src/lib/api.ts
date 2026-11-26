@@ -183,8 +183,22 @@ export type NewProject = {
 
 export type AssistantProviderId = "api" | "claude-code" | "openai-api" | "gemini-api" | "codex-cli" | "gemini-cli";
 /** A provider the server can use; `vendor` is whose tokens a request spends. Empty models mean the CLI's default. */
-export type AssistantProviderInfo = { id: AssistantProviderId; label: string; vendor: string; models: { default: string; heavy: string } };
-export type AssistantProviders = { active: AssistantProviderId | null; providers: AssistantProviderInfo[] };
+export type AssistantTaskId = "stack" | "dod" | "skills";
+export type AssistantProviderInfo = {
+  id: AssistantProviderId;
+  label: string;
+  vendor: string;
+  /** `tasks` holds the person's choice per task; the rest are the provider's defaults. */
+  models: { default: string; heavy: string; tasks?: Partial<Record<AssistantTaskId, string>> };
+  suggestedModels: string[];
+  /** The model each task uses when nothing is chosen for it; empty means the CLI's own default. */
+  taskDefaults: Record<AssistantTaskId, string>;
+};
+export type AssistantProviders = {
+  active: AssistantProviderId | null;
+  providers: AssistantProviderInfo[];
+  tasks: { id: AssistantTaskId; label: string; description: string }[];
+};
 
 /** Project data the assistant reads; wizard drafts send what has been filled so far. */
 export type AssistantBrief = {
@@ -330,6 +344,8 @@ export const api = {
     request<{ configured: boolean; provider?: AssistantProviderId; label?: string; vendor?: string }>("GET", "/assistant"),
   assistantProviders: () => request<AssistantProviders>("GET", "/assistant/providers"),
   setAssistantProvider: (provider: AssistantProviderId) => request<AssistantProviders>("PUT", "/assistant/provider", { provider }),
+  setAssistantModel: (data: { provider: AssistantProviderId; task: AssistantTaskId; model: string }) =>
+    request<AssistantProviders>("PUT", "/assistant/models", data),
   suggestStack: (brief: AssistantBrief) => request<StackSuggestion>("POST", "/assistant/stack", brief),
   suggestDod: (project: AssistantBrief, requirement: { title: string; description?: string }, existing: string[]) =>
     request<{ criteria: string[] }>("POST", "/assistant/dod", { project, requirement, existing }),

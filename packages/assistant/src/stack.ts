@@ -12,7 +12,7 @@ import {
   type StackRecommendation,
 } from "@agent-tracking/core";
 import { z } from "zod";
-import { ask, AssistantError, type AssistantConfig } from "./client";
+import { ask, AssistantError, modelFor, type AssistantConfig } from "./client";
 import { projectBrief, type ProjectBrief } from "./prompt";
 
 const MAX_ALTERNATIVES = 3;
@@ -121,7 +121,7 @@ export async function suggestStack(
   if (kindPlatforms(kind, platforms).length === 0 && kind === "fullstack") return fallback();
   try {
     const answer = await ask(config, {
-      model: config.models.heavy,
+      model: modelFor(config, "stack"),
       effort: "medium",
       system: SYSTEM,
       prompt: `${projectBrief(brief)}\n\n${catalogText(platforms, kind)}`,

@@ -78,6 +78,13 @@
       "when": 1795714165679,
       "tag": "0010_safe_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1795725554985,
+      "tag": "0011_aberrant_the_twelve",
+      "breakpoints": true
     }
   ]
 }

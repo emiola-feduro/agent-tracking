@@ -26,7 +26,13 @@ import {
 } from "@agent-tracking/core";
 import {
   ASSISTANT_PROVIDERS,
+  ASSISTANT_TASKS,
+  ASSISTANT_TASK_INFO,
   AssistantError,
+  modelFor,
+  SUGGESTED_MODELS,
+  type AssistantProvider,
+  type AssistantTask,
   describeAssistantError,
   MAX_SKILLS,
   PROVIDER_INFO,
@@ -202,6 +208,8 @@ export interface AppOptions {
   live?: LiveActivity;
 }
 
+/** app_settings key of the assistant's model per task and provider. */
+const TASK_MODELS_KEY = "assistant.taskModels";
 const NOT_CONFIGURED =
   "El asistente no está configurado. Define ANTHROPIC_API_KEY, OPENAI_API_KEY o GEMINI_API_KEY en el entorno del servidor, o inicia sesión en Claude Code, Codex CLI o Gemini CLI, y reinícialo.";
 
@@ -291,13 +299,37 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   // Assistant: the active provider can be switched at runtime among the available ones.
   let assistant = opts.assistant ?? null;
   const providers = opts.assistantProviders ?? (assistant ? [assistant] : []);
-  const describeProvider = (config: AssistantConfig) => {
+  // The model chosen for each task, per provider; stored so it survives restarts.
+  type TaskModels = Partial<Record<AssistantProvider, Partial<Record<AssistantTask, string>>>>;
+  const readTaskModels = async (): Promise<TaskModels> =>
+    ((await db.query.appSettings.findFirst({ where: eq(s.appSettings.key, TASK_MODELS_KEY) }))?.value as TaskModels | undefined) ?? {};
+  const withTaskModels = (config: AssistantConfig, stored: TaskModels): AssistantConfig => ({
+    ...config,
+    models: { ...config.models, tasks: stored[providerOf(config)] ?? {} },
+  });
+  const describeProvider = (config: AssistantConfig, stored: TaskModels) => {
     const id = providerOf(config);
-    return { id, ...PROVIDER_INFO[id], models: config.models };
+    const { models } = withTaskModels(config, stored);
+    return {
+      id,
+      ...PROVIDER_INFO[id],
+      models,
+      suggestedModels: SUGGESTED_MODELS[id],
+      // What each task runs with when nothing is chosen for it (empty: the CLI's own default).
+      taskDefaults: Object.fromEntries(ASSISTANT_TASKS.map((task) => [task, modelFor({ models: config.models }, task)])),
+    };
   };
-  const assistantOr503 = () => {
+  const providerList = async () => {
+    const stored = await readTaskModels();
+    return {
+      active: assistant ? providerOf(assistant) : null,
+      providers: providers.map((p) => describeProvider(p, stored)),
+      tasks: ASSISTANT_TASKS.map((id) => ({ id, label: ASSISTANT_TASK_INFO[id].label, description: ASSISTANT_TASK_INFO[id].description })),
+    };
+  };
+  const assistantOr503 = async () => {
     if (!assistant) throw new HTTPException(503, { message: NOT_CONFIGURED, cause: { configured: false } });
-    return assistant;
+    return withTaskModels(assistant, await readTaskModels());
   };
   /** Runs an assistant call; failures become a 502 without provider details. */
   const assisted = async <T>(what: string, run: () => Promise<T>): Promise<T> => {
@@ -312,13 +344,31 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.get("/assistant", (c) => {
     if (!assistant) return c.json({ configured: false });
-    const { id, label, vendor } = describeProvider(assistant);
+    const id = providerOf(assistant);
+    const { label, vendor } = PROVIDER_INFO[id];
     return c.json({ configured: true, provider: id, label, vendor });
   });
 
-  app.get("/assistant/providers", (c) =>
-    c.json({ active: assistant ? providerOf(assistant) : null, providers: providers.map(describeProvider) }),
-  );
+  app.get("/assistant/providers", async (c) => c.json(await providerList()));
+
+  /** The model one task uses with one provider; an empty model goes back to the provider's default. */
+  app.put("/assistant/models", async (c) => {
+    const { provider, task, model } = await body(
+      c,
+      z.object({ provider: z.enum(ASSISTANT_PROVIDERS), task: z.enum(ASSISTANT_TASKS), model: z.string().trim().max(100).regex(/^[\w.:\/@-]*$/, "Nombre de modelo no válido") }),
+    );
+    const stored = await readTaskModels();
+    const forProvider = { ...stored[provider] };
+    if (model) forProvider[task] = model;
+    else delete forProvider[task];
+    const value = { ...stored, [provider]: forProvider };
+    const updatedAt = new Date().toISOString();
+    await db
+      .insert(s.appSettings)
+      .values({ key: TASK_MODELS_KEY, value, updatedAt })
+      .onConflictDoUpdate({ target: s.appSettings.key, set: { value, updatedAt } });
+    return c.json(await providerList());
+  });
 
   /** Switches the active provider for this server run; the choice is not stored. */
   app.put("/assistant/provider", async (c) => {
@@ -327,17 +377,17 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     if (!next) throw new HTTPException(409, { message: `${PROVIDER_INFO[provider].label} no está disponible en este servidor.` });
     assistant = next;
     console.log(`Asistente: ahora con ${PROVIDER_INFO[provider].label}`);
-    return c.json({ active: provider, providers: providers.map(describeProvider) });
+    return c.json(await providerList());
   });
 
   app.post("/assistant/stack", async (c) => {
-    const config = assistantOr503();
+    const config = await assistantOr503();
     const brief = await body(c, briefInput);
     return c.json(await suggestStack(config, brief, (e) => console.error(`Asistente (stack): ${describeAssistantError(e)}`)));
   });
 
   app.post("/assistant/dod", async (c) => {
-    const config = assistantOr503();
+    const config = await assistantOr503();
     const input = await body(
       c,
       z.object({
@@ -350,7 +400,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   });
 
   app.post("/assistant/skills", async (c) => {
-    const config = assistantOr503();
+    const config = await assistantOr503();
     const { project, skills } = await body(
       c,
       z.object({
@@ -363,7 +413,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   /** Same as /assistant/dod with the context read from the stored project. Nothing is saved. */
   app.post("/projects/:id/requirements/:reqId/dod/suggest", async (c) => {
-    const config = assistantOr503();
+    const config = await assistantOr503();
     const { id: projectId, reqId } = c.req.param();
     const snap = await snapshotOr404(projectId);
     const requirement = await requirementIn(projectId, reqId);

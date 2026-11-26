@@ -93,7 +93,33 @@ describe("choosing the provider", () => {
 
   test("without an assistant the list is empty", async () => {
     const call = caller(createApp(openDb(":memory:"), {}));
-    expect((await call("GET", "/assistant/providers")).data).toEqual({ active: null, providers: [] });
+    expect((await call("GET", "/assistant/providers")).data).toMatchObject({ active: null, providers: [] });
+  });
+
+  test("each task can use its own model, stored across restarts, and empty goes back to the default", async () => {
+    const db = openDb(":memory:");
+    const mock = mockAssistant(() => JSON.stringify({ criteria: ["Uno"] }));
+    const call = caller(createApp(db, { assistant: mock }));
+    const listed = (await call("GET", "/assistant/providers")).data;
+    expect(listed.tasks.map((x: { id: string }) => x.id)).toEqual(["stack", "dod", "skills"]);
+    expect(listed.providers[0].taskDefaults).toMatchObject({ stack: mock.models.heavy, dod: mock.models.default });
+    expect(listed.providers[0].suggestedModels).toContain("claude-haiku-5-5");
+
+    const saved = await call("PUT", "/assistant/models", { provider: "api", task: "dod", model: "claude-haiku-5-5" });
+    expect(saved.data.providers[0].models.tasks).toEqual({ dod: "claude-haiku-5-5" });
+    await call("POST", "/assistant/dod", dod);
+    expect(mock.calls.at(-1)!.model).toBe("claude-haiku-5-5");
+
+    // A new server on the same database keeps the choice.
+    const again = caller(createApp(db, { assistant: mock }));
+    await again("POST", "/assistant/dod", dod);
+    expect(mock.calls.at(-1)!.model).toBe("claude-haiku-5-5");
+
+    await again("PUT", "/assistant/models", { provider: "api", task: "dod", model: "" });
+    await again("POST", "/assistant/dod", dod);
+    expect(mock.calls.at(-1)!.model).toBe(mock.models.default);
+    expect((await again("PUT", "/assistant/models", { provider: "api", task: "dod", model: "x; rm -rf" })).status).toBe(400);
+    expect((await again("PUT", "/assistant/models", { provider: "api", task: "otra", model: "x" })).status).toBe(400);
   });
 });
 

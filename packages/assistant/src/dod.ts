@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ask, AssistantError, type AssistantConfig } from "./client";
+import { ask, AssistantError, modelFor, type AssistantConfig } from "./client";
 import { projectBrief, type ProjectBrief } from "./prompt";
 
 const MAX_CRITERIA = 8;
@@ -45,7 +45,7 @@ export async function suggestDod(config: AssistantConfig, request: DodRequest): 
   ]
     .filter(Boolean)
     .join("\n\n");
-  const answer = await ask(config, { model: config.models.default, effort: "medium", system: SYSTEM, prompt, schema: dodAnswerSchema });
+  const answer = await ask(config, { model: modelFor(config, "dod"), effort: "medium", system: SYSTEM, prompt, schema: dodAnswerSchema });
   const criteria = normalizeCriteria(answer.criteria, existing);
   if (criteria.length === 0) throw new AssistantError("Sin criterios nuevos", "invalid");
   return criteria;
