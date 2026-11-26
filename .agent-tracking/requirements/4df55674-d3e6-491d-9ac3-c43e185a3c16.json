@@ -64,6 +64,22 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-25T16:49:01.599Z"
+    },
+    {
+      "id": "86707f6b-1269-48bc-820a-3ff1d4e937a7",
+      "name": "Stack guiado por lenguaje",
+      "description": "Lenguajes primero; frameworks, ORMs y tests compatibles; sección Multiplataforma con Flutter, KMP y .NET MAUI; más frameworks y herramientas.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T13:24:18.163Z"
+    },
+    {
+      "id": "af7e04d4-633c-4100-99e2-46e3093f6834",
+      "name": "Rama inicial del repositorio nuevo",
+      "description": "main, master u otra al crear un repositorio desde el wizard.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T13:24:18.215Z"
     }
   ]
 }

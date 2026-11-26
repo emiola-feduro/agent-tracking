@@ -2,6 +2,13 @@
   "path": "packages/git/src/repo.test.ts",
   "tests": [
     {
+      "featureId": "af7e04d4-633c-4100-99e2-46e3093f6834",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "initRepo branch > creates the repository on the chosen branch and refuses invalid names",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
       "requirementId": "d9d9a456-5385-4793-918a-de1ab104db5e",
       "name": "rutas dentro del repo",

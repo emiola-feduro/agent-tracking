@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-source-new.tsx",
+  "purpose": "Origen Repositorio nuevo con selector de rama principal.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "af7e04d4-633c-4100-99e2-46e3093f6834"
+  ],
+  "symbols": []
+}

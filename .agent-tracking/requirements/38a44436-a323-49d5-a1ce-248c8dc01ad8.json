@@ -32,6 +32,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-25T13:34:21.218Z"
+    },
+    {
+      "id": "0adf724c-6460-4bbf-9154-c3bd491dbb35",
+      "name": "Comando bun run dev",
+      "description": "Levanta la API y, cuando responde, la web; reutiliza una API ya corriendo.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T13:24:18.238Z"
     }
   ]
 }

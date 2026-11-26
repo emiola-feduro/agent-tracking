@@ -1,0 +1,9 @@
+{
+  "path": "scripts/dev.ts",
+  "purpose": "Levanta la API con --watch, espera su health y luego Vite, con salida prefijada y cierre conjunto.",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "0adf724c-6460-4bbf-9154-c3bd491dbb35"
+  ],
+  "symbols": []
+}

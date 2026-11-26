@@ -1,8 +1,9 @@
 {
   "path": "README.md",
-  "purpose": "Documenta el formato nuevo, el driver de merge y la importación automática.",
+  "purpose": "Documenta bun run dev.",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "0adf724c-6460-4bbf-9154-c3bd491dbb35",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3"
   ],
   "symbols": []

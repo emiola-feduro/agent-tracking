@@ -7,6 +7,20 @@
       "name": "recommendStack y toggleStackOption",
       "type": "unit",
       "lastResult": "passing"
+    },
+    {
+      "featureId": "86707f6b-1269-48bc-820a-3ff1d4e937a7",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "stack guided by language > Flutter is offered for web, desktop and mobile",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "86707f6b-1269-48bc-820a-3ff1d4e937a7",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "stack guided by language > choosing a language opens its frameworks and keeps others closed",
+      "type": "unit",
+      "lastResult": "passing"
     }
   ]
 }

@@ -1,9 +1,10 @@
 {
   "path": "packages/core/src/project-kind.ts",
-  "purpose": "Tipos de proyecto y catálogo de stack que aplica a cada uno",
+  "purpose": "Tipos de proyecto; incluyen la categoría Multiplataforma.",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+    "86707f6b-1269-48bc-820a-3ff1d4e937a7"
   ],
   "symbols": [
     {

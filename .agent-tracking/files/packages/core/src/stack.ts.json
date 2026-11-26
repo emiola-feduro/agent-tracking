@@ -1,11 +1,30 @@
 {
   "path": "packages/core/src/stack.ts",
-  "purpose": "Catálogo de tecnologías, reglas de consistencia y recomendación por tipo",
+  "purpose": "Catálogo del stack con categoría Multiplataforma, nuevos frameworks y lenguajes de cada opción.",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+    "86707f6b-1269-48bc-820a-3ff1d4e937a7"
   ],
   "symbols": [
+    {
+      "name": "STACK_LANGUAGES",
+      "kind": "constant",
+      "purpose": "Lenguajes del catálogo",
+      "source": "reported"
+    },
+    {
+      "name": "stackLanguages",
+      "kind": "function",
+      "purpose": "Lenguajes desde los que se usa una opción",
+      "source": "reported"
+    },
+    {
+      "name": "unlockedByLanguage",
+      "kind": "function",
+      "purpose": "Si los lenguajes elegidos abren una opción",
+      "source": "reported"
+    },
     {
       "name": "canSelectStackOption",
       "kind": "function",

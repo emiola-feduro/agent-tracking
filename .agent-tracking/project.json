@@ -5,7 +5,9 @@
     "name": "Agent Tracking",
     "goal": "Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimientos y Definition of Done, features, archivos, símbolos y tests, ramas, pull requests y pipelines, con un CONTEXT.md para que cualquier agente se sume al proyecto.",
     "kind": "fullstack",
-    "agents": [],
+    "agents": [
+      "claude-code"
+    ],
     "commitConventions": null,
     "platforms": [
       "web",

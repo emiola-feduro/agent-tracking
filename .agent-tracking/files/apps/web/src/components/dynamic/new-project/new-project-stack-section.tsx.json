@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx",
-  "purpose": "Opciones del stack con grupos exclusivos y dependencias deshabilitadas",
+  "purpose": "Sección del stack con botones para agregar lenguajes que abren más opciones.",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1"
+    "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
+    "86707f6b-1269-48bc-820a-3ff1d4e937a7"
   ],
   "symbols": []
 }

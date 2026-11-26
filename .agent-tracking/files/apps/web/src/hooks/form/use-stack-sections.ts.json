@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/hooks/form/use-stack-sections.ts",
+  "purpose": "Secciones del paso Stack: lenguajes aparte y opciones filtradas por lenguaje con los lenguajes que abren más.",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "86707f6b-1269-48bc-820a-3ff1d4e937a7"
+  ],
+  "symbols": []
+}
