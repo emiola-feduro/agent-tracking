@@ -1,8 +1,9 @@
 {
   "path": "packages/agents/src/codex.ts",
-  "purpose": "Adaptador de Codex CLI: hooks y herramientas shell/apply_patch.",
+  "purpose": "Codex acepta contexto por pedido",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "a8021746-6f16-480d-af64-7d9a91068c3e"
   ],
   "symbols": []

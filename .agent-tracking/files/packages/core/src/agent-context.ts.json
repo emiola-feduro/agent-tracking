@@ -1,9 +1,10 @@
 {
   "path": "packages/core/src/agent-context.ts",
-  "purpose": "Instrucciones de los agentes con tests y carpetas del monorepo.",
+  "purpose": "El bloque de los agentes incluye la regla del idioma",
   "createdBy": "agent:claude-code",
   "featureIds": [
     "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+    "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "b8ace81c-984b-4166-979b-ffb57f50780b"
   ],
   "symbols": []

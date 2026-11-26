@@ -1,0 +1,22 @@
+{
+  "path": "packages/core/src/reply-language.ts",
+  "purpose": "Idiomas disponibles, etiquetas y la regla que reciben los agentes",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "7d36f0ee-67f5-4bde-8281-4032899658b0"
+  ],
+  "symbols": [
+    {
+      "name": "REPLY_LANGUAGES",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "replyLanguageRule",
+      "kind": "function",
+      "purpose": "Texto de la regla o null si no hay idioma",
+      "source": "reported"
+    }
+  ]
+}

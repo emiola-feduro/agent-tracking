@@ -1,8 +1,9 @@
 {
   "path": "packages/agents/src/types.ts",
-  "purpose": "Tipos comunes: AgentKind, AgentEvent y AgentAdapter.",
+  "purpose": "withPromptContext en el adaptador",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "a8021746-6f16-480d-af64-7d9a91068c3e"
   ],
   "symbols": []

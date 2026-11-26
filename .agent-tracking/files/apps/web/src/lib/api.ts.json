@@ -1,11 +1,12 @@
 {
   "path": "apps/web/src/lib/api.ts",
-  "purpose": "Tipos de la API con piezas y estructura.",
+  "purpose": "Tipos de creación y actualización con replyLanguage",
   "createdBy": "repo:analysis",
   "featureIds": [
     "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
     "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
     "4e182ef9-9a67-474a-81f0-7b4b51e2a032",
+    "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "af7e04d4-633c-4100-99e2-46e3093f6834",
     "b8ace81c-984b-4166-979b-ffb57f50780b",
     "d112f799-8c92-465e-9c42-3cb4cb8ffceb"

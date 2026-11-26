@@ -1,0 +1,12 @@
+{
+  "path": "packages/core/src/reply-language.test.ts",
+  "tests": [
+    {
+      "featureId": "7d36f0ee-67f5-4bde-8281-4032899658b0",
+      "requirementId": "3a96fb8a-6ddb-45e5-9e6e-f1895d6e86ce",
+      "name": "reply language",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

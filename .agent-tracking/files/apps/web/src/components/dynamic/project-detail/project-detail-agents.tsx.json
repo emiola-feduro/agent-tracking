@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx",
-  "purpose": "Sección Agentes.",
+  "purpose": "Sección Idioma con el usuario que guarda al cambiar",
   "createdBy": "agent:claude-code",
   "featureIds": [
-    "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+    "7d36f0ee-67f5-4bde-8281-4032899658b0"
   ],
   "symbols": []
 }

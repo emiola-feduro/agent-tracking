@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/agents/reply-language-field.tsx",
+  "purpose": "Selector del idioma reutilizado en el wizard y en la página del proyecto",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "7d36f0ee-67f5-4bde-8281-4032899658b0"
+  ],
+  "symbols": [
+    {
+      "name": "ReplyLanguageField",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

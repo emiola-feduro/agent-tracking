@@ -36,7 +36,8 @@
     "structure": "single",
     "parts": [],
     "monorepoTool": null,
-    "testTypes": []
+    "testTypes": [],
+    "replyLanguage": "es"
   },
   "rules": [
     {

@@ -1,0 +1,12 @@
+{
+  "path": "scratchpad/e2e/lang.ts",
+  "tests": [
+    {
+      "featureId": "7d36f0ee-67f5-4bde-8281-4032899658b0",
+      "requirementId": "3a96fb8a-6ddb-45e5-9e6e-f1895d6e86ce",
+      "name": "wizard y página Agentes cambian el idioma",
+      "type": "e2e",
+      "lastResult": "passing"
+    }
+  ]
+}

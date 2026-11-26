@@ -1,11 +1,12 @@
 {
   "path": "packages/server/src/app.ts",
-  "purpose": "Validación de piezas, scaffold, piezas en requerimientos y estructura detectada al inspeccionar.",
+  "purpose": "Valida replyLanguage y responde UserPromptSubmit con el recordatorio del idioma",
   "createdBy": "repo:analysis",
   "featureIds": [
     "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
     "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
     "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+    "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
     "af7e04d4-633c-4100-99e2-46e3093f6834",
     "b8ace81c-984b-4166-979b-ffb57f50780b",

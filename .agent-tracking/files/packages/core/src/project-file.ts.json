@@ -1,8 +1,9 @@
 {
   "path": "packages/core/src/project-file.ts",
-  "purpose": "Archivo compartido con estructura, piezas, herramienta, tests y piezas por requerimiento.",
+  "purpose": "replyLanguage viaja en project.json; los archivos anteriores toman español",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
     "b8ace81c-984b-4166-979b-ffb57f50780b",
     "d112f799-8c92-465e-9c42-3cb4cb8ffceb"

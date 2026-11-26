@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/components/dynamic/new-project/new-project-summary.tsx",
-  "purpose": "Resumen con monorepo, piezas, tests y estructura.",
+  "purpose": "Fila Idioma de los agentes en el resumen",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "51788bf5-ecb2-4f79-9da1-1b92108b75ee"
+    "51788bf5-ecb2-4f79-9da1-1b92108b75ee",
+    "7d36f0ee-67f5-4bde-8281-4032899658b0"
   ],
   "symbols": []
 }

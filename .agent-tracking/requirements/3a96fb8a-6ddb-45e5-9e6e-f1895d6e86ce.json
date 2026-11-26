@@ -1,0 +1,70 @@
+{
+  "id": "3a96fb8a-6ddb-45e5-9e6e-f1895d6e86ce",
+  "title": "Idioma de las respuestas y resúmenes de los agentes",
+  "description": "Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas, resúmenes de fin de trabajo y el resumen de submit_report. Se elige en el wizard y se cambia cuando se quiera desde la página del proyecto; el cambio llega a Claude Code, Codex y Gemini sin tocar su configuración. El código y sus comentarios siguen las convenciones del proyecto, no este ajuste.",
+  "type": "functional",
+  "area": "general",
+  "weight": 1,
+  "parts": [],
+  "createdAt": "2026-11-26T17:28:47.939Z",
+  "dod": [
+    {
+      "id": "16524155-237d-4613-b0af-38d71ac211df",
+      "criterion": "Tests unitarios y de integración cubren el ajuste, el contexto y el hook",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T17:28:47.939Z"
+    },
+    {
+      "id": "483257f1-1970-4557-95d4-68b9c9a4b02e",
+      "criterion": "El wizard deja elegir el idioma y el resumen lo muestra",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T17:28:47.939Z"
+    },
+    {
+      "id": "7c8a055a-abc2-47ff-93df-2c68e3cf06f1",
+      "criterion": "CONTEXT.md y el bloque de CLAUDE.md, AGENTS.md y GEMINI.md piden responder y resumir en ese idioma",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T17:28:47.939Z"
+    },
+    {
+      "id": "89cd0a73-798f-4caa-b315-5f7c0b7888b2",
+      "criterion": "La página del proyecto permite cambiar el idioma en cualquier momento",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T17:28:47.939Z"
+    },
+    {
+      "id": "f49ce20e-d006-4f9a-a105-4ddda38d57f1",
+      "criterion": "El proyecto guarda el idioma de las respuestas (español por defecto, o sin indicar) y viaja en .agent-tracking/project.json",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T17:28:47.939Z"
+    },
+    {
+      "id": "f91a9951-af9b-4514-acbf-dc80356eab00",
+      "criterion": "Con hooks, cada pedido nuevo recuerda el idioma, así un cambio aplica en sesiones ya abiertas",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-26T17:28:47.939Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "7d36f0ee-67f5-4bde-8281-4032899658b0",
+      "name": "Idioma de las respuestas por proyecto",
+      "description": "Campo replyLanguage en el proyecto, project.json, contexto, bloque de agentes, hook y UI",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-26T17:32:53.585Z"
+    }
+  ]
+}
