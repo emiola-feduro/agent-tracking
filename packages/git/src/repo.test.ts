@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdir, mkdtemp, rm, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -151,4 +151,22 @@ test("watcher debounces and ignores .git, node_modules and gitignored files", as
   const paths = batches[0]!.filter((p) => p !== "dist"); // some platforms report the created dir itself
   expect(paths).toEqual(["a.ts", "src/c.ts"]);
   await run("checkout", "--", "a.ts");
+});
+
+describe("initRepo branch", () => {
+  test("creates the repository on the chosen branch and refuses invalid names", async () => {
+    const { initRepo } = await import("./index");
+    const { mkdtemp, rm } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const dir = await mkdtemp(join(tmpdir(), "at-init-"));
+    try {
+      expect((await initRepo(join(dir, "a"), "master")).branch).toBe("master");
+      expect((await initRepo(join(dir, "b"))).branch).toBe("main");
+      await expect(initRepo(join(dir, "c"), "mala rama")).rejects.toThrow("no es un nombre de rama válido");
+      await expect(initRepo(join(dir, "d"), "--force")).rejects.toThrow("no es un nombre de rama válido");
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
 });

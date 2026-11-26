@@ -6,6 +6,7 @@
     "apps/*"
   ],
   "scripts": {
+    "dev": "bun scripts/dev.ts",
     "dev:server": "bun --watch packages/server/src/index.ts",
     "dev:web": "cd apps/web && bun run dev",
     "test": "bun test",

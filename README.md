@@ -24,6 +24,13 @@ archivos → funciones, con su Definition of Done, tests, PRs y pipelines. Deskt
 
 ```bash
 bun install
+bun run dev               # API (se reinicia con cada cambio) y, cuando responde, la UI con Vite
+```
+
+`bun run dev` muestra la salida de las dos con un prefijo y Ctrl+C detiene ambas. Si ya hay una API
+corriendo en el puerto (4317, o `PORT`), la reutiliza y solo levanta la UI. Por separado:
+
+```bash
 bun run dev:server        # API en http://127.0.0.1:4317
 bun run dev:web           # UI con proxy a la API (vite)
 ```

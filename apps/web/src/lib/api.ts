@@ -237,7 +237,7 @@ export const api = {
 
   inspectRepo: (path: string) => request<RepoInspection>("POST", "/import/inspect", { path }),
   cloneRoot: () => request<{ cloneRoot: string }>("GET", "/import/clone-root"),
-  initRepo: (path: string) => request<RepoInspection>("POST", "/import/init", { path }),
+  initRepo: ({ path, branch }: { path: string; branch: string }) => request<RepoInspection>("POST", "/import/init", { path, branch }),
   cloneRepo: (url: string, dest: string) => request<RepoInspection>("POST", "/import/clone", { url, dest }),
   importRepo: (path: string) => request<ProjectView>("POST", "/import", { path }),
 

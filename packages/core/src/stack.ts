@@ -1,13 +1,14 @@
 import { PROJECT_KIND_INFO, type ProjectKind } from "./project-kind";
 import type { Platform } from "./types";
 
-export type StackCategory = "frontend" | "desktop" | "mobile" | "backend" | "language" | "orm" | "testing";
+export type StackCategory = "frontend" | "crossplatform" | "desktop" | "mobile" | "backend" | "language" | "orm" | "testing";
 
 /** A set of options where only one can be selected at a time. */
 export type StackGroup =
   | "web-framework"
   | "desktop-shell"
   | "mobile-framework"
+  | "cross-framework"
   | "js-runtime"
   | "backend-framework"
   | "orm"
@@ -32,6 +33,8 @@ export type StackOption = {
   needsAny?: string[];
   /** Shown when `needsAny` is not met, completing "Necesita ...". */
   needsLabel?: string;
+  /** Languages it is used from, when they cannot be worked out from `requires` (see stackLanguages). */
+  languages?: string[];
 };
 
 export type DatabaseKind = "relational" | "document" | "key-value" | "embedded" | "search" | "graph" | "vector" | "time-series" | "wide-column";
@@ -39,6 +42,7 @@ export type DatabaseOption = { name: string; kind: DatabaseKind; platforms: Plat
 
 export const STACK_CATEGORY_LABEL: Record<StackCategory, string> = {
   frontend: "Frontend web",
+  crossplatform: "Multiplataforma",
   desktop: "Escritorio",
   mobile: "Móvil",
   backend: "Backend",
@@ -50,7 +54,8 @@ export const STACK_CATEGORY_LABEL: Record<StackCategory, string> = {
 export const STACK_GROUP_LABEL: Record<StackGroup, string> = {
   "web-framework": "Framework",
   "desktop-shell": "Contenedor de escritorio",
-  "mobile-framework": "Framework multiplataforma",
+  "mobile-framework": "Framework móvil",
+  "cross-framework": "Una sola base de código para varias plataformas",
   "js-runtime": "Runtime",
   "backend-framework": "Framework de backend",
   orm: "ORM",
@@ -69,11 +74,27 @@ export const CATEGORY_PLATFORM: Partial<Record<StackCategory, Platform[]>> = {
 const all: Platform[] = ["web", "desktop", "mobile"];
 const NOT_JS: StackGroup[] = ["js-runtime"];
 
+/** Web UI frameworks written in JavaScript or TypeScript. */
+const JS_WEB_UI = ["React", "Next.js", "React Router", "SvelteKit", "Svelte", "Vue", "Nuxt", "Angular", "SolidJS", "Astro"];
 /** Web UI frameworks: what Tailwind, Playwright and Cypress need. */
-export const WEB_UI = ["React", "Next.js", "SvelteKit", "Vue", "Angular", "Astro"];
+export const WEB_UI = [...JS_WEB_UI, "Blazor"];
 /** Anything written in JavaScript or TypeScript, which is when a JS runtime and JS tooling make sense. */
-export const JS_BASED = ["TypeScript", ...WEB_UI, "Electron", "React Native", "Expo", "Hono", "Express", "Fastify", "NestJS"];
-const MOBILE_UI = ["React Native", "Flutter", "SwiftUI", "Jetpack Compose"];
+export const JS_BASED = [
+  "TypeScript",
+  "JavaScript",
+  ...JS_WEB_UI,
+  "Electron",
+  "React Native",
+  "Expo",
+  "Ionic",
+  "Capacitor",
+  "Hono",
+  "Express",
+  "Fastify",
+  "NestJS",
+  "Elysia",
+];
+const MOBILE_UI = ["React Native", "Flutter", "SwiftUI", "Jetpack Compose", "Kotlin Multiplatform", ".NET MAUI", "Ionic", "Capacitor"];
 
 const needsWeb = { needsAny: WEB_UI, needsLabel: "un framework web" };
 const needsJs = { needsAny: JS_BASED, needsLabel: "TypeScript o un framework de JavaScript" };
@@ -86,17 +107,29 @@ export const STACK_OPTIONS: StackOption[] = [
   { name: "Vue", category: "frontend", platforms: ["web", "desktop"], group: "web-framework" },
   { name: "Angular", category: "frontend", platforms: ["web"], group: "web-framework" },
   { name: "Astro", category: "frontend", platforms: ["web"], group: "web-framework" },
+  { name: "Nuxt", category: "frontend", platforms: ["web"], group: "web-framework" },
+  { name: "Svelte", category: "frontend", platforms: ["web", "desktop"], group: "web-framework" },
+  { name: "SolidJS", category: "frontend", platforms: ["web", "desktop"], group: "web-framework" },
+  { name: "React Router", category: "frontend", platforms: ["web"], group: "web-framework" },
+  { name: "Blazor", category: "frontend", platforms: ["web"], group: "web-framework", requires: ["C#"] },
   { name: "Tailwind CSS", category: "frontend", platforms: ["web", "desktop"], ...needsWeb },
 
-  { name: "Tauri", category: "desktop", platforms: ["desktop"], group: "desktop-shell", requires: ["Rust"] },
+  { name: "Tauri", category: "desktop", platforms: ["desktop"], group: "desktop-shell", requires: ["Rust"], languages: ["Rust", "TypeScript", "JavaScript"] },
   { name: "Electron", category: "desktop", platforms: ["desktop"], group: "desktop-shell" },
-  { name: ".NET MAUI", category: "desktop", platforms: ["desktop"], group: "desktop-shell", requires: ["C#"] },
+  { name: "Wails", category: "desktop", platforms: ["desktop"], group: "desktop-shell", requires: ["Go"] },
+  { name: "Qt", category: "desktop", platforms: ["desktop"], group: "desktop-shell", languages: ["C++", "Python"] },
+
+  // One codebase for several platforms: shown whenever one of their platforms is chosen.
+  { name: "Flutter", category: "crossplatform", platforms: all, group: "cross-framework", excludesGroups: ["mobile-framework"], requires: ["Dart"] },
+  { name: "Kotlin Multiplatform", category: "crossplatform", platforms: all, group: "cross-framework", excludesGroups: ["mobile-framework", "cross-framework"], requires: ["Kotlin"] },
+  { name: ".NET MAUI", category: "crossplatform", platforms: ["desktop", "mobile"], group: "cross-framework", excludesGroups: ["mobile-framework", "desktop-shell"], requires: ["C#"] },
 
   { name: "React Native", category: "mobile", platforms: ["mobile"], group: "mobile-framework" },
-  { name: "Flutter", category: "mobile", platforms: ["mobile"], group: "mobile-framework", requires: ["Dart"] },
   { name: "Expo", category: "mobile", platforms: ["mobile"], requires: ["React Native"] },
-  { name: "SwiftUI", category: "mobile", platforms: ["mobile"], excludesGroups: ["mobile-framework"], requires: ["Swift"] },
-  { name: "Jetpack Compose", category: "mobile", platforms: ["mobile"], excludesGroups: ["mobile-framework"], requires: ["Kotlin"] },
+  { name: "Capacitor", category: "mobile", platforms: ["mobile"], group: "mobile-framework", ...needsWeb },
+  { name: "Ionic", category: "mobile", platforms: ["mobile"], requires: ["Capacitor"], needsAny: ["React", "Vue", "Angular"], needsLabel: "React, Vue o Angular" },
+  { name: "SwiftUI", category: "mobile", platforms: ["mobile"], excludesGroups: ["mobile-framework", "cross-framework"], requires: ["Swift"] },
+  { name: "Jetpack Compose", category: "mobile", platforms: ["mobile"], excludesGroups: ["mobile-framework", "cross-framework"], requires: ["Kotlin"] },
 
   { name: "Bun", category: "language", platforms: all, group: "js-runtime", ...needsJs },
   { name: "Node.js", category: "language", platforms: all, group: "js-runtime", ...needsJs },
@@ -110,16 +143,24 @@ export const STACK_OPTIONS: StackOption[] = [
   { name: "Spring Boot", category: "backend", platforms: all, group: "backend-framework", excludesGroups: NOT_JS, requires: ["Java"] },
   { name: "ASP.NET Core", category: "backend", platforms: all, group: "backend-framework", excludesGroups: NOT_JS, requires: ["C#"] },
   { name: "Gin", category: "backend", platforms: all, group: "backend-framework", excludesGroups: NOT_JS, requires: ["Go"] },
+  { name: "Elysia", category: "backend", platforms: all, group: "backend-framework", requires: ["TypeScript", "Bun"] },
+  { name: "Flask", category: "backend", platforms: all, group: "backend-framework", excludesGroups: NOT_JS, requires: ["Python"] },
+  { name: "Laravel", category: "backend", platforms: all, group: "backend-framework", excludesGroups: NOT_JS, requires: ["PHP"] },
+  { name: "Ruby on Rails", category: "backend", platforms: all, group: "backend-framework", excludesGroups: NOT_JS, requires: ["Ruby"] },
 
   { name: "TypeScript", category: "language", platforms: all },
+  { name: "JavaScript", category: "language", platforms: all },
   { name: "Python", category: "language", platforms: all },
   { name: "Java", category: "language", platforms: all },
   { name: "C#", category: "language", platforms: all },
   { name: "Go", category: "language", platforms: all },
   { name: "Rust", category: "language", platforms: all },
-  { name: "Kotlin", category: "language", platforms: ["mobile", "web"] },
-  { name: "Swift", category: "language", platforms: ["mobile"] },
-  { name: "Dart", category: "language", platforms: ["mobile"] },
+  { name: "PHP", category: "language", platforms: all },
+  { name: "Ruby", category: "language", platforms: all },
+  { name: "C++", category: "language", platforms: all },
+  { name: "Kotlin", category: "language", platforms: all },
+  { name: "Swift", category: "language", platforms: ["mobile", "desktop"] },
+  { name: "Dart", category: "language", platforms: all },
 
   { name: "Drizzle ORM", category: "orm", platforms: all, group: "orm", ...needsJsOrRuntime },
   { name: "Prisma", category: "orm", platforms: all, group: "orm", ...needsJsOrRuntime },
@@ -127,18 +168,66 @@ export const STACK_OPTIONS: StackOption[] = [
   { name: "SQLAlchemy", category: "orm", platforms: all, group: "orm", requires: ["Python"] },
   { name: "Entity Framework", category: "orm", platforms: all, group: "orm", requires: ["C#"] },
   { name: "Hibernate", category: "orm", platforms: all, group: "orm", requires: ["Java"] },
+  { name: "Mongoose", category: "orm", platforms: all, group: "orm", ...needsJsOrRuntime },
+  { name: "Sequelize", category: "orm", platforms: all, group: "orm", ...needsJsOrRuntime },
+  { name: "Django ORM", category: "orm", platforms: all, group: "orm", requires: ["Django"] },
+  { name: "Eloquent", category: "orm", platforms: all, group: "orm", requires: ["Laravel"] },
+  { name: "Active Record", category: "orm", platforms: all, group: "orm", requires: ["Ruby on Rails"] },
+  { name: "GORM", category: "orm", platforms: all, group: "orm", requires: ["Go"] },
+  { name: "Drift", category: "orm", platforms: all, group: "orm", requires: ["Dart"] },
 
   { name: "Vitest", category: "testing", platforms: all, group: "js-unit-test", ...needsJsOrRuntime },
   { name: "Jest", category: "testing", platforms: all, group: "js-unit-test", ...needsJsOrRuntime },
   { name: "Bun test", category: "testing", platforms: all, group: "js-unit-test", requires: ["Bun"] },
   { name: "Pytest", category: "testing", platforms: all, requires: ["Python"] },
-  { name: "Playwright", category: "testing", platforms: ["web", "desktop"], group: "web-e2e", needsAny: [...WEB_UI, "Electron", "Tauri"], needsLabel: "una interfaz web o de escritorio" },
+  { name: "JUnit", category: "testing", platforms: all, requires: ["Java"] },
+  { name: "xUnit", category: "testing", platforms: all, requires: ["C#"] },
+  { name: "PHPUnit", category: "testing", platforms: all, requires: ["PHP"] },
+  { name: "RSpec", category: "testing", platforms: all, requires: ["Ruby"] },
+  { name: "Flutter test", category: "testing", platforms: all, requires: ["Flutter"] },
+  { name: "Patrol", category: "testing", platforms: ["mobile"], group: "mobile-e2e", needsAny: ["Flutter"], needsLabel: "Flutter" },
+  { name: "Playwright", category: "testing", platforms: ["web", "desktop"], group: "web-e2e", languages: ["TypeScript", "JavaScript", "Python", "Java", "C#"], needsAny: [...WEB_UI, "Electron", "Tauri"], needsLabel: "una interfaz web o de escritorio" },
   { name: "Cypress", category: "testing", platforms: ["web"], group: "web-e2e", ...needsWeb },
   { name: "Detox", category: "testing", platforms: ["mobile"], group: "mobile-e2e", needsAny: ["React Native"], needsLabel: "React Native" },
   { name: "Maestro", category: "testing", platforms: ["mobile"], group: "mobile-e2e", needsAny: MOBILE_UI, needsLabel: "un framework móvil" },
 ];
 
 const byName = (options: StackOption[]) => new Map(options.map((o) => [o.name, o]));
+
+/** Programming languages of the catalog (runtimes such as Bun are in the same category, in a group). */
+export const STACK_LANGUAGES = STACK_OPTIONS.filter((o) => o.category === "language" && !o.group).map((o) => o.name);
+const JS_LANGUAGES = ["TypeScript", "JavaScript"];
+
+/**
+ * Languages an option is used from, so the wizard can offer only what fits the chosen languages.
+ * Worked out from what it requires (FastAPI → Python, Eloquent → Laravel → PHP), from being
+ * JavaScript based, or from what it needs (Tailwind → any web framework). Null when it fits any
+ * language.
+ */
+export function stackLanguages(name: string, options: StackOption[] = STACK_OPTIONS, seen = new Set<string>()): string[] | null {
+  const option = options.find((o) => o.name === name);
+  if (!option || seen.has(name)) return null;
+  seen.add(name);
+  if (option.languages) return option.languages;
+  if (option.category === "language" && !option.group) return [name];
+  const out = new Set<string>();
+  if (JS_BASED.includes(name) && name !== "TypeScript" && name !== "JavaScript") JS_LANGUAGES.forEach((l) => out.add(l));
+  for (const required of option.requires ?? []) for (const l of stackLanguages(required, options, new Set(seen)) ?? []) out.add(l);
+  if (out.size === 0 && option.needsAny) {
+    for (const needed of option.needsAny) {
+      const langs = needed === "Bun" || needed === "Node.js" || needed === "Deno" ? JS_LANGUAGES : stackLanguages(needed, options, new Set(seen));
+      if (!langs) return null;
+      langs.forEach((l) => out.add(l));
+    }
+  }
+  return out.size ? [...out] : null;
+}
+
+/** Whether the chosen languages open this option (options that fit any language always do). */
+export function unlockedByLanguage(name: string, selected: string[], options: StackOption[] = STACK_OPTIONS): boolean {
+  const langs = stackLanguages(name, options);
+  return !langs || langs.some((l) => selected.includes(l));
+}
 
 const conflicts = (a: StackOption, b: StackOption) =>
   (a.group !== undefined && a.group === b.group) ||

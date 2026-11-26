@@ -24,7 +24,7 @@ export const PROJECT_KIND_INFO: Record<ProjectKind, ProjectKindInfo> = {
     platforms: null,
     ui: true,
     server: true,
-    categories: ["frontend", "desktop", "mobile", "backend", "language", "orm", "testing"],
+    categories: ["frontend", "crossplatform", "desktop", "mobile", "backend", "language", "orm", "testing"],
   },
   frontend: {
     label: "Sitio o app web",
@@ -32,7 +32,7 @@ export const PROJECT_KIND_INFO: Record<ProjectKind, ProjectKindInfo> = {
     platforms: ["web"],
     ui: true,
     server: false,
-    categories: ["frontend", "language", "testing"],
+    categories: ["frontend", "crossplatform", "language", "testing"],
   },
   api: {
     label: "API o servicio",
@@ -48,7 +48,7 @@ export const PROJECT_KIND_INFO: Record<ProjectKind, ProjectKindInfo> = {
     platforms: ["desktop"],
     ui: true,
     server: false,
-    categories: ["frontend", "desktop", "language", "orm", "testing"],
+    categories: ["frontend", "crossplatform", "desktop", "language", "orm", "testing"],
   },
   mobile: {
     label: "App móvil",
@@ -56,7 +56,7 @@ export const PROJECT_KIND_INFO: Record<ProjectKind, ProjectKindInfo> = {
     platforms: ["mobile"],
     ui: true,
     server: false,
-    categories: ["mobile", "language", "orm", "testing"],
+    categories: ["crossplatform", "mobile", "language", "orm", "testing"],
   },
   cli: {
     label: "Herramienta de terminal",

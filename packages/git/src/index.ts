@@ -65,11 +65,13 @@ export async function cloneGithub(url: string, dest: string): Promise<RepoInfo> 
 }
 
 /**
- * Creates a new repository in an empty (or missing) folder, on branch main. Nothing is committed:
- * the first commit is the person's or the agent's.
+ * Creates a new repository in an empty (or missing) folder, on `branch` (main by default). Nothing
+ * is committed: the first commit is the person's or the agent's.
  */
-export async function initRepo(dest: string): Promise<RepoInfo> {
+export async function initRepo(dest: string, branch = "main"): Promise<RepoInfo> {
   if (!isAbsolute(dest)) throw new Error("La carpeta debe ser una ruta absoluta");
+  const valid = await git(["check-ref-format", "--branch", branch]);
+  if (!branch.trim() || branch.startsWith("-") || !valid.ok) throw new Error(`"${branch}" no es un nombre de rama válido`);
   const target = resolve(dest);
   const entries = await readdir(target).catch(() => null);
   if (entries && entries.length > 0) {
@@ -81,7 +83,7 @@ export async function initRepo(dest: string): Promise<RepoInfo> {
     );
   }
   await mkdir(target, { recursive: true });
-  const res = await git(["init", "-q", "-b", "main", target]);
+  const res = await git(["init", "-q", "-b", branch, target]);
   if (!res.ok) throw new Error(res.stderr.split("\n").at(-1) || "No se pudo crear el repositorio");
   const info = await inspectRepo(target);
   if (!info) throw new Error("No se pudo crear el repositorio");

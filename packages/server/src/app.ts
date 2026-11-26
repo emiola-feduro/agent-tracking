@@ -389,9 +389,9 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   /** New empty repository for a project that starts from scratch. */
   app.post("/import/init", async (c) => {
-    const { path } = await body(c, z.object({ path: z.string().min(1) }));
+    const { path, branch } = await body(c, z.object({ path: z.string().min(1), branch: z.string().trim().min(1).max(100).default("main") }));
     try {
-      const info = await initRepo(path.trim());
+      const info = await initRepo(path.trim(), branch);
       return c.json(await describeRepo(info.root), 201);
     } catch (e) {
       if (e instanceof HTTPException) throw e;

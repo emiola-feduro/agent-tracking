@@ -8,6 +8,8 @@ import {
   PROJECT_KINDS,
   recommendStack,
   stackOptionsFor,
+  stackLanguages,
+  unlockedByLanguage,
   suggestDatabases,
   suggestTechnologies,
   STACK_OPTIONS,
@@ -323,5 +325,31 @@ describe("canSelectStackOption", () => {
     expect(canSelectStackOption("Bun test", ["TypeScript"])).toBe(true);
     expect(canSelectStackOption("Tailwind CSS", ["Vue"])).toBe(true);
     expect(canSelectStackOption("Tailwind CSS", [])).toBe(false);
+  });
+});
+
+describe("stack guided by language", () => {
+  test("each option knows the languages it is used from", () => {
+    expect(stackLanguages("FastAPI")).toEqual(["Python"]);
+    expect(stackLanguages("Eloquent")).toEqual(["PHP"]);
+    expect(stackLanguages("Flutter")).toEqual(["Dart"]);
+    expect(stackLanguages("React")).toEqual(["TypeScript", "JavaScript"]);
+    expect(stackLanguages("Maestro")).toContain("Dart");
+  });
+
+  test("choosing a language opens its frameworks and keeps others closed", () => {
+    expect(unlockedByLanguage("Flutter", ["Dart"])).toBe(true);
+    expect(unlockedByLanguage("Flutter", ["TypeScript"])).toBe(false);
+    expect(unlockedByLanguage("Django", ["Python"])).toBe(true);
+    expect(unlockedByLanguage("Tauri", ["TypeScript"])).toBe(true);
+    // Options that fit any language are always open.
+    expect(unlockedByLanguage("Pytest", [])).toBe(false);
+  });
+
+  test("Flutter is offered for web, desktop and mobile", () => {
+    for (const platform of ["web", "desktop", "mobile"] as const) {
+      expect(stackOptionsFor("fullstack", [platform]).map((o) => o.name)).toContain("Flutter");
+    }
+    expect(stackOptionsFor("frontend", ["web"]).map((o) => o.name)).toContain("Flutter");
   });
 });
