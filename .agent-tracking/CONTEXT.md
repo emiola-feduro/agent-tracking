@@ -528,8 +528,8 @@ Temas, fuentes y tamaño de texto como en ER Studio.
   - `apps/web/src/lib/appearance/themes.ts`: Temas de ER Studio más los de Agent Tracking
 - Pantalla de carga inicial — _done_ (`8d8933d7-208e-4949-89ee-9858ddbd952a`)
   - `apps/desktop/src-tauri/tauri.conf.json`: Color de fondo de la ventana de escritorio
-  - `apps/web/index.html`: Estilos y marcado de la pantalla de carga con el logo animado
-  - `apps/web/src/main.tsx`: Retira la pantalla de carga tras el primer frame
+  - `apps/web/index.html`: Pantalla de carga sin espera de entrada y con fundido corto
+  - `apps/web/src/main.tsx`: Retira la pantalla de carga en cuanto la app renderiza
 
 ### Web multiusuario y colaboración — 0%
 

@@ -1,6 +1,6 @@
 {
   "path": "apps/web/src/main.tsx",
-  "purpose": "Retira la pantalla de carga tras el primer frame",
+  "purpose": "Retira la pantalla de carga en cuanto la app renderiza",
   "createdBy": "repo:analysis",
   "featureIds": [
     "8d8933d7-208e-4949-89ee-9858ddbd952a"

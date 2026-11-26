@@ -37,7 +37,7 @@
     {
       "id": "8d8933d7-208e-4949-89ee-9858ddbd952a",
       "name": "Pantalla de carga inicial",
-      "description": "Splash animado en el tema guardado, respetando movimiento reducido, que se retira tras el primer frame",
+      "description": "Sin pausas: el logo aparece enseguida y la salida es más corta",
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-26T21:34:01.117Z"
