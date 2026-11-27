@@ -8,13 +8,13 @@
   ],
   "symbols": [
     {
-      "name": "ASSISTANT_TASKS",
+      "name": "SUGGESTED_MODELS",
       "kind": "constant",
       "purpose": "",
       "source": "reported"
     },
     {
-      "name": "SUGGESTED_MODELS",
+      "name": "ASSISTANT_TASKS",
       "kind": "constant",
       "purpose": "",
       "source": "reported"

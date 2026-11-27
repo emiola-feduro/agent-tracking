@@ -14,7 +14,7 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
-- **Avance global:** 73%
+- **Avance global:** 66%
 
 ## Idioma con el usuario
 
@@ -737,6 +737,42 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `packages/db/src/schema.ts`: Tabla app_settings
   - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
+
+### Nuevas funcionalidades del MCP — 0%
+
+ID: `0e260d37-411a-4cdf-a8d9-2b65b7ef86bb`
+
+**Tipo:** Funcional, área integraciones
+
+Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos errores y sin depender de la API local: escribir requerimientos, contexto enfocado, validación y corrección de reportes, continuidad entre sesiones, comandos listos, create_project completo y conexión por HTTP.
+
+**Definition of Done:**
+
+- [ ] submit_report avisa o rechaza rutas fuera del repositorio, ids de DoD que no existen y archivos que no cambiaron (`0a6d624b-57a6-4aaf-831f-68ef674d53fb`)
+- [ ] get_handoff dice qué hizo el último turno, con qué agente y en qué rama, qué criterios del DoD siguen pendientes y qué cambios faltan por reportar (`25dcbdd4-5864-4e45-9428-028680c7bbea`)
+- [ ] Conectar registra el MCP por HTTP (http://127.0.0.1:4317/mcp) sin depender de Bun ni del código fuente (`38fea0f6-4829-420b-86a6-6ea5d07f8ca1`)
+- [ ] remove_test y remove_feature permiten deshacer lo que se reportó por error (`8a2f53c1-6b13-4f70-b423-3dddd750f436`)
+- [ ] create_project admite monorepo con sus piezas, tipos de tests e idioma de las respuestas, igual que el wizard (`8c9da401-b983-48d6-9f14-456605b23518`)
+- [ ] Prompts MCP en inglés que aparecen como comandos: /agent-tracking:start <requirement> y /agent-tracking:report (`cc79f882-023c-46df-846d-b2e1479195b1`)
+- [ ] get_project_context tiene un modo compacto (objetivo, reglas, convenciones, idioma y la lista de requerimientos con su avance) y el detalle se pide con get_requirement (`e93e33e2-92d4-4b64-a644-8fd643049e8b`)
+- [ ] El contexto y cada requerimiento se exponen como recursos MCP: agent-tracking://context y agent-tracking://requirement/<id> (`e9662a32-7b7d-454c-858b-351b2749706c`)
+- [ ] El MCP permite crear y editar requerimientos: create_requirement (con DoD, tipo, área y piezas), update_requirement y add_dod_item (`f5ca1c04-dc03-42d4-b63b-3a94bdc0e8fc`)
+
+### Códigos de requerimiento — 0%
+
+ID: `315d11ab-fd02-45bd-9701-bf012f24b293`
+
+**Tipo:** Funcional, área general
+
+Cada requerimiento tiene un código corto y secuencial dentro del proyecto según su tipo (RF1, RNF2...), editable, que sirve para referirse a él en la app, en el contexto y en el MCP sin escribir el título completo.
+
+**Definition of Done:**
+
+- [ ] El código viaja en .agent-tracking y se muestra en CONTEXT.md, en la lista de requerimientos y en el wizard (`0fc98970-62c4-4232-8e70-3c760d3feb65`)
+- [ ] Cada requerimiento recibe un código secuencial por tipo al crearse (RF para funcionales, RNF para no funcionales) y los existentes reciben el suyo por orden de creación (`8e8a4a53-634f-440f-820d-b6d07ae31942`)
+- [ ] El código se puede editar desde la app y no se repite dentro del proyecto (`eeba8618-3d93-41d5-9c14-87460240eb05`)
+- [ ] Las herramientas del MCP aceptan el código donde piden un requerimiento (`0c4c4447-4b31-45a7-bd22-9dd5e100b1e6`)
+- [ ] Tests cubren la numeración, la edición, los duplicados y el uso desde el MCP (`f00198bb-6a1f-4e5d-9b46-1fc6b76a140f`)
 
 ## Ideas de tests pendientes
 

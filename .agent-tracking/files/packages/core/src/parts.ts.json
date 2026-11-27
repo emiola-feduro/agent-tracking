@@ -13,21 +13,21 @@
       "source": "reported"
     },
     {
+      "name": "recommendMonorepoTool",
+      "kind": "function",
+      "purpose": "Herramienta por defecto según los lenguajes",
+      "source": "reported"
+    },
+    {
       "name": "partsProblems",
       "kind": "function",
       "purpose": "Problemas de nombres, carpetas y plataformas",
       "source": "reported"
     },
     {
-      "name": "proposedTree",
+      "name": "summarizeParts",
       "kind": "function",
-      "purpose": "Árbol de carpetas en texto",
-      "source": "reported"
-    },
-    {
-      "name": "recommendMonorepoTool",
-      "kind": "function",
-      "purpose": "Herramienta por defecto según los lenguajes",
+      "purpose": "Tipo, plataformas y stack del proyecto entero",
       "source": "reported"
     },
     {
@@ -37,9 +37,9 @@
       "source": "reported"
     },
     {
-      "name": "summarizeParts",
+      "name": "proposedTree",
       "kind": "function",
-      "purpose": "Tipo, plataformas y stack del proyecto entero",
+      "purpose": "Árbol de carpetas en texto",
       "source": "reported"
     }
   ]

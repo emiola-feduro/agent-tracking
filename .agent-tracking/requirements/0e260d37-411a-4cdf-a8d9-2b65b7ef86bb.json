@@ -1,0 +1,85 @@
+{
+  "id": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+  "title": "Nuevas funcionalidades del MCP",
+  "description": "Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos errores y sin depender de la API local: escribir requerimientos, contexto enfocado, validación y corrección de reportes, continuidad entre sesiones, comandos listos, create_project completo y conexión por HTTP.",
+  "type": "functional",
+  "area": "integration",
+  "weight": 1,
+  "parts": [],
+  "createdAt": "2026-11-27T13:19:09.142Z",
+  "dod": [
+    {
+      "id": "0a6d624b-57a6-4aaf-831f-68ef674d53fb",
+      "criterion": "submit_report avisa o rechaza rutas fuera del repositorio, ids de DoD que no existen y archivos que no cambiaron",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "25dcbdd4-5864-4e45-9428-028680c7bbea",
+      "criterion": "get_handoff dice qué hizo el último turno, con qué agente y en qué rama, qué criterios del DoD siguen pendientes y qué cambios faltan por reportar",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "38fea0f6-4829-420b-86a6-6ea5d07f8ca1",
+      "criterion": "Conectar registra el MCP por HTTP (http://127.0.0.1:4317/mcp) sin depender de Bun ni del código fuente",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "8a2f53c1-6b13-4f70-b423-3dddd750f436",
+      "criterion": "remove_test y remove_feature permiten deshacer lo que se reportó por error",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "8c9da401-b983-48d6-9f14-456605b23518",
+      "criterion": "create_project admite monorepo con sus piezas, tipos de tests e idioma de las respuestas, igual que el wizard",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "cc79f882-023c-46df-846d-b2e1479195b1",
+      "criterion": "Prompts MCP en inglés que aparecen como comandos: /agent-tracking:start <requirement> y /agent-tracking:report",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "e93e33e2-92d4-4b64-a644-8fd643049e8b",
+      "criterion": "get_project_context tiene un modo compacto (objetivo, reglas, convenciones, idioma y la lista de requerimientos con su avance) y el detalle se pide con get_requirement",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "e9662a32-7b7d-454c-858b-351b2749706c",
+      "criterion": "El contexto y cada requerimiento se exponen como recursos MCP: agent-tracking://context y agent-tracking://requirement/<id>",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    },
+    {
+      "id": "f5ca1c04-dc03-42d4-b63b-3a94bdc0e8fc",
+      "criterion": "El MCP permite crear y editar requerimientos: create_requirement (con DoD, tipo, área y piezas), update_requirement y add_dod_item",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.142Z"
+    }
+  ],
+  "features": []
+}

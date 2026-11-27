@@ -1,0 +1,53 @@
+{
+  "id": "315d11ab-fd02-45bd-9701-bf012f24b293",
+  "title": "Códigos de requerimiento",
+  "description": "Cada requerimiento tiene un código corto y secuencial dentro del proyecto según su tipo (RF1, RNF2...), editable, que sirve para referirse a él en la app, en el contexto y en el MCP sin escribir el título completo.",
+  "type": "functional",
+  "area": "general",
+  "weight": 1,
+  "parts": [],
+  "createdAt": "2026-11-27T13:19:09.240Z",
+  "dod": [
+    {
+      "id": "0fc98970-62c4-4232-8e70-3c760d3feb65",
+      "criterion": "El código viaja en .agent-tracking y se muestra en CONTEXT.md, en la lista de requerimientos y en el wizard",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.240Z"
+    },
+    {
+      "id": "8e8a4a53-634f-440f-820d-b6d07ae31942",
+      "criterion": "Cada requerimiento recibe un código secuencial por tipo al crearse (RF para funcionales, RNF para no funcionales) y los existentes reciben el suyo por orden de creación",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.240Z"
+    },
+    {
+      "id": "eeba8618-3d93-41d5-9c14-87460240eb05",
+      "criterion": "El código se puede editar desde la app y no se repite dentro del proyecto",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.240Z"
+    },
+    {
+      "id": "0c4c4447-4b31-45a7-bd22-9dd5e100b1e6",
+      "criterion": "Las herramientas del MCP aceptan el código donde piden un requerimiento",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.241Z"
+    },
+    {
+      "id": "f00198bb-6a1f-4e5d-9b46-1fc6b76a140f",
+      "criterion": "Tests cubren la numeración, la edición, los duplicados y el uso desde el MCP",
+      "origin": "human",
+      "status": "pending",
+      "evidence": null,
+      "createdAt": "2026-11-27T13:19:09.241Z"
+    }
+  ],
+  "features": []
+}
