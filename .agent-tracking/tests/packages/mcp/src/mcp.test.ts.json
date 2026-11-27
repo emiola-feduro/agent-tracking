@@ -2,6 +2,13 @@
   "path": "packages/mcp/src/mcp.test.ts",
   "tests": [
     {
+      "featureId": "7558f3be-5f92-446f-bfca-98223726efac",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "a session forgotten by a server restart is revived, so the agent keeps working without reconnecting",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "a8021746-6f16-480d-af64-7d9a91068c3e",
       "requirementId": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
       "name": "agents without hooks",

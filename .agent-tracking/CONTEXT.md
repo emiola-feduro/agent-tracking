@@ -113,7 +113,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
 - Rama inicial del repositorio nuevo — _done_ (`af7e04d4-633c-4100-99e2-46e3093f6834`)
   - `apps/web/src/components/dynamic/new-project/new-project-source-new.tsx`: Origen Repositorio nuevo con selector de rama principal.
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
   - `packages/git/src/repo.test.ts`: Tests de repositorios, incluida la rama inicial.
   - `packages/server/src/app.ts`: onAgentDir en los hooks
@@ -157,7 +157,7 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `apps/web/src/components/dynamic/project-detail/project-detail-test-group.tsx`: Botón para quitar cada test
   - `apps/web/src/components/dynamic/project-detail/project-detail-tests.tsx`: Conecta el borrado con la lista
   - `apps/web/src/hooks/data/use-test-idea-actions.ts`: removeTest optimista
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `packages/server/src/traceability-routes.ts`: Ruta DELETE /projects/:id/tests/:testId
   - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 
@@ -203,7 +203,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
-  - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
+  - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
   - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
@@ -300,7 +300,7 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 - Borrar ramas locales — _done_ (`1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
   - `apps/web/src/hooks/data/use-worktrees.ts`: Consultas y mutaciones de ramas y worktrees.
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/app.ts`: onAgentDir en los hooks
@@ -371,7 +371,7 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
 - Botones que gastan tokens — _done_ (`abd40f70-d2b9-4a69-bedd-08d4841a629d`)
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-dod.tsx`: DoD del wizard; Sugerir con IA con TokenButton.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-assistant.tsx`: Sugerencia de stack con TokenButton.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx`: DoD del proyecto; Generar criterios con TokenButton.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx`: Implementar por criterio y casilla de selección de criterios pendientes
   - `apps/web/src/components/ui/token-button/token-button.tsx`: Dice de quién son los tokens que gasta.
 - Proveedores del asistente — _done_ (`cd9f791e-6d22-496a-933c-50a50921b753`)
   - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Muestra los modelos en uso y el selector por tarea
@@ -393,7 +393,7 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Muestra los modelos en uso y el selector por tarea
   - `apps/web/src/components/dynamic/assistant/assistant-task-models.tsx`: Selector de modelo por tarea
   - `apps/web/src/hooks/data/use-assistant-providers.ts`: setModel
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `packages/assistant/src/client.ts`: Tareas del asistente, modelos sugeridos y modelFor
   - `packages/assistant/src/dod.ts`: Usa el modelo de la tarea dod
   - `packages/assistant/src/skills.ts`: Usa el modelo de la tarea skills
@@ -440,17 +440,17 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
 **Features:**
 
 - Tipo, área y filtros de requerimientos — _done_ (`e20e7af5-350b-42e3-9997-73c58a0975ad`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Implementar en el encabezado y casilla de selección
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Botón Seleccionar para implementar, barra y diálogo
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
 - Clasificación por parte del sistema o atributo de calidad — _done_ (`11fce3fd-7e0f-46db-ae30-20e2566cbb7b`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Implementar en el encabezado y casilla de selección
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-classification.tsx`: Edición de tipo y área explicada, con sugerencia del texto.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-form.tsx`: Formulario de nuevo requerimiento.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Botón Seleccionar para implementar, barra y diálogo
   - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
   - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Project.replyLanguage
@@ -499,7 +499,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 - Comando bun run dev — _done_ (`0adf724c-6460-4bbf-9154-c3bd491dbb35`)
   - `README.md`: Documenta bun run dev.
@@ -600,7 +600,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `apps/web/src/lib/query-keys.ts`: Clave de consulta del estado de las skills
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/core/src/core.test.ts`: Tests del catálogo y del stack guiado por lenguaje.
@@ -668,7 +668,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `apps/web/src/components/dynamic/new-project/new-project-stack.tsx`: Paso Stack con piezas, herramienta y tests.
   - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
   - `apps/web/src/hooks/form/use-stack-defaults.ts`: Recomendación por pieza.
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
@@ -689,7 +689,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `packages/server/src/monorepo.test.ts`: Tests de proyectos monorepo: creación, scaffolding, piezas y detección.
 - Piezas por requerimiento — _done_ (`c0cb7044-3df7-4e2e-8c97-184687d1417c`)
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con sus piezas.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Implementar en el encabezado y casilla de selección
   - `apps/web/src/components/dynamic/requirement-parts/part-chips.tsx`: Selector de piezas que toca un requerimiento.
   - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
 - Detectar monorepos al importar — _done_ (`55ee76eb-d776-438f-90f8-64ac3f500bf0`)
@@ -722,7 +722,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Idioma de los agentes en el resumen
   - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Estado de MCP viejo y botón Actualizar
   - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
   - `packages/agents/src/claude-code.ts`: Claude Code acepta contexto por pedido
   - `packages/agents/src/codex.ts`: Codex acepta contexto por pedido
@@ -771,6 +771,8 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
   - `packages/server/src/agent-routes.ts`: El plan ya no usa el proceso local
   - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
+- Sesiones MCP que sobreviven a reinicios — _done_ (`7558f3be-5f92-446f-bfca-98223726efac`)
+  - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
 
 ### RF17 Códigos de requerimiento — 0%
 
@@ -804,16 +806,34 @@ Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) 
 - [x] Los trabajos lanzados se listan con agente, requerimiento, estado, duración y las últimas líneas de salida, y se pueden detener (`68ca55d4-9fcb-4723-a1b3-bf96579ca502`)
 - [x] Solo se lanzan agentes desde la propia app (origen local); nunca desde otra página (`e10f40e1-68b5-40cf-8e54-1b73c516aa41`)
 - [x] Tests cubren el armado del comando de cada agente, el arranque, la salida, la detención y el rechazo de orígenes ajenos (`781610f2-116b-4e38-b4b9-b668b0a110f7`)
+- [x] Un requerimiento sin criterios cumplidos se implementa con un clic (Implementar) usando las últimas opciones; Opciones abre el diálogo (`1cc56bbb-a004-46e1-a55b-424bf976b2a3`)
+- [x] Cada criterio pendiente del DoD tiene su propio botón Implementar (`4eda528f-f643-4d8a-ae39-ae85e5bd0eed`)
+- [x] Se pueden seleccionar varios requerimientos sin criterios cumplidos y varios criterios pendientes y entregarlos en orden a un solo agente (`af9da3fc-6480-495f-b0fb-1bd7f557f723`)
+- [x] Si ya hay un agente trabajando en la misma carpeta, el trabajo nuevo queda en cola y arranca al terminar el anterior (`4a3c6dab-0f29-4384-b903-15b68077fc70`)
 
 **Features:**
 
 - Lanzar agentes desde un requerimiento — _done_ (`57265620-f44f-45c5-bf18-a3d6cf432511`)
-  - `apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx`: Trabajos lanzados con estado, duración, salida y Detener
-  - `apps/web/src/components/dynamic/agent-runs/launch-agent-dialog.tsx`: Diálogo Implementar con un agente
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
-  - `apps/web/src/hooks/data/use-agent-runs.ts`: Consultas y acciones de trabajos lanzados
-  - `packages/agents/src/launch.ts`: Instrucción y línea de comando no interactiva de cada agente
-  - `packages/server/src/agent-run-routes.ts`: Arranca, lista y detiene agentes; solo desde orígenes locales y en checkouts del proyecto
+  - `apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx`: Trabajos en cola, sus tareas y Quitar de la cola
+  - `apps/web/src/components/dynamic/agent-runs/launch-agent-dialog.tsx`: Opciones para cualquier conjunto de tareas; recuerda la elección
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Implementar en el encabezado y casilla de selección
+  - `apps/web/src/hooks/data/use-agent-runs.ts`: Tareas en lugar de un solo requerimiento
+  - `packages/agents/src/launch.ts`: Instrucción con varias tareas en orden y etiqueta del trabajo
+  - `packages/server/src/agent-run-routes.ts`: Valida qué se puede implementar, cola por checkout y arranque del siguiente
+- Implementar con un clic, selección múltiple y cola — _done_ (`f5bacdee-1555-4f1a-8451-8f5e6a6dfc89`)
+  - `apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx`: Trabajos en cola, sus tareas y Quitar de la cola
+  - `apps/web/src/components/dynamic/agent-runs/implement-bar.tsx`: Barra con la selección, Implementar y el aviso del lanzamiento
+  - `apps/web/src/components/dynamic/agent-runs/launch-agent-dialog.tsx`: Opciones para cualquier conjunto de tareas; recuerda la elección
+  - `apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx`: Implementar por criterio y casilla de selección de criterios pendientes
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Implementar en el encabezado y casilla de selección
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Botón Seleccionar para implementar, barra y diálogo
+  - `apps/web/src/hooks/data/use-agent-runs.ts`: Tareas en lugar de un solo requerimiento
+  - `apps/web/src/hooks/data/use-implement.ts`: Implementar con un clic con las últimas opciones
+  - `apps/web/src/lib/api.ts`: ImplementItem y AgentRun con tareas y cola
+  - `apps/web/src/stores/use-implement-store.ts`: Selección, diálogo, aviso y últimas opciones por proyecto
+  - `packages/agents/src/launch.ts`: Instrucción con varias tareas en orden y etiqueta del trabajo
+  - `packages/core/src/implement.ts`: Qué se puede implementar: requerimiento sin criterios cumplidos, criterio pendiente
+  - `packages/server/src/agent-run-routes.ts`: Valida qué se puede implementar, cola por checkout y arranque del siguiente
 
 ## Ideas de tests pendientes
 

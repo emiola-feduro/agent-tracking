@@ -1,9 +1,17 @@
 {
   "path": "packages/mcp/src/http.ts",
-  "purpose": "Transporte Streamable HTTP en /mcp",
+  "purpose": "Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "7558f3be-5f92-446f-bfca-98223726efac",
     "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
   ],
-  "symbols": []
+  "symbols": [
+    {
+      "name": "createMcpHttpHandler",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
 }

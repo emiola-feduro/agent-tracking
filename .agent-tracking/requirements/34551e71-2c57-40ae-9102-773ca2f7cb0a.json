@@ -56,6 +56,38 @@
       "status": "done",
       "evidence": "localOnly exige Origin local; agent-runs.test.ts verifica 403",
       "createdAt": "2026-11-27T14:30:00.687Z"
+    },
+    {
+      "id": "1cc56bbb-a004-46e1-a55b-424bf976b2a3",
+      "criterion": "Un requerimiento sin criterios cumplidos se implementa con un clic (Implementar) usando las últimas opciones; Opciones abre el diálogo",
+      "origin": "human",
+      "status": "done",
+      "evidence": "Botón Implementar en el encabezado con las últimas opciones; Opciones abre el diálogo; prueba en navegador",
+      "createdAt": "2026-11-27T14:52:53.508Z"
+    },
+    {
+      "id": "4eda528f-f643-4d8a-ae39-ae85e5bd0eed",
+      "criterion": "Cada criterio pendiente del DoD tiene su propio botón Implementar",
+      "origin": "human",
+      "status": "done",
+      "evidence": "project-detail-dod.tsx: Implementar por criterio pendiente",
+      "createdAt": "2026-11-27T14:52:53.581Z"
+    },
+    {
+      "id": "af9da3fc-6480-495f-b0fb-1bd7f557f723",
+      "criterion": "Se pueden seleccionar varios requerimientos sin criterios cumplidos y varios criterios pendientes y entregarlos en orden a un solo agente",
+      "origin": "human",
+      "status": "done",
+      "evidence": "Selección múltiple con barra; agent-runs.test.ts verifica orden y elegibilidad; prueba en navegador",
+      "createdAt": "2026-11-27T14:52:53.650Z"
+    },
+    {
+      "id": "4a3c6dab-0f29-4384-b903-15b68077fc70",
+      "criterion": "Si ya hay un agente trabajando en la misma carpeta, el trabajo nuevo queda en cola y arranca al terminar el anterior",
+      "origin": "human",
+      "status": "done",
+      "evidence": "Cola por checkout; agent-runs.test.ts verifica que el siguiente arranca al terminar",
+      "createdAt": "2026-11-27T14:52:53.718Z"
     }
   ],
   "features": [
@@ -66,6 +98,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T14:38:27.051Z"
+    },
+    {
+      "id": "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89",
+      "name": "Implementar con un clic, selección múltiple y cola",
+      "description": "Botón Implementar por requerimiento y por criterio, selección de varios para un agente y cola por checkout",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T14:56:20.885Z"
     }
   ]
 }

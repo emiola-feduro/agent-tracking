@@ -1,0 +1,22 @@
+{
+  "path": "packages/core/src/implement.ts",
+  "purpose": "Qué se puede implementar: requerimiento sin criterios cumplidos, criterio pendiente",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
+  ],
+  "symbols": [
+    {
+      "name": "dodImplementable",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "requirementImplementable",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

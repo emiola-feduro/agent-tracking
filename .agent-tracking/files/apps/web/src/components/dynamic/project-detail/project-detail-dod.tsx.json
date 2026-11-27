@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail-dod.tsx",
-  "purpose": "DoD del proyecto; Generar criterios con TokenButton.",
+  "purpose": "Implementar por criterio y casilla de selección de criterios pendientes",
   "createdBy": "repo:analysis",
   "featureIds": [
-    "abd40f70-d2b9-4a69-bedd-08d4841a629d"
+    "abd40f70-d2b9-4a69-bedd-08d4841a629d",
+    "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": []
 }

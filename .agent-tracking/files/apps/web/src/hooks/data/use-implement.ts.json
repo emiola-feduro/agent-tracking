@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/hooks/data/use-implement.ts",
+  "purpose": "Implementar con un clic con las últimas opciones",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
+  ],
+  "symbols": [
+    {
+      "name": "useImplement",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

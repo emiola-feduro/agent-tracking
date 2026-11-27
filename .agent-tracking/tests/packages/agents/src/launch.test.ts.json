@@ -7,6 +7,13 @@
       "name": "launching agents",
       "type": "unit",
       "lastResult": "passing"
+    },
+    {
+      "featureId": "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89",
+      "requirementId": "34551e71-2c57-40ae-9102-773ca2f7cb0a",
+      "name": "several tasks go in order, and criteria alone say so",
+      "type": "unit",
+      "lastResult": "passing"
     }
   ]
 }

@@ -1,13 +1,26 @@
 {
   "path": "packages/agents/src/launch.ts",
-  "purpose": "Instrucción y línea de comando no interactiva de cada agente",
+  "purpose": "Instrucción con varias tareas en orden y etiqueta del trabajo",
   "createdBy": "agent:claude-code",
   "featureIds": [
-    "57265620-f44f-45c5-bf18-a3d6cf432511"
+    "57265620-f44f-45c5-bf18-a3d6cf432511",
+    "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": [
     {
+      "name": "LaunchItem",
+      "kind": "type",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
       "name": "launchCommand",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "launchLabel",
       "kind": "function",
       "purpose": "",
       "source": "reported"

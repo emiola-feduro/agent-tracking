@@ -90,6 +90,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T14:38:26.990Z"
+    },
+    {
+      "id": "7558f3be-5f92-446f-bfca-98223726efac",
+      "name": "Sesiones MCP que sobreviven a reinicios",
+      "description": "Una sesión desconocida tras reiniciar el servidor se revive con el mismo id",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T14:56:20.983Z"
     }
   ]
 }

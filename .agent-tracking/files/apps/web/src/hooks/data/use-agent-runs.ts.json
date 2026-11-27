@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/hooks/data/use-agent-runs.ts",
-  "purpose": "Consultas y acciones de trabajos lanzados",
+  "purpose": "Tareas en lugar de un solo requerimiento",
   "createdBy": "agent:claude-code",
   "featureIds": [
-    "57265620-f44f-45c5-bf18-a3d6cf432511"
+    "57265620-f44f-45c5-bf18-a3d6cf432511",
+    "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": []
 }
