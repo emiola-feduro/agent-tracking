@@ -7,13 +7,13 @@
   ],
   "symbols": [
     {
-      "name": "dodImplementable",
+      "name": "requirementImplementable",
       "kind": "function",
       "purpose": "",
       "source": "reported"
     },
     {
-      "name": "requirementImplementable",
+      "name": "dodImplementable",
       "kind": "function",
       "purpose": "",
       "source": "reported"

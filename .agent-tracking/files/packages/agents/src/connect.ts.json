@@ -8,15 +8,15 @@
   ],
   "symbols": [
     {
-      "name": "agentStatus",
-      "kind": "function",
-      "purpose": "Incluye mcpOutdated",
-      "source": "reported"
-    },
-    {
       "name": "mcpUrl",
       "kind": "function",
       "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "agentStatus",
+      "kind": "function",
+      "purpose": "Incluye mcpOutdated",
       "source": "reported"
     },
     {

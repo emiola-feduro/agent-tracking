@@ -21,8 +21,8 @@
       "id": "25dcbdd4-5864-4e45-9428-028680c7bbea",
       "criterion": "get_handoff dice qué hizo el último turno, con qué agente y en qué rama, qué criterios del DoD siguen pendientes y qué cambios faltan por reportar",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "get_handoff en packages/mcp/src/server.ts; handoff.test.ts y mcp.test.ts; probado contra el servidor en 4317",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
@@ -98,6 +98,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T14:56:20.983Z"
+    },
+    {
+      "id": "0c5a9934-dd37-4f9b-8254-2155628b2392",
+      "name": "get_handoff para retomar el trabajo",
+      "description": "Traspaso entre sesiones: último turno, criterios pendientes y cambios sin reportar",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T19:47:03.571Z"
     }
   ]
 }

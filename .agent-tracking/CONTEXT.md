@@ -14,7 +14,7 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
-- **Avance global:** 72%
+- **Avance global:** 73%
 
 ## Idioma con el usuario
 
@@ -204,13 +204,13 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
-  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
+  - `packages/mcp/src/server.ts`: Herramienta get_handoff e instrucción para usarla al retomar trabajo
   - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
   - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
-  - `packages/mcp/src/mcp.test.ts`: Tests del MCP; el puerto del servidor reiniciado se declara como número para el CI
-  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
+  - `packages/mcp/src/mcp.test.ts`: Test de get_handoff por MCP, sin depender de drizzle-orm
+  - `packages/mcp/src/server.ts`: Herramienta get_handoff e instrucción para usarla al retomar trabajo
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
   - `packages/tracking/src/index.ts`: Exporta remote-sync
 - Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
@@ -267,7 +267,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/agents/src/gemini-cli.ts`: Adaptador de Gemini CLI: BeforeAgent, BeforeTool, AfterAgent.
   - `packages/agents/src/index.ts`: Registro de adaptadores y utilidades (adapterFor, agentForClient, agentLabel).
   - `packages/agents/src/types.ts`: withPromptContext en el adaptador
-  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
+  - `packages/mcp/src/server.ts`: Herramienta get_handoff e instrucción para usarla al retomar trabajo
   - `packages/server/src/agents-flow.test.ts`: Codex y Gemini a la vez: sesiones en vivo y turnos.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
   - `packages/tracking/src/agent-turns.ts`: Turnos con agente, y turnos por MCP para agentes sin hooks.
@@ -660,7 +660,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
   - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
-  - `packages/mcp/src/mcp.test.ts`: Tests del MCP; el puerto del servidor reiniciado se declara como número para el CI
+  - `packages/mcp/src/mcp.test.ts`: Test de get_handoff por MCP, sin depender de drizzle-orm
   - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
   - `packages/server/src/app.ts`: Monta las rutas de colaboración y acepta collabFetch para tests
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
@@ -772,7 +772,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `packages/server/src/app.ts`: Monta las rutas de colaboración y acepta collabFetch para tests
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
 
-### RF16 Nuevas funcionalidades del MCP — 11%
+### RF16 Nuevas funcionalidades del MCP — 22%
 
 ID: `0e260d37-411a-4cdf-a8d9-2b65b7ef86bb`
 
@@ -783,7 +783,7 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
 **Definition of Done:**
 
 - [ ] submit_report avisa o rechaza rutas fuera del repositorio, ids de DoD que no existen y archivos que no cambiaron (`0a6d624b-57a6-4aaf-831f-68ef674d53fb`)
-- [ ] get_handoff dice qué hizo el último turno, con qué agente y en qué rama, qué criterios del DoD siguen pendientes y qué cambios faltan por reportar (`25dcbdd4-5864-4e45-9428-028680c7bbea`)
+- [x] get_handoff dice qué hizo el último turno, con qué agente y en qué rama, qué criterios del DoD siguen pendientes y qué cambios faltan por reportar (`25dcbdd4-5864-4e45-9428-028680c7bbea`)
 - [x] Conectar registra el MCP por HTTP (http://127.0.0.1:4317/mcp) sin depender de Bun ni del código fuente (`38fea0f6-4829-420b-86a6-6ea5d07f8ca1`)
 - [ ] remove_test y remove_feature permiten deshacer lo que se reportó por error (`8a2f53c1-6b13-4f70-b423-3dddd750f436`)
 - [ ] create_project admite monorepo con sus piezas, tipos de tests e idioma de las respuestas, igual que el wizard (`8c9da401-b983-48d6-9f14-456605b23518`)
@@ -801,14 +801,19 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
   - `apps/web/src/components/layout/app-shell/app-shell.tsx`: Monta el aviso
   - `packages/agents/src/connect.ts`: Plan de conexión por HTTP para Claude Code, Codex y Gemini; detecta y reemplaza la conexión de proceso local
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
-  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
+  - `packages/mcp/src/server.ts`: Herramienta get_handoff e instrucción para usarla al retomar trabajo
   - `packages/server/src/agent-routes.ts`: La lista de agentes incluye los modelos de su proveedor
   - `packages/server/src/app.ts`: Monta las rutas de colaboración y acepta collabFetch para tests
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
 - Sesiones MCP que sobreviven a reinicios — _done_ (`7558f3be-5f92-446f-bfca-98223726efac`)
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
-  - `packages/mcp/src/mcp.test.ts`: Tests del MCP; el puerto del servidor reiniciado se declara como número para el CI
+  - `packages/mcp/src/mcp.test.ts`: Test de get_handoff por MCP, sin depender de drizzle-orm
   - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
+- get_handoff para retomar el trabajo — _done_ (`0c5a9934-dd37-4f9b-8254-2155628b2392`)
+  - `packages/mcp/src/handoff.test.ts`: Tests de buildHandoff
+  - `packages/mcp/src/handoff.ts`: Arma el traspaso: último turno terminado, criterios pendientes y cambios sin reportar
+  - `packages/mcp/src/mcp.test.ts`: Test de get_handoff por MCP, sin depender de drizzle-orm
+  - `packages/mcp/src/server.ts`: Herramienta get_handoff e instrucción para usarla al retomar trabajo
 
 ### RF17 Códigos de requerimiento — 0%
 
@@ -836,12 +841,12 @@ Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) 
 
 **Definition of Done:**
 
-- [x] Desde un requerimiento se abre «Implementar con un agente» y se elige el agente entre los instalados (`d5e7f319-7a87-462e-8e9d-9f4d6ba0eaaf`)
 - [x] Se elige dónde trabaja (checkout principal o un worktree existente) y con qué permisos, con un aviso claro del modo sin preguntas (`3cda502f-9f37-4bc7-bb56-e20ae722deda`)
-- [x] El agente arranca sin interfaz con una instrucción que nombra el requerimiento por su código, pide leer el contexto, trabajar en una rama propia y llamar a submit_report al terminar (`79861d3d-c761-4adf-9a5d-010305a3cb88`)
 - [x] Los trabajos lanzados se listan con agente, requerimiento, estado, duración y las últimas líneas de salida, y se pueden detener (`68ca55d4-9fcb-4723-a1b3-bf96579ca502`)
-- [x] Solo se lanzan agentes desde la propia app (origen local); nunca desde otra página (`e10f40e1-68b5-40cf-8e54-1b73c516aa41`)
 - [x] Tests cubren el armado del comando de cada agente, el arranque, la salida, la detención y el rechazo de orígenes ajenos (`781610f2-116b-4e38-b4b9-b668b0a110f7`)
+- [x] El agente arranca sin interfaz con una instrucción que nombra el requerimiento por su código, pide leer el contexto, trabajar en una rama propia y llamar a submit_report al terminar (`79861d3d-c761-4adf-9a5d-010305a3cb88`)
+- [x] Desde un requerimiento se abre «Implementar con un agente» y se elige el agente entre los instalados (`d5e7f319-7a87-462e-8e9d-9f4d6ba0eaaf`)
+- [x] Solo se lanzan agentes desde la propia app (origen local); nunca desde otra página (`e10f40e1-68b5-40cf-8e54-1b73c516aa41`)
 - [x] Un requerimiento sin criterios cumplidos se implementa con un clic (Implementar) usando las últimas opciones; Opciones abre el diálogo (`1cc56bbb-a004-46e1-a55b-424bf976b2a3`)
 - [x] Cada criterio pendiente del DoD tiene su propio botón Implementar (`4eda528f-f643-4d8a-ae39-ae85e5bd0eed`)
 - [x] Se pueden seleccionar varios requerimientos sin criterios cumplidos y varios criterios pendientes y entregarlos en orden a un solo agente (`af9da3fc-6480-495f-b0fb-1bd7f557f723`)

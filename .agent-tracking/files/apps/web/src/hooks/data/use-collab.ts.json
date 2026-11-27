@@ -7,13 +7,13 @@
   ],
   "symbols": [
     {
-      "name": "useCollabPresence",
+      "name": "useCollabSync",
       "kind": "function",
       "purpose": "",
       "source": "reported"
     },
     {
-      "name": "useCollabSync",
+      "name": "useCollabPresence",
       "kind": "function",
       "purpose": "",
       "source": "reported"

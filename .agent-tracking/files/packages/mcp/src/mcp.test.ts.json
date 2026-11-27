@@ -1,8 +1,9 @@
 {
   "path": "packages/mcp/src/mcp.test.ts",
-  "purpose": "Tests del MCP; el puerto del servidor reiniciado se declara como número para el CI",
+  "purpose": "Test de get_handoff por MCP, sin depender de drizzle-orm",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "0c5a9934-dd37-4f9b-8254-2155628b2392",
     "40490b16-9821-49bc-a246-7d81b01eb54a",
     "7558f3be-5f92-446f-bfca-98223726efac",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3"

@@ -9,13 +9,13 @@
   ],
   "symbols": [
     {
-      "name": "agentRunRoutes",
+      "name": "checkBranch",
       "kind": "function",
       "purpose": "",
       "source": "reported"
     },
     {
-      "name": "checkBranch",
+      "name": "agentRunRoutes",
       "kind": "function",
       "purpose": "",
       "source": "reported"

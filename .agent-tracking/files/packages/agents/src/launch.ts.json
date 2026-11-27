@@ -9,25 +9,19 @@
   ],
   "symbols": [
     {
-      "name": "LaunchBranch",
-      "kind": "type",
-      "purpose": "",
-      "source": "reported"
-    },
-    {
       "name": "LaunchItem",
       "kind": "type",
       "purpose": "",
       "source": "reported"
     },
     {
-      "name": "branchRule",
-      "kind": "function",
+      "name": "LaunchBranch",
+      "kind": "type",
       "purpose": "",
       "source": "reported"
     },
     {
-      "name": "launchCommand",
+      "name": "branchRule",
       "kind": "function",
       "purpose": "",
       "source": "reported"
@@ -40,6 +34,12 @@
     },
     {
       "name": "launchPrompt",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "launchCommand",
       "kind": "function",
       "purpose": "",
       "source": "reported"

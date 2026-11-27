@@ -13,15 +13,15 @@
       "source": "reported"
     },
     {
-      "name": "openCollabStore",
-      "kind": "function",
-      "purpose": "Abre la base y crea las tablas de usuarios, sesiones, proyectos, miembros y presencia",
-      "source": "reported"
-    },
-    {
       "name": "storeUrl",
       "kind": "function",
       "purpose": "Convierte rutas de archivo en direcciones SQLite para que Bun.SQL no las tome como PostgreSQL",
+      "source": "reported"
+    },
+    {
+      "name": "openCollabStore",
+      "kind": "function",
+      "purpose": "Abre la base y crea las tablas de usuarios, sesiones, proyectos, miembros y presencia",
       "source": "reported"
     }
   ]

@@ -23,6 +23,13 @@
       "lastResult": "passing"
     },
     {
+      "featureId": "0c5a9934-dd37-4f9b-8254-2155628b2392",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "get_handoff tells the next session what the last turn did, on which branch, and what is left",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
       "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
       "name": "herramientas MCP sobre un cliente del SDK",

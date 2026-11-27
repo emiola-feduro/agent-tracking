@@ -1,0 +1,12 @@
+{
+  "path": "packages/mcp/src/handoff.test.ts",
+  "tests": [
+    {
+      "featureId": "0c5a9934-dd37-4f9b-8254-2155628b2392",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "buildHandoff",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

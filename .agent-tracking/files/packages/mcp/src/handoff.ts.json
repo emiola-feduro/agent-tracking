@@ -1,0 +1,22 @@
+{
+  "path": "packages/mcp/src/handoff.ts",
+  "purpose": "Arma el traspaso: último turno terminado, criterios pendientes y cambios sin reportar",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "0c5a9934-dd37-4f9b-8254-2155628b2392"
+  ],
+  "symbols": [
+    {
+      "name": "Handoff",
+      "kind": "type",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "buildHandoff",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

@@ -8,13 +8,13 @@
   ],
   "symbols": [
     {
-      "name": "selectionItems",
+      "name": "setDods",
       "kind": "function",
       "purpose": "",
       "source": "reported"
     },
     {
-      "name": "setDods",
+      "name": "selectionItems",
       "kind": "function",
       "purpose": "",
       "source": "reported"

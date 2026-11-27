@@ -1,8 +1,9 @@
 {
   "path": "packages/mcp/src/server.ts",
-  "purpose": "Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks",
+  "purpose": "Herramienta get_handoff e instrucción para usarla al retomar trabajo",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "0c5a9934-dd37-4f9b-8254-2155628b2392",
     "40490b16-9821-49bc-a246-7d81b01eb54a",
     "7dcbda15-b02e-49d2-9796-2f835dd5832c",
     "a8021746-6f16-480d-af64-7d9a91068c3e",
