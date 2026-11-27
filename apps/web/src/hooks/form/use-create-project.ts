@@ -4,7 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { api, type NewProject } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import useNoticeStore from "@/stores/use-notice-store";
-import useWizardStore, { effectiveTestTypes, projectShape } from "@/stores/use-wizard-store";
+import useWizardStore, { effectiveArchitecture, effectiveTestTypes, projectShape } from "@/stores/use-wizard-store";
 
 const buildPayload = (): NewProject => {
   const s = useWizardStore.getState();
@@ -24,6 +24,7 @@ const buildPayload = (): NewProject => {
     parts,
     monorepoTool: monorepo ? (s.monorepoTool ?? recommendMonorepoTool(parts)) : null,
     testTypes: effectiveTestTypes(s),
+    architecture: effectiveArchitecture(s),
     replyLanguage: s.replyLanguage,
     scaffold: !!s.repo && s.scaffold,
     databases: s.databases,

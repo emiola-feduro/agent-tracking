@@ -1,7 +1,7 @@
-import { monorepoToolLabel, PROJECT_KIND_INFO, REPLY_LANGUAGE_INFO, recommendMonorepoTool, testTypeLabel } from "@agent-tracking/core";
+import { architectureOf, monorepoToolLabel, PROJECT_KIND_INFO, REPLY_LANGUAGE_INFO, recommendMonorepoTool, testTypeLabel } from "@agent-tracking/core";
 import type { ReactNode } from "react";
 import { platformList } from "@/lib/labels";
-import useWizardStore, { effectiveTestTypes, projectShape, WIZARD_STEPS, type StepId } from "@/stores/use-wizard-store";
+import useWizardStore, { architectureChoices, effectiveTestTypes, projectShape, WIZARD_STEPS, type StepId } from "@/stores/use-wizard-store";
 import NewProjectScaffold from "./new-project-scaffold";
 import NewProjectGithubFiles from "./new-project-github-files";
 import NewProjectGithubPublish from "./new-project-github-publish";
@@ -69,6 +69,13 @@ const NewProjectSummary = () => {
         <Row label="Bases de datos" step="stack">
           {databases.join(", ") || "Sin definir"}
         </Row>
+        {architectureChoices(s).length > 0 && (
+          <Row label="Arquitectura" step="stack">
+            {architectureChoices(s)
+              .map((c) => `${c.layer === "frontend" ? "Frontend" : "Backend"}: ${architectureOf(c.layer, c.chosen)?.label ?? "ninguna en particular"}`)
+              .join("; ")}
+          </Row>
+        )}
         <Row label="Tests" step="stack">
           {effectiveTestTypes(s).map(testTypeLabel).join(", ") || "Ninguno"}
         </Row>

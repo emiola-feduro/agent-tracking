@@ -55,6 +55,7 @@ export const projectFileSchema = z.object({
       .default([]),
     monorepoTool: z.string().nullable().default(null),
     testTypes: z.array(z.enum(["unit", "integration", "e2e", "component", "contract", "performance", "other"])).default([]),
+    architecture: z.object({ frontend: z.string().nullable().optional(), backend: z.string().nullable().optional() }).default({}),
     /** Files written before it existed get the default, like the projects already in the database. */
     replyLanguage: z.enum(REPLY_LANGUAGES).nullable().default(DEFAULT_REPLY_LANGUAGE),
   }),
@@ -216,6 +217,7 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
       parts: p.parts ?? [],
       monorepoTool: p.monorepoTool ?? null,
       testTypes: p.testTypes ?? [],
+      architecture: p.architecture ?? {},
       replyLanguage: p.replyLanguage === undefined ? DEFAULT_REPLY_LANGUAGE : p.replyLanguage,
     },
     rules: [...s.rules]

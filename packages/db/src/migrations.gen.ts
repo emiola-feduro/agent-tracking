@@ -12,6 +12,7 @@ import m9 from "../migrations/0009_jazzy_banshee.sql" with { type: "text" };
 import m10 from "../migrations/0010_safe_deathbird.sql" with { type: "text" };
 import m11 from "../migrations/0011_aberrant_the_twelve.sql" with { type: "text" };
 import m12 from "../migrations/0012_bent_the_fallen.sql" with { type: "text" };
+import m13 from "../migrations/0013_shocking_doctor_strange.sql" with { type: "text" };
 
 export const MIGRATIONS: { tag: string; sql: string }[] = [
   { tag: "0000_nosy_patch", sql: m0 },
@@ -27,4 +28,5 @@ export const MIGRATIONS: { tag: string; sql: string }[] = [
   { tag: "0010_safe_deathbird", sql: m10 },
   { tag: "0011_aberrant_the_twelve", sql: m11 },
   { tag: "0012_bent_the_fallen", sql: m12 },
+  { tag: "0013_shocking_doctor_strange", sql: m13 },
 ];

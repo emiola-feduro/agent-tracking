@@ -16,6 +16,7 @@ import {
   assignRequirementCodes,
   DEFAULT_REPLY_LANGUAGE,
   type ReplyLanguage,
+  type ProjectArchitecture,
 } from "@agent-tracking/core";
 import { schema as s, type Db } from "@agent-tracking/db";
 import { inspectRepo, writeNewFiles } from "@agent-tracking/git";
@@ -56,6 +57,7 @@ export type NewProjectInput = {
   monorepoTool?: string | null;
   testTypes?: TestType[];
   replyLanguage?: ReplyLanguage | null;
+  architecture?: ProjectArchitecture;
   /** Write the starting folders, READMEs and manifests (see scaffoldFiles); existing files stay. */
   scaffold?: boolean;
 };
@@ -103,6 +105,7 @@ export async function createProject(db: Db, emit: Emit, input: NewProjectInput, 
         monorepoTool: input.structure === "monorepo" ? (input.monorepoTool ?? null) : null,
         testTypes: input.testTypes ?? [],
         replyLanguage: input.replyLanguage === undefined ? DEFAULT_REPLY_LANGUAGE : input.replyLanguage,
+        architecture: input.architecture ?? {},
         ...audit,
       })
       .run();

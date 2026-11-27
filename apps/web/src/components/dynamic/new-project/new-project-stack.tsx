@@ -1,5 +1,6 @@
 import AssistantSetupNote from "@/components/dynamic/assistant/assistant-setup-note";
 import useStackDefaults from "@/hooks/form/use-stack-defaults";
+import NewProjectArchitecture from "./new-project-architecture";
 import NewProjectStackAssistant from "./new-project-stack-assistant";
 import NewProjectStackDatabases from "./new-project-stack-databases";
 import NewProjectStackError from "./new-project-stack-error";
@@ -27,6 +28,7 @@ const NewProjectStack = () => {
       {data ? <NewProjectStackRecommendation recommendation={data} onApply={apply} /> : <NewProjectStackSkeleton />}
       <NewProjectStackGroups />
       <NewProjectStackDatabases />
+      <NewProjectArchitecture />
       {monorepo && <NewProjectMonorepoTool />}
       <NewProjectTestTypes />
     </div>

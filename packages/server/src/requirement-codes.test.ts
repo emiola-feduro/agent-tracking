@@ -63,3 +63,20 @@ test("requirements written without a code get one, and an older process cannot w
   db.$client.run("INSERT INTO __migrations (tag, applied_at) VALUES ('9999_from_the_future', '2027-01-01')");
   expect(() => assertCurrentSchema(db)).toThrow("versión más nueva");
 });
+
+test("the architecture chosen in the wizard is stored, validated and reaches CONTEXT.md", async () => {
+  const db = openDb(":memory:");
+  const app = createApp(db, {});
+  const post = async (json: unknown) => {
+    const res = await app.request("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(json) });
+    return { status: res.status, data: (await res.json()) as any };
+  };
+  expect((await post({ name: "X", kind: "api", architecture: { backend: "inventada" } })).status).toBe(400);
+  const created = await post({ name: "Tienda", kind: "fullstack", platforms: ["web"], architecture: { frontend: "feature-based", backend: "hexagonal" } });
+  expect(created.data.project.architecture).toEqual({ frontend: "feature-based", backend: "hexagonal" });
+  const { buildContextMarkdown } = await import("@agent-tracking/core");
+  const { loadSnapshot } = await import("@agent-tracking/db");
+  const md = buildContextMarkdown((await loadSnapshot(db, created.data.project.id))!);
+  expect(md).toContain("## Arquitectura");
+  expect(md).toContain("Backend: Hexagonal (puertos y adaptadores)");
+});

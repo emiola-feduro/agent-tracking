@@ -12,6 +12,9 @@ import {
   toggleStackOption,
   type ProjectPart,
   type ProjectStructure,
+  architectureLayers,
+  recommendArchitecture,
+  type ArchitectureLayer,
   type ReplyLanguage,
   type TestType,
 } from "@agent-tracking/core";
@@ -94,6 +97,8 @@ type WizardData = {
   monorepoTool: string | null;
   /** null: the defaults for the kind of project. */
   testTypes: TestType[] | null;
+  /** Architecture per layer as the person chose it: an id, null for none, missing to follow the recommendation. */
+  architecture: Partial<Record<ArchitectureLayer, string | null>>;
   /** Write the starting folders and manifests into the repository. */
   scaffold: boolean;
   skills: Record<string, SelectedSkill>;
@@ -165,6 +170,7 @@ const initial = (): WizardData => ({
   activePart: null,
   monorepoTool: null,
   testTypes: null,
+  architecture: {},
   scaffold: false,
   skills: {},
   skillsPreselected: false,
@@ -347,6 +353,20 @@ export const projectShape = (s: WizardData) =>
 
 /** The tests agents must write: what the person chose, or the defaults for the kind of project. */
 export const effectiveTestTypes = (s: WizardData): TestType[] => s.testTypes ?? defaultTestTypes(projectShape(s).kind);
+
+/** The kinds of the project or of its pieces (a monorepo can have an interface and a server). */
+const shapeKinds = (s: WizardData) => (s.structure === "monorepo" && s.parts.length ? s.parts.map((p) => p.kind) : [s.kind]);
+
+/** The layers that apply and, for each, the recommended architecture and the one in effect. */
+export const architectureChoices = (s: WizardData) =>
+  architectureLayers(shapeKinds(s)).map((layer) => {
+    const recommended = recommendArchitecture(layer, { kinds: shapeKinds(s), stack: projectShape(s).stack, pieces: s.structure === "monorepo" ? s.parts.length : 1 });
+    const chosen = layer in s.architecture ? (s.architecture[layer] ?? null) : recommended.id;
+    return { layer, recommended, chosen };
+  });
+
+/** What the project is created with: the architecture of each layer that applies. */
+export const effectiveArchitecture = (s: WizardData) => Object.fromEntries(architectureChoices(s).map((c) => [c.layer, c.chosen]));
 
 /** What the assistant gets to know about the project being created. */
 export const wizardBrief = (state: WizardData): AssistantBrief => ({

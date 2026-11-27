@@ -1,3 +1,4 @@
+import { architectureMarkdown } from "./architecture";
 import { conventionsMarkdown } from "./conventions";
 import { partsMarkdown } from "./parts";
 import { replyLanguageRule } from "./reply-language";
@@ -130,6 +131,9 @@ function projectSections(s: ProjectSnapshot): string[] {
 
   const parts = p.parts ?? [];
   out.push(...partsMarkdown(p.structure ?? "single", parts, p.monorepoTool ?? null));
+
+  const architecture = architectureMarkdown(p.architecture);
+  if (architecture.length) out.push("## Arquitectura", "", "Sigue esta estructura al agregar código:", "", ...architecture, "");
 
   const tests = testPolicyMarkdown(p.testTypes);
   if (tests.length) out.push("## Tests", "", ...tests, "");

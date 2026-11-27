@@ -21,6 +21,8 @@ import {
   toPercent,
   type ProjectSnapshot,
   DEFAULT_REPLY_LANGUAGE,
+  BACKEND_ARCHITECTURES,
+  FRONTEND_ARCHITECTURES,
   nextRequirementCode,
   normalizeRequirementCode,
   REPLY_LANGUAGES,
@@ -146,6 +148,13 @@ const projectFields = z.object({
   parts: z.array(projectPart).max(30).default([]),
   monorepoTool: z.string().max(40).nullable().default(null),
   testTypes: z.array(z.enum(["unit", "integration", "e2e", "component", "contract", "performance", "other"])).default([]),
+  /** Architecture per layer: an id from FRONTEND_ARCHITECTURES / BACKEND_ARCHITECTURES, or null for none. */
+  architecture: z
+    .object({
+      frontend: z.string().nullable().optional().refine((v) => !v || FRONTEND_ARCHITECTURES.some((a) => a.id === v), "Arquitectura de frontend desconocida"),
+      backend: z.string().nullable().optional().refine((v) => !v || BACKEND_ARCHITECTURES.some((a) => a.id === v), "Arquitectura de backend desconocida"),
+    })
+    .default({}),
   /** Language agents use with the person; null for none. */
   replyLanguage: z.enum(REPLY_LANGUAGES).nullable().default(DEFAULT_REPLY_LANGUAGE),
 });

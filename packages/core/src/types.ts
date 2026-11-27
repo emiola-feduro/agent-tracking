@@ -35,6 +35,8 @@ export interface Project {
   monorepoTool?: string | null;
   /** Kinds of tests agents are expected to write; empty means none were set. */
   testTypes?: TestType[];
+  /** How the frontend and the backend are organized (see architecture.ts); missing layers have none. */
+  architecture?: import("./architecture").ProjectArchitecture;
   /** Language agents use with the person (answers, summaries, reports); null when not set. */
   replyLanguage?: import("./reply-language").ReplyLanguage | null;
   createdAt: string;

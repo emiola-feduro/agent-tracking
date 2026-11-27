@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `architecture` text DEFAULT '{}' NOT NULL;

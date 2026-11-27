@@ -218,6 +218,7 @@ export type NewProject = {
   monorepoTool: string | null;
   testTypes: TestType[];
   replyLanguage: ReplyLanguage | null;
+  architecture: Partial<Record<"frontend" | "backend", string | null>>;
   /** Write the starting folders and manifests into the repository. */
   scaffold: boolean;
 };
