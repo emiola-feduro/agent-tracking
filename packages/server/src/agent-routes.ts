@@ -6,9 +6,6 @@ import { HTTPException } from "hono/http-exception";
 import { join } from "node:path";
 import { isLocalOrigin } from "./origin";
 
-/** The stdio MCP bridge each agent launches: this Bun, this repository. */
-const MCP_COMMAND = [process.execPath, join(import.meta.dir, "..", "..", "mcp", "src", "stdio.ts")];
-
 const kindOf = (c: Context): AgentKind => {
   const kind = c.req.param("kind");
   if (!isAgentKind(kind)) throw new HTTPException(404, { message: "Agente desconocido" });
@@ -56,11 +53,11 @@ export function agentRoutes(db: Db) {
     return c.json(list);
   });
 
-  app.get("/agents/:kind/connect-plan", async (c) => c.json(await connectPlan(kindOf(c), { serverUrl: serverUrl(c), mcpCommand: MCP_COMMAND })));
+  app.get("/agents/:kind/connect-plan", async (c) => c.json(await connectPlan(kindOf(c), { serverUrl: serverUrl(c) })));
   app.post("/agents/:kind/connect", async (c) => {
     localOnly(c);
     const kind = kindOf(c);
-    const plan = await connectPlan(kind, { serverUrl: serverUrl(c), mcpCommand: MCP_COMMAND });
+    const plan = await connectPlan(kind, { serverUrl: serverUrl(c) });
     await sameAsShown(c, plan);
     const done = await applyChanges(plan).catch((e: Error) => {
       throw new HTTPException(409, { message: e.message });

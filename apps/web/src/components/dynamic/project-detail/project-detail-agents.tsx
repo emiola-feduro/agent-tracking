@@ -65,7 +65,8 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
         {agents.isError && <p className="text-sm text-danger">{(agents.error as Error).message}</p>}
         <ul className="grid gap-3 lg:grid-cols-3">
           {agents.data?.map((a) => {
-            const connected = a.mcp && a.hooks;
+            const connected = a.mcp && !a.mcpOutdated && a.hooks;
+            const outdated = a.mcpOutdated || a.hooksOutdated;
             return (
               <li key={a.kind} className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4">
                 <div className="flex items-start justify-between gap-2">
@@ -79,6 +80,11 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
                   <Check ok={a.mcp} label="MCP: lee el contexto y reporta" />
                   <Check ok={a.hooks} label="Hooks: en vivo, resumen y protección de main" />
                 </div>
+                {a.mcpOutdated && (
+                  <p className="text-xs text-warn">
+                    El MCP corre como proceso local: tras cada actualización se queda con el código viejo. Actualízalo para conectarlo por HTTP.
+                  </p>
+                )}
                 {a.hooksOutdated && (
                   <p className="text-xs text-warn">Los hooks son de una versión anterior y no protegen main ni recuerdan reportar: conéctalo de nuevo para actualizarlos.</p>
                 )}
@@ -90,7 +96,7 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
                 <div className="mt-auto flex gap-2">
                   {!connected && (
                     <Button size="sm" variant="primary" onClick={() => setDialog({ agent: a, action: "connect" })}>
-                      {a.hooksOutdated ? "Actualizar" : "Conectar"}
+                      {outdated ? "Actualizar" : "Conectar"}
                     </Button>
                   )}
                   {(a.mcp || a.hooks) && (

@@ -6,7 +6,7 @@ import { api, type AgentInfo, type ConfigChange } from "@/lib/api";
 import { compact, lineDiff } from "@/lib/line-diff";
 import { queryKeys } from "@/lib/query-keys";
 
-type Props = { agent: AgentInfo | null; action: "connect" | "disconnect"; onClose: () => void };
+type Props = { agent: AgentInfo | null; action: "connect" | "disconnect"; onClose: () => void; onApplied?: (agent: AgentInfo) => void };
 
 const ROW = { same: "", add: "bg-ok/12", del: "bg-danger/12 line-through decoration-danger/40", gap: "text-muted" } as const;
 const SIGN = { same: " ", add: "+", del: "-", gap: "" } as const;
@@ -16,7 +16,9 @@ const ChangeView = ({ change }: { change: ConfigChange }) => {
     return (
       <section className="flex flex-col gap-1.5">
         <p className="text-sm text-ink">{change.description}</p>
-        <p className="text-xs text-muted">Se ejecuta este comando:</p>
+        <p className="text-xs text-muted">
+          Se ejecuta este comando{change.cwd ? <> en <code className="font-mono">{change.cwd}</code></> : null}:
+        </p>
         <pre className="overflow-x-auto rounded-md bg-subtle p-3 font-mono text-[0.8125rem] text-ink">{change.argv.join(" ")}</pre>
       </section>
     );
@@ -46,7 +48,7 @@ const ChangeView = ({ change }: { change: ConfigChange }) => {
  * Shows exactly which files (and commands) connecting or disconnecting an agent touches, as a diff,
  * and applies that very plan only after the person confirms.
  */
-const AgentPlanDialog = ({ agent, action, onClose }: Props) => {
+const AgentPlanDialog = ({ agent, action, onClose, onApplied }: Props) => {
   const ref = useRef<HTMLDialogElement>(null);
   const queryClient = useQueryClient();
   const plan = useQuery({
@@ -60,6 +62,7 @@ const AgentPlanDialog = ({ agent, action, onClose }: Props) => {
     mutationFn: () => api.applyAgentPlan(agent!.kind, action, plan.data!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.agents });
+      if (agent) onApplied?.(agent);
       onClose();
     },
   });

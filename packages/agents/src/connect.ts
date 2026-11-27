@@ -13,13 +13,11 @@ import type { AgentKind } from "./types";
  */
 export type FileChange =
   | { type: "file"; path: string; description: string; before: string | null; after: string }
-  | { type: "command"; argv: string[]; description: string };
+  | { type: "command"; argv: string[]; description: string; cwd?: string };
 
 export type ConnectOptions = {
-  /** Agent Tracking server, e.g. http://127.0.0.1:4317 */
+  /** Agent Tracking server, e.g. http://127.0.0.1:4317; agents reach its MCP at /mcp over HTTP. */
   serverUrl: string;
-  /** Command that starts the stdio MCP bridge, e.g. ["bun", "/…/packages/mcp/src/stdio.ts"] */
-  mcpCommand: string[];
   /** Home folder; tests point it elsewhere (AGENT_TRACKING_HOME). */
   home?: string;
 };
@@ -28,6 +26,11 @@ export type AgentStatus = {
   kind: AgentKind;
   installed: boolean;
   mcp: boolean;
+  /**
+   * The MCP is registered as a local process (the stdio bridge of older versions): it keeps running
+   * the code it started with until the agent restarts it. Connecting again switches it to HTTP.
+   */
+  mcpOutdated: boolean;
   /** Our hooks are there, in their current form. */
   hooks: boolean;
   /** Our hooks are there but written by an older Agent Tracking: connecting again updates them. */
@@ -110,9 +113,18 @@ const paths = (kind: AgentKind, home: string) =>
 const BINARIES: Record<AgentKind, string> = { "claude-code": "claude", codex: "codex", "gemini-cli": "gemini" };
 
 const tomlHasMcp = (toml: string | null) => !!toml && new RegExp(`^\\[mcp_servers\\.(?:"${MCP_NAME}"|${MCP_NAME})\\]`, "m").test(toml);
+/** Our table in config.toml, up to the next table. */
+const tomlMcpTable = (toml: string | null) =>
+  toml ? (new RegExp(`^\\[mcp_servers\\.(?:"${MCP_NAME}"|${MCP_NAME})\\][\\s\\S]*?(?=^\\[|(?![\\s\\S]))`, "m").exec(toml)?.[0] ?? null) : null;
 const tomlString = (s: string) => JSON.stringify(s);
-const tomlMcpBlock = (cmd: string[], kind: AgentKind) =>
-  `\n# Agent Tracking (agregado desde Agent Tracking; bórralo para desconectar)\n[mcp_servers.${MCP_NAME}]\ncommand = ${tomlString(cmd[0]!)}\nargs = [${[...cmd.slice(1), "--agent", kind].map(tomlString).join(", ")}]\n`;
+const tomlMcpBlock = (url: string) =>
+  `\n# Agent Tracking (agregado desde Agent Tracking; bórralo para desconectar)\n[mcp_servers.${MCP_NAME}]\nurl = ${tomlString(url)}\n`;
+
+/** The MCP endpoint an agent connects to; `agent` names it even when its client name is generic. */
+export const mcpUrl = (serverUrl: string, kind: AgentKind) => `${serverUrl.replace(/\/$/, "")}/mcp?agent=${kind}`;
+
+/** A registered MCP entry that starts a local process instead of using the URL. */
+const isLocalProcess = (entry: unknown) => !!entry && typeof entry === "object" && "command" in entry;
 const tomlWithoutMcp = (toml: string) =>
   toml.replace(new RegExp(`\\n?# Agent Tracking \\(agregado[^\\n]*\\n\\[mcp_servers\\.${MCP_NAME}\\][\\s\\S]*?(?=\\n\\[|$)`), "").replace(/\n{3,}/g, "\n\n");
 
@@ -122,17 +134,31 @@ export async function agentStatus(kind: AgentKind, opts: { home?: string } = {})
   const installed = !!Bun.which(BINARIES[kind]) || existsSync(p.dir);
   const hooksConfig = readJson(await readText(p.hooks).catch(() => null));
   let mcp = false;
-  if (kind === "codex") mcp = tomlHasMcp(await readText(p.mcp));
-  else {
+  let mcpOutdated = false;
+  if (kind === "codex") {
+    const toml = await readText(p.mcp);
+    mcp = tomlHasMcp(toml);
+    mcpOutdated = /^\s*command\s*=/m.test(tomlMcpTable(toml) ?? "");
+  } else {
     const config = kind === "gemini-cli" ? hooksConfig : readJson(await readText(p.mcp).catch(() => null));
     // Claude Code also keeps MCP servers per project in ~/.claude.json; any of them counts.
-    const perProject = kind === "claude-code" ? Object.values((config.projects ?? {}) as Record<string, { mcpServers?: Record<string, unknown> }>) : [];
-    mcp = !!config.mcpServers?.[MCP_NAME] || perProject.some((proj) => !!proj?.mcpServers?.[MCP_NAME]);
+    const entries = [
+      config.mcpServers?.[MCP_NAME],
+      ...(kind === "claude-code" ? localClaudeEntries(config).map((e) => e.entry) : []),
+    ].filter(Boolean);
+    mcp = entries.length > 0;
+    mcpOutdated = entries.some(isLocalProcess);
   }
   const events = kind === "gemini-cli" ? GEMINI_EVENTS : kind === "codex" ? CODEX_EVENTS : CLAUDE_EVENTS;
   const hooks = hasHooks(hooksConfig, events);
-  return { kind, installed, mcp, hooks, hooksOutdated: !hooks && hasHooks(hooksConfig, events, isOurs), configPath: p.hooks };
+  return { kind, installed, mcp, mcpOutdated, hooks, hooksOutdated: !hooks && hasHooks(hooksConfig, events, isOurs), configPath: p.hooks };
 }
+
+/** Agent Tracking entries Claude Code keeps per project folder in ~/.claude.json (local scope). */
+const localClaudeEntries = (config: Record<string, any>) =>
+  Object.entries((config.projects ?? {}) as Record<string, { mcpServers?: Record<string, unknown> }>)
+    .filter(([, proj]) => !!proj?.mcpServers?.[MCP_NAME])
+    .map(([dir, proj]) => ({ dir, entry: proj.mcpServers![MCP_NAME] }));
 
 /** What connecting `kind` would change. Nothing is written here. */
 export async function connectPlan(kind: AgentKind, opts: ConnectOptions): Promise<FileChange[]> {
@@ -148,19 +174,33 @@ export async function connectPlan(kind: AgentKind, opts: ConnectOptions): Promis
       const after = json(withHooks(readJson(before), CLAUDE_EVENTS, { type: "command", command: hook, timeout: 5 }));
       changes.push({ type: "file", path: p.hooks, description: "Hooks de Claude Code para ver en vivo lo que hace y resumir cada trabajo", before, after });
     }
-    if (!status.mcp) {
+    if (!status.mcp || status.mcpOutdated) {
+      const config = readJson(await readText(p.mcp));
+      // The old local-process registrations go first: a project's own entry would win over the new one.
+      for (const { dir, entry } of localClaudeEntries(config)) {
+        if (isLocalProcess(entry)) {
+          changes.push({ type: "command", cwd: dir, argv: ["claude", "mcp", "remove", "--scope", "local", MCP_NAME], description: `Quita la conexión vieja (proceso local) del proyecto ${dir}` });
+        }
+      }
+      if (config.mcpServers?.[MCP_NAME]) {
+        changes.push({ type: "command", argv: ["claude", "mcp", "remove", "--scope", "user", MCP_NAME], description: "Quita la conexión vieja del MCP (proceso local)" });
+      }
       changes.push({
         type: "command",
-        argv: ["claude", "mcp", "add", "--scope", "user", MCP_NAME, "--", ...opts.mcpCommand, "--agent", "claude-code"],
-        description: "Registra el servidor MCP de Agent Tracking en Claude Code (para todos tus proyectos)",
+        argv: ["claude", "mcp", "add", "--transport", "http", "--scope", "user", MCP_NAME, mcpUrl(opts.serverUrl, kind)],
+        description: "Registra el MCP de Agent Tracking por HTTP en Claude Code, para todos tus proyectos. No depende de Bun ni se queda con código viejo",
       });
     }
   }
 
   if (kind === "codex") {
-    if (!status.mcp) {
+    if (!status.mcp || status.mcpOutdated) {
       const before = await readText(p.mcp);
-      changes.push({ type: "file", path: p.mcp, description: "Servidor MCP de Agent Tracking en Codex", before, after: `${(before ?? "").trimEnd()}\n${tomlMcpBlock(opts.mcpCommand, "codex")}`.trimStart() });
+      const table = tomlMcpTable(before);
+      // Replaces our table (and its comment line) when it is there; appends it otherwise.
+      const base = table ? before!.replace(new RegExp(`(# Agent Tracking \\(agregado[^\\n]*\\n)?${table.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`), "") : (before ?? "");
+      const after = `${base.trimEnd()}\n${tomlMcpBlock(mcpUrl(opts.serverUrl, kind))}`.trimStart();
+      changes.push({ type: "file", path: p.mcp, description: "Servidor MCP de Agent Tracking en Codex, por HTTP", before, after });
     }
     if (!status.hooks) {
       const before = await readText(p.hooks);
@@ -175,12 +215,11 @@ export async function connectPlan(kind: AgentKind, opts: ConnectOptions): Promis
     }
   }
 
-  if (kind === "gemini-cli" && (!status.mcp || !status.hooks)) {
+  if (kind === "gemini-cli" && (!status.mcp || status.mcpOutdated || !status.hooks)) {
     const before = await readText(p.hooks);
     let config = readJson(before);
-    if (!status.mcp) {
-      const [command, ...args] = opts.mcpCommand;
-      config = { ...config, mcpServers: { ...(config.mcpServers ?? {}), [MCP_NAME]: { command, args: [...args, "--agent", "gemini-cli"] } } };
+    if (!status.mcp || status.mcpOutdated) {
+      config = { ...config, mcpServers: { ...(config.mcpServers ?? {}), [MCP_NAME]: { httpUrl: mcpUrl(opts.serverUrl, kind) } } };
     }
     if (!status.hooks) config = withHooks(config, GEMINI_EVENTS, { name: MCP_NAME, type: "command", command: hook, timeout: 5000 }, "*");
     changes.push({ type: "file", path: p.hooks, description: "Servidor MCP y hooks de Gemini CLI", before, after: json(config) });
@@ -214,11 +253,11 @@ export async function disconnectPlan(kind: AgentKind, opts: { home?: string } = 
 }
 
 /** Writes the planned changes, keeping a .bak of every file it replaces. */
-export async function applyChanges(changes: FileChange[], run: (argv: string[]) => Promise<{ ok: boolean; stderr: string }> = defaultRun) {
+export async function applyChanges(changes: FileChange[], run: (argv: string[], cwd?: string) => Promise<{ ok: boolean; stderr: string }> = defaultRun) {
   const done: string[] = [];
   for (const change of changes) {
     if (change.type === "command") {
-      const res = await run(change.argv);
+      const res = await run(change.argv, change.cwd);
       if (!res.ok) throw new Error(`${change.argv.slice(0, 3).join(" ")} falló: ${res.stderr.split("\n").filter(Boolean).at(-1) ?? "sin detalle"}`);
       done.push(change.argv.join(" "));
       continue;
@@ -233,9 +272,9 @@ export async function applyChanges(changes: FileChange[], run: (argv: string[]) 
   return done;
 }
 
-async function defaultRun(argv: string[]) {
+async function defaultRun(argv: string[], cwd?: string) {
   try {
-    const proc = Bun.spawn(argv, { stdout: "pipe", stderr: "pipe", stdin: "ignore" });
+    const proc = Bun.spawn(argv, { cwd, stdout: "pipe", stderr: "pipe", stdin: "ignore" });
     const [stderr, code] = await Promise.all([new Response(proc.stderr).text(), proc.exited]);
     return { ok: code === 0, stderr };
   } catch (e) {

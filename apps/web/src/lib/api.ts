@@ -82,6 +82,8 @@ export type AgentInfo = {
   label: string;
   installed: boolean;
   mcp: boolean;
+  /** The MCP runs as a local process that keeps old code after an update; connecting again moves it to HTTP. */
+  mcpOutdated: boolean;
   hooks: boolean;
   /** Hooks written by an older Agent Tracking: connecting again updates them. */
   hooksOutdated: boolean;
@@ -91,7 +93,7 @@ export type AgentInfo = {
 };
 export type ConfigChange =
   | { type: "file"; path: string; description: string; before: string | null; after: string }
-  | { type: "command"; argv: string[]; description: string };
+  | { type: "command"; argv: string[]; description: string; cwd?: string };
 export type GithubPublish = { owner: string; name: string; visibility: "private" | "public"; description?: string };
 /** Whether a project skill is on this machine and how to get it if not. */
 export type SkillAvailability = { skillId: string; installed: boolean; install: "shared" | "plugin" | null; commands: string[] | null };

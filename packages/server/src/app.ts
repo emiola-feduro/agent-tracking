@@ -211,6 +211,8 @@ export interface AppOptions {
   assistantProviders?: AssistantConfig[];
   /** What agents are doing right now, fed by Claude Code hooks (see live-activity.ts). */
   live?: LiveActivity;
+  /** Each hook event reports the folder its agent works in (the MCP over HTTP uses it to find the project). */
+  onAgentDir?: (agent: string, dir: string) => void;
 }
 
 /** app_settings key of the assistant's model per task and provider. */
@@ -850,6 +852,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
       const reason = gitGuard(command, await branchContext(payload.cwd));
       if (reason) return c.json(adapter.denyTool(`Agent Tracking: ${reason}`) as object);
     }
+    opts.onAgentDir?.(payload.agent, payload.cwd);
     turns.rememberPrompt(payload);
     // The project comes from the working directory, or from what the tool touches when the agent
     // works from a folder outside the repository.

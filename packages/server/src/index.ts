@@ -42,7 +42,10 @@ onRepoImport((projectId) => {
 // Claude first (API key, then the local Claude Code login), then OpenAI, Gemini, Codex CLI and Gemini CLI (see README).
 const { available: assistantProviders, active: assistant } = await resolveAssistantProviders();
 // Background GitHub polling for projects open in the UI (GITHUB_POLL_MS=0 disables it).
+/** Where each kind of agent last worked, from its hooks; recent enough to trust for 30 minutes. */
+const agentDirs = new Map<string, { dir: string; at: number }>();
 const app = createApp(db, {
+  onAgentDir: (agent, dir) => void agentDirs.set(agent, { dir, at: Date.now() }),
   tracker,
   syncRepo,
   assistant,
@@ -50,7 +53,13 @@ const app = createApp(db, {
   github: { watcher: { intervalMs: Number(process.env.GITHUB_POLL_MS ?? 60_000) } },
 });
 /** MCP for agents (Streamable HTTP). stdio agents reach it through packages/mcp/src/stdio.ts. */
-const mcp = createMcpHttpHandler(tracker, { syncRepo });
+const mcp = createMcpHttpHandler(tracker, {
+  syncRepo,
+  lastAgentDir: (agent) => {
+    const seen = agentDirs.get(agent);
+    return seen && Date.now() - seen.at < 30 * 60_000 ? seen.dir : null;
+  },
+});
 
 /** SPA compilada (apps/web/build). En desktop la sirve Tauri; en web, este mismo proceso. */
 const webRoot = process.env.AGENT_TRACKING_WEB ?? join(import.meta.dir, "..", "..", "..", "apps", "web", "build");

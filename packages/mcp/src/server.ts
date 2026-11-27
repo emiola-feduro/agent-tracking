@@ -22,6 +22,7 @@ import { agentForClient } from "@agent-tracking/agents";
 import { inspectRepo } from "@agent-tracking/git";
 import { createAgentTurns, createProject, saveAttachment, TrackingError, type Tracker } from "@agent-tracking/tracking";
 import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { isAbsolute, join, relative, resolve as resolvePath } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
@@ -47,6 +48,11 @@ export type McpDeps = {
   syncRepo?: (projectId: string, scope: "changes" | "all") => Promise<unknown>;
   /** Runs before every tool; throwing stops it with that message (e.g. a database newer than this code). */
   beforeTool?: () => void;
+  /**
+   * The folder an agent of this kind last worked in, as its hooks reported it. Agents connected over
+   * HTTP have no working folder of their own here; this is their fallback when they declare no roots.
+   */
+  lastAgentDir?: (agent: string) => string | null;
 };
 
 const TEST_TYPES = ["unit", "integration", "e2e", "component", "contract", "performance", "other"] as const;
@@ -100,15 +106,36 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     const name = server.server.getClientVersion()?.name ?? "";
     return agentForClient(name) ?? (name || "mcp");
   };
+  /**
+   * Where the agent works, when it does not pass `project`: the folder the session was opened for
+   * (stdio bridge), else the roots the agent declares (MCP roots), else where its hooks last saw it.
+   */
+  let hinted: Promise<string | undefined> | undefined;
+  const projectHint = () =>
+    (hinted ??= (async () => {
+      if (session.project) return session.project;
+      if (server.server.getClientCapabilities()?.roots) {
+        const roots = await server.server.listRoots(undefined, { timeout: 3000 }).catch(() => null);
+        const dir = roots?.roots.map((r) => (r.uri.startsWith("file://") ? fileURLToPath(r.uri) : null)).find(Boolean);
+        if (dir) return dir;
+      }
+      return deps.lastAgentDir?.(agentKind()) ?? undefined;
+    })().then((v) => {
+      // Asked again next time when nothing was found (the hooks may report a folder later).
+      if (!v) hinted = undefined;
+      return v;
+    }));
+
   /** The checkout the agent works in: its own folder when the session names one, else the project's repo. */
   const checkoutOf = async (projectId: string) => {
-    const hint = session.project && isAbsolute(session.project) ? session.project : null;
+    const where = await projectHint();
+    const hint = where && isAbsolute(where) ? where : null;
     const fromHint = hint ? (await inspectRepo(hint).catch(() => null))?.root : null;
     return fromHint ?? (await tracker.snapshot(projectId)).project.repoPath ?? "";
   };
 
   const resolve = async (ref: string | undefined) => {
-    const value = ref ?? session.project;
+    const value = ref ?? (await projectHint());
     if (!value) throw new TrackingError("No sé de qué proyecto se trata: pasa `project` con su id o la ruta de su repositorio");
     const id = await tracker.resolveProject(value);
     if (!id) throw new TrackingError(`No hay ningún proyecto de Agent Tracking para "${value}"`, 404);

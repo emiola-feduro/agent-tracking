@@ -1,5 +1,6 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
+import AgentConnectionBanner from "@/components/dynamic/agents/agent-connection-banner";
 import AppearanceDialog from "@/components/dynamic/appearance/appearance-dialog";
 import ProjectSwitcher from "@/components/dynamic/project-switcher/project-switcher";
 import useLiveEvents from "@/hooks/data/use-live-events";
@@ -37,6 +38,7 @@ const AppShell = () => {
           </button>
         </div>
       </header>
+      <AgentConnectionBanner />
       <main className="mx-auto max-w-6xl px-4 pt-8 pb-24">
         <Outlet />
       </main>
