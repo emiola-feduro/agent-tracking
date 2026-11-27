@@ -298,7 +298,10 @@ export const api = {
   getProject: (id: string) => request<ProjectView>("GET", p(id)),
   createProject: (data: NewProject) => request<ProjectView>("POST", "/projects", data),
   deleteProject: (id: string) => request<void>("DELETE", p(id)),
-  updateProject: (id: string, data: { commitConventions?: CommitConventions | null; agents?: AgentKind[]; replyLanguage?: ReplyLanguage | null }) => request<ProjectView>("PATCH", p(id), data),
+  updateProject: (
+    id: string,
+    data: { commitConventions?: CommitConventions | null; agents?: AgentKind[]; replyLanguage?: ReplyLanguage | null; architecture?: Partial<Record<"frontend" | "backend", string | null>> },
+  ) => request<ProjectView>("PATCH", p(id), data),
   agents: () => request<AgentInfo[]>("GET", "/agents"),
   agentPlan: (kind: AgentKind, action: "connect" | "disconnect") => request<ConfigChange[]>("GET", `/agents/${kind}/${action}-plan`),
   applyAgentPlan: (kind: AgentKind, action: "connect" | "disconnect", plan: ConfigChange[]) =>

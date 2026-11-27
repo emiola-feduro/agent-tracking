@@ -79,4 +79,13 @@ test("the architecture chosen in the wizard is stored, validated and reaches CON
   const md = buildContextMarkdown((await loadSnapshot(db, created.data.project.id))!);
   expect(md).toContain("## Arquitectura");
   expect(md).toContain("Backend: Hexagonal (puertos y adaptadores)");
+
+  // Changed later from the project page.
+  const id = created.data.project.id;
+  const patch = async (json: unknown) => (await app.request(`/api/projects/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(json) })).status;
+  expect(await patch({ architecture: { frontend: "atomic-design", backend: null } })).toBe(200);
+  const after = buildContextMarkdown((await loadSnapshot(db, id))!);
+  expect(after).toContain("Frontend: Atomic Design");
+  expect(after).not.toContain("Backend:");
+  expect(await patch({ architecture: { frontend: "no-existe" } })).toBe(400);
 });

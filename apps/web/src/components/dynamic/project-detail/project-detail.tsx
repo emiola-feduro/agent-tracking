@@ -11,6 +11,7 @@ import ProjectDetailCheckoutMenu from "./project-detail-checkout-menu";
 import ProjectDetailWorktreeBanner from "./project-detail-worktree-banner";
 import ProjectDetailContext from "./project-detail-context";
 import ProjectDetailConventions from "./project-detail-conventions";
+import ProjectDetailArchitecture from "./project-detail-architecture";
 import ProjectDetailIntegrate from "./project-detail-integrate";
 import ProjectDetailLastTurn from "./project-detail-last-turn";
 import ProjectDetailLive from "./project-detail-live";
@@ -127,6 +128,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
           {current === "rules" && (
             <>
               <ProjectDetailRules view={view} />
+              <ProjectDetailArchitecture view={view} />
               <ProjectDetailConventions view={view} />
             </>
           )}
