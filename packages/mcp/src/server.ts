@@ -584,7 +584,8 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       description:
         "Llámalo una vez al terminar. Registra los features con su estado, sus archivos (propósito y símbolos relevantes), " +
         "sus tests y los criterios del DoD cumplidos. Un feature con el mismo nombre en el mismo requerimiento se actualiza. " +
-        "Devuelve los archivos cambiados que siguen sin reportar.",
+        "Rechaza el reporte entero, sin guardar nada, si una ruta queda fuera del repositorio o un id del DoD no existe. " +
+        "Devuelve los archivos cambiados que siguen sin reportar y, en `warnings`, los archivos reportados que no existen o no cambiaron.",
       inputSchema: {
         summary: z.string().optional().describe("Qué hiciste, en dos o tres frases"),
         features: z
@@ -641,13 +642,14 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     },
     async (projectId, actor, args) => {
       await refreshRepo(projectId);
-      const result = await tracker.submitReport(projectId, actor, args);
+      const checkout = await checkoutOf(projectId);
+      const result = await tracker.submitReport(projectId, actor, args, { checkout: checkout || null });
       const summary = args.summary?.trim() || `Reportó: ${args.features.map((f) => f.name).join(", ")}.`;
-      const closed = await turns.finishFromMcp(projectId, { sessionId: mcpSession, summary, cwd: await checkoutOf(projectId) }).catch(() => false);
+      const closed = await turns.finishFromMcp(projectId, { sessionId: mcpSession, summary, cwd: checkout }).catch(() => false);
       if (closed) tracker.emit({ type: "changed", projectId, entity: "turn" });
       return {
         result,
-        event: { summary: args.summary ?? "", ...result.counts, features: result.features.map((f) => f.name), pending: result.pending.length },
+        event: { summary: args.summary ?? "", ...result.counts, features: result.features.map((f) => f.name), pending: result.pending.length, warnings: result.warnings.length },
       };
     },
   );

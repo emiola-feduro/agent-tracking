@@ -1,8 +1,9 @@
 import type { SymbolKind, TestIdeaStatus, TestResult, TestType } from "@agent-tracking/core";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
-import { inspectRepo, mainWorktreeOf } from "@agent-tracking/git";
+import { inspectRepo, mainWorktreeOf, workingTreeChanges } from "@agent-tracking/git";
 import { and, desc, eq, lt, or, sql } from "drizzle-orm";
-import { isAbsolute, relative, resolve, sep } from "node:path";
+import { stat } from "node:fs/promises";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { writeRepoFiles } from "./repo-sync";
 
 export type AppEvent = { type: string; projectId: string; entity?: string; id?: string };
@@ -464,19 +465,61 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
     },
 
     /**
+     * Warnings for reported files that do not exist or show no change: not pending, not in the working
+     * tree's uncommitted changes and not modified since they (or, if never reported, the project) were
+     * last reported. Files whose change cannot be told (no repo, no earlier report) are not flagged.
+     */
+    async unchangedFiles(projectId: string, paths: string[], root: string | null): Promise<string[]> {
+      if (!root || paths.length === 0) return [];
+      const pending = new Set((await this.pendingChanges(projectId)).map((p) => p.path));
+      const dirty = new Set(
+        (await workingTreeChanges(root).catch(() => [])).flatMap((c) => (c.oldPath ? [c.path, c.oldPath] : [c.path])),
+      );
+      const rows = await db
+        .select({ path: s.fileArtifacts.path, reportedAt: s.fileArtifacts.reportedAt })
+        .from(s.fileArtifacts)
+        .where(eq(s.fileArtifacts.projectId, projectId));
+      const reportedAt = new Map(rows.map((r) => [r.path, r.reportedAt]));
+      const lastReport = rows.reduce<string | null>((max, r) => (r.reportedAt && (!max || r.reportedAt > max) ? r.reportedAt : max), null);
+      const warnings: string[] = [];
+      for (const path of paths) {
+        if (pending.has(path) || dirty.has(path)) continue;
+        const info = await stat(join(root, path)).catch(() => null);
+        if (!info) {
+          warnings.push(`${path}: no existe en el repositorio`);
+          continue;
+        }
+        const since = reportedAt.get(path) ?? lastReport;
+        if (since && info.mtime.toISOString() <= since) warnings.push(`${path}: no cambió desde el último reporte`);
+      }
+      return warnings;
+    },
+
+    /**
      * Applies an agent's final report: features with their status, files with purpose and symbols,
      * tests, Definition of Done items and test ideas. Everything is validated before anything is
      * written, and the repo files and live clients are updated once at the end.
      */
-    async submitReport(projectId: string, actor: string, report: WorkReport) {
+    async submitReport(projectId: string, actor: string, report: WorkReport, opts: { checkout?: string | null } = {}) {
       const project = await projectOr404(projectId);
       if (report.features.length === 0 && !report.dod?.length) throw new TrackingError("El reporte está vacío");
+      // Validate everything first and reject once with every problem, so the agent can fix them in one go.
+      const problems: string[] = [];
+      const check = async (fn: () => unknown) => {
+        try {
+          await fn();
+        } catch (e) {
+          if (!(e instanceof TrackingError)) throw e;
+          problems.push(e.message);
+        }
+      };
+      const reportedFiles = new Set<string>();
       for (const f of report.features) {
-        await resolveRequirement(projectId, f.requirementId);
-        if (f.featureId) await featureIn(projectId, f.featureId);
-        if (!f.featureId && !f.name.trim()) throw new TrackingError("Cada feature necesita un nombre");
-        for (const file of f.files ?? []) repoRelative(project.repoPath, file.path);
-        for (const t of f.tests ?? []) repoRelative(project.repoPath, t.path);
+        await check(() => resolveRequirement(projectId, f.requirementId));
+        if (f.featureId) await check(() => featureIn(projectId, f.featureId!));
+        if (!f.featureId && !f.name.trim()) problems.push("Cada feature necesita un nombre");
+        for (const file of f.files ?? []) await check(() => reportedFiles.add(repoRelative(project.repoPath, file.path)));
+        for (const t of f.tests ?? []) await check(() => repoRelative(project.repoPath, t.path));
       }
       for (const d of report.dod ?? []) {
         const [row] = await db
@@ -485,8 +528,13 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
           .innerJoin(s.requirements, eq(s.dodItems.requirementId, s.requirements.id))
           .where(and(eq(s.dodItems.id, d.id), eq(s.requirements.projectId, projectId)))
           .limit(1);
-        if (!row) throw new TrackingError(`Criterio no encontrado: ${d.id}`, 404);
+        if (!row) problems.push(`Criterio del DoD no encontrado: ${d.id} (pide los ids con get_requirement)`);
       }
+      if (problems.length > 0) {
+        throw new TrackingError(`El reporte no se guardó: ${[...new Set(problems)].join("; ")}`);
+      }
+      // Measured before writing: reporting a file marks it as reported.
+      const warnings = await this.unchangedFiles(projectId, [...reportedFiles], opts.checkout ?? project.repoPath);
 
       batching++;
       const counts = { features: 0, files: 0, symbols: 0, tests: 0, dod: 0, testIdeas: 0 };
@@ -529,7 +577,7 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
       }
       await touch(projectId, "report");
       const pending = await this.pendingChanges(projectId);
-      return { features, counts, pending: pending.map((p) => p.path) };
+      return { features, counts, pending: pending.map((p) => p.path), warnings };
     },
 
     snapshot: async (projectId: string) => {
