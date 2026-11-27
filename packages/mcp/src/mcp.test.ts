@@ -81,6 +81,8 @@ describe("MCP tools over an SDK client", () => {
         "list_requirements",
         "mark_dod_item",
         "pending_changes",
+        "remove_feature",
+        "remove_test",
         "report_file",
         "report_screen",
         "report_symbol",
@@ -236,6 +238,39 @@ describe("MCP tools over an SDK client", () => {
     ]);
     expect(data.dod[0]).toMatchObject({ status: "done", evidence: "src/checkout/pay.test.ts" });
     expect(data.testIdeas).toHaveLength(1);
+  });
+
+  test("remove_test and remove_feature undo what was reported by mistake", async () => {
+    // A test and a feature reported by mistake, next to the real ones.
+    const wrong = await call(client, "start_feature", { requirementId: REQ, name: "Feature equivocado" });
+    const wrongId = wrong.data.featureId;
+    await call(client, "report_file", { path: "src/checkout/pay.ts", featureIds: [wrongId] });
+    await call(client, "report_test", { path: "src/checkout/wrong.test.ts", name: "por error", featureId: wrongId });
+    const byId = await call(client, "report_test", { path: "src/checkout/other.test.ts", name: "tampoco" });
+
+    // By path and name, as the agent reported it (absolute paths are normalized too).
+    const byPath = await call(client, "remove_test", { path: join(repo, "src/checkout/other.test.ts"), name: "tampoco" });
+    expect(byPath.data.removed).toEqual({ testId: byId.data.testId, path: "src/checkout/other.test.ts", name: "tampoco" });
+    const again = await call(client, "remove_test", { testId: byId.data.testId });
+    expect(again.isError).toBe(true);
+    expect(again.data).toContain("Test no encontrado");
+    expect((await call(client, "remove_test", {})).isError).toBe(true);
+
+    // The feature goes with its file links; its test stays without a feature and is listed.
+    const removed = await call(client, "remove_feature", { featureId: wrongId });
+    expect(removed.data.removed).toEqual({ featureId: wrongId, name: "Feature equivocado" });
+    expect(removed.data.testsWithoutFeature).toEqual([expect.objectContaining({ path: "src/checkout/wrong.test.ts", name: "por error" })]);
+    let snap = (await loadSnapshot(db, PROJECT))!;
+    expect(snap.features.map((f) => f.id)).not.toContain(wrongId);
+    expect(snap.featureFiles.some((l) => l.featureId === wrongId)).toBe(false);
+    expect(snap.featureFiles.some((l) => l.featureId === featureId)).toBe(true);
+    expect(snap.tests.find((t) => t.name === "por error")!.featureId).toBeNull();
+    expect((await call(client, "remove_feature", { featureId: wrongId })).isError).toBe(true);
+
+    await call(client, "remove_test", { testId: removed.data.testsWithoutFeature[0].id });
+    snap = (await loadSnapshot(db, PROJECT))!;
+    expect(snap.tests.map((t) => t.name)).toEqual(["cobra"]);
+    expect(await readFile(join(repo, ".agent-tracking", "CONTEXT.md"), "utf8")).not.toContain("Feature equivocado");
   });
 
   test("every call is logged, emitted live and written to the repo", async () => {

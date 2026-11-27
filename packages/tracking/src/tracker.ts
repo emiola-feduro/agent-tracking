@@ -344,6 +344,32 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
       await touch(projectId, "test", testId);
     },
 
+    /** A test by the path and name it was reported with, as an agent remembers it. */
+    async findTest(projectId: string, input: { path: string; name: string }) {
+      const project = await projectOr404(projectId);
+      const path = repoRelative(project.repoPath, input.path);
+      const test = await db.query.tests.findFirst({
+        where: and(eq(s.tests.projectId, projectId), eq(s.tests.path, path), eq(s.tests.name, input.name)),
+      });
+      if (!test) throw new TrackingError(`Test no encontrado: ${path} › ${input.name}`, 404);
+      return test;
+    },
+
+    /**
+     * Takes a feature reported by mistake out of its requirement. Its links to files go with it; its
+     * tests, test ideas and screens stay in the project without a feature (returned so they can be removed too).
+     */
+    async deleteFeature(projectId: string, featureId: string) {
+      const feature = await featureIn(projectId, featureId);
+      const tests = await db
+        .select({ id: s.tests.id, path: s.tests.path, name: s.tests.name })
+        .from(s.tests)
+        .where(and(eq(s.tests.projectId, projectId), eq(s.tests.featureId, featureId)));
+      await db.delete(s.features).where(eq(s.features.id, featureId));
+      await touch(projectId, "feature", featureId);
+      return { feature, tests };
+    },
+
     /** Updates a Definition of Done item. Used by the UI checkboxes and by agents with evidence. */
     async updateDod(
       projectId: string,

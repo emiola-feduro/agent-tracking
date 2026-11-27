@@ -41,6 +41,7 @@ export const SERVER_INSTRUCTIONS = [
   "pending_changes lista los archivos cambiados que aún no cubre ningún reporte: inclúyelos.",
   "Si retomas el trabajo de otra sesión, get_handoff dice qué hizo el último turno, qué criterios del DoD siguen pendientes y qué falta por reportar.",
   "Las herramientas report_* y start_feature/complete_feature siguen disponibles para reportes parciales.",
+  "Si reportaste un test o un feature por error, deshazlo con remove_test o remove_feature.",
   "Para crear un proyecto a partir de un plan usa get_plan_format y luego create_project; si create_project devuelve preguntas, házselas al usuario y vuelve a llamarla con sus respuestas.",
   "Si el proyecto tiene interfaz y creaste o cambiaste una vista, guarda una captura en el repositorio y repórtala con report_screen para la galería.",
 ].join(" ");
@@ -150,7 +151,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
    */
   const register = <S extends z.ZodRawShape>(
     name: string,
-    config: { title: string; description: string; inputSchema: S; annotations?: { readOnlyHint?: boolean; openWorldHint?: boolean } },
+    config: { title: string; description: string; inputSchema: S; annotations?: { readOnlyHint?: boolean; destructiveHint?: boolean; openWorldHint?: boolean } },
     handler: (
       projectId: string,
       actor: string,
@@ -387,6 +388,52 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       return {
         result: { testId: test.id, lastResult: test.lastResult },
         event: { testId: test.id, name: test.name, path: test.path, type: test.type, result: test.lastResult },
+      };
+    },
+  );
+
+  register(
+    "remove_test",
+    {
+      title: "Quitar un test",
+      description:
+        "Deshace un test reportado por error: lo quita del proyecto. Indica su testId, o la ruta y el nombre con que lo reportaste.",
+      inputSchema: {
+        testId: z.string().optional(),
+        path: z.string().optional().describe("Ruta del test, con name, si no tienes su id"),
+        name: z.string().optional(),
+      },
+      annotations: { destructiveHint: true, openWorldHint: false },
+    },
+    async (projectId, _actor, { testId, path, name }) => {
+      if (!testId && !(path && name)) throw new TrackingError("Indica testId, o path y name del test");
+      const test = testId
+        ? (await tracker.snapshot(projectId)).tests.find((t) => t.id === testId)
+        : await tracker.findTest(projectId, { path: path!, name: name! });
+      if (!test) throw new TrackingError(`Test no encontrado: ${testId}`, 404);
+      await tracker.deleteTest(projectId, test.id);
+      return {
+        result: { removed: { testId: test.id, path: test.path, name: test.name } },
+        event: { testId: test.id, path: test.path, name: test.name },
+      };
+    },
+  );
+
+  register(
+    "remove_feature",
+    {
+      title: "Quitar un feature",
+      description:
+        "Deshace un feature reportado por error: lo quita de su requerimiento junto con sus enlaces a archivos. " +
+        "Sus tests quedan en el proyecto sin feature y se devuelven; quítalos con remove_test si también sobran.",
+      inputSchema: { featureId: z.string() },
+      annotations: { destructiveHint: true, openWorldHint: false },
+    },
+    async (projectId, _actor, { featureId }) => {
+      const { feature, tests } = await tracker.deleteFeature(projectId, featureId);
+      return {
+        result: { removed: { featureId: feature.id, name: feature.name }, testsWithoutFeature: tests },
+        event: { featureId: feature.id, name: feature.name, requirementId: feature.requirementId },
       };
     },
   );
