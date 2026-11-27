@@ -58,6 +58,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T20:20:36.423Z"
+    },
+    {
+      "id": "5f20518a-4f44-43dd-816d-b0e80e7d870e",
+      "name": "Commits y conflictos desde la app",
+      "description": "Hacer commit de archivos elegidos y resolver conflictos con main archivo por archivo o con un agente",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T21:09:16.490Z"
     }
   ]
 }

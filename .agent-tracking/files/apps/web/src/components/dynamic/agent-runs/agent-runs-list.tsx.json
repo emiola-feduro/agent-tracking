@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx",
-  "purpose": "Integrar y subir en cada trabajo terminado con commits pendientes",
+  "purpose": "Usa las acciones del resultado de integrar",
   "createdBy": "agent:claude-code",
   "featureIds": [
     "57265620-f44f-45c5-bf18-a3d6cf432511",
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e",
     "c7404e54-2b90-49e6-89c9-401c3089661e",
     "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],

@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/git-actions/commit-dialog.tsx",
+  "purpose": "Hacer commit eligiendo archivos y mensaje",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e"
+  ],
+  "symbols": [
+    {
+      "name": "CommitDialog",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}
