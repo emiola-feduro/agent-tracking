@@ -1,0 +1,12 @@
+{
+  "path": "packages/git/src/integrate.test.ts",
+  "tests": [
+    {
+      "featureId": "c7404e54-2b90-49e6-89c9-401c3089661e",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+      "name": "integrating a branch into main",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

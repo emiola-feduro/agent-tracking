@@ -1,0 +1,28 @@
+{
+  "path": "packages/git/src/integrate.ts",
+  "purpose": "Integra una rama en la principal en un worktree temporal y la sube sin forzar",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "c7404e54-2b90-49e6-89c9-401c3089661e"
+  ],
+  "symbols": [
+    {
+      "name": "IntegrateResult",
+      "kind": "type",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "integrateBranch",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "pushErrorMessage",
+      "kind": "function",
+      "purpose": "Explica en español por qué falló el push",
+      "source": "reported"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "path": "apps/web/src/lib/api.ts",
-  "purpose": "LaunchBranch, modelos por agente y rama del trabajo",
+  "purpose": "integrateBranch e IntegrateResult",
   "createdBy": "repo:analysis",
   "featureIds": [
     "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
@@ -11,6 +11,7 @@
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "af7e04d4-633c-4100-99e2-46e3093f6834",
     "b8ace81c-984b-4166-979b-ffb57f50780b",
+    "c7404e54-2b90-49e6-89c9-401c3089661e",
     "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
     "e6efc11f-d764-4277-b6d7-54fc78371946",
     "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"

@@ -85,7 +85,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/github-files.ts`: Genera ci.yml según el stack y la plantilla de pull request
   - `packages/core/src/project-kind.ts`: Tipos de proyecto, con App multiplataforma.
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
-  - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
+  - `packages/git/src/index.ts`: Exporta integrate
 - Importar requerimientos y planes desde Markdown o JSON — _done_ (`d5c72587-3bd9-487f-bab5-74e76b919371`)
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con sus piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-requirements.tsx`: Paso de requerimientos del wizard con importación.
@@ -113,8 +113,8 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
 - Rama inicial del repositorio nuevo — _done_ (`af7e04d4-633c-4100-99e2-46e3093f6834`)
   - `apps/web/src/components/dynamic/new-project/new-project-source-new.tsx`: Origen Repositorio nuevo con selector de rama principal.
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
-  - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
+  - `packages/git/src/index.ts`: Exporta integrate
   - `packages/git/src/repo.test.ts`: Tests de repositorios, incluida la rama inicial.
   - `packages/server/src/app.ts`: Monta las rutas de colaboración y acepta collabFetch para tests
 - Tipos de tests para los agentes — _done_ (`339c5862-66c9-4283-80c0-d72c47b8a3ab`)
@@ -157,7 +157,7 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `apps/web/src/components/dynamic/project-detail/project-detail-test-group.tsx`: Botón para quitar cada test
   - `apps/web/src/components/dynamic/project-detail/project-detail-tests.tsx`: Conecta el borrado con la lista
   - `apps/web/src/hooks/data/use-test-idea-actions.ts`: removeTest optimista
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `packages/server/src/traceability-routes.ts`: Ruta DELETE /projects/:id/tests/:testId
   - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 
@@ -290,22 +290,29 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 - Pestaña Ramas y worktrees — _done_ (`fcec5305-a2d0-4043-a3ed-05b381b633f7`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
-  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
+  - `packages/server/src/repo-routes.ts`: POST /projects/:id/repo/integrate, bloqueado si un agente trabaja en la rama
 - Menú de rama y worktree — _done_ (`3eb20a0d-6864-4eba-ac5a-88e24ff870b0`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-checkout-menu.tsx`: Menú desplegable de ramas y worktrees.
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktree-banner.tsx`: Aviso y diff del worktree que se está viendo.
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Agrega la pestaña Colaboración
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
   - `apps/web/src/hooks/ui/use-checkout-view.ts`: Worktree que se mira, guardado en la URL.
   - `apps/web/src/router.tsx`: Acepta la pestaña collab
 - Borrar ramas locales — _done_ (`1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
   - `apps/web/src/hooks/data/use-worktrees.ts`: Consultas y mutaciones de ramas y worktrees.
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/app.ts`: Monta las rutas de colaboración y acepta collabFetch para tests
   - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
-  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
+  - `packages/server/src/repo-routes.ts`: POST /projects/:id/repo/integrate, bloqueado si un agente trabaja en la rama
+- Integrar una rama en main y subirla desde la app — _done_ (`c7404e54-2b90-49e6-89c9-401c3089661e`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-integrate.tsx`: Tarjeta Listo para integrar con botones y resultado o error
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
+  - `packages/git/src/index.ts`: Exporta integrate
+  - `packages/git/src/integrate.ts`: Integra una rama en la principal en un worktree temporal y la sube sin forzar
+  - `packages/server/src/repo-routes.ts`: POST /projects/:id/repo/integrate, bloqueado si un agente trabaja en la rama
 
 ### RF7 Integración con GitHub — 100%
 
@@ -336,7 +343,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/stores/use-notice-store.ts`: Avisos de una sola vez para la página del proyecto.
   - `packages/git/src/github-publish.ts`: Cuenta de GitHub y publicación del repo con gh.
   - `packages/server/src/github-publish.test.ts`: Tests con un gh simulado.
-  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
+  - `packages/server/src/repo-routes.ts`: POST /projects/:id/repo/integrate, bloqueado si un agente trabaja en la rama
 - Borrar ramas en GitHub — _done_ (`18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1`)
   - `apps/web/src/components/dynamic/github-branches/github-branch-row.tsx`: Fila de rama remota con botón de borrar y motivo cuando no se puede.
   - `apps/web/src/components/dynamic/github-branches/github-branches.tsx`: Lista de ramas en GitHub.
@@ -393,7 +400,7 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Muestra los modelos en uso y el selector por tarea
   - `apps/web/src/components/dynamic/assistant/assistant-task-models.tsx`: Selector de modelo por tarea
   - `apps/web/src/hooks/data/use-assistant-providers.ts`: setModel
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `packages/assistant/src/client.ts`: Tareas del asistente, modelos sugeridos y modelFor
   - `packages/assistant/src/dod.ts`: Usa el modelo de la tarea dod
   - `packages/assistant/src/skills.ts`: Usa el modelo de la tarea skills
@@ -450,7 +457,7 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Botón Seleccionar para implementar, barra y diálogo
   - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
   - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Project.replyLanguage
@@ -477,7 +484,7 @@ Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 39
 - Navegación con sidebar — _done_ (`b667d6f3-afef-4d8c-926e-a68abe6d09bf`)
   - `apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx`: Textos del wizard que hablan de la carpeta .agent-tracking.
   - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Ícono de Colaboración
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Agrega la pestaña Colaboración
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
   - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
   - `apps/web/src/hooks/form/use-repo-source.ts`: Importa o clona el repo y abre el Resumen.
   - `apps/web/src/router.tsx`: Acepta la pestaña collab
@@ -499,7 +506,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 - Comando bun run dev — _done_ (`0adf724c-6460-4bbf-9154-c3bd491dbb35`)
   - `README.md`: Documenta el trabajo en equipo con el servidor compartido
@@ -570,7 +577,7 @@ Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
   - `apps/web/src/components/dynamic/collab/collab-project.tsx`: Sección Colaboración: estado, compartir, sincronizar y presencia
   - `apps/web/src/components/dynamic/collab/collab-shared-projects.tsx`: Proyectos compartidos contigo que se pueden traer a esta máquina
   - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Ícono de Colaboración
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Agrega la pestaña Colaboración
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
   - `apps/web/src/hooks/data/use-collab.ts`: Hooks de conexión, sincronización, miembros y presencia con latido
   - `apps/web/src/lib/collab-api.ts`: Tipos y llamadas a las rutas de colaboración
   - `apps/web/src/lib/query-keys.ts`: Claves de consulta de colaboración
@@ -608,7 +615,7 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
 
 - Validación de rutas y worktrees — _done_ (`229342a4-9fb9-48b6-9ad5-3532951f1d1b`)
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
-  - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
+  - `packages/server/src/repo-routes.ts`: POST /projects/:id/repo/integrate, bloqueado si un agente trabaja en la rama
 - Solo páginas de este equipo — _done_ (`2643a8cc-df59-4ebb-a845-e574b2b3ebc7`)
   - `packages/server/src/app.ts`: Monta las rutas de colaboración y acepta collabFetch para tests
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
@@ -634,7 +641,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `apps/web/src/lib/query-keys.ts`: Claves de consulta de colaboración
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/core/src/core.test.ts`: Tests del catálogo y del stack guiado por lenguaje.
@@ -658,7 +665,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
   - `packages/core/src/project-tree.ts`: Formato v2 de .agent-tracking: parte y reúne el proyecto en archivos por entidad con orden estable.
   - `packages/core/src/types.ts`: Project.replyLanguage
-  - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
+  - `packages/git/src/index.ts`: Exporta integrate
   - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
   - `packages/mcp/src/mcp.test.ts`: Test de get_handoff por MCP, sin depender de drizzle-orm
   - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
@@ -702,7 +709,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `apps/web/src/components/dynamic/new-project/new-project-stack.tsx`: Paso Stack con piezas, herramienta y tests.
   - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
   - `apps/web/src/hooks/form/use-stack-defaults.ts`: Recomendación por pieza.
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
@@ -756,7 +763,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Idioma de los agentes en el resumen
   - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Estado de MCP viejo y botón Actualizar
   - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
   - `packages/agents/src/claude-code.ts`: Claude Code acepta contexto por pedido
   - `packages/agents/src/codex.ts`: Codex acepta contexto por pedido
@@ -870,7 +877,7 @@ Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) 
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Botón Seleccionar para implementar, barra y diálogo
   - `apps/web/src/hooks/data/use-agent-runs.ts`: Tipo de lanzamiento con rama
   - `apps/web/src/hooks/data/use-implement.ts`: Pasa la rama al lanzar
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `apps/web/src/stores/use-implement-store.ts`: setDods marca o desmarca varios criterios
   - `packages/agents/src/launch.ts`: Regla de rama en la instrucción según la elección
   - `packages/core/src/implement.ts`: Qué se puede implementar: requerimiento sin criterios cumplidos, criterio pendiente
@@ -881,7 +888,7 @@ Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) 
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Implementar para los criterios pendientes y casilla que los marca todos
   - `apps/web/src/hooks/data/use-agent-runs.ts`: Tipo de lanzamiento con rama
   - `apps/web/src/hooks/data/use-implement.ts`: Pasa la rama al lanzar
-  - `apps/web/src/lib/api.ts`: LaunchBranch, modelos por agente y rama del trabajo
+  - `apps/web/src/lib/api.ts`: integrateBranch e IntegrateResult
   - `apps/web/src/stores/use-implement-store.ts`: setDods marca o desmarca varios criterios
   - `packages/agents/src/launch.ts`: Regla de rama en la instrucción según la elección
   - `packages/server/src/agent-routes.ts`: La lista de agentes incluye los modelos de su proveedor

@@ -1,11 +1,12 @@
 {
   "path": "packages/git/src/index.ts",
-  "purpose": "Utilidades de git; initRepo acepta y valida la rama inicial.",
+  "purpose": "Exporta integrate",
   "createdBy": "repo:analysis",
   "featureIds": [
     "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
-    "af7e04d4-633c-4100-99e2-46e3093f6834"
+    "af7e04d4-633c-4100-99e2-46e3093f6834",
+    "c7404e54-2b90-49e6-89c9-401c3089661e"
   ],
   "symbols": []
 }

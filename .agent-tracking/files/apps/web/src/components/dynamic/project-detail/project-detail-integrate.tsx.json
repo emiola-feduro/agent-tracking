@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-integrate.tsx",
+  "purpose": "Tarjeta Listo para integrar con botones y resultado o error",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "c7404e54-2b90-49e6-89c9-401c3089661e"
+  ],
+  "symbols": [
+    {
+      "name": "ProjectDetailIntegrate",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}
