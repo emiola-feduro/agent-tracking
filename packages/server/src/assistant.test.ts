@@ -103,7 +103,7 @@ describe("choosing the provider", () => {
     const listed = (await call("GET", "/assistant/providers")).data;
     expect(listed.tasks.map((x: { id: string }) => x.id)).toEqual(["stack", "dod", "skills"]);
     expect(listed.providers[0].taskDefaults).toMatchObject({ stack: mock.models.heavy, dod: mock.models.default });
-    expect(listed.providers[0].suggestedModels).toContain("claude-haiku-5-5");
+    expect(listed.providers[0].suggestedModels.map((m: { id: string }) => m.id)).toContain("claude-haiku-5-5");
 
     const saved = await call("PUT", "/assistant/models", { provider: "api", task: "dod", model: "claude-haiku-5-5" });
     expect(saved.data.providers[0].models.tasks).toEqual({ dod: "claude-haiku-5-5" });

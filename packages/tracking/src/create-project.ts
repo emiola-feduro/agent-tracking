@@ -13,6 +13,7 @@ import {
   type RequirementArea,
   type RequirementType,
   type SkillSource,
+  assignRequirementCodes,
   DEFAULT_REPLY_LANGUAGE,
   type ReplyLanguage,
 } from "@agent-tracking/core";
@@ -108,10 +109,10 @@ export async function createProject(db: Db, emit: Emit, input: NewProjectInput, 
     (input.rules ?? []).forEach((text, i) => tx.insert(s.businessRules).values({ id: crypto.randomUUID(), projectId: id, text, priority: i + 1, ...audit }).run());
     for (const k of input.skills ?? []) tx.insert(s.projectSkills).values({ id: crypto.randomUUID(), projectId: id, ...k, ...audit } as never).run();
     const partIds = new Set((input.parts ?? []).map((p) => p.id));
-    for (const { dod = [], title, description, type, area, weight, parts } of requirements) {
+    for (const { dod = [], title, description, type, area, weight, parts, code } of assignRequirementCodes(requirements)) {
       const requirementId = crypto.randomUUID();
       const touched = (parts ?? []).filter((p) => partIds.has(p));
-      tx.insert(s.requirements).values({ id: requirementId, projectId: id, title, description, type, area, weight: weight ?? 1, parts: touched, ...audit }).run();
+      tx.insert(s.requirements).values({ id: requirementId, projectId: id, code, title, description, type, area, weight: weight ?? 1, parts: touched, ...audit }).run();
       for (const d of dod) {
         tx.insert(s.dodItems).values({ id: crypto.randomUUID(), requirementId, criterion: d.criterion, origin: d.origin ?? "human", ...audit }).run();
       }

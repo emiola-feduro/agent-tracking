@@ -1,6 +1,7 @@
 import { AGENTS, isAgentKind } from "@agent-tracking/agents";
 import {
   agentContextBlock,
+  assignRequirementCodes,
   ATTACHMENTS_DIR,
   BLOCK_START,
   withManagedBlock,
@@ -322,8 +323,16 @@ function applyProjectFile(tx: Tx, file: ProjectFile, projectId: string, repoPath
   // Version 1 files have no creation dates: entries already here keep theirs, new ones get dates a
   // millisecond apart, in the file's order.
   const known = new Map<string, string>();
-  const requirementRows = tx.select({ id: s.requirements.id, createdAt: s.requirements.createdAt }).from(s.requirements).where(eq(s.requirements.projectId, projectId)).all();
+  const requirementRows = tx
+    .select({ id: s.requirements.id, createdAt: s.requirements.createdAt, code: s.requirements.code })
+    .from(s.requirements)
+    .where(eq(s.requirements.projectId, projectId))
+    .all();
   for (const r of requirementRows) known.set(r.id, r.createdAt);
+  // Files from before codes keep the ones this machine gave; duplicates (two machines numbering at
+  // once) and missing ones get the next free code.
+  const knownCodes = new Map(requirementRows.map((r) => [r.id, r.code]));
+  const coded = assignRequirementCodes(file.requirements.map((r) => ({ ...r, code: r.code ?? knownCodes.get(r.id) ?? null })));
   const ids = requirementRows.map((r) => r.id);
   if (ids.length) {
     for (const d of tx.select({ id: s.dodItems.id, createdAt: s.dodItems.createdAt }).from(s.dodItems).where(inArray(s.dodItems.requirementId, ids)).all()) known.set(d.id, d.createdAt);
@@ -346,7 +355,7 @@ function applyProjectFile(tx: Tx, file: ProjectFile, projectId: string, repoPath
   const base = Date.now();
   let n = 0;
   const at = (id: string, createdAt?: string) => createdAt ?? known.get(id) ?? new Date(base + n++).toISOString();
-  for (const { dod, features, ...r } of file.requirements) {
+  for (const { dod, features, ...r } of coded) {
     tx.insert(s.requirements).values({ ...r, createdAt: at(r.id, r.createdAt), projectId }).run();
     for (const d of dod) tx.insert(s.dodItems).values({ ...d, createdAt: at(d.id, d.createdAt), requirementId: r.id }).run();
     for (const f of features) tx.insert(s.features).values({ ...f, createdAt: at(f.id, f.createdAt), requirementId: r.id }).run();

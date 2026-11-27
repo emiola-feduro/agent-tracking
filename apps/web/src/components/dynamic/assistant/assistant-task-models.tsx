@@ -15,7 +15,7 @@ type TaskRowProps = {
 /** One task: the provider's default, a suggested model, or any other name typed by the person. */
 const TaskRow = ({ provider, task, onSave }: TaskRowProps) => {
   const chosen = provider.models.tasks?.[task.id] ?? "";
-  const custom = chosen !== "" && !provider.suggestedModels.includes(chosen);
+  const custom = chosen !== "" && !provider.suggestedModels.some((m) => m.id === chosen);
   const [other, setOther] = useState(custom);
   const [typed, setTyped] = useState(custom ? chosen : "");
   useEffect(() => {
@@ -26,7 +26,7 @@ const TaskRow = ({ provider, task, onSave }: TaskRowProps) => {
   const fallback = provider.taskDefaults[task.id];
   const options = [
     { value: DEFAULT, label: `Por defecto (${fallback || "el modelo del CLI"})` },
-    ...provider.suggestedModels.map((m) => ({ value: m, label: m })),
+    ...provider.suggestedModels.map((m) => ({ value: m.id, label: `${m.id} (${m.note})` })),
     { value: OTHER, label: "Otro modelo…" },
   ];
   const saveTyped = () => typed.trim() !== chosen && onSave(task.id, typed.trim());
@@ -55,7 +55,7 @@ const TaskRow = ({ provider, task, onSave }: TaskRowProps) => {
             onChange={setTyped}
             onBlur={saveTyped}
             onKeyDown={(e) => e.key === "Enter" && saveTyped()}
-            placeholder={provider.suggestedModels[0]}
+            placeholder={provider.suggestedModels[0]?.id}
             spellCheck={false}
             autoComplete="off"
             hint="Se guarda al salir del campo o con Enter."

@@ -32,7 +32,7 @@ const ProjectDetailRequirements = ({ view }: { view: ProjectView }) => {
   const matches = (r: ProjectView["requirements"][number]) =>
     (type === "all" || r.type === type) &&
     (areas.length === 0 || areas.includes(r.area)) &&
-    (!q || normalize(`${r.title} ${r.description} ${criteriaOf(r.id).map((d) => d.criterion).join(" ")}`).includes(q));
+    (!q || normalize(`${r.code ?? ""} ${r.title} ${r.description} ${criteriaOf(r.id).map((d) => d.criterion).join(" ")}`).includes(q));
   const shown = requirements.filter(matches);
   const count = (t: RequirementType) => requirements.filter((r) => r.type === t).length;
   const groups = (["functional", "non_functional"] as const)

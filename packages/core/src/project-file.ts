@@ -80,6 +80,8 @@ export const projectFileSchema = z.object({
     .array(
       z.object({
         id,
+        /** Missing in files written before codes existed; the import numbers those. */
+        code: z.string().max(20).optional(),
         title: z.string().min(1),
         description: z.string().default(""),
         type: z.enum(REQUIREMENT_TYPES).default("functional"),
@@ -232,6 +234,7 @@ export function toProjectFile(s: ProjectSnapshot): ProjectFile {
     })),
     requirements: s.requirements.map((r) => ({
       id: r.id,
+      ...(r.code ? { code: r.code } : {}),
       title: r.title,
       description: r.description,
       type: r.type,

@@ -85,6 +85,13 @@
       "when": 1795725554985,
       "tag": "0011_aberrant_the_twelve",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1795785835652,
+      "tag": "0012_bent_the_fallen",
+      "breakpoints": true
     }
   ]
 }

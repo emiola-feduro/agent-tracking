@@ -66,9 +66,13 @@ export const projectSkills = sqliteTable("project_skills", {
   ...audit,
 });
 
-export const requirements = sqliteTable("requirements", {
+export const requirements = sqliteTable(
+  "requirements",
+  {
   id: id(),
   projectId: projectRef(),
+  /** Short code within the project (RF1, RNF2…), unique per project (null only for rows written without one); see packages/core/src/requirement-code.ts. */
+  code: text("code"),
   title: text("title").notNull(),
   description: text("description").notNull().default(""),
   type: text("type").$type<RequirementType>().notNull().default("functional"),
@@ -77,7 +81,9 @@ export const requirements = sqliteTable("requirements", {
   /** Ids of the project's pieces it touches (monorepos); empty when it is about the whole project. */
   parts: text("parts", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
   ...audit,
-});
+  },
+  (t) => [uniqueIndex("requirements_project_code_idx").on(t.projectId, t.code)],
+);
 
 const requirementRef = () => text("requirement_id").references(() => requirements.id, { onDelete: "cascade" });
 

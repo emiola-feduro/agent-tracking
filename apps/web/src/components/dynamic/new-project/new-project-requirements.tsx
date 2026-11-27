@@ -1,3 +1,4 @@
+import { assignRequirementCodes, settleClassification } from "@agent-tracking/core";
 import { useState } from "react";
 import AssistantSetupNote from "@/components/dynamic/assistant/assistant-setup-note";
 import RequirementsImportDialog from "@/components/dynamic/requirements-import/requirements-import-dialog";
@@ -11,6 +12,10 @@ const NewProjectRequirements = () => {
   const importRequirements = useWizardStore((s) => s.importRequirements);
   const kind = useWizardStore((s) => projectShape(s).kind);
   const [importing, setImporting] = useState(false);
+  // The codes they will get: numbered by type, as the server does when the project is created.
+  const codes = assignRequirementCodes(
+    requirements.map((r) => ({ type: settleClassification({ type: r.type ?? undefined, area: r.area ?? undefined }, r.title, r.description, kind).type })),
+  ).map((r) => r.code);
 
   return (
     <div className="flex flex-col gap-4">
@@ -22,7 +27,7 @@ const NewProjectRequirements = () => {
         </Button>
       </div>
       {requirements.map((requirement, index) => (
-        <NewProjectRequirementCard key={requirement.key} requirement={requirement} index={index} />
+        <NewProjectRequirementCard key={requirement.key} requirement={requirement} index={index} code={codes[index]!} />
       ))}
       <div>
         <Button onClick={addRequirement}>Agregar requerimiento</Button>

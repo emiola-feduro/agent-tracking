@@ -9,11 +9,13 @@ import NewProjectRequirementDod from "./new-project-requirement-dod";
 type NewProjectRequirementCardProps = {
   requirement: RequirementDraft;
   index: number;
+  /** The code it will get (RF1, RNF1…), from its type as it stands. */
+  code: string;
 };
 
 const NO_PARTS: never[] = [];
 
-const NewProjectRequirementCard = ({ requirement, index }: NewProjectRequirementCardProps) => {
+const NewProjectRequirementCard = ({ requirement, index, code }: NewProjectRequirementCardProps) => {
   const { key, title, description, type, area, parts: touched } = requirement;
   const parts = useWizardStore((s) => (s.structure === "monorepo" ? s.parts : NO_PARTS));
   const setRequirement = useWizardStore((s) => s.setRequirement);
@@ -33,6 +35,10 @@ const NewProjectRequirementCard = ({ requirement, index }: NewProjectRequirement
         />
         <RemoveButton label={`Quitar requerimiento ${number}`} onClick={() => removeRequirement(key)} />
       </div>
+      <p className="-mt-2 text-sm text-muted">
+        Código <span className="font-mono font-medium text-brand">{code}</span>: con él te refieres a este requerimiento en la app y con los agentes. Lo
+        puedes cambiar después.
+      </p>
       <TextAreaField label="Descripción" value={description} onChange={(v) => setRequirement(key, { description: v })} rows={2} />
       <ClassificationFields value={{ type, area }} onChange={(c) => setRequirement(key, c)} title={title} description={description} kind={kind} />
       <PartChips parts={parts} value={touched} onChange={(next) => setRequirement(key, { parts: next })} />

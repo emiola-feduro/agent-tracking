@@ -1,5 +1,5 @@
 import PartChips from "@/components/dynamic/requirement-parts/part-chips";
-import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL } from "@agent-tracking/core";
+import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, requirementLabel } from "@agent-tracking/core";
 import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
 import AttachmentThumbs from "@/components/dynamic/attachments/attachment-thumbs";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
@@ -9,6 +9,7 @@ import type { ProjectView, Requirement } from "@/lib/api";
 import ProjectDetailDod from "./project-detail-dod";
 import ProjectDetailFeatures from "./project-detail-features";
 import ProjectDetailRequirementClassification from "./project-detail-requirement-classification";
+import ProjectDetailRequirementCode from "./project-detail-requirement-code";
 
 type ProjectDetailRequirementCardProps = {
   requirement: Requirement;
@@ -31,7 +32,7 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
   const panelId = `requirement-${id}`;
 
   const remove = () => {
-    if (confirm(`Eliminar el requerimiento "${title}" y su Definition of Done. No se puede deshacer.`)) deleteRequirement.mutate(id);
+    if (confirm(`Eliminar el requerimiento "${requirementLabel(requirement)}" y su Definition of Done. No se puede deshacer.`)) deleteRequirement.mutate(id);
   };
 
   return (
@@ -59,7 +60,10 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
               <path d="m6 4 4 4-4 4" />
             </svg>
             <span className="flex min-w-0 flex-col gap-1">
-              <span className="font-semibold text-ink">{title}</span>
+              <span className="font-semibold text-ink">
+                {requirement.code && <span className="mr-2 font-mono text-[0.8125rem] font-medium text-brand">{requirement.code}</span>}
+                {title}
+              </span>
               <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                 <span
                   className={`rounded-full px-2 py-0.5 font-medium ${type === "functional" ? "bg-brand-soft text-brand" : "bg-warn-soft text-warn"}`}
@@ -87,6 +91,7 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
       {open && (
         <div id={panelId} className="flex animate-enter flex-col gap-5 border-t border-line px-4 py-4 sm:px-5">
           {description && <p className="max-w-[70ch] text-ink-soft">{description}</p>}
+          <ProjectDetailRequirementCode requirement={requirement} view={view} />
           <ProjectDetailRequirementClassification
             requirement={requirement}
             kind={project.kind ?? "fullstack"}

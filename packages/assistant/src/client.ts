@@ -60,17 +60,49 @@ export type AssistantProvider = (typeof ASSISTANT_PROVIDERS)[number];
 export const providerOf = (config: AssistantConfig): AssistantProvider => config.provider ?? "api";
 
 /**
- * Model names offered in the UI for each provider (any other name can be typed). The CLIs take the
- * same names as their vendor's API.
+ * Model names offered in the UI for each provider, with a short note; any other name can be typed.
+ * Taken from each vendor's model pages (November 2026): Claude models overview, Codex models and
+ * Gemini API models. Only text models that are not retired; the CLIs take the same names as their
+ * vendor's API, and Claude Code also takes its aliases.
  */
-const CLAUDE_MODELS = ["claude-fable-5-2", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"];
-export const SUGGESTED_MODELS: Record<AssistantProvider, string[]> = {
+export type SuggestedModel = { id: string; note: string };
+const CLAUDE_MODELS: SuggestedModel[] = [
+  { id: "claude-fable-5-2", note: "el más capaz, razonamiento exigente" },
+  { id: "claude-opus-5-5", note: "recomendado para empezar" },
+  { id: "claude-sonnet-5-5", note: "equilibrado" },
+  { id: "claude-haiku-5-5", note: "el más rápido" },
+];
+const OPENAI_MODELS: SuggestedModel[] = [
+  { id: "gpt-6.2-astra", note: "proyectos exigentes" },
+  { id: "gpt-6.2-sol", note: "uso general" },
+  { id: "gpt-6.1-sol", note: "contexto largo" },
+  { id: "gpt-6-astra", note: "generación anterior" },
+  { id: "gpt-6.1-terra", note: "rápido y eficiente" },
+  { id: "gpt-6-luna", note: "el más eficiente" },
+];
+const GEMINI_MODELS: SuggestedModel[] = [
+  { id: "gemini-4-carbon", note: "el mejor razonamiento" },
+  { id: "gemini-4-neon", note: "frontera y rápido" },
+  { id: "gemini-4-hydrogen", note: "código y agentes del día a día" },
+  { id: "gemini-4-argon", note: "eficiente" },
+  { id: "gemini-3.8-flash", note: "estable, rápido" },
+  { id: "gemini-3.6-flash", note: "estable" },
+  { id: "gemini-3.5-flash-lite", note: "el más ligero" },
+  { id: "gemini-3.1-flash-lite", note: "ligero, generación anterior" },
+  { id: "gemini-3.1-pro-preview", note: "vista previa" },
+];
+export const SUGGESTED_MODELS: Record<AssistantProvider, SuggestedModel[]> = {
   api: CLAUDE_MODELS,
-  "claude-code": CLAUDE_MODELS,
-  "openai-api": [OPENAI_HEAVY_MODEL, OPENAI_DEFAULT_MODEL],
-  "gemini-api": [GEMINI_HEAVY_MODEL, GEMINI_DEFAULT_MODEL],
-  "codex-cli": [OPENAI_HEAVY_MODEL, OPENAI_DEFAULT_MODEL],
-  "gemini-cli": [GEMINI_HEAVY_MODEL, GEMINI_DEFAULT_MODEL],
+  "claude-code": [
+    ...CLAUDE_MODELS,
+    { id: "opus", note: "alias de Claude Code: el Opus más reciente" },
+    { id: "sonnet", note: "alias de Claude Code: el Sonnet más reciente" },
+    { id: "haiku", note: "alias de Claude Code: el Haiku más reciente" },
+  ],
+  "openai-api": OPENAI_MODELS,
+  "gemini-api": GEMINI_MODELS,
+  "codex-cli": OPENAI_MODELS,
+  "gemini-cli": GEMINI_MODELS,
 };
 
 /** How the UI and the logs name each provider; `vendor` is whose tokens a request spends. */

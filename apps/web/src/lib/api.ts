@@ -190,7 +190,7 @@ export type AssistantProviderInfo = {
   vendor: string;
   /** `tasks` holds the person's choice per task; the rest are the provider's defaults. */
   models: { default: string; heavy: string; tasks?: Partial<Record<AssistantTaskId, string>> };
-  suggestedModels: string[];
+  suggestedModels: { id: string; note: string }[];
   /** The model each task uses when nothing is chosen for it; empty means the CLI's own default. */
   taskDefaults: Record<AssistantTaskId, string>;
 };
@@ -292,7 +292,7 @@ export const api = {
     request<{ id: string }>("POST", `${p(id)}/requirements`, data),
   importRequirements: (id: string, text: string) =>
     request<{ created: number; ids: string[]; warnings: string[] }>("POST", `${p(id)}/requirements/import`, { text }),
-  updateRequirement: (id: string, reqId: string, data: Partial<{ title: string; description: string; type: RequirementType; area: RequirementArea; parts: string[] }>) =>
+  updateRequirement: (id: string, reqId: string, data: Partial<{ code: string; title: string; description: string; type: RequirementType; area: RequirementArea; parts: string[] }>) =>
     request<{ id: string }>("PATCH", `${p(id)}/requirements/${reqId}`, data),
   deleteRequirement: (id: string, reqId: string) => request<void>("DELETE", `${p(id)}/requirements/${reqId}`),
   addDod: (id: string, reqId: string, criterion: string, origin: "human" | "llm" = "human") =>

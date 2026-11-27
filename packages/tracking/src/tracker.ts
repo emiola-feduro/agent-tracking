@@ -1,7 +1,7 @@
 import type { SymbolKind, TestIdeaStatus, TestResult, TestType } from "@agent-tracking/core";
 import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
 import { inspectRepo, mainWorktreeOf } from "@agent-tracking/git";
-import { and, desc, eq, lt, sql } from "drizzle-orm";
+import { and, desc, eq, lt, or, sql } from "drizzle-orm";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 import { writeRepoFiles } from "./repo-sync";
 
@@ -98,6 +98,15 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
     return r;
   };
 
+  /** A requirement by id or by its code (RF1, case aside), as agents may write either. */
+  const resolveRequirement = async (projectId: string, ref: string) => {
+    const r = await db.query.requirements.findFirst({
+      where: and(eq(s.requirements.projectId, projectId), or(eq(s.requirements.id, ref), sql`upper(${s.requirements.code}) = upper(${ref.trim()})`)),
+    });
+    if (!r) throw new TrackingError(`Requerimiento no encontrado: ${ref}`, 404);
+    return r;
+  };
+
   const featureIn = async (projectId: string, featureId: string) => {
     const [row] = await db
       .select({ feature: s.features })
@@ -159,6 +168,7 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
     touch,
     projectOr404,
     requirementIn,
+    resolveRequirement,
     featureIn,
 
     /**
@@ -209,8 +219,8 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
     },
 
     /** Creates the feature (or resumes an existing one with the same name) and marks it in progress. */
-    async startFeature(projectId: string, actor: string, input: FeatureStart) {
-      await requirementIn(projectId, input.requirementId);
+    async startFeature(projectId: string, actor: string, start: FeatureStart) {
+      const input = { ...start, requirementId: (await resolveRequirement(projectId, start.requirementId)).id };
       let feature = input.featureId ? await featureIn(projectId, input.featureId) : undefined;
       if (feature && feature.requirementId !== input.requirementId) {
         throw new TrackingError("El feature pertenece a otro requerimiento");
@@ -301,7 +311,7 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
         const feature = await featureIn(projectId, input.featureId);
         requirementId ??= feature.requirementId;
       }
-      if (requirementId) await requirementIn(projectId, requirementId);
+      if (requirementId) requirementId = (await resolveRequirement(projectId, requirementId)).id;
       const existing = await db.query.tests.findFirst({
         where: and(eq(s.tests.projectId, projectId), eq(s.tests.path, path), eq(s.tests.name, input.name)),
       });
@@ -368,7 +378,7 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
       await projectOr404(projectId);
       let requirementId = input.requirementId ?? null;
       if (input.featureId) requirementId ??= (await featureIn(projectId, input.featureId)).requirementId;
-      if (requirementId) await requirementIn(projectId, requirementId);
+      if (requirementId) requirementId = (await resolveRequirement(projectId, requirementId)).id;
       const [idea] = await db
         .insert(s.testIdeas)
         .values({
@@ -436,7 +446,7 @@ export function createTracker(db: Db, opts: { emit?: Emit } = {}) {
       const project = await projectOr404(projectId);
       if (report.features.length === 0 && !report.dod?.length) throw new TrackingError("El reporte está vacío");
       for (const f of report.features) {
-        await requirementIn(projectId, f.requirementId);
+        await resolveRequirement(projectId, f.requirementId);
         if (f.featureId) await featureIn(projectId, f.featureId);
         if (!f.featureId && !f.name.trim()) throw new TrackingError("Cada feature necesita un nombre");
         for (const file of f.files ?? []) repoRelative(project.repoPath, file.path);

@@ -1,6 +1,7 @@
 import { conventionsMarkdown } from "./conventions";
 import { partsMarkdown } from "./parts";
 import { replyLanguageRule } from "./reply-language";
+import { requirementLabel } from "./requirement-code";
 import { testPolicyMarkdown } from "./test-policy";
 import { PROJECT_KIND_INFO } from "./project-kind";
 import { attachmentRepoPath, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, sharedSkillPath } from "./requirements";
@@ -71,7 +72,7 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
   out.push("## Requerimientos", "");
   if (s.requirements.length === 0) out.push("_No hay requerimientos definidos._", "");
   for (const r of s.requirements) {
-    out.push(`### ${r.title} — ${toPercent(requirementProgress(s, r.id))}%`, "");
+    out.push(`### ${requirementLabel(r)} — ${toPercent(requirementProgress(s, r.id))}%`, "");
     out.push(`ID: \`${r.id}\``, "");
     out.push(`**Tipo:** ${REQUIREMENT_TYPE_LABEL[r.type ?? "functional"]}, área ${REQUIREMENT_AREA_LABEL[r.area ?? "general"].toLowerCase()}`, "");
     const touched = parts.filter((x) => r.parts?.includes(x.id));

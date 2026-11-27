@@ -90,6 +90,8 @@ export type RequirementArea = (typeof REQUIREMENT_AREAS)[number];
 export interface Requirement {
   id: string;
   projectId: string;
+  /** Short code within the project (RF1, RNF2…), editable; see requirement-code.ts. */
+  code?: string | null;
   title: string;
   description: string;
   type: RequirementType;

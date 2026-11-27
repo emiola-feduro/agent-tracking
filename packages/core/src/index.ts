@@ -7,6 +7,7 @@ export * from "./project-tree";
 export * from "./parts";
 export * from "./test-policy";
 export * from "./reply-language";
+export * from "./requirement-code";
 export * from "./json-merge";
 export * from "./suggestions";
 export * from "./github-files";

@@ -21,7 +21,10 @@ import {
   toPercent,
   type ProjectSnapshot,
   DEFAULT_REPLY_LANGUAGE,
+  nextRequirementCode,
+  normalizeRequirementCode,
   REPLY_LANGUAGES,
+  requirementCodeProblem,
   replyLanguageRule,
 } from "@agent-tracking/core";
 import {
@@ -97,6 +100,8 @@ const withValidParts = <T extends { structure?: string; parts?: z.infer<typeof p
 
 const dodInput = z.object({ criterion: z.string().min(1), origin: z.enum(["human", "llm"]).default("human") });
 const requirementInput = z.object({
+  /** Short code within the project (RF1…); the next free one for its type when missing. */
+  code: z.string().trim().max(20).optional(),
   title: z.string().min(1),
   description: z.string().default(""),
   /** Inferred from the text when missing. */
@@ -651,19 +656,29 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   });
 
   // Requirements and Definition of Done
+  const codesOf = async (projectId: string) =>
+    (await db.select({ code: s.requirements.code }).from(s.requirements).where(eq(s.requirements.projectId, projectId))).map((r) => r.code);
+  /** The code as stored (upper case), or a 400/409 the person can read. */
+  const checkedCode = (code: string, others: (string | null)[]) => {
+    const problem = requirementCodeProblem(code, others);
+    if (problem) throw new HTTPException(problem.startsWith("Ya hay") ? 409 : 400, { message: problem });
+    return normalizeRequirementCode(code);
+  };
   app.post("/projects/:id/requirements", async (c) => {
     const projectId = c.req.param("id");
     await snapshotOr404(projectId);
     const { dod, ...input } = await body(c, requirementInput);
     const { kind } = (await snapshotOr404(projectId)).project;
     const r = { ...input, ...settleClassification({ type: input.type, area: input.area }, input.title, input.description, kind) };
+    const codes = await codesOf(projectId);
+    const code = input.code ? checkedCode(input.code, codes) : nextRequirementCode(r.type, codes);
     const requirementId = newId();
     db.transaction((tx) => {
-      tx.insert(s.requirements).values({ id: requirementId, projectId, ...r }).run();
+      tx.insert(s.requirements).values({ id: requirementId, projectId, ...r, code }).run();
       dod.forEach((d) => tx.insert(s.dodItems).values({ id: newId(), requirementId, ...d }).run());
     });
     await touch(projectId, "requirement", requirementId);
-    return c.json({ id: requirementId }, 201);
+    return c.json({ id: requirementId, code }, 201);
   });
   /** Requirements with their DoD pasted or uploaded as Markdown or JSON (see packages/core/src/plan.ts). */
   app.post("/projects/:id/requirements/import", async (c) => {
@@ -673,11 +688,14 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     const parsed = parseRequirements(text, kind);
     if (!parsed.ok) throw new HTTPException(400, { message: parsed.error });
     const ids: string[] = [];
+    const codes = await codesOf(projectId);
     db.transaction((tx) => {
       for (const { dod, ...r } of parsed.value) {
         const requirementId = newId();
         ids.push(requirementId);
-        tx.insert(s.requirements).values({ id: requirementId, projectId, ...r }).run();
+        const code = nextRequirementCode(r.type ?? "functional", codes);
+        codes.push(code);
+        tx.insert(s.requirements).values({ id: requirementId, projectId, ...r, code }).run();
         dod.forEach((criterion) => tx.insert(s.dodItems).values({ id: newId(), requirementId, criterion }).run());
       }
     });
@@ -688,6 +706,12 @@ export function createApp(db: Db, opts: AppOptions = {}) {
     const { id: projectId, reqId } = c.req.param();
     await requirementIn(projectId, reqId);
     const input = await patchBody(c, requirementInput.omit({ dod: true }).partial());
+    if (input.code !== undefined) {
+      const others = (await db.select({ id: s.requirements.id, code: s.requirements.code }).from(s.requirements).where(eq(s.requirements.projectId, projectId)))
+        .filter((r) => r.id !== reqId)
+        .map((r) => r.code);
+      input.code = checkedCode(input.code, others);
+    }
     if (input.parts) {
       // Only pieces of this project.
       const known = new Set(((await snapshotOr404(projectId)).project.parts ?? []).map((p) => p.id));

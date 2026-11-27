@@ -192,6 +192,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
         const dod = snap.dod.filter((d) => d.requirementId === r.id);
         return {
           id: r.id,
+          code: r.code,
           title: r.title,
           description: r.description,
           progress: toPercent(requirementProgress(snap, r.id)),
@@ -211,16 +212,17 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       title: "Detalle de un requerimiento",
       description:
         "Devuelve un requerimiento con su Definition of Done (ids para mark_dod_item), features, archivos, símbolos, tests e ideas de tests.",
-      inputSchema: { requirementId: z.string().describe("Id del requerimiento") },
+      inputSchema: { requirementId: z.string().describe("Id o código del requerimiento (por ejemplo RF3)") },
       annotations: readOnly,
     },
     async (projectId, _actor, { requirementId }) => {
       const snap = await tracker.snapshot(projectId);
-      const r = snap.requirements.find((x) => x.id === requirementId);
-      if (!r) throw new TrackingError(`Requerimiento no encontrado: ${requirementId}`, 404);
+      const { id } = await tracker.resolveRequirement(projectId, requirementId);
+      const r = snap.requirements.find((x) => x.id === id)!;
       const features = snap.features.filter((f) => f.requirementId === r.id);
       const result = {
         id: r.id,
+        code: r.code,
         title: r.title,
         description: r.description,
         progress: toPercent(requirementProgress(snap, r.id)),
@@ -254,7 +256,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       description:
         "Marca un feature como en curso bajo un requerimiento. Si no existe un feature con ese nombre, lo crea. Devuelve su id para report_file y report_test.",
       inputSchema: {
-        requirementId: z.string().describe("Requerimiento al que sirve el feature"),
+        requirementId: z.string().describe("Requerimiento al que sirve el feature: id o código (RF3)"),
         name: z.string().optional().describe("Nombre corto del feature (obligatorio si no pasas featureId)"),
         featureId: z.string().optional().describe("Id de un feature existente para retomarlo"),
         description: z.string().optional().describe("Qué hará el feature"),
@@ -345,7 +347,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
         type: z.enum(["unit", "integration", "e2e", "component", "contract", "performance", "other"]).optional(),
         result: z.enum(["unknown", "passing", "failing", "skipped"]).optional(),
         featureId: z.string().optional(),
-        requirementId: z.string().optional(),
+        requirementId: z.string().optional().describe("Id o código del requerimiento (RF3)"),
       },
     },
     async (projectId, actor, args) => {
@@ -385,7 +387,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       inputSchema: {
         text: z.string().min(1),
         featureId: z.string().optional(),
-        requirementId: z.string().optional(),
+        requirementId: z.string().optional().describe("Id o código del requerimiento (RF3)"),
       },
     },
     async (projectId, actor, args) => {
@@ -461,7 +463,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
         features: z
           .array(
             z.object({
-              requirementId: z.string().describe("Requerimiento al que sirve (ver get_project_context)"),
+              requirementId: z.string().describe("Requerimiento al que sirve: id o código como RF3 (ver get_project_context)"),
               name: z.string().describe("Nombre corto del feature"),
               featureId: z.string().optional().describe("Id de un feature existente, para actualizarlo"),
               description: z.string().optional(),
