@@ -73,6 +73,7 @@ describe("MCP tools over an SDK client", () => {
       [
         "complete_feature",
         "create_project",
+        "get_handoff",
         "get_plan_format",
         "get_project_context",
         "get_project_skills",
@@ -388,5 +389,24 @@ describe("agents without hooks", () => {
     const turn = rows.find((t) => t.agent === "codex")!;
     expect(turn).toMatchObject({ summary: "Agregué nuevo-por-codex.ts" });
     expect(turn.files.map((f) => f.path)).toContain("nuevo-por-codex.ts");
+  });
+
+  test("get_handoff tells the next session what the last turn did, on which branch, and what is left", async () => {
+    // Runs after the Codex turn above: that is the last finished turn.
+    await db.insert(s.fileArtifacts).values({ id: "f-handoff", projectId: PROJECT, path: "sin-reportar.ts", changedAt: new Date().toISOString() });
+    await db.insert(s.dodItems).values({ id: "d-handoff", requirementId: REQ, criterion: "Envía el recibo por correo" });
+    const client = await connect({ project: repo }, "claude-code");
+    const { data, isError } = await call(client, "get_handoff");
+    expect(isError).toBe(false);
+    expect(data.lastTurn).toMatchObject({ agent: "codex", branch: "main", summary: "Agregué nuevo-por-codex.ts" });
+    expect(data.lastTurn.files.map((f: { path: string }) => f.path)).toContain("nuevo-por-codex.ts");
+    const checkout = data.pendingDod.find((r: { requirementId: string }) => r.requirementId === REQ);
+    expect(checkout.pending.map((d: { id: string }) => d.id)).toContain("d-handoff");
+    expect(checkout.pending.map((d: { id: string }) => d.id)).not.toContain(DOD);
+    expect(data.pendingChanges.map((p: { path: string }) => p.path)).toContain("sin-reportar.ts");
+
+    const scoped = await call(client, "get_handoff", { requirementId: REQ });
+    expect(scoped.data.pendingDod.map((r: { requirementId: string }) => r.requirementId)).toEqual([REQ]);
+    expect((await call(client, "get_handoff", { requirementId: "RF99" })).isError).toBe(true);
   });
 });

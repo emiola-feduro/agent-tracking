@@ -21,6 +21,7 @@ import {
 import { agentForClient } from "@agent-tracking/agents";
 import { inspectRepo } from "@agent-tracking/git";
 import { createAgentTurns, createProject, saveAttachment, TrackingError, type Tracker } from "@agent-tracking/tracking";
+import { buildHandoff } from "./handoff";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { isAbsolute, join, relative, resolve as resolvePath } from "node:path";
@@ -38,6 +39,7 @@ export const SERVER_INSTRUCTIONS = [
   "por cada feature, su requerimiento, sus archivos con propósito y sus funciones, clases o tipos relevantes,",
   "sus tests con resultado, y los criterios del DoD que quedaron cumplidos con su evidencia.",
   "pending_changes lista los archivos cambiados que aún no cubre ningún reporte: inclúyelos.",
+  "Si retomas el trabajo de otra sesión, get_handoff dice qué hizo el último turno, qué criterios del DoD siguen pendientes y qué falta por reportar.",
   "Las herramientas report_* y start_feature/complete_feature siguen disponibles para reportes parciales.",
   "Para crear un proyecto a partir de un plan usa get_plan_format y luego create_project; si create_project devuelve preguntas, házselas al usuario y vuelve a llamarla con sus respuestas.",
   "Si el proyecto tiene interfaz y creaste o cambiaste una vista, guarda una captura en el repositorio y repórtala con report_screen para la galería.",
@@ -477,6 +479,34 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       await refreshRepo(projectId);
       const pending = await tracker.pendingChanges(projectId);
       return { result: { pending }, event: { count: pending.length } };
+    },
+  );
+
+  register(
+    "get_handoff",
+    {
+      title: "Retomar el trabajo",
+      description:
+        "Para continuar lo que dejó otra sesión: qué hizo el último turno (agente, rama, pedido, resumen y archivos), " +
+        "qué criterios del DoD siguen pendientes y qué archivos cambiados faltan por reportar.",
+      inputSchema: {
+        requirementId: z.string().optional().describe("Id o código (RF3) para ver solo los criterios pendientes de ese requerimiento"),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    async (projectId, _actor, { requirementId }) => {
+      await refreshRepo(projectId);
+      const scope = requirementId ? (await tracker.resolveRequirement(projectId, requirementId)).id : undefined;
+      const [snap, recent, pending] = await Promise.all([
+        tracker.snapshot(projectId),
+        turns.list(projectId, 20),
+        tracker.pendingChanges(projectId),
+      ]);
+      const result = buildHandoff(snap, recent, pending, scope);
+      return {
+        result,
+        event: { lastTurn: result.lastTurn?.agent ?? null, pendingDod: result.pendingDod.length, pending: pending.length },
+      };
     },
   );
 
