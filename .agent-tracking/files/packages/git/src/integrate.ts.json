@@ -13,15 +13,15 @@
       "source": "reported"
     },
     {
-      "name": "integrateBranch",
-      "kind": "function",
-      "purpose": "",
-      "source": "reported"
-    },
-    {
       "name": "pushErrorMessage",
       "kind": "function",
       "purpose": "Explica en español por qué falló el push",
+      "source": "reported"
+    },
+    {
+      "name": "integrateBranch",
+      "kind": "function",
+      "purpose": "",
       "source": "reported"
     }
   ]
