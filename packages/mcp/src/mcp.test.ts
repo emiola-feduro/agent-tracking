@@ -59,6 +59,12 @@ const call = async (client: Client, name: string, args: Record<string, unknown> 
   return { data, isError: res.isError === true };
 };
 
+/** Text of the first content of a resource read. */
+const resourceText = async (client: Client, uri: string) => {
+  const { contents } = await client.readResource({ uri });
+  return { ...contents[0]!, text: "text" in contents[0]! ? contents[0].text : "" };
+};
+
 describe("MCP tools over an SDK client", () => {
   let client: Client;
   let featureId: string;
@@ -239,6 +245,31 @@ describe("MCP tools over an SDK client", () => {
     ]);
     expect(data.dod[0]).toMatchObject({ status: "done", evidence: "src/checkout/pay.test.ts" });
     expect(data.testIdeas).toHaveLength(1);
+  });
+
+  test("the context and each requirement are MCP resources", async () => {
+    const { resources } = await client.listResources();
+    expect(resources.map((r) => r.uri)).toEqual(["agent-tracking://context", `agent-tracking://requirement/${REQ}`]);
+    const { resourceTemplates } = await client.listResourceTemplates();
+    expect(resourceTemplates.map((t) => t.uriTemplate)).toEqual(["agent-tracking://requirement/{id}"]);
+
+    const context = await resourceText(client, "agent-tracking://context");
+    expect(context).toMatchObject({ uri: "agent-tracking://context", mimeType: "text/markdown" });
+    expect(context.text).toContain("Todo pedido requiere login");
+
+    const req = await resourceText(client, `agent-tracking://requirement/${REQ}`);
+    expect(req.mimeType).toBe("application/json");
+    const detail = JSON.parse(req.text);
+    const { data: fromTool } = await call(client, "get_requirement", { requirementId: REQ });
+    expect(detail).toEqual(fromTool);
+
+    await expect(client.readResource({ uri: "agent-tracking://requirement/RF99" })).rejects.toThrow("Requerimiento no encontrado");
+  });
+
+  test("a requirement resource also resolves by code", async () => {
+    await db.insert(s.requirements).values({ id: "r-envios", projectId: PROJECT, code: "RF7", title: "Envíos" });
+    const res = await resourceText(client, "agent-tracking://requirement/rf7");
+    expect(JSON.parse(res.text)).toMatchObject({ id: "r-envios", code: "RF7", title: "Envíos" });
   });
 
   test("remove_test and remove_feature undo what was reported by mistake", async () => {

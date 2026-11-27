@@ -33,7 +33,7 @@ import { buildHandoff } from "./handoff";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { isAbsolute, join, relative, resolve as resolvePath } from "node:path";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
@@ -99,6 +99,37 @@ const filesOf = (snap: ProjectSnapshot, featureId: string) => {
         .filter((y) => y.fileId === f.id)
         .map(({ name, kind, lineStart, lineEnd, purpose }) => ({ name, kind, lineStart, lineEnd, purpose })),
     }));
+};
+
+/** A requirement with its Definition of Done, features (files and symbols), tests and test ideas. */
+export const requirementDetail = (snap: ProjectSnapshot, id: string) => {
+  const r = snap.requirements.find((x) => x.id === id)!;
+  const features = snap.features.filter((f) => f.requirementId === r.id);
+  return {
+    id: r.id,
+    code: r.code,
+    title: r.title,
+    description: r.description,
+    progress: toPercent(requirementProgress(snap, r.id)),
+    dod: snap.dod
+      .filter((d) => d.requirementId === r.id)
+      .map(({ id, criterion, status, evidence }) => ({ id, criterion, status, evidence })),
+    features: features.map((f) => ({
+      id: f.id,
+      name: f.name,
+      description: f.description,
+      status: f.status,
+      agent: f.agent,
+      progress: toPercent(featureProgress(f, snap.tests)),
+      files: filesOf(snap, f.id),
+    })),
+    tests: snap.tests
+      .filter((t) => t.requirementId === r.id)
+      .map(({ id, path, name, type, lastResult, featureId }) => ({ id, path, name, type, lastResult, featureId })),
+    testIdeas: snap.testIdeas
+      .filter((t) => t.requirementId === r.id)
+      .map(({ id, text, status, featureId }) => ({ id, text, status, featureId })),
+  };
 };
 
 /**
@@ -259,34 +290,8 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     async (projectId, _actor, { requirementId }) => {
       const snap = await tracker.snapshot(projectId);
       const { id } = await tracker.resolveRequirement(projectId, requirementId);
-      const r = snap.requirements.find((x) => x.id === id)!;
-      const features = snap.features.filter((f) => f.requirementId === r.id);
-      const result = {
-        id: r.id,
-        code: r.code,
-        title: r.title,
-        description: r.description,
-        progress: toPercent(requirementProgress(snap, r.id)),
-        dod: snap.dod
-          .filter((d) => d.requirementId === r.id)
-          .map(({ id, criterion, status, evidence }) => ({ id, criterion, status, evidence })),
-        features: features.map((f) => ({
-          id: f.id,
-          name: f.name,
-          description: f.description,
-          status: f.status,
-          agent: f.agent,
-          progress: toPercent(featureProgress(f, snap.tests)),
-          files: filesOf(snap, f.id),
-        })),
-        tests: snap.tests
-          .filter((t) => t.requirementId === r.id)
-          .map(({ id, path, name, type, lastResult, featureId }) => ({ id, path, name, type, lastResult, featureId })),
-        testIdeas: snap.testIdeas
-          .filter((t) => t.requirementId === r.id)
-          .map(({ id, text, status, featureId }) => ({ id, text, status, featureId })),
-      };
-      return { result, event: { requirementId, title: r.title } };
+      const result = requirementDetail(snap, id);
+      return { result, event: { requirementId, title: result.title } };
     },
   );
 
@@ -768,6 +773,23 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     }) as never,
   );
 
+  registerResources(server, {
+    context: async () => {
+      const snap = await tracker.snapshot(await resolve(undefined));
+      return buildContextMarkdown(snap);
+    },
+    requirements: async () => {
+      const snap = await tracker.snapshot(await resolve(undefined));
+      return snap.requirements.map(({ id, code, title }) => ({ id, code: code ?? null, title }));
+    },
+    requirement: async (ref) => {
+      const projectId = await resolve(undefined);
+      const snap = await tracker.snapshot(projectId);
+      const { id } = await tracker.resolveRequirement(projectId, ref);
+      return requirementDetail(snap, id);
+    },
+  });
+
   registerPrompts(server, async (requirement) => {
     // Best effort: the prompt still works when the project or the requirement cannot be resolved.
     try {
@@ -851,5 +873,57 @@ function registerPrompts(server: McpServer, lookup: (requirement: string) => Pro
       description: "Send Agent Tracking a single submit_report with features, files, tests and the Definition of Done criteria met",
     },
     async () => ({ messages: [{ role: "user", content: { type: "text", text: REPORT_PROMPT_TEXT } }] }),
+  );
+}
+
+/** URIs of the MCP resources: the project context and each requirement. */
+export const CONTEXT_URI = "agent-tracking://context";
+export const requirementUri = (id: string) => `agent-tracking://requirement/${encodeURIComponent(id)}`;
+
+/** Reads the session's project for the MCP resources. */
+type ResourceSource = {
+  context: () => Promise<string>;
+  requirements: () => Promise<{ id: string; code: string | null; title: string }[]>;
+  /** Detail of a requirement by id or code (RF3). */
+  requirement: (ref: string) => Promise<unknown>;
+};
+
+/**
+ * MCP resources, readable without a tool call: agent-tracking://context (CONTEXT.md of the session's
+ * project) and agent-tracking://requirement/<id> (a requirement with its DoD, features and tests).
+ * The requirement template lists every requirement of the project and also accepts its code.
+ */
+function registerResources(server: McpServer, source: ResourceSource) {
+  server.registerResource(
+    "context",
+    CONTEXT_URI,
+    {
+      title: "Project context",
+      description: "CONTEXT.md of the project: goal, business rules, conventions, skills and requirements with their Definition of Done",
+      mimeType: "text/markdown",
+    },
+    async (uri) => ({ contents: [{ uri: uri.href, mimeType: "text/markdown", text: await source.context() }] }),
+  );
+  server.registerResource(
+    "requirement",
+    new ResourceTemplate("agent-tracking://requirement/{id}", {
+      list: async () => ({
+        resources: (await source.requirements().catch(() => [])).map((r) => ({
+          uri: requirementUri(r.id),
+          name: r.code ? `${r.code} ${r.title}` : r.title,
+          mimeType: "application/json",
+        })),
+      }),
+    }),
+    {
+      title: "Requirement",
+      description: "A requirement with its Definition of Done (ids and status), features, files, symbols, tests and test ideas",
+      mimeType: "application/json",
+    },
+    async (uri, { id }) => {
+      const ref = decodeURIComponent(String(Array.isArray(id) ? id[0] : id));
+      const detail = await source.requirement(ref);
+      return { contents: [{ uri: uri.href, mimeType: "application/json", text: JSON.stringify(detail, null, 2) }] };
+    },
   );
 }
