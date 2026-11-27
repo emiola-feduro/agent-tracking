@@ -273,7 +273,7 @@ describe("Streamable HTTP transport", () => {
   test("a session forgotten by a server restart is revived, so the agent keeps working without reconnecting", async () => {
     const url = (port: number) => new URL(`http://127.0.0.1:${port}/mcp?project=${PROJECT}&agent=claude-code`);
     let server = Bun.serve({ port: 0, hostname: "127.0.0.1", fetch: createMcpHttpHandler(tracker()) });
-    const port = server.port;
+    const port = server.port as number;
     try {
       const client = new Client({ name: "claude-code", version: "1" });
       await client.connect(new StreamableHTTPClientTransport(url(port)));
