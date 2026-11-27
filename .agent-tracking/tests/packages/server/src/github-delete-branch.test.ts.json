@@ -2,6 +2,13 @@
   "path": "packages/server/src/github-delete-branch.test.ts",
   "tests": [
     {
+      "featureId": "c7404e54-2b90-49e6-89c9-401c3089661e",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+      "name": "a branch an agent is working on is kept, here too",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
       "requirementId": "d48566db-3202-417a-a0ff-2fa359fdc596",
       "name": "deleting branches on GitHub",

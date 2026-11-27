@@ -54,7 +54,7 @@
     {
       "id": "c7404e54-2b90-49e6-89c9-401c3089661e",
       "name": "Integrar una rama en main y subirla desde la app",
-      "description": "Botón en el resumen para fusionar una rama de trabajo en main y subirla, con avisos de errores de git",
+      "description": "Detección exacta de agente en la rama y botón de integrar en los trabajos lanzados",
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T20:20:36.423Z"

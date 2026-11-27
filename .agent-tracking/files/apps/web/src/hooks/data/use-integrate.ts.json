@@ -1,0 +1,22 @@
+{
+  "path": "apps/web/src/hooks/data/use-integrate.ts",
+  "purpose": "Lógica compartida de integrar con confirmación y resultado",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "c7404e54-2b90-49e6-89c9-401c3089661e"
+  ],
+  "symbols": [
+    {
+      "name": "describeIntegration",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "useIntegrate",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

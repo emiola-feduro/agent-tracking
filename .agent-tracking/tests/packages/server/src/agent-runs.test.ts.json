@@ -9,8 +9,8 @@
       "lastResult": "passing"
     },
     {
-      "featureId": "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89",
-      "requirementId": "34551e71-2c57-40ae-9102-773ca2f7cb0a",
+      "featureId": "c7404e54-2b90-49e6-89c9-401c3089661e",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
       "name": "several requirements and criteria go to one agent; only what is not done can be queued",
       "type": "integration",
       "lastResult": "passing"

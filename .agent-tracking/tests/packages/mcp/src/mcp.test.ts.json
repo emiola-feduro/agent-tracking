@@ -16,6 +16,13 @@
       "lastResult": "passing"
     },
     {
+      "featureId": "3dc3a513-d922-422a-adf7-ed9242831357",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "create_project takes the pieces, test types and reply language like the wizard",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "40490b16-9821-49bc-a246-7d81b01eb54a",
       "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
       "name": "creating a project from a plan",
@@ -33,6 +40,27 @@
       "featureId": "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
       "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
       "name": "herramientas MCP sobre un cliente del SDK",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "lists every tool",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "e8d4ca0d-5780-4790-be9d-4ce1a74dd936",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "prompts show up as /agent-tracking:start <requirement> and /agent-tracking:report",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "remove_test and remove_feature undo what was reported by mistake",
       "type": "integration",
       "lastResult": "passing"
     },

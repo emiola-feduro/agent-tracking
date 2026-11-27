@@ -37,24 +37,24 @@
       "id": "8a2f53c1-6b13-4f70-b423-3dddd750f436",
       "criterion": "remove_test y remove_feature permiten deshacer lo que se reportó por error",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "remove_test y remove_feature en packages/mcp/src/server.ts; test 'remove_test and remove_feature undo what was reported by mistake' en packages/mcp/src/mcp.test.ts (bun test: 33 pass); bun run typecheck limpio",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
       "id": "8c9da401-b983-48d6-9f14-456605b23518",
       "criterion": "create_project admite monorepo con sus piezas, tipos de tests e idioma de las respuestas, igual que el wizard",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "parseProjectPlan/missingPlanFields en packages/core/src/plan.ts y create_project en packages/mcp/src/server.ts; tests en plan.test.ts y 'create_project takes the pieces, test types and reply language like the wizard' en mcp.test.ts; bun test: 415 pass; bun run typecheck limpio; commit d957684",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
       "id": "cc79f882-023c-46df-846d-b2e1479195b1",
       "criterion": "Prompts MCP en inglés que aparecen como comandos: /agent-tracking:start <requirement> y /agent-tracking:report",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "registerPrompts en packages/mcp/src/server.ts; test 'prompts show up as /agent-tracking:start <requirement> and /agent-tracking:report' en packages/mcp/src/mcp.test.ts (bun test: 32 pass); prompts/list contra http://127.0.0.1:4317/mcp devuelve start y report",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
@@ -106,6 +106,30 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T19:47:03.571Z"
+    },
+    {
+      "id": "e8d4ca0d-5780-4790-be9d-4ce1a74dd936",
+      "name": "Prompts MCP start y report",
+      "description": "Prompts en inglés que los agentes muestran como /agent-tracking:start <requirement> y /agent-tracking:report; start resuelve el requerimiento y lista sus criterios pendientes",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T20:35:11.928Z"
+    },
+    {
+      "id": "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
+      "name": "remove_test y remove_feature",
+      "description": "Deshacer tests y features reportados por error desde el MCP",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T20:36:44.557Z"
+    },
+    {
+      "id": "3dc3a513-d922-422a-adf7-ed9242831357",
+      "name": "create_project completo como el wizard",
+      "description": "Los planes de create_project admiten monorepo con piezas y herramienta, requerimientos ligados a piezas, tipos de tests e idioma de las respuestas, con los mismos valores por defecto y validaciones que el wizard",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T20:42:06.271Z"
     }
   ]
 }
