@@ -15,6 +15,7 @@ import {
   commitLog,
   currentBranch,
   GitError,
+  integrateBranch,
   listBranches,
   workingTreeChanges,
 } from "@agent-tracking/git";
@@ -60,6 +61,7 @@ const intParam = (v: string | undefined, def: number) => {
  *
  *   GET  /projects/:id/repo/branches                      → { current, branches }
  *   POST /projects/:id/repo/checkout { branch }           → { branch, previous }   (409 with uncommitted changes)
+ *   POST /projects/:id/repo/integrate { branch, push }    → IntegrateResult (409 conflicts, unfinished work or an agent on it)
  *   GET  /projects/:id/repo/commits?ref&limit&skip&path   → { commits }
  *   GET  /projects/:id/repo/changes?from&to               → { files }  (no `from`: working tree)
  *   GET  /projects/:id/repo/analysis/file?path=           → FileAnalysis
@@ -192,6 +194,26 @@ export function repoRoutes(
     if (!parsed.success) throw new HTTPException(400, { message: "Falta el nombre de la rama" });
     const result = await guard(() => checkoutBranch(root, parsed.data.branch));
     if (result.previous !== result.branch) emit({ type: "changed", projectId: id, entity: "repo" });
+    return c.json(result);
+  });
+
+  /**
+   * Brings a work branch into the main branch (fast-forward or merge commit, done aside) and pushes
+   * it. Not while an agent is still working on it. Git problems come back as 409/500 with what to do.
+   */
+  app.post("/projects/:id/repo/integrate", async (c) => {
+    const id = c.req.param("id");
+    const root = await repoOf(id);
+    const parsed = z.object({ branch: z.string().min(1), push: z.boolean().default(true) }).safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) throw new HTTPException(400, { message: "Falta el nombre de la rama" });
+    const { branch, push } = parsed.data;
+    if (await opts.agentOnBranch?.(id, branch)) {
+      throw new HTTPException(409, { message: `Un agente sigue trabajando en ${branch}: espera a que termine para integrarla`, cause: { code: "agent" } });
+    }
+    const base = await baseBranch(root);
+    if (!base) throw new HTTPException(400, { message: "No se encontró la rama principal (main o master)" });
+    const result = await guard(() => integrateBranch(root, branch, base, { push, switchBack: true }));
+    emit({ type: "changed", projectId: id, entity: "repo" });
     return c.json(result);
   });
 

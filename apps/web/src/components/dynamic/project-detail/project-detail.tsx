@@ -11,6 +11,7 @@ import ProjectDetailCheckoutMenu from "./project-detail-checkout-menu";
 import ProjectDetailWorktreeBanner from "./project-detail-worktree-banner";
 import ProjectDetailContext from "./project-detail-context";
 import ProjectDetailConventions from "./project-detail-conventions";
+import ProjectDetailIntegrate from "./project-detail-integrate";
 import ProjectDetailLastTurn from "./project-detail-last-turn";
 import ProjectDetailLive from "./project-detail-live";
 import ProjectDetailNav, { NAV_ICONS, type NavGroup } from "./project-detail-nav";
@@ -113,6 +114,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
           {current === "overview" && (
             <>
               <ProjectDetailSummary view={view} />
+              {project.repoPath && <ProjectDetailIntegrate projectId={project.id} />}
               <ProjectDetailLastTurn projectId={project.id} />
             </>
           )}

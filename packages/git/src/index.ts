@@ -106,3 +106,4 @@ export async function writeNewFiles(root: string, files: { path: string; content
 export * from "./worktrees";
 export * from "./github-publish";
 export * from "./merge-driver";
+export * from "./integrate";

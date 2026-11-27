@@ -133,6 +133,17 @@ export type BranchProgress = {
   lastCommit: { sha: string; subject: string; date: string } | null;
 };
 export type Worktree = { path: string; branch: string | null; head: string; main: boolean; locked: boolean; prunable: boolean; progress: BranchProgress | null };
+/** What integrating a branch into the main one did (see packages/git/src/integrate.ts). */
+export type IntegrateResult = {
+  branch: string;
+  base: string;
+  merge: "fast-forward" | "merge-commit" | "already-merged";
+  head: string;
+  trackingCommits: string[];
+  switchedBack: boolean;
+  pushed: boolean;
+  pushError: string | null;
+};
 export type LocalBranch = {
   name: string;
   sha: string;
@@ -331,6 +342,7 @@ export const api = {
   publishGithub: (id: string, data: GithubPublish) =>
     request<{ url: string; repoUrl: string; committed: boolean; pushed: boolean }>("POST", `${p(id)}/github/publish`, data),
   repoBranch: (id: string) => request<{ current: string | null }>("GET", `${p(id)}/repo/branches`),
+  integrateBranch: (id: string, branch: string, push: boolean) => request<IntegrateResult>("POST", `${p(id)}/repo/integrate`, { branch, push }),
   localBranches: (id: string) => request<{ current: string | null; branches: LocalBranch[]; dirty: string[] }>("GET", `${p(id)}/repo/branches`),
   deleteBranch: (id: string, branch: string, force = false) =>
     request<{ branch: string; sha: string }>("DELETE", `${p(id)}/repo/branches/${encodeURIComponent(branch)}${force ? "?force=1" : ""}`),
