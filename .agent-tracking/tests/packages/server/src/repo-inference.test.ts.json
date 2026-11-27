@@ -2,6 +2,27 @@
   "path": "packages/server/src/repo-inference.test.ts",
   "tests": [
     {
+      "featureId": "42102d33-41a4-4cd0-843c-6e2c583630f2",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "a report is rejected with every path outside the repo and every unknown DoD id at once",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "42102d33-41a4-4cd0-843c-6e2c583630f2",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "a report is validated before anything is written",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "42102d33-41a4-4cd0-843c-6e2c583630f2",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "a report warns about files that do not exist or did not change",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "cfe72313-771d-4396-913d-07fddbe38666",
       "requirementId": "1d788405-8d51-494f-8414-ecb321666721",
       "name": "inferencia y cambio de rama",

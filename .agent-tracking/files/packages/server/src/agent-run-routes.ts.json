@@ -1,16 +1,23 @@
 {
   "path": "packages/server/src/agent-run-routes.ts",
-  "purpose": "Los trabajos recuerdan la rama en la que terminaron; runningCwds",
+  "purpose": "POST /projects/:id/runs/resolve y enqueue compartido",
   "createdBy": "agent:claude-code",
   "featureIds": [
     "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "57265620-f44f-45c5-bf18-a3d6cf432511",
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e",
     "c7404e54-2b90-49e6-89c9-401c3089661e",
     "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": [
     {
       "name": "checkBranch",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "enqueue",
       "kind": "function",
       "purpose": "",
       "source": "reported"

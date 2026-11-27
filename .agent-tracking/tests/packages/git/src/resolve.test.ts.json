@@ -1,0 +1,12 @@
+{
+  "path": "packages/git/src/resolve.test.ts",
+  "tests": [
+    {
+      "featureId": "5f20518a-4f44-43dd-816d-b0e80e7d870e",
+      "requirementId": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+      "name": "resolving conflicts without a terminal",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

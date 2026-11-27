@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/git-actions/integrate-outcome.tsx",
+  "purpose": "Resultado de integrar con acciones: commit, resolver aquí o con un agente, integrar de nuevo",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e"
+  ],
+  "symbols": [
+    {
+      "name": "IntegrateOutcomeView",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

@@ -1,13 +1,20 @@
 {
   "path": "packages/agents/src/launch.ts",
-  "purpose": "Regla de rama en la instrucción según la elección",
+  "purpose": "Instrucción para que un agente resuelva conflictos",
   "createdBy": "agent:claude-code",
   "featureIds": [
     "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "57265620-f44f-45c5-bf18-a3d6cf432511",
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e",
     "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": [
+    {
+      "name": "resolvePrompt",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
     {
       "name": "LaunchItem",
       "kind": "type",

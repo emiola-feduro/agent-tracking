@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/hooks/data/use-integrate.ts",
-  "purpose": "Lógica compartida de integrar con confirmación y resultado",
+  "purpose": "El resultado guarda el motivo del error de git",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e",
     "c7404e54-2b90-49e6-89c9-401c3089661e"
   ],
   "symbols": [

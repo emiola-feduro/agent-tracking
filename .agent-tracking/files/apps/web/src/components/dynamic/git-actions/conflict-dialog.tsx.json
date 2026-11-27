@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/git-actions/conflict-dialog.tsx",
+  "purpose": "Resolver conflictos archivo por archivo",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e"
+  ],
+  "symbols": [
+    {
+      "name": "ConflictDialog",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

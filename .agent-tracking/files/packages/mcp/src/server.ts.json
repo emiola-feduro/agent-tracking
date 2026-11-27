@@ -1,11 +1,12 @@
 {
   "path": "packages/mcp/src/server.ts",
-  "purpose": "Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement",
+  "purpose": "Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos",
   "createdBy": "repo:analysis",
   "featureIds": [
     "0c5a9934-dd37-4f9b-8254-2155628b2392",
     "3dc3a513-d922-422a-adf7-ed9242831357",
     "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "42102d33-41a4-4cd0-843c-6e2c583630f2",
     "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
     "7dcbda15-b02e-49d2-9796-2f835dd5832c",
     "9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8",

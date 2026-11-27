@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail-integrate.tsx",
-  "purpose": "Usa el hook compartido y explica cuándo se podrá integrar",
+  "purpose": "Aviso de cambios sin commit del checkout principal y acciones del resultado",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e",
     "c7404e54-2b90-49e6-89c9-401c3089661e"
   ],
   "symbols": [

@@ -1,0 +1,40 @@
+{
+  "path": "packages/git/src/resolve.ts",
+  "purpose": "Commit de archivos elegidos y sesión de resolución de conflictos en un worktree temporal",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e"
+  ],
+  "symbols": [
+    {
+      "name": "MergeSession",
+      "kind": "type",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "commitFiles",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "finishMergeSession",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "resolveConflict",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "startMergeSession",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

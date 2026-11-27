@@ -1,10 +1,11 @@
 {
   "path": "packages/server/src/repo-routes.ts",
-  "purpose": "POST /projects/:id/repo/integrate, bloqueado si un agente trabaja en la rama",
+  "purpose": "Rutas de commit, cambios por worktree y sesiones de resolución",
   "createdBy": "repo:analysis",
   "featureIds": [
     "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
     "229342a4-9fb9-48b6-9ad5-3532951f1d1b",
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e",
     "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
     "c7404e54-2b90-49e6-89c9-401c3089661e",
     "fcec5305-a2d0-4043-a3ed-05b381b633f7"

@@ -118,6 +118,63 @@ describe("repo inference", () => {
     expect(tracker.submitReport(projectId, "agent:test", { features: [] })).rejects.toThrow("vacío");
   });
 
+  test("a report is rejected with every path outside the repo and every unknown DoD id at once", async () => {
+    const { db, tracker, projectId } = await setup();
+    await db.insert(s.dodItems).values({ id: "d1", requirementId: "r1", criterion: "Agrega productos" });
+    const bad = tracker.submitReport(projectId, "agent:test", {
+      features: [
+        {
+          requirementId: "r1",
+          name: "Carrito",
+          files: [{ path: "src/a.ts" }, { path: "../fuera.ts" }, { path: "/etc/passwd" }],
+          tests: [{ path: "../../t.test.ts", name: "t" }],
+        },
+      ],
+      dod: [
+        { id: "d1", status: "done" },
+        { id: "no-existe", status: "done" },
+      ],
+    });
+    const error = (await bad.catch((e: Error) => e)) as Error;
+    expect(error.message).toContain("no se guardó");
+    expect(error.message).toContain("../fuera.ts");
+    expect(error.message).toContain("/etc/passwd");
+    expect(error.message).toContain("../../t.test.ts");
+    expect(error.message).toContain("Criterio del DoD no encontrado: no-existe");
+    expect(error.message).not.toContain("src/a.ts");
+    const snap = (await loadSnapshot(db, projectId))!;
+    expect(snap.features).toEqual([]);
+    expect(snap.dod.find((d) => d.id === "d1")!.status).toBe("pending");
+  });
+
+  test("a report warns about files that do not exist or did not change", async () => {
+    const { repo, tracker, inference, projectId } = await setup();
+    await writeFile(join(repo, "src/cart.ts"), CART);
+    await inference.syncWorkingTree(projectId);
+    const first = await tracker.submitReport(projectId, "agent:test", {
+      features: [{ requirementId: "r1", name: "Carrito", files: [{ path: "src/cart.ts" }, { path: "src/fantasma.ts" }] }],
+    });
+    // The new file changed; the one that is not on disk is flagged.
+    expect(first.warnings).toEqual(["src/fantasma.ts: no existe en el repositorio"]);
+
+    // Committed and reported: reporting it again, untouched, is flagged; README was never touched either.
+    await git(["add", "-A"], repo);
+    await git(["-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "-m", "cart"], repo);
+    const again = await tracker.submitReport(projectId, "agent:test", {
+      features: [{ requirementId: "r1", name: "Carrito", files: [{ path: "src/cart.ts" }, { path: "README.md" }] }],
+    });
+    expect(again.warnings.sort()).toEqual(["README.md: no cambió desde el último reporte", "src/cart.ts: no cambió desde el último reporte"]);
+
+    // An edit after the last report is not flagged, even once committed.
+    await Bun.sleep(20);
+    await writeFile(join(repo, "README.md"), "# demo editado\n");
+    await git(["-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-qam", "readme"], repo);
+    const edited = await tracker.submitReport(projectId, "agent:test", {
+      features: [{ requirementId: "r1", name: "Carrito", files: [{ path: "README.md" }] }],
+    });
+    expect(edited.warnings).toEqual([]);
+  });
+
   test("what an agent reported is never overwritten, and stale inferred rows go away", async () => {
     const { repo, db, tracker, inference, projectId } = await setup();
     await writeFile(join(repo, "src/cart.ts"), CART);

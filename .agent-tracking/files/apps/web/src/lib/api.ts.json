@@ -1,6 +1,6 @@
 {
   "path": "apps/web/src/lib/api.ts",
-  "purpose": "workBranch en AgentRun",
+  "purpose": "Llamadas de commit, sesiones de resolución y agente resolutor",
   "createdBy": "repo:analysis",
   "featureIds": [
     "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
@@ -8,6 +8,7 @@
     "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "4b340d32-362f-4378-bb2c-c250c397cd83",
     "4e182ef9-9a67-474a-81f0-7b4b51e2a032",
+    "5f20518a-4f44-43dd-816d-b0e80e7d870e",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "af7e04d4-633c-4100-99e2-46e3093f6834",
     "b8ace81c-984b-4166-979b-ffb57f50780b",
