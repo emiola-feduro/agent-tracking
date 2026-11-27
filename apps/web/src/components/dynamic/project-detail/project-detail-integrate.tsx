@@ -1,4 +1,8 @@
-import Alert from "@/components/ui/alert/alert";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import CommitDialog from "@/components/dynamic/git-actions/commit-dialog";
+import IntegrateOutcomeView from "@/components/dynamic/git-actions/integrate-outcome";
+import { api } from "@/lib/api";
 import Button from "@/components/ui/button/button";
 import StatusPill from "@/components/ui/status-pill/status-pill";
 import useIntegrate from "@/hooks/data/use-integrate";
@@ -13,9 +17,13 @@ const ProjectDetailIntegrate = ({ projectId }: { projectId: string }) => {
   const branches = useLocalBranches(projectId);
   const worktrees = useWorktrees(projectId);
   const base = worktrees.data?.base ?? "main";
-  const { integrate, outcome, clearOutcome, busyBranch, isPending } = useIntegrate(projectId, base);
+  const { integrate, outcome, setOutcome, clearOutcome, busyBranch, isPending } = useIntegrate(projectId, base);
   const ready = (branches.data?.branches ?? []).filter((b) => b.name !== base && b.unmerged > 0);
-  if (!ready.length && !outcome) return null;
+  const changes = useQuery({ queryKey: ["projects", projectId, "working-changes", null], queryFn: () => api.workingChanges(projectId), refetchInterval: 30_000 });
+  const dirty = changes.data?.files.length ?? 0;
+  const current = branches.data?.current ?? null;
+  const [committing, setCommitting] = useState(false);
+  if (!ready.length && !outcome && !dirty) return null;
 
   return (
     <section className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-5" aria-labelledby="integrate-title">
@@ -27,14 +35,25 @@ const ProjectDetailIntegrate = ({ projectId }: { projectId: string }) => {
           Ramas con commits que {base} todavía no tiene. La fusión se hace aparte, sin tocar lo que tengas abierto; si hay conflictos no se cambia nada.
         </p>
       </div>
-      {outcome && (
-        <div className="flex items-start justify-between gap-3" aria-live="polite">
-          <Alert tone={outcome.tone}>{outcome.text}</Alert>
-          <Button size="sm" variant="ghost" onClick={clearOutcome}>
-            Cerrar
+      {outcome && <IntegrateOutcomeView projectId={projectId} outcome={outcome} onClose={clearOutcome} onChange={setOutcome} integrate={(b, push) => integrate(b, push)} />}
+      {dirty > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-md bg-subtle px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1 text-ink">
+            {dirty === 1 ? "Hay 1 cambio sin commit" : `Hay ${dirty} cambios sin commit`} en el checkout principal
+            {current ? (
+              <>
+                {" "}
+                (rama <code className="font-mono">{current}</code>)
+              </>
+            ) : null}
+            .
+          </span>
+          <Button size="sm" onClick={() => setCommitting(true)}>
+            Hacer commit…
           </Button>
         </div>
       )}
+      <CommitDialog projectId={projectId} open={committing} onClose={() => setCommitting(false)} where={current ? `el checkout principal (rama ${current})` : undefined} />
       <ul className="flex flex-col divide-y divide-line">
         {ready.map((b) => (
           <li key={b.name} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">

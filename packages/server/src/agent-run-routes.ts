@@ -1,4 +1,4 @@
-import { AGENT_KINDS, LAUNCH_BINARIES, LAUNCH_PERMISSIONS, launchCommand, launchLabel, launchPrompt, type AgentKind, type LaunchItem, type LaunchPermission } from "@agent-tracking/agents";
+import { AGENT_KINDS, LAUNCH_BINARIES, LAUNCH_PERMISSIONS, launchCommand, launchLabel, launchPrompt, resolvePrompt, type AgentKind, type LaunchItem, type LaunchPermission } from "@agent-tracking/agents";
 import { dodImplementable, requirementImplementable } from "@agent-tracking/core";
 import { git, listWorktrees } from "@agent-tracking/git";
 import type { Tracker } from "@agent-tracking/tracking";
@@ -187,6 +187,14 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
     }
   };
 
+  /** Registers a run and starts it, or queues it behind the agent working in the same checkout. */
+  const enqueue = async (run: AgentRun, argv: string[]) => {
+    runs.set(run.id, run);
+    commands.set(run.id, argv);
+    if (!busy(run.cwd)) start(run);
+    await tracker.recordEvent(run.projectId, "user:local", "agent_launched", { runId: run.id, agent: run.agent, tasks: run.label, permission: run.permission, queued: run.status === "queued" });
+  };
+
   app.get("/projects/:id/runs", async (c) => {
     const projectId = c.req.param("id");
     await tracker.projectOr404(projectId);
@@ -233,11 +241,56 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
       workBranch: null,
       output: [],
     };
-    runs.set(run.id, run);
-    commands.set(run.id, launchCommand(input.agent, prompt, input.permission, input.model));
-    // One agent per checkout: the rest wait their turn.
-    if (!busy(cwd)) start(run);
-    await tracker.recordEvent(projectId, "user:local", "agent_launched", { runId: run.id, agent: run.agent, tasks: run.label, permission: run.permission, queued: run.status === "queued" });
+    await enqueue(run, launchCommand(input.agent, prompt, input.permission, input.model));
+    return c.json(run, 201);
+  });
+
+  /**
+   * An agent that brings the main branch into a work branch and resolves the conflicts, in the
+   * branch's checkout (or the main checkout, switching to it), committing the merge without pushing.
+   */
+  app.post("/projects/:id/runs/resolve", async (c) => {
+    localOnly(c);
+    const projectId = c.req.param("id");
+    const parsed = z
+      .object({
+        branch: z.string().trim().min(1).max(200),
+        agent: z.enum(AGENT_KINDS),
+        permission: z.enum(LAUNCH_PERMISSIONS).default("safe"),
+        model: z.string().trim().max(100).regex(/^[\w.:/@-]*$/).optional(),
+        conflicts: z.array(z.string().max(500)).max(200).default([]),
+      })
+      .safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) throw new HTTPException(400, { message: z.prettifyError(parsed.error) });
+    const input = parsed.data;
+    const snap = await tracker.snapshot(projectId);
+    const root = snap.project.repoPath;
+    if (!root) throw new HTTPException(409, { message: "El proyecto no tiene repositorio local donde trabajar" });
+    if (PROTECTED.includes(input.branch)) throw new HTTPException(400, { message: "Elige la rama de trabajo, no la principal" });
+    if (!(await git(["rev-parse", "--verify", "--quiet", `refs/heads/${input.branch}`], root)).ok) throw new HTTPException(404, { message: `No existe la rama ${input.branch}` });
+    if (!which(LAUNCH_BINARIES[input.agent])) throw new HTTPException(409, { message: `${input.agent} no está instalado en este equipo` });
+    const checkouts = await listWorktrees(root).catch(() => [{ path: root, branch: null as string | null }]);
+    const base = PROTECTED.find((name) => checkouts.some((w) => w.branch === name)) ?? "main";
+    const cwd = resolve(checkouts.find((w) => w.branch === input.branch)?.path ?? root);
+    const prompt = resolvePrompt({ project: snap.project.name, branch: input.branch, base, conflicts: input.conflicts });
+    const run: AgentRun = {
+      id: crypto.randomUUID(),
+      projectId,
+      tasks: [],
+      label: `resolver los conflictos de ${input.branch} con ${base}`,
+      agent: input.agent,
+      cwd,
+      branch: input.branch,
+      permission: input.permission,
+      status: "queued",
+      createdAt: new Date().toISOString(),
+      startedAt: null,
+      endedAt: null,
+      exitCode: null,
+      workBranch: null,
+      output: [],
+    };
+    await enqueue(run, launchCommand(input.agent, prompt, input.permission, input.model));
     return c.json(run, 201);
   });
 

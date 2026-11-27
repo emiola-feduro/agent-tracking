@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryKeys } from "@/lib/query-keys";
-import Alert from "@/components/ui/alert/alert";
+import IntegrateOutcomeView from "@/components/dynamic/git-actions/integrate-outcome";
 import Button from "@/components/ui/button/button";
 import useIntegrate from "@/hooks/data/use-integrate";
 import { useLocalBranches, useWorktrees } from "@/hooks/data/use-worktrees";
@@ -29,7 +29,7 @@ const AgentRunsList = ({ projectId }: { projectId: string }) => {
   const branches = useLocalBranches(projectId);
   const worktrees = useWorktrees(projectId);
   const base = worktrees.data?.base ?? "main";
-  const { integrate, outcome, clearOutcome, busyBranch, isPending } = useIntegrate(projectId, base);
+  const { integrate, outcome, setOutcome, clearOutcome, busyBranch, isPending } = useIntegrate(projectId, base);
   /** Commits the branch has that the base does not (0: nothing left to integrate). */
   const pendingOn = (branch: string | null) => (branch && branch !== base ? (branches.data?.branches.find((b) => b.name === branch)?.unmerged ?? 0) : 0);
   const [now, setNow] = useState(Date.now());
@@ -51,14 +51,7 @@ const AgentRunsList = ({ projectId }: { projectId: string }) => {
         <p className="text-sm text-muted">Agentes que arrancaste con «Implementar». Si ya hay uno trabajando en la misma carpeta, el siguiente espera en cola. Se borran al reiniciar el servidor.</p>
       </div>
       {runs.data?.length === 0 && <p className="text-sm text-muted">Todavía no lanzaste ninguno.</p>}
-      {outcome && (
-        <div className="flex items-start justify-between gap-3" aria-live="polite">
-          <Alert tone={outcome.tone}>{outcome.text}</Alert>
-          <Button size="sm" variant="ghost" onClick={clearOutcome}>
-            Cerrar
-          </Button>
-        </div>
-      )}
+      {outcome && <IntegrateOutcomeView projectId={projectId} outcome={outcome} onClose={clearOutcome} onChange={setOutcome} integrate={(b, push) => integrate(b, push)} />}
       <ul className="flex flex-col gap-3">
         {runs.data?.map((r) => (
           <li key={r.id} className="flex flex-col gap-2 rounded-md border border-line p-3">

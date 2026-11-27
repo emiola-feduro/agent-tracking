@@ -135,6 +135,9 @@ export type BranchProgress = {
   lastCommit: { sha: string; subject: string; date: string } | null;
 };
 export type Worktree = { path: string; branch: string | null; head: string; main: boolean; locked: boolean; prunable: boolean; progress: BranchProgress | null };
+export type WorkingChange = { path: string; status: string; staged: boolean; unstaged: boolean; oldPath?: string };
+export type MergeSessionView = { id: string; branch: string; base: string; conflicts: string[]; pending: string[] };
+export type ConflictFileView = { path: string; branch: string | null; base: string | null; merged: string; resolved: boolean };
 /** What integrating a branch into the main one did (see packages/git/src/integrate.ts). */
 export type IntegrateResult = {
   branch: string;
@@ -344,6 +347,18 @@ export const api = {
   publishGithub: (id: string, data: GithubPublish) =>
     request<{ url: string; repoUrl: string; committed: boolean; pushed: boolean }>("POST", `${p(id)}/github/publish`, data),
   repoBranch: (id: string) => request<{ current: string | null }>("GET", `${p(id)}/repo/branches`),
+  workingChanges: (id: string, worktree?: string | null) =>
+    request<{ files: WorkingChange[] }>("GET", `${p(id)}/repo/changes${worktree ? `?worktree=${encodeURIComponent(worktree)}` : ""}`),
+  commit: (id: string, data: { worktree?: string | null; message: string; paths: string[] }) =>
+    request<{ sha: string; files: number }>("POST", `${p(id)}/repo/commit`, { ...data, worktree: data.worktree ?? undefined }),
+  startMerge: (id: string, branch: string) => request<MergeSessionView>("POST", `${p(id)}/repo/merges`, { branch }),
+  mergeFile: (id: string, mergeId: string, path: string) => request<ConflictFileView>("GET", `${p(id)}/repo/merges/${mergeId}/file?path=${encodeURIComponent(path)}`),
+  resolveMerge: (id: string, mergeId: string, data: { path: string; take?: "branch" | "base"; content?: string }) =>
+    request<MergeSessionView>("POST", `${p(id)}/repo/merges/${mergeId}/resolve`, data),
+  finishMerge: (id: string, mergeId: string) => request<{ sha: string; branch: string; base: string }>("POST", `${p(id)}/repo/merges/${mergeId}/finish`),
+  abortMerge: (id: string, mergeId: string) => request<void>("DELETE", `${p(id)}/repo/merges/${mergeId}`),
+  resolveWithAgent: (id: string, data: { branch: string; agent: AgentKind; permission: LaunchPermission; model?: string; conflicts: string[] }) =>
+    request<AgentRun>("POST", `${p(id)}/runs/resolve`, data),
   integrateBranch: (id: string, branch: string, push: boolean) => request<IntegrateResult>("POST", `${p(id)}/repo/integrate`, { branch, push }),
   localBranches: (id: string) => request<{ current: string | null; branches: LocalBranch[]; dirty: string[] }>("GET", `${p(id)}/repo/branches`),
   deleteBranch: (id: string, branch: string, force = false) =>

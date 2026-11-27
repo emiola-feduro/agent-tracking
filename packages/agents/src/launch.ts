@@ -85,6 +85,23 @@ export function launchPrompt(task: LaunchTask): string {
     .trim();
 }
 
+/** What an agent is asked to do to resolve a work branch's conflicts with the main branch. */
+export function resolvePrompt(task: { project: string; branch: string; base: string; conflicts: string[] }): string {
+  return [
+    `En el proyecto ${task.project}, que se sigue con Agent Tracking, la rama ${task.branch} tiene conflictos con ${task.base} y no se puede integrar.`,
+    task.conflicts.length ? `Archivos en conflicto: ${task.conflicts.join(", ")}.` : "",
+    "",
+    "Cómo trabajar:",
+    `1. Si no estás en la rama ${task.branch}, cámbiate con git switch ${task.branch}. Si hay cambios sin commit que no son tuyos, no los descartes: detente y avísalo.`,
+    `2. Trae ${task.base} a la rama con git merge ${task.base} y resuelve cada conflicto conservando lo que cada lado quería lograr; si no se puede, prioriza lo que ya está en ${task.base} y explica por qué.`,
+    "3. Corre los tests del proyecto y corrige lo que la fusión haya roto.",
+    `4. Haz commit de la fusión en ${task.branch}. No hagas push ni toques ${task.base}.`,
+    "5. Al terminar, llama una vez a submit_report con lo que resolviste.",
+  ]
+    .filter((l, i, all) => l !== "" || all[i - 1] !== "")
+    .join("\n");
+}
+
 /** argv to start `agent` on `prompt` in its non-interactive mode (run with the checkout as cwd). */
 export function launchCommand(agent: AgentKind, prompt: string, permission: LaunchPermission, model?: string): string[] {
   const withModel = (flag: string) => (model?.trim() ? [flag, model.trim()] : []);

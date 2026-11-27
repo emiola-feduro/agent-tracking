@@ -1,9 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { api, type IntegrateResult } from "@/lib/api";
+import { api, ApiError, type IntegrateResult } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 
-export type IntegrateOutcome = { branch: string; tone: "info" | "warn" | "danger"; text: string };
+export type IntegrateOutcome = {
+  branch: string;
+  tone: "info" | "warn" | "danger";
+  text: string;
+  /** Why git stopped (unmerged: conflicts, dirty: uncommitted changes), with what it reported. */
+  code?: string;
+  conflicts?: string[];
+  path?: string;
+  /** The branch can be integrated now (its conflicts were just resolved). */
+  ready?: boolean;
+};
 
 /** What integrating did, in one or two sentences. */
 export const describeIntegration = (r: IntegrateResult): IntegrateOutcome => {
@@ -29,7 +39,17 @@ const useIntegrate = (projectId: string, base: string) => {
   const mutation = useMutation({
     mutationFn: ({ branch, push }: { branch: string; push: boolean }) => api.integrateBranch(projectId, branch, push),
     onSuccess: (r) => setOutcome(describeIntegration(r)),
-    onError: (e, { branch }) => setOutcome({ branch, tone: "danger", text: (e as Error).message }),
+    onError: (e, { branch }) => {
+      const data = e instanceof ApiError ? e.data : {};
+      setOutcome({
+        branch,
+        tone: "danger",
+        text: (e as Error).message,
+        code: typeof data.code === "string" ? data.code : undefined,
+        conflicts: Array.isArray(data.conflicts) ? (data.conflicts as string[]) : undefined,
+        path: typeof data.path === "string" ? data.path : undefined,
+      });
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.branches(projectId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.worktrees(projectId) });
@@ -42,7 +62,7 @@ const useIntegrate = (projectId: string, base: string) => {
     setOutcome(null);
     mutation.mutate({ branch, push });
   };
-  return { integrate, outcome, clearOutcome: () => setOutcome(null), busyBranch: mutation.isPending ? mutation.variables?.branch : null, isPending: mutation.isPending };
+  return { integrate, outcome, setOutcome, clearOutcome: () => setOutcome(null), busyBranch: mutation.isPending ? mutation.variables?.branch : null, isPending: mutation.isPending };
 };
 
 export default useIntegrate;

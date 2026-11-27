@@ -16,6 +16,14 @@ import {
   currentBranch,
   GitError,
   integrateBranch,
+  commitFiles,
+  conflictFile,
+  discard,
+  finishMergeSession,
+  pendingConflicts,
+  resolveConflict,
+  startMergeSession,
+  type MergeSession,
   listBranches,
   workingTreeChanges,
 } from "@agent-tracking/git";
@@ -217,6 +225,76 @@ export function repoRoutes(
     return c.json(result);
   });
 
+  /** Commits the chosen changed files of the main checkout or one of its worktrees. */
+  app.post("/projects/:id/repo/commit", async (c) => {
+    const id = c.req.param("id");
+    const root = await repoOf(id);
+    const parsed = z
+      .object({ worktree: z.string().optional(), message: z.string().max(5_000), paths: z.array(z.string()).max(2_000) })
+      .safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) throw new HTTPException(400, { message: "Faltan el mensaje o los archivos" });
+    const cwd = await checkoutOf(root, parsed.data.worktree);
+    const result = await guard(() => commitFiles(cwd, parsed.data.paths, parsed.data.message));
+    emit({ type: "changed", projectId: id, entity: "repo" });
+    return c.json(result);
+  });
+
+  // Resolving conflicts between a work branch and the main one (see packages/git/src/resolve.ts).
+  const merges = new Map<string, MergeSession & { projectId: string }>();
+  const mergeOf = (projectId: string, mergeId: string) => {
+    const m = merges.get(mergeId);
+    if (!m || m.projectId !== projectId) throw new HTTPException(404, { message: "Esa resolución ya no existe: vuelve a empezarla" });
+    return m;
+  };
+  const summary = async (m: MergeSession) => ({ id: m.id, branch: m.branch, base: m.base, conflicts: m.conflicts, pending: await pendingConflicts(m) });
+
+  app.post("/projects/:id/repo/merges", async (c) => {
+    const id = c.req.param("id");
+    const root = await repoOf(id);
+    const parsed = z.object({ branch: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) throw new HTTPException(400, { message: "Falta el nombre de la rama" });
+    const { branch } = parsed.data;
+    if (await opts.agentOnBranch?.(id, branch)) {
+      throw new HTTPException(409, { message: `Un agente sigue trabajando en ${branch}: espera a que termine`, cause: { code: "agent" } });
+    }
+    // One at a time per branch: an older one is dropped.
+    for (const [key, m] of merges) if (m.projectId === id && m.branch === branch) (merges.delete(key), await discard(m));
+    const base = await baseBranch(root);
+    if (!base) throw new HTTPException(400, { message: "No se encontró la rama principal (main o master)" });
+    const session = await guard(() => startMergeSession(root, branch, base));
+    merges.set(session.id, { ...session, projectId: id });
+    return c.json(await summary(session), 201);
+  });
+  app.get("/projects/:id/repo/merges/:mergeId/file", async (c) => {
+    const m = mergeOf(c.req.param("id"), c.req.param("mergeId"));
+    return c.json(await guard(() => conflictFile(m, c.req.query("path") ?? "")));
+  });
+  app.post("/projects/:id/repo/merges/:mergeId/resolve", async (c) => {
+    const m = mergeOf(c.req.param("id"), c.req.param("mergeId"));
+    const parsed = z
+      .object({ path: z.string().min(1), take: z.enum(["branch", "base"]).optional(), content: z.string().max(5_000_000).optional() })
+      .refine((v) => (v.take === undefined) !== (v.content === undefined), "Indica take o content")
+      .safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) throw new HTTPException(400, { message: "Indica qué versión quedarse o el contenido final" });
+    const { path, take, content } = parsed.data;
+    await guard(() => resolveConflict(m, path, take ? { take } : { content: content! }));
+    return c.json(await summary(m));
+  });
+  app.post("/projects/:id/repo/merges/:mergeId/finish", async (c) => {
+    const id = c.req.param("id");
+    const m = mergeOf(id, c.req.param("mergeId"));
+    const result = await guard(() => finishMergeSession(m));
+    merges.delete(m.id);
+    emit({ type: "changed", projectId: id, entity: "repo" });
+    return c.json({ ...result, branch: m.branch, base: m.base });
+  });
+  app.delete("/projects/:id/repo/merges/:mergeId", async (c) => {
+    const m = mergeOf(c.req.param("id"), c.req.param("mergeId"));
+    merges.delete(m.id);
+    await discard(m);
+    return c.body(null, 204);
+  });
+
   app.delete("/projects/:id/repo/branches/:branch{.+}", async (c) => {
     const id = c.req.param("id");
     const branch = decodeURIComponent(c.req.param("branch"));
@@ -240,9 +318,10 @@ export function repoRoutes(
 
   app.get("/projects/:id/repo/changes", async (c) => {
     const root = await repoOf(c.req.param("id"));
-    const { from, to } = c.req.query();
+    const { from, to, worktree } = c.req.query();
     if (!from && to) throw new HTTPException(400, { message: "Indica también 'from' para comparar referencias" });
-    const files = await guard(() => (from ? changedFilesBetween(root, from, to || "HEAD") : workingTreeChanges(root)));
+    const checkout = await checkoutOf(root, worktree);
+    const files = await guard(() => (from ? changedFilesBetween(root, from, to || "HEAD") : workingTreeChanges(checkout)));
     return c.json({ from: from ?? null, to: from ? (to || "HEAD") : null, files });
   });
 

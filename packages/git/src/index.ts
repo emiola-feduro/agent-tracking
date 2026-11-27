@@ -107,3 +107,4 @@ export * from "./worktrees";
 export * from "./github-publish";
 export * from "./merge-driver";
 export * from "./integrate";
+export * from "./resolve";
