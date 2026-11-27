@@ -1,19 +1,52 @@
 {
   "path": "packages/mcp/src/server.ts",
-  "purpose": "Herramienta get_handoff e instrucción para usarla al retomar trabajo",
+  "purpose": "get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard",
   "createdBy": "repo:analysis",
   "featureIds": [
     "0c5a9934-dd37-4f9b-8254-2155628b2392",
+    "3dc3a513-d922-422a-adf7-ed9242831357",
     "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
     "7dcbda15-b02e-49d2-9796-2f835dd5832c",
     "a8021746-6f16-480d-af64-7d9a91068c3e",
+    "e8d4ca0d-5780-4790-be9d-4ce1a74dd936",
     "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
   ],
   "symbols": [
     {
       "name": "createMcpServer",
       "kind": "function",
-      "purpose": "Registra las herramientas del agente",
+      "purpose": "create_project y get_plan_format ampliados",
+      "source": "reported"
+    },
+    {
+      "name": "SERVER_INSTRUCTIONS",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "PromptRequirement",
+      "kind": "type",
+      "purpose": "Lo que el prompt start sabe del requerimiento",
+      "source": "reported"
+    },
+    {
+      "name": "startPromptText",
+      "kind": "function",
+      "purpose": "Flujo para implementar un requerimiento con su DoD pendiente",
+      "source": "reported"
+    },
+    {
+      "name": "REPORT_PROMPT_TEXT",
+      "kind": "constant",
+      "purpose": "Cómo cerrar la tarea con un solo submit_report",
+      "source": "reported"
+    },
+    {
+      "name": "registerPrompts",
+      "kind": "function",
+      "purpose": "Registra los prompts start y report en el servidor MCP",
       "source": "reported"
     }
   ]

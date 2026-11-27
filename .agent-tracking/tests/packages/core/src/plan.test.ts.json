@@ -2,6 +2,13 @@
   "path": "packages/core/src/plan.test.ts",
   "tests": [
     {
+      "featureId": "3dc3a513-d922-422a-adf7-ed9242831357",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "a monorepo without pieces, or with pieces the wizard would reject, asks for them",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
       "requirementId": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
       "name": "classifyRequirement",
@@ -16,9 +23,30 @@
       "lastResult": "passing"
     },
     {
+      "featureId": "3dc3a513-d922-422a-adf7-ed9242831357",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "json works too, with default folders and pieces referenced by folder",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "3dc3a513-d922-422a-adf7-ed9242831357",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "no language is a choice; unknown values and pieces become warnings",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "d5c72587-3bd9-487f-bab5-74e76b919371",
       "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
       "name": "parseRequirements y parseProjectPlan",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "3dc3a513-d922-422a-adf7-ed9242831357",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "the monorepo example has its pieces, tool, tests and language, and the project adds up its pieces",
       "type": "unit",
       "lastResult": "passing"
     }

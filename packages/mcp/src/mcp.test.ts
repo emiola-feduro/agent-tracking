@@ -1,3 +1,4 @@
+import { PLAN_MONOREPO_EXAMPLE } from "@agent-tracking/core";
 import { loadSnapshot, openDb, type Db } from "@agent-tracking/db";
 import { schema as s } from "@agent-tracking/db";
 import { git } from "@agent-tracking/git";
@@ -81,6 +82,8 @@ describe("MCP tools over an SDK client", () => {
         "list_requirements",
         "mark_dod_item",
         "pending_changes",
+        "remove_feature",
+        "remove_test",
         "report_file",
         "report_screen",
         "report_symbol",
@@ -238,6 +241,39 @@ describe("MCP tools over an SDK client", () => {
     expect(data.testIdeas).toHaveLength(1);
   });
 
+  test("remove_test and remove_feature undo what was reported by mistake", async () => {
+    // A test and a feature reported by mistake, next to the real ones.
+    const wrong = await call(client, "start_feature", { requirementId: REQ, name: "Feature equivocado" });
+    const wrongId = wrong.data.featureId;
+    await call(client, "report_file", { path: "src/checkout/pay.ts", featureIds: [wrongId] });
+    await call(client, "report_test", { path: "src/checkout/wrong.test.ts", name: "por error", featureId: wrongId });
+    const byId = await call(client, "report_test", { path: "src/checkout/other.test.ts", name: "tampoco" });
+
+    // By path and name, as the agent reported it (absolute paths are normalized too).
+    const byPath = await call(client, "remove_test", { path: join(repo, "src/checkout/other.test.ts"), name: "tampoco" });
+    expect(byPath.data.removed).toEqual({ testId: byId.data.testId, path: "src/checkout/other.test.ts", name: "tampoco" });
+    const again = await call(client, "remove_test", { testId: byId.data.testId });
+    expect(again.isError).toBe(true);
+    expect(again.data).toContain("Test no encontrado");
+    expect((await call(client, "remove_test", {})).isError).toBe(true);
+
+    // The feature goes with its file links; its test stays without a feature and is listed.
+    const removed = await call(client, "remove_feature", { featureId: wrongId });
+    expect(removed.data.removed).toEqual({ featureId: wrongId, name: "Feature equivocado" });
+    expect(removed.data.testsWithoutFeature).toEqual([expect.objectContaining({ path: "src/checkout/wrong.test.ts", name: "por error" })]);
+    let snap = (await loadSnapshot(db, PROJECT))!;
+    expect(snap.features.map((f) => f.id)).not.toContain(wrongId);
+    expect(snap.featureFiles.some((l) => l.featureId === wrongId)).toBe(false);
+    expect(snap.featureFiles.some((l) => l.featureId === featureId)).toBe(true);
+    expect(snap.tests.find((t) => t.name === "por error")!.featureId).toBeNull();
+    expect((await call(client, "remove_feature", { featureId: wrongId })).isError).toBe(true);
+
+    await call(client, "remove_test", { testId: removed.data.testsWithoutFeature[0].id });
+    snap = (await loadSnapshot(db, PROJECT))!;
+    expect(snap.tests.map((t) => t.name)).toEqual(["cobra"]);
+    expect(await readFile(join(repo, ".agent-tracking", "CONTEXT.md"), "utf8")).not.toContain("Feature equivocado");
+  });
+
   test("every call is logged, emitted live and written to the repo", async () => {
     const log = await createTracker(db).listEvents(PROJECT, { limit: 200 });
     const types = new Set(log.map((e) => e.type));
@@ -371,6 +407,45 @@ describe("creating a project from a plan", () => {
     ]);
     expect(snap!.dod.map((d) => d.criterion)).toEqual(["Lista ordenada por hora"]);
     expect((await call(client, "create_project", { repoPath: fresh, plan: "# X\nTipo: cli\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n" })).isError).toBe(true);
+  });
+});
+
+describe("creating a monorepo from a plan", () => {
+  test("create_project takes the pieces, test types and reply language like the wizard", async () => {
+    const client = await connect({});
+    const fresh = join(tmp, "turnos");
+    await git(["init", "-q", "-b", "main", fresh]);
+    const format = await call(client, "get_plan_format");
+    expect(format.data).toContain("## Piezas");
+    expect(format.data).toContain("Idioma");
+
+    const missing = await call(client, "create_project", { plan: "# Turnos\nEstructura: monorepo\n## Objetivo\nx\n## Requerimientos\n### A\n- [ ] b\n" });
+    expect(missing.data.created).toBe(false);
+    expect(missing.data.questions.map((q: { field: string }) => q.field)).toEqual(["parts"]);
+
+    const done = await call(client, "create_project", { repoPath: fresh, plan: PLAN_MONOREPO_EXAMPLE.replace("Idioma: español", "Idioma: inglés") });
+    expect(done.data.created).toBe(true);
+    const snap = await loadSnapshot(db, done.data.projectId);
+    expect(snap!.project).toMatchObject({
+      kind: "fullstack",
+      platforms: ["mobile"],
+      structure: "monorepo",
+      monorepoTool: "pnpm-workspaces",
+      testTypes: ["unit", "integration", "e2e"],
+      replyLanguage: "en",
+    });
+    expect(snap!.project.parts!.map((p) => [p.id, p.kind, p.path])).toEqual([
+      ["api", "api", "apps/api"],
+      ["movil", "mobile", "apps/mobile"],
+    ]);
+    expect(snap!.requirements[0]!.parts).toEqual(["api", "movil"]);
+
+    // Without the lines, the wizard's defaults: tests for the kind of project and Spanish answers.
+    const plain = join(tmp, "plano");
+    await git(["init", "-q", "-b", "main", plain]);
+    const single = await call(client, "create_project", { repoPath: plain, plan: "# Cli\nTipo: cli\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n" });
+    const s2 = await loadSnapshot(db, single.data.projectId);
+    expect(s2!.project).toMatchObject({ structure: "single", parts: [], testTypes: ["unit"], replyLanguage: "es" });
   });
 });
 

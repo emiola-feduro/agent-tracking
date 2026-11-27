@@ -1,12 +1,25 @@
 {
   "path": "packages/core/src/plan.ts",
-  "purpose": "Planes con sección de convenciones.",
+  "purpose": "Lee del plan la estructura, las piezas, la herramienta de monorepo, los tipos de tests y el idioma, y pregunta por piezas faltantes o inválidas",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "3dc3a513-d922-422a-adf7-ed9242831357",
     "855fbd27-5249-4b67-8a41-e7b18f0856ca",
     "d5c72587-3bd9-487f-bab5-74e76b919371"
   ],
   "symbols": [
+    {
+      "name": "PlanPart",
+      "kind": "type",
+      "purpose": "Pieza de monorepo tal como la describe un plan",
+      "source": "reported"
+    },
+    {
+      "name": "ProjectPlan",
+      "kind": "type",
+      "purpose": "Ahora con structure, parts, monorepoTool, testTypes y replyLanguage",
+      "source": "reported"
+    },
     {
       "name": "parseRequirements",
       "kind": "function",
@@ -14,21 +27,63 @@
       "source": "reported"
     },
     {
+      "name": "readTestTypes",
+      "kind": "function",
+      "purpose": "Tipos de tests en español o inglés",
+      "source": "reported"
+    },
+    {
+      "name": "readReplyLanguage",
+      "kind": "function",
+      "purpose": "Idioma por código, nombre o ninguno",
+      "source": "reported"
+    },
+    {
+      "name": "readStructure",
+      "kind": "function",
+      "purpose": "monorepo o una sola app",
+      "source": "reported"
+    },
+    {
+      "name": "readMonorepoTool",
+      "kind": "function",
+      "purpose": "Herramienta por id o etiqueta de MONOREPO_TOOLS",
+      "source": "reported"
+    },
+    {
+      "name": "settleParts",
+      "kind": "function",
+      "purpose": "Da id, carpeta por defecto y plataformas válidas a cada pieza",
+      "source": "reported"
+    },
+    {
+      "name": "linkRequirementParts",
+      "kind": "function",
+      "purpose": "Convierte las piezas de cada requerimiento (nombre, carpeta o id) en ids",
+      "source": "reported"
+    },
+    {
       "name": "parseProjectPlan",
       "kind": "function",
-      "purpose": "Plan completo: nombre, tipo, stack, objetivo, reglas y requerimientos",
+      "purpose": "Sección ## Piezas y líneas Estructura, Herramienta de monorepo, Tests e Idioma; un monorepo suma sus piezas como el wizard",
       "source": "reported"
     },
     {
       "name": "missingPlanFields",
       "kind": "function",
-      "purpose": "Preguntas para lo que el wizard exige y falta",
+      "purpose": "Pregunta por las piezas de un monorepo con las mismas reglas que el wizard (partsProblems)",
       "source": "reported"
     },
     {
       "name": "PLAN_TEMPLATE",
       "kind": "constant",
       "purpose": "Ejemplo de plan para copiar",
+      "source": "reported"
+    },
+    {
+      "name": "PLAN_MONOREPO_EXAMPLE",
+      "kind": "constant",
+      "purpose": "Ejemplo de plan de monorepo para get_plan_format",
       "source": "reported"
     }
   ]

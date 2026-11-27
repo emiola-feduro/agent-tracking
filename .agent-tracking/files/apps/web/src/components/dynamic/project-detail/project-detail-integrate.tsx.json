@@ -1,6 +1,6 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail-integrate.tsx",
-  "purpose": "Tarjeta Listo para integrar con botones y resultado o error",
+  "purpose": "Usa el hook compartido y explica cuándo se podrá integrar",
   "createdBy": "agent:claude-code",
   "featureIds": [
     "c7404e54-2b90-49e6-89c9-401c3089661e"

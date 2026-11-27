@@ -1,6 +1,9 @@
-import { PLATFORMS, type Platform, type RequirementArea, type RequirementType } from "./types";
+import { PLATFORMS, type Platform, type RequirementArea, type RequirementType, type TestType } from "./types";
 import { isProjectKind, PROJECT_KIND_INFO, PROJECT_KINDS, type ProjectKind } from "./project-kind";
 import { readClassification, settleClassification } from "./requirements";
+import { MONOREPO_TOOLS, partPlatforms, partsProblems, slugify, suggestPartPath, summarizeParts, type ProjectPart, type ProjectStructure } from "./parts";
+import { TEST_POLICY_TYPES } from "./test-policy";
+import { REPLY_LANGUAGE_INFO, REPLY_LANGUAGES, type ReplyLanguage } from "./reply-language";
 
 /**
  * Plain formats for writing requirements (and whole project plans) outside the app: Markdown that
@@ -12,7 +15,12 @@ export type ImportedRequirement = {
   type: RequirementType;
   area: RequirementArea;
   dod: string[];
+  /** Pieces it touches, as written (name, folder or id); a project plan turns them into part ids. */
+  parts?: string[];
 };
+
+/** A piece of a monorepo as a plan describes it; the kind stays null when the plan does not say it. */
+export type PlanPart = Omit<ProjectPart, "kind"> & { kind: ProjectKind | null };
 
 export type ProjectPlan = {
   name: string;
@@ -25,6 +33,15 @@ export type ProjectPlan = {
   /** Text under "## Convenciones de commits"; empty means the defaults. */
   conventions: string;
   requirements: ImportedRequirement[];
+  /** "monorepo" when the plan says so or lists pieces under "## Piezas". */
+  structure: ProjectStructure;
+  parts: PlanPart[];
+  /** Id from MONOREPO_TOOLS; null means the recommended one for the pieces. */
+  monorepoTool: string | null;
+  /** Tests agents must write; null means the defaults for the kind of project. */
+  testTypes: TestType[] | null;
+  /** Language of the agents' answers; null for none, undefined when the plan does not say (the default). */
+  replyLanguage?: ReplyLanguage | null;
 };
 
 export type ParseOutcome<T> = { ok: true; value: T; warnings: string[] } | { ok: false; error: string };
@@ -46,7 +63,7 @@ const DOD_HEADING =
   /^(dod|definition of done|definicion de (hecho|terminado)|criterios?( de aceptacion| de terminado)?|acceptance criteria|aceptacion)\b/;
 const TAG = /\s*\[([^\]]+)\]\s*$/;
 
-type RawRequirement = { title: string; description?: unknown; type?: unknown; area?: unknown; tags?: unknown; dod?: unknown };
+type RawRequirement = { title: string; description?: unknown; type?: unknown; area?: unknown; tags?: unknown; dod?: unknown; parts?: unknown };
 
 const asText = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 
@@ -70,7 +87,8 @@ function settle(raw: RawRequirement, kind: ProjectKind, warnings: string[]): Imp
     )
     .map((d) => d.trim())
     .filter(Boolean);
-  return { title, description, ...settleClassification(given, title, description, kind), dod };
+  const parts = (Array.isArray(raw.parts) ? raw.parts.map(asText) : typeof raw.parts === "string" ? list(raw.parts) : []).filter(Boolean);
+  return { title, description, ...settleClassification(given, title, description, kind), dod, ...(parts.length ? { parts } : {}) };
 }
 
 /** `{ title | titulo, description | descripcion, type | tipo, area | área, dod | criterios }` in any of its spellings. */
@@ -85,6 +103,7 @@ function fromJsonItem(item: unknown): RawRequirement | null {
     area: o.area ?? o.categoria ?? o.category,
     tags: o.tags ?? o.etiquetas,
     dod: o.dod ?? o.criterios ?? o.criteria ?? o["definition of done"] ?? o.definitionofdone ?? o.aceptacion ?? o.acceptance,
+    parts: o.parts ?? o.piezas ?? o.pieces,
   } as RawRequirement;
 }
 
@@ -115,7 +134,7 @@ function markdownRequirements(lines: string[]): RawRequirement[] {
         .replace(TAG, "")
         .replace(/^(requerimiento|requisito|requirement|rf|rnf)[\s\d.:-]*[:.-]\s*/i, "")
         .trim();
-      current = { title, tags: tag ? list(tag[1]!) : [], body: [], dodLines: [] };
+      current = { title, tags: tag ? list(tag[1]!) : [], parts: [], body: [], dodLines: [] };
       out.push(current);
       continue;
     }
@@ -127,6 +146,11 @@ function markdownRequirements(lines: string[]): RawRequirement[] {
     const kv = /^\s*(?:[-*]\s*)?\*{0,2}(tipo|type|area|área|categoria|categoría)\*{0,2}\s*:\s*(.+)$/i.exec(line);
     if (kv) {
       (current.tags as string[]).push(...list(kv[2]!));
+      continue;
+    }
+    const pieces = /^\s*(?:[-*]\s*)?\*{0,2}(piezas?|parts?|pieces?)\*{0,2}\s*:\s*(.+)$/i.exec(line);
+    if (pieces) {
+      (current.parts as string[]).push(...list(pieces[2]!));
       continue;
     }
     const label = /^\s*\*{0,2}(dod|definition of done|criterios?(?: de aceptaci[oó]n)?|acceptance criteria)\s*:?\s*\*{0,2}\s*:?\s*$/i.exec(
@@ -192,6 +216,7 @@ const KIND_WORDS: [ProjectKind, RegExp][] = [
   ["mobile", /^(movil|mobile|app movil)/],
   ["cli", /^(cli|terminal|herramienta de terminal|linea de comandos)/],
   ["library", /^(libreria|library|paquete|package|sdk)/],
+  ["app", /^(app multiplataforma|multiplataforma|multiplatform)/],
 ];
 const readKind = (value: string): ProjectKind | null => {
   const v = norm(value);
@@ -207,6 +232,102 @@ const PLATFORM_WORDS: Record<string, Platform> = {
   ios: "mobile",
   android: "mobile",
 };
+const readPlatforms = (values: string[]) => values.map((p) => PLATFORM_WORDS[norm(p)]).filter((p): p is Platform => !!p);
+
+const TEST_WORDS: [TestType, RegExp][] = [
+  ["unit", /^(unit|unitarios?|unidad)/],
+  ["integration", /^(integration|integracion)/],
+  ["component", /^(component|componentes?)/],
+  ["e2e", /^(e2e|end ?to ?end|extremo a extremo)/],
+  ["contract", /^(contract|contratos?)/],
+  ["performance", /^(performance|rendimiento|carga)/],
+  ["other", /^(other|otros?)/],
+];
+function readTestTypes(values: string[], warnings: string[]): TestType[] {
+  const out: TestType[] = [];
+  for (const value of values) {
+    const v = norm(value);
+    const type = TEST_POLICY_TYPES.find((t) => norm(t.label) === v)?.type ?? TEST_WORDS.find(([, re]) => re.test(v))?.[0];
+    if (type) out.push(type);
+    else warnings.push(`No reconozco el tipo de test "${value}".`);
+  }
+  return [...new Set(out)];
+}
+
+/** "es", "español", "English"; "ninguno" means no language. Undefined when it is not recognised. */
+function readReplyLanguage(value: string, warnings: string[]): ReplyLanguage | null | undefined {
+  const v = norm(value);
+  if (/^(ninguno|ninguna|none|sin indicar|no)$/.test(v)) return null;
+  const lang = REPLY_LANGUAGES.find(
+    (l) => l === v || norm(REPLY_LANGUAGE_INFO[l].label) === v || norm(REPLY_LANGUAGE_INFO[l].native) === v,
+  );
+  if (lang) return lang;
+  warnings.push(`No reconozco el idioma "${value}"; se usa el de siempre. Opciones: ${REPLY_LANGUAGES.join(", ")} o ninguno.`);
+  return undefined;
+}
+
+function readStructure(value: string, warnings: string[]): ProjectStructure | null {
+  const v = norm(value);
+  if (/^(monorepo|varias piezas|multi)/.test(v)) return "monorepo";
+  if (/^(single|una sola|un solo|simple|una app|app unica)/.test(v)) return "single";
+  warnings.push(`No reconozco la estructura "${value}" (usa monorepo o una sola app).`);
+  return null;
+}
+
+function readMonorepoTool(value: string, warnings: string[]): string | null {
+  const v = norm(value);
+  const tool = MONOREPO_TOOLS.find((t) => t.id === v || norm(t.label) === v);
+  if (!tool) warnings.push(`No reconozco la herramienta de monorepo "${value}"; se usará la recomendada para sus piezas.`);
+  return tool?.id ?? null;
+}
+
+type RawPart = { name: string; kind?: string; path?: string; platforms?: string[]; stack?: string[] };
+
+function fromJsonPart(item: unknown): RawPart | null {
+  if (typeof item === "string") return { name: item };
+  if (!item || typeof item !== "object") return null;
+  const o = Object.fromEntries(Object.entries(item as Record<string, unknown>).map(([k, v]) => [norm(k), v]));
+  const strings = (v: unknown) => (Array.isArray(v) ? v.map(asText).filter(Boolean) : typeof v === "string" ? list(v) : []);
+  return {
+    name: asText(o.name ?? o.nombre),
+    kind: asText(o.kind ?? o.tipo),
+    path: asText(o.path ?? o.carpeta ?? o.ruta ?? o.folder),
+    platforms: strings(o.platforms ?? o.plataformas),
+    stack: strings(o.stack ?? o.tecnologias),
+  };
+}
+
+/** Pieces with an id, a folder and only the platforms their kind allows. */
+function settleParts(raw: RawPart[], warnings: string[]): PlanPart[] {
+  const out: PlanPart[] = [];
+  for (const r of raw) {
+    const name = r.name.trim();
+    if (!name) continue;
+    const kind = r.kind ? readKind(r.kind) : null;
+    if (r.kind && !kind) warnings.push(`Pieza "${name}": no reconozco el tipo "${r.kind}".`);
+    let id = slugify(name);
+    for (let i = 2; out.some((p) => p.id === id); i++) id = `${slugify(name)}-${i}`;
+    const path = r.path?.trim().replace(/\/+$/, "") || suggestPartPath(kind ?? "fullstack", name, out.map((p) => p.path));
+    const platforms = [...new Set(readPlatforms(r.platforms ?? []))];
+    out.push({ id, name, kind, path, platforms: kind ? partPlatforms({ kind, platforms }) : platforms, stack: r.stack ?? [] });
+  }
+  return out;
+}
+
+/** Pieces as written in a requirement (name, folder or id) to part ids; unknown ones become warnings. */
+function linkRequirementParts(plan: ProjectPlan, warnings: string[]) {
+  const find = (ref: string) => plan.parts.find((p) => [p.id, norm(p.name), p.path.toLowerCase()].includes(norm(ref)) || slugify(ref) === p.id);
+  for (const r of plan.requirements) {
+    if (!r.parts) continue;
+    const ids: string[] = [];
+    for (const ref of r.parts) {
+      const part = find(ref);
+      if (part) ids.push(part.id);
+      else warnings.push(`"${r.title}": no hay una pieza "${ref}".`);
+    }
+    r.parts = [...new Set(ids)];
+  }
+}
 
 /**
  * A whole project plan in Markdown: `# Nombre`, `Tipo:`, `Plataformas:`, `Stack:`, `Bases de datos:`
@@ -225,7 +346,13 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
     rules: [],
     conventions: "",
     requirements: [],
+    structure: "single",
+    parts: [],
+    monorepoTool: null,
+    testTypes: null,
   };
+  let explicitStructure: ProjectStructure | null = null;
+  const parts: RawPart[] = [];
 
   if (looksJson(text)) {
     let data: Record<string, unknown>;
@@ -246,6 +373,17 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
     plan.databases = strings(o.databases ?? o["bases de datos"] ?? o.basesdedatos);
     plan.rules = strings(o.rules ?? o.reglas ?? o["reglas de negocio"]);
     plan.conventions = strings(o.conventions ?? o.convenciones ?? o["commit conventions"]).join("\n");
+    const structure = asText(o.structure ?? o.estructura);
+    if (structure) explicitStructure = readStructure(structure, warnings);
+    const rawParts = o.parts ?? o.piezas ?? o.pieces;
+    if (Array.isArray(rawParts)) parts.push(...rawParts.map(fromJsonPart).filter((x): x is RawPart => !!x));
+    const tool = asText(o.monorepotool ?? o["monorepo tool"] ?? o["herramienta de monorepo"] ?? o.herramienta);
+    if (tool) plan.monorepoTool = readMonorepoTool(tool, warnings);
+    const tests = o.testtypes ?? o["test types"] ?? o.tests ?? o["tipos de tests"] ?? o["tipos de test"];
+    if (tests !== undefined) plan.testTypes = readTestTypes(strings(tests), warnings);
+    const lang = o.replylanguage ?? o["reply language"] ?? o.language ?? o.idioma ?? o["idioma de las respuestas"];
+    if (lang === null) plan.replyLanguage = null;
+    else if (typeof lang === "string" && lang.trim()) plan.replyLanguage = readReplyLanguage(lang, warnings);
     const reqs = o.requirements ?? o.requerimientos;
     if (reqs !== undefined) {
       const parsed = parseRequirements(JSON.stringify(reqs), plan.kind ?? "fullstack");
@@ -254,7 +392,8 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
     }
   } else {
     const lines = text.replace(/\r\n/g, "\n").split("\n");
-    let section: "head" | "goal" | "rules" | "conventions" | "requirements" | "other" = "head";
+    let section: "head" | "goal" | "rules" | "conventions" | "parts" | "requirements" | "other" = "head";
+    let part: RawPart | null = null;
     const conventions: string[] = [];
     const goal: string[] = [];
     const reqLines: string[] = [];
@@ -274,7 +413,9 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
               ? "rules"
               : /^(requerimientos|requisitos|requirements|historias)/.test(t)
                 ? "requirements"
-                : "other";
+                : /^(piezas|parts|pieces|paquetes|modulos)/.test(t)
+                  ? "parts"
+                  : "other";
         continue;
       }
       if (section === "requirements") {
@@ -282,6 +423,21 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
         continue;
       }
       const kv = /^\s*(?:[-*]\s*)?\*{0,2}([\p{L} ]+?)\*{0,2}\s*:\s*(.+)$/u.exec(line);
+      if (section === "parts") {
+        if (h) {
+          part = { name: h[2]!.trim() };
+          parts.push(part);
+        } else if (kv && part) {
+          const key = norm(kv[1]!);
+          const value = kv[2]!.trim();
+          if (/^(tipo|kind)$/.test(key)) part.kind = value;
+          else if (/^(carpeta|ruta|path|folder|directorio)$/.test(key)) part.path = value.replace(/^`|`$/g, "");
+          else if (/^(plataformas?|platforms?)$/.test(key)) part.platforms = list(value);
+          else if (/^(stack|tecnologias)$/.test(key)) part.stack = list(value);
+          else if (/^(nombre|name)$/.test(key)) part.name = value;
+        }
+        continue;
+      }
       if (section === "head" && kv) {
         const key = norm(kv[1]!);
         const value = kv[2]!.trim();
@@ -296,6 +452,10 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
         else if (/^(stack|tecnologias)$/.test(key)) plan.stack = list(value);
         else if (/^(bases? de datos|databases?|bd)$/.test(key)) plan.databases = list(value);
         else if (/^(objetivo|goal)$/.test(key)) plan.goal = value;
+        else if (/^(estructura|structure)$/.test(key)) explicitStructure = readStructure(value, warnings);
+        else if (/^(herramienta de monorepo|herramienta|monorepo tool|monorepo)$/.test(key)) plan.monorepoTool = readMonorepoTool(value, warnings);
+        else if (/^(tests|tipos de tests?|test types|pruebas)$/.test(key)) plan.testTypes = readTestTypes(list(value), warnings);
+        else if (/^(idioma|idioma de las respuestas|language|reply language|lenguaje)$/.test(key)) plan.replyLanguage = readReplyLanguage(value, warnings);
         continue;
       }
       if (section === "goal" && line.trim()) goal.push(line.trim());
@@ -315,6 +475,24 @@ export function parseProjectPlan(text: string): ParseOutcome<ProjectPlan> {
     }
   }
   plan.platforms = [...new Set(plan.platforms)].filter((p) => (PLATFORMS as readonly string[]).includes(p));
+  plan.parts = settleParts(parts, warnings);
+  plan.structure = explicitStructure ?? (plan.parts.length ? "monorepo" : "single");
+  if (plan.structure === "single") {
+    if (plan.parts.length) warnings.push("El plan dice que es una sola app: se ignoran sus piezas.");
+    plan.parts = [];
+    plan.monorepoTool = null;
+    for (const r of plan.requirements) delete r.parts;
+  } else {
+    linkRequirementParts(plan, warnings);
+    // As in the wizard, a monorepo is what its pieces add up to.
+    const complete = plan.parts.filter((p): p is ProjectPart => p.kind !== null);
+    if (complete.length && complete.length === plan.parts.length) {
+      const shape = summarizeParts(complete);
+      plan.kind = shape.kind;
+      plan.platforms = shape.platforms;
+      plan.stack = [...new Set([...plan.stack, ...shape.stack])];
+    }
+  }
   return { ok: true, value: plan, warnings };
 }
 
@@ -324,11 +502,21 @@ export type MissingField = { field: string; question: string; options?: string[]
 export function missingPlanFields(plan: ProjectPlan): MissingField[] {
   const missing: MissingField[] = [];
   if (!plan.name.trim()) missing.push({ field: "name", question: "¿Cómo se llama el proyecto?" });
-  if (!plan.kind)
+  const kindOptions = PROJECT_KINDS.map((k) => `${k}: ${PROJECT_KIND_INFO[k].label} (${PROJECT_KIND_INFO[k].description})`);
+  if (plan.structure === "monorepo") {
+    const untyped = plan.parts.filter((p) => !p.kind).map((p) => p.name);
+    if (plan.parts.length === 0)
+      missing.push({ field: "parts", question: "¿Qué piezas tiene el monorepo? De cada una: nombre, tipo, carpeta y stack." });
+    else if (untyped.length) missing.push({ field: "parts", question: `¿De qué tipo es cada pieza? Falta en: ${untyped.join("; ")}.`, options: kindOptions });
+    else {
+      const problems = partsProblems(plan.parts as ProjectPart[]);
+      if (problems.length) missing.push({ field: "parts", question: `Hay que corregir las piezas: ${problems.join("; ")}.` });
+    }
+  } else if (!plan.kind)
     missing.push({
       field: "kind",
       question: "¿Qué tipo de proyecto es?",
-      options: PROJECT_KINDS.map((k) => `${k}: ${PROJECT_KIND_INFO[k].label} (${PROJECT_KIND_INFO[k].description})`),
+      options: kindOptions,
     });
   else if (PROJECT_KIND_INFO[plan.kind].platforms === null && plan.platforms.length === 0)
     missing.push({ field: "platforms", question: "¿En qué plataformas se usa la aplicación?", options: ["web", "desktop", "mobile"] });
@@ -378,3 +566,35 @@ POST /expenses con monto, categoría y fecha.
 `;
 
 export const REQUIREMENTS_TEMPLATE = PLAN_TEMPLATE.slice(PLAN_TEMPLATE.indexOf("### Registrar")).replaceAll("### ", "## ");
+
+/** A monorepo plan: its pieces under "## Piezas", requirements pointing at them with "Piezas:". */
+export const PLAN_MONOREPO_EXAMPLE = `# Turnos
+
+Estructura: monorepo
+Herramienta de monorepo: pnpm-workspaces
+Tests: unitarios, integración, e2e
+Idioma: español
+
+## Objetivo
+
+Reservar turnos en una peluquería desde el móvil y gestionarlos desde un panel.
+
+## Piezas
+
+### API
+Tipo: api
+Carpeta: apps/api
+Stack: TypeScript, Hono
+
+### Móvil
+Tipo: app móvil
+Carpeta: apps/mobile
+Stack: Flutter, Dart
+
+## Requerimientos
+
+### Reservar un turno [funcional]
+Piezas: API, Móvil
+
+- [ ] La app muestra los huecos libres del día.
+`;

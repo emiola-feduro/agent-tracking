@@ -1,7 +1,15 @@
 import {
   buildContextMarkdown,
   DEFAULT_COMMIT_CONVENTIONS,
+  DEFAULT_REPLY_LANGUAGE,
+  defaultTestTypes,
+  MONOREPO_TOOLS,
   missingPlanFields,
+  PLAN_MONOREPO_EXAMPLE,
+  recommendMonorepoTool,
+  REPLY_LANGUAGES,
+  TEST_POLICY_TYPES,
+  type ProjectPart,
   parseProjectPlan,
   PLAN_TEMPLATE,
   PLATFORMS,
@@ -41,6 +49,7 @@ export const SERVER_INSTRUCTIONS = [
   "pending_changes lista los archivos cambiados que aún no cubre ningún reporte: inclúyelos.",
   "Si retomas el trabajo de otra sesión, get_handoff dice qué hizo el último turno, qué criterios del DoD siguen pendientes y qué falta por reportar.",
   "Las herramientas report_* y start_feature/complete_feature siguen disponibles para reportes parciales.",
+  "Si reportaste un test o un feature por error, deshazlo con remove_test o remove_feature.",
   "Para crear un proyecto a partir de un plan usa get_plan_format y luego create_project; si create_project devuelve preguntas, házselas al usuario y vuelve a llamarla con sus respuestas.",
   "Si el proyecto tiene interfaz y creaste o cambiaste una vista, guarda una captura en el repositorio y repórtala con report_screen para la galería.",
 ].join(" ");
@@ -150,7 +159,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
    */
   const register = <S extends z.ZodRawShape>(
     name: string,
-    config: { title: string; description: string; inputSchema: S; annotations?: { readOnlyHint?: boolean; openWorldHint?: boolean } },
+    config: { title: string; description: string; inputSchema: S; annotations?: { readOnlyHint?: boolean; destructiveHint?: boolean; openWorldHint?: boolean } },
     handler: (
       projectId: string,
       actor: string,
@@ -392,6 +401,52 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
   );
 
   register(
+    "remove_test",
+    {
+      title: "Quitar un test",
+      description:
+        "Deshace un test reportado por error: lo quita del proyecto. Indica su testId, o la ruta y el nombre con que lo reportaste.",
+      inputSchema: {
+        testId: z.string().optional(),
+        path: z.string().optional().describe("Ruta del test, con name, si no tienes su id"),
+        name: z.string().optional(),
+      },
+      annotations: { destructiveHint: true, openWorldHint: false },
+    },
+    async (projectId, _actor, { testId, path, name }) => {
+      if (!testId && !(path && name)) throw new TrackingError("Indica testId, o path y name del test");
+      const test = testId
+        ? (await tracker.snapshot(projectId)).tests.find((t) => t.id === testId)
+        : await tracker.findTest(projectId, { path: path!, name: name! });
+      if (!test) throw new TrackingError(`Test no encontrado: ${testId}`, 404);
+      await tracker.deleteTest(projectId, test.id);
+      return {
+        result: { removed: { testId: test.id, path: test.path, name: test.name } },
+        event: { testId: test.id, path: test.path, name: test.name },
+      };
+    },
+  );
+
+  register(
+    "remove_feature",
+    {
+      title: "Quitar un feature",
+      description:
+        "Deshace un feature reportado por error: lo quita de su requerimiento junto con sus enlaces a archivos. " +
+        "Sus tests quedan en el proyecto sin feature y se devuelven; quítalos con remove_test si también sobran.",
+      inputSchema: { featureId: z.string() },
+      annotations: { destructiveHint: true, openWorldHint: false },
+    },
+    async (projectId, _actor, { featureId }) => {
+      const { feature, tests } = await tracker.deleteFeature(projectId, featureId);
+      return {
+        result: { removed: { featureId: feature.id, name: feature.name }, testsWithoutFeature: tests },
+        event: { featureId: feature.id, name: feature.name, requirementId: feature.requirementId },
+      };
+    },
+  );
+
+  register(
     "mark_dod_item",
     {
       title: "Marcar criterio del DoD",
@@ -618,6 +673,12 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
           "Un plan es Markdown como este (también se acepta JSON con los mismos campos):",
           "",
           PLAN_TEMPLATE,
+          "Monorepo: pon `Estructura: monorepo` y describe cada pieza bajo ## Piezas (### Nombre con Tipo, Carpeta, Plataformas si su tipo las pide, y Stack). Cada requerimiento puede decir qué piezas toca con `Piezas: A, B`. El tipo, las plataformas y el stack del proyecto salen de sus piezas, como en el wizard. Por ejemplo:",
+          "",
+          PLAN_MONOREPO_EXAMPLE,
+          `Herramienta de monorepo (opcional, por defecto la recomendada para sus piezas): ${MONOREPO_TOOLS.map((t) => t.id).join(", ")}.`,
+          `Tests (opcional): los tipos de tests que escriben los agentes, de ${TEST_POLICY_TYPES.map((t) => `${t.type} (${t.label})`).join(", ")}; sin la línea se usan los habituales para el tipo de proyecto.`,
+          `Idioma (opcional): el idioma de las respuestas de los agentes, ${REPLY_LANGUAGES.join(", ")} o ninguno; por defecto ${DEFAULT_REPLY_LANGUAGE}.`,
           "Opcional: una sección ## Convenciones de commits con las reglas del equipo, una por línea; sin ella se usan Conventional Commits (feat, fix, docs...) y ramas tipo/tema.",
           "Obligatorio: nombre (# Título), Tipo, Objetivo y al menos un requerimiento. Plataformas solo si el tipo es aplicación completa o app multiplataforma.",
           "Cada requerimiento debería tener criterios del Definition of Done (lista o checklist debajo de su título).",
@@ -636,7 +697,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     {
       title: "Crear proyecto desde un plan",
       description:
-        "Crea un proyecto en Agent Tracking a partir de un plan (Markdown o JSON, ver get_plan_format). Si falta algo que el wizard pide sí o sí, no crea nada y devuelve `questions`: házselas al usuario (por ejemplo con AskUserQuestion), agrega las respuestas al plan y vuelve a llamarla.",
+        "Crea un proyecto en Agent Tracking a partir de un plan (Markdown o JSON, ver get_plan_format), con lo mismo que el wizard: monorepo con sus piezas, tipos de tests e idioma de las respuestas. Si falta algo que el wizard pide sí o sí, no crea nada y devuelve `questions`: házselas al usuario (por ejemplo con AskUserQuestion), agrega las respuestas al plan y vuelve a llamarla.",
       inputSchema: {
         plan: z.string().min(1).describe("El plan en Markdown o JSON"),
         repoPath: z.string().optional().describe("Ruta absoluta del repositorio git del proyecto (normalmente tu directorio de trabajo). Opcional."),
@@ -658,20 +719,29 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
             created: false,
             message: "Faltan datos que el usuario debe dar. Pregúntaselos y vuelve a llamar a create_project con el plan completo.",
             questions: missing,
-            understood: { ...value, requirements: value.requirements.map((r) => ({ title: r.title, type: r.type, area: r.area, criteria: r.dod.length })) },
+            understood: { ...value, requirements: value.requirements.map((r) => ({ title: r.title, type: r.type, area: r.area, parts: r.parts, criteria: r.dod.length })) },
             warnings: parsed.warnings,
           });
         }
+        const kind = value.kind!;
+        const monorepo = value.structure === "monorepo";
+        // parseProjectPlan only leaves a monorepo without missing fields when every piece has a kind.
+        const parts = monorepo ? (value.parts as ProjectPart[]) : [];
         const projectId = await createProject(
           tracker.db,
           tracker.emit,
           {
             name: value.name,
             goal: value.goal,
-            kind: value.kind!,
+            kind,
             platforms: value.platforms,
             stack: value.stack,
             databases: value.databases,
+            structure: value.structure,
+            parts,
+            monorepoTool: monorepo ? (value.monorepoTool ?? recommendMonorepoTool(parts)) : null,
+            testTypes: value.testTypes ?? defaultTestTypes(kind),
+            replyLanguage: value.replyLanguage === undefined ? DEFAULT_REPLY_LANGUAGE : value.replyLanguage,
             repoPath: repoPath ?? null,
             rules: value.rules,
             commitConventions: value.conventions ? { ...DEFAULT_COMMIT_CONVENTIONS, custom: value.conventions } : null,

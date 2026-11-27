@@ -1,8 +1,9 @@
 {
   "path": "packages/tracking/src/tracker.ts",
-  "purpose": "deleteTest quita un test del proyecto",
+  "purpose": "Busca un test por ruta y nombre y borra un feature devolviendo los tests que quedan sin feature",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
     "e6efc11f-d764-4277-b6d7-54fc78371946",
     "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
   ],
@@ -17,6 +18,18 @@
       "name": "createTracker",
       "kind": "function",
       "purpose": "Servicio compartido por la API y el MCP",
+      "source": "reported"
+    },
+    {
+      "name": "findTest",
+      "kind": "function",
+      "purpose": "Test por la ruta y el nombre con que se reportó",
+      "source": "reported"
+    },
+    {
+      "name": "deleteFeature",
+      "kind": "function",
+      "purpose": "Quita un feature y sus enlaces; devuelve sus tests",
       "source": "reported"
     }
   ]
