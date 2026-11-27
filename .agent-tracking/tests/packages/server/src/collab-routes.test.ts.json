@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/collab-routes.test.ts",
+  "tests": [
+    {
+      "featureId": "9b13ab0e-44e6-43ef-95c0-e97c1f782a48",
+      "requirementId": "6512a2ba-bffe-4427-b835-b3740aa1fab3",
+      "name": "the desktop app syncs with a shared server (8 tests, tres máquinas)",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/components/dynamic/agent-runs/implement-bar.tsx",
-  "purpose": "Barra con la selección, Implementar y el aviso del lanzamiento",
+  "purpose": "Texto de ayuda de la selección",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": [

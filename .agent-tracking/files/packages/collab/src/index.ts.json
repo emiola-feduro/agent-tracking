@@ -1,0 +1,9 @@
+{
+  "path": "packages/collab/src/index.ts",
+  "purpose": "Exporta el paquete collab",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "c84e696d-e652-49e8-9a75-2de99907962c"
+  ],
+  "symbols": []
+}

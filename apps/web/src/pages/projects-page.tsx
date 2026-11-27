@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import PageHeader from "@/components/layout/page-header/page-header";
+import CollabSharedProjects from "@/components/dynamic/collab/collab-shared-projects";
 import ProjectList from "@/components/dynamic/project-list/project-list";
 import ProjectListError from "@/components/dynamic/project-list/project-list-error";
 import ProjectListSkeleton from "@/components/dynamic/project-list/project-list-skeleton";
@@ -24,6 +25,7 @@ const ProjectsPage = () => {
       {status === "pending" && <ProjectListSkeleton />}
       {status === "error" && <ProjectListError onRetry={() => refetch()} />}
       {status === "success" && <ProjectList projects={data} />}
+      {status === "success" && <CollabSharedProjects localIds={data.map((p) => p.id)} />}
     </>
   );
 };

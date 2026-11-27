@@ -62,6 +62,17 @@
         "zod": "4",
       },
     },
+    "packages/collab": {
+      "name": "@agent-tracking/collab",
+      "version": "0.1.0",
+      "bin": {
+        "agent-tracking-collab": "src/serve.ts",
+      },
+      "dependencies": {
+        "hono": "4",
+        "zod": "4",
+      },
+    },
     "packages/core": {
       "name": "@agent-tracking/core",
       "version": "0.1.0",
@@ -114,6 +125,7 @@
         "@agent-tracking/agents": "workspace:*",
         "@agent-tracking/analyzer": "workspace:*",
         "@agent-tracking/assistant": "workspace:*",
+        "@agent-tracking/collab": "workspace:*",
         "@agent-tracking/core": "workspace:*",
         "@agent-tracking/db": "workspace:*",
         "@agent-tracking/git": "workspace:*",
@@ -139,6 +151,7 @@
       "dependencies": {
         "@agent-tracking/agents": "workspace:*",
         "@agent-tracking/analyzer": "workspace:*",
+        "@agent-tracking/collab": "workspace:*",
         "@agent-tracking/core": "workspace:*",
         "@agent-tracking/db": "workspace:*",
         "@agent-tracking/git": "workspace:*",
@@ -154,6 +167,8 @@
     "@agent-tracking/analyzer": ["@agent-tracking/analyzer@workspace:packages/analyzer"],
 
     "@agent-tracking/assistant": ["@agent-tracking/assistant@workspace:packages/assistant"],
+
+    "@agent-tracking/collab": ["@agent-tracking/collab@workspace:packages/collab"],
 
     "@agent-tracking/core": ["@agent-tracking/core@workspace:packages/core"],
 

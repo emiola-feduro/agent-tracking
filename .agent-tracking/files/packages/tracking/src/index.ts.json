@@ -1,10 +1,11 @@
 {
   "path": "packages/tracking/src/index.ts",
-  "purpose": "Exporta el paquete tracking.",
+  "purpose": "Exporta remote-sync",
   "createdBy": "repo:analysis",
   "featureIds": [
     "40490b16-9821-49bc-a246-7d81b01eb54a",
-    "55ee76eb-d776-438f-90f8-64ac3f500bf0"
+    "55ee76eb-d776-438f-90f8-64ac3f500bf0",
+    "9b13ab0e-44e6-43ef-95c0-e97c1f782a48"
   ],
   "symbols": []
 }

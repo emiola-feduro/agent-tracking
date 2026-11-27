@@ -1,0 +1,28 @@
+{
+  "path": "packages/collab/src/store.ts",
+  "purpose": "Almacenamiento del servidor compartido en PostgreSQL o SQLite con el mismo SQL",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "c84e696d-e652-49e8-9a75-2de99907962c"
+  ],
+  "symbols": [
+    {
+      "name": "PRESENCE_TTL_MS",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "openCollabStore",
+      "kind": "function",
+      "purpose": "Abre la base y crea las tablas de usuarios, sesiones, proyectos, miembros y presencia",
+      "source": "reported"
+    },
+    {
+      "name": "storeUrl",
+      "kind": "function",
+      "purpose": "Convierte rutas de archivo en direcciones SQLite para que Bun.SQL no las tome como PostgreSQL",
+      "source": "reported"
+    }
+  ]
+}

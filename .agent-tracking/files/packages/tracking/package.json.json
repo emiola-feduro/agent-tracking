@@ -1,0 +1,9 @@
+{
+  "path": "packages/tracking/package.json",
+  "purpose": "Depende de collab",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "9b13ab0e-44e6-43ef-95c0-e97c1f782a48"
+  ],
+  "symbols": []
+}

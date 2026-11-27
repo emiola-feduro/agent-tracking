@@ -1,0 +1,34 @@
+{
+  "path": "packages/tracking/src/remote-sync.ts",
+  "purpose": "Sincroniza la base local con el servidor compartido mediante un merge de 3 vías",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "9b13ab0e-44e6-43ef-95c0-e97c1f782a48"
+  ],
+  "symbols": [
+    {
+      "name": "collabClientFor",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "joinProject",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "shareProject",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "syncProject",
+      "kind": "function",
+      "purpose": "Mezcla, aplica y envía con reintento ante 409",
+      "source": "reported"
+    }
+  ]
+}

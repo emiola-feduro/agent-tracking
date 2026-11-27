@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/collab/collab-shared-projects.tsx",
+  "purpose": "Proyectos compartidos contigo que se pueden traer a esta máquina",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "284215ee-a603-4def-8386-db00fa9b5a15"
+  ],
+  "symbols": []
+}

@@ -1,13 +1,20 @@
 {
   "path": "apps/web/src/stores/use-implement-store.ts",
-  "purpose": "Selección, diálogo, aviso y últimas opciones por proyecto",
+  "purpose": "setDods marca o desmarca varios criterios",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": [
     {
       "name": "selectionItems",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "setDods",
       "kind": "function",
       "purpose": "",
       "source": "reported"

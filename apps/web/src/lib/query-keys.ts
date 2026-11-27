@@ -25,4 +25,10 @@ export const queryKeys = {
   assistantProviders: ["assistant", "providers"] as const,
   githubAccount: ["github", "account"] as const,
   agents: ["agents"] as const,
+  collab: ["collab"] as const,
+  collabProjects: ["collab", "projects"] as const,
+  collabStatus: (id: string) => ["projects", id, "collab"] as const,
+  collabMembers: (id: string) => ["projects", id, "collab", "members"] as const,
+  // Outside the project prefix: heartbeats do not refetch the snapshot.
+  collabPresence: (id: string) => ["presence", id] as const,
 };

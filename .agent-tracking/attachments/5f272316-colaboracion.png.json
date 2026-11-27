@@ -1,0 +1,12 @@
+{
+  "id": "5f272316-c691-423d-827a-874f1d763f67",
+  "kind": "screen",
+  "requirementId": null,
+  "dodItemId": null,
+  "featureId": "284215ee-a603-4def-8386-db00fa9b5a15",
+  "title": "Colaboración del proyecto",
+  "route": "/projects/$projectId?tab=collab",
+  "filename": "colaboracion.png",
+  "createdBy": "agent:claude-code",
+  "createdAt": "2026-11-27T15:39:59.473Z"
+}

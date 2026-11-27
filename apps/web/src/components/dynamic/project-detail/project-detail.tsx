@@ -2,6 +2,7 @@ import GithubBranches from "@/components/dynamic/github-branches/github-branches
 import GithubPanel from "@/components/dynamic/github-panel/github-panel";
 import GithubPipelines from "@/components/dynamic/github-pipelines/github-pipelines";
 import GithubPulls from "@/components/dynamic/github-pulls/github-pulls";
+import CollabProject from "@/components/dynamic/collab/collab-project";
 import Tabs from "@/components/ui/tabs/tabs";
 import type { ProjectView } from "@/lib/api";
 import ProjectDetailActivity from "./project-detail-activity";
@@ -36,7 +37,8 @@ export type ProjectTab =
   | "rules"
   | "skills"
   | "context"
-  | "agents";
+  | "agents"
+  | "collab";
 
 type ProjectDetailProps = {
   view: ProjectView;
@@ -79,6 +81,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
         { value: "skills", label: "Skills", count: skills.filter((k) => k.enabled).length, icon: NAV_ICONS.skills },
         { value: "context", label: "Contexto", icon: NAV_ICONS.context },
         { value: "agents", label: "Agentes", count: (project.agents ?? []).length || undefined, icon: NAV_ICONS.agents },
+        { value: "collab", label: "Colaboración", icon: NAV_ICONS.collab },
       ],
     },
   ];
@@ -128,6 +131,7 @@ const ProjectDetail = ({ view, tab, onTabChange }: ProjectDetailProps) => {
           {current === "skills" && <ProjectDetailSkills view={view} />}
           {current === "context" && <ProjectDetailContext view={view} />}
           {current === "agents" && <ProjectDetailAgents view={view} />}
+          {current === "collab" && <CollabProject projectId={project.id} />}
           {(current === "pulls" || current === "branches" || current === "pipelines") && (
             <GithubPanel project={project}>
               {current === "pulls" && <GithubPulls projectId={project.id} />}

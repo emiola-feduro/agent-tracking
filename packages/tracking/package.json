@@ -13,7 +13,8 @@
     "@agent-tracking/skills": "workspace:*",
     "drizzle-orm": "0.44",
     "zod": "4",
-    "@agent-tracking/agents": "workspace:*"
+    "@agent-tracking/agents": "workspace:*",
+    "@agent-tracking/collab": "workspace:*"
   },
   "exports": {
     ".": "./src/index.ts",

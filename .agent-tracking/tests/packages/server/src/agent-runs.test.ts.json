@@ -14,6 +14,13 @@
       "name": "several requirements and criteria go to one agent; only what is not done can be queued",
       "type": "integration",
       "lastResult": "passing"
+    },
+    {
+      "featureId": "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
+      "requirementId": "34551e71-2c57-40ae-9102-773ca2f7cb0a",
+      "name": "the person can name the agent's branch or pick an existing one, never main",
+      "type": "integration",
+      "lastResult": "passing"
     }
   ]
 }

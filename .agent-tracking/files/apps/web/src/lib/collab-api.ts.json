@@ -1,0 +1,22 @@
+{
+  "path": "apps/web/src/lib/collab-api.ts",
+  "purpose": "Tipos y llamadas a las rutas de colaboración",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "284215ee-a603-4def-8386-db00fa9b5a15"
+  ],
+  "symbols": [
+    {
+      "name": "COLLAB_ROLES",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "collabApi",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}
