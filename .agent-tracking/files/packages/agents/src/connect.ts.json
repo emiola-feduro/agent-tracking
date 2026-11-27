@@ -1,11 +1,24 @@
 {
   "path": "packages/agents/src/connect.ts",
-  "purpose": "Planes de conexión y desconexión por agente, y su aplicación con copias .bak.",
+  "purpose": "Plan de conexión por HTTP para Claude Code, Codex y Gemini; detecta y reemplaza la conexión de proceso local",
   "createdBy": "agent:claude-code",
   "featureIds": [
-    "3546afd3-3da2-442b-8d2e-f32f4c7a2668"
+    "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+    "7dcbda15-b02e-49d2-9796-2f835dd5832c"
   ],
   "symbols": [
+    {
+      "name": "agentStatus",
+      "kind": "function",
+      "purpose": "Incluye mcpOutdated",
+      "source": "reported"
+    },
+    {
+      "name": "mcpUrl",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
     {
       "name": "connectPlan",
       "kind": "function",

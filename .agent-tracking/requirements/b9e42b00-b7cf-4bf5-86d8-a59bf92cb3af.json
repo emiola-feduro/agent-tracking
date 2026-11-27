@@ -1,5 +1,6 @@
 {
   "id": "b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af",
+  "code": "RF5",
   "title": "Actividad en vivo y turnos del agente",
   "description": "Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno con pedido, mensaje final y diff.",
   "type": "functional",

@@ -1,10 +1,11 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx",
-  "purpose": "Sección Idioma con el usuario que guarda al cambiar",
+  "purpose": "Estado de MCP viejo y botón Actualizar",
   "createdBy": "agent:claude-code",
   "featureIds": [
     "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
-    "7d36f0ee-67f5-4bde-8281-4032899658b0"
+    "7d36f0ee-67f5-4bde-8281-4032899658b0",
+    "7dcbda15-b02e-49d2-9796-2f835dd5832c"
   ],
   "symbols": []
 }

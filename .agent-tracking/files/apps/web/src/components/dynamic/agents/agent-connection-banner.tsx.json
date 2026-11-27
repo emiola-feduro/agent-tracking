@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/agents/agent-connection-banner.tsx",
+  "purpose": "Aviso en todas las páginas con botón para actualizar la conexión",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "7dcbda15-b02e-49d2-9796-2f835dd5832c"
+  ],
+  "symbols": [
+    {
+      "name": "AgentConnectionBanner",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

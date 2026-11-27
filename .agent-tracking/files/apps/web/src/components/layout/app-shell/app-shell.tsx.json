@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/layout/app-shell/app-shell.tsx",
+  "purpose": "Monta el aviso",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "7dcbda15-b02e-49d2-9796-2f835dd5832c"
+  ],
+  "symbols": []
+}

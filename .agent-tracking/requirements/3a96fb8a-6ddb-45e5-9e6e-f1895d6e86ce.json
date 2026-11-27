@@ -1,5 +1,6 @@
 {
   "id": "3a96fb8a-6ddb-45e5-9e6e-f1895d6e86ce",
+  "code": "RF15",
   "title": "Idioma de las respuestas y resúmenes de los agentes",
   "description": "Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas, resúmenes de fin de trabajo y el resumen de submit_report. Se elige en el wizard y se cambia cuando se quiera desde la página del proyecto; el cambio llega a Claude Code, Codex y Gemini sin tocar su configuración. El código y sus comentarios siguen las convenciones del proyecto, no este ajuste.",
   "type": "functional",

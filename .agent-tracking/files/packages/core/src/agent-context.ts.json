@@ -1,10 +1,11 @@
 {
   "path": "packages/core/src/agent-context.ts",
-  "purpose": "El bloque de los agentes incluye la regla del idioma",
+  "purpose": "Pide pasar project si el MCP no reconoce el proyecto",
   "createdBy": "agent:claude-code",
   "featureIds": [
     "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
+    "7dcbda15-b02e-49d2-9796-2f835dd5832c",
     "b8ace81c-984b-4166-979b-ffb57f50780b"
   ],
   "symbols": []

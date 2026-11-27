@@ -1,9 +1,10 @@
 {
   "path": "packages/server/src/index.ts",
-  "purpose": "Tras una importación vuelve a analizar el código y avisa a la UI.",
+  "purpose": "Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP",
   "createdBy": "repo:analysis",
   "featureIds": [
     "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
+    "7dcbda15-b02e-49d2-9796-2f835dd5832c",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
     "cd9f791e-6d22-496a-933c-50a50921b753"
   ],

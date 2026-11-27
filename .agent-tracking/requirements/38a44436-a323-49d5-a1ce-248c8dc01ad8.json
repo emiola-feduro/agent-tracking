@@ -1,5 +1,6 @@
 {
   "id": "38a44436-a323-49d5-a1ce-248c8dc01ad8",
+  "code": "RNF2",
   "title": "La app se recupera sola de reinicios del servidor",
   "description": "Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket.",
   "type": "non_functional",

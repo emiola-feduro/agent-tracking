@@ -1,5 +1,6 @@
 {
   "id": "315d11ab-fd02-45bd-9701-bf012f24b293",
+  "code": "RF17",
   "title": "Códigos de requerimiento",
   "description": "Cada requerimiento tiene un código corto y secuencial dentro del proyecto según su tipo (RF1, RNF2...), editable, que sirve para referirse a él en la app, en el contexto y en el MCP sin escribir el título completo.",
   "type": "functional",

@@ -8,12 +8,6 @@
   ],
   "symbols": [
     {
-      "name": "SUGGESTED_MODELS",
-      "kind": "constant",
-      "purpose": "",
-      "source": "reported"
-    },
-    {
       "name": "ASSISTANT_TASKS",
       "kind": "constant",
       "purpose": "",
@@ -23,6 +17,12 @@
       "name": "modelFor",
       "kind": "function",
       "purpose": "Modelo de una tarea: el elegido o el de su nivel",
+      "source": "reported"
+    },
+    {
+      "name": "SUGGESTED_MODELS",
+      "kind": "constant",
+      "purpose": "",
       "source": "reported"
     }
   ]

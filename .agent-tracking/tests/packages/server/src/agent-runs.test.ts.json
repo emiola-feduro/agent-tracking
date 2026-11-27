@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/agent-runs.test.ts",
+  "tests": [
+    {
+      "featureId": "57265620-f44f-45c5-bf18-a3d6cf432511",
+      "requirementId": "34551e71-2c57-40ae-9102-773ca2f7cb0a",
+      "name": "an agent is started on a requirement from the app, its output is kept and it can be stopped",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

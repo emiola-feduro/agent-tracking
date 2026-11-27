@@ -1,5 +1,6 @@
 {
   "id": "9ccf8f6a-06c6-4692-b38d-c0d4cb41e467",
+  "code": "RF10",
   "title": "Requerimientos funcionales y no funcionales con filtros",
   "description": "Tipo y área en cada requerimiento, agrupados y filtrables.",
   "type": "functional",

@@ -1,5 +1,6 @@
 {
   "id": "765effdd-4d83-4567-90eb-483ec5c56034",
+  "code": "RF8",
   "title": "Asistente con Claude",
   "description": "Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determinista.",
   "type": "functional",

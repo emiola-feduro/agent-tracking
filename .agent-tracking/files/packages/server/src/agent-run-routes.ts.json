@@ -1,0 +1,16 @@
+{
+  "path": "packages/server/src/agent-run-routes.ts",
+  "purpose": "Arranca, lista y detiene agentes; solo desde orígenes locales y en checkouts del proyecto",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "57265620-f44f-45c5-bf18-a3d6cf432511"
+  ],
+  "symbols": [
+    {
+      "name": "agentRunRoutes",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

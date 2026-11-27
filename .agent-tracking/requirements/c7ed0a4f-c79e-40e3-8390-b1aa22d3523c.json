@@ -1,5 +1,6 @@
 {
   "id": "c7ed0a4f-c79e-40e3-8390-b1aa22d3523c",
+  "code": "RF6",
   "title": "Ramas y worktrees",
   "description": "Ver el progreso de cada worktree frente a main y cambiar la rama del checkout principal.",
   "type": "functional",

@@ -1,0 +1,71 @@
+{
+  "id": "34551e71-2c57-40ae-9102-773ca2f7cb0a",
+  "code": "RF18",
+  "title": "Lanzar agentes desde Agent Tracking",
+  "description": "Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) y Agent Tracking lo arranca con esa tarea en el repositorio o en un worktree, con el nivel de permisos elegido. Su trabajo se ve en vivo, queda en una lista de trabajos lanzados con su estado y se puede detener.",
+  "type": "functional",
+  "area": "integration",
+  "weight": 1,
+  "parts": [],
+  "createdAt": "2026-11-27T14:30:00.687Z",
+  "dod": [
+    {
+      "id": "3cda502f-9f37-4bc7-bb56-e20ae722deda",
+      "criterion": "Se elige dónde trabaja (checkout principal o un worktree existente) y con qué permisos, con un aviso claro del modo sin preguntas",
+      "origin": "human",
+      "status": "done",
+      "evidence": "Selector de checkout y permisos con aviso; el servidor rechaza carpetas ajenas",
+      "createdAt": "2026-11-27T14:30:00.687Z"
+    },
+    {
+      "id": "68ca55d4-9fcb-4723-a1b3-bf96579ca502",
+      "criterion": "Los trabajos lanzados se listan con agente, requerimiento, estado, duración y las últimas líneas de salida, y se pueden detener",
+      "origin": "human",
+      "status": "done",
+      "evidence": "AgentRunsList; prueba en navegador con agente falso",
+      "createdAt": "2026-11-27T14:30:00.687Z"
+    },
+    {
+      "id": "781610f2-116b-4e38-b4b9-b668b0a110f7",
+      "criterion": "Tests cubren el armado del comando de cada agente, el arranque, la salida, la detención y el rechazo de orígenes ajenos",
+      "origin": "human",
+      "status": "done",
+      "evidence": "launch.test.ts y agent-runs.test.ts; 371 pass",
+      "createdAt": "2026-11-27T14:30:00.687Z"
+    },
+    {
+      "id": "79861d3d-c761-4adf-9a5d-010305a3cb88",
+      "criterion": "El agente arranca sin interfaz con una instrucción que nombra el requerimiento por su código, pide leer el contexto, trabajar en una rama propia y llamar a submit_report al terminar",
+      "origin": "human",
+      "status": "done",
+      "evidence": "launchPrompt y launchCommand; launch.test.ts",
+      "createdAt": "2026-11-27T14:30:00.687Z"
+    },
+    {
+      "id": "d5e7f319-7a87-462e-8e9d-9f4d6ba0eaaf",
+      "criterion": "Desde un requerimiento se abre «Implementar con un agente» y se elige el agente entre los instalados",
+      "origin": "human",
+      "status": "done",
+      "evidence": "Botón en la tarjeta del requerimiento; solo agentes instalados; prueba en navegador",
+      "createdAt": "2026-11-27T14:30:00.687Z"
+    },
+    {
+      "id": "e10f40e1-68b5-40cf-8e54-1b73c516aa41",
+      "criterion": "Solo se lanzan agentes desde la propia app (origen local); nunca desde otra página",
+      "origin": "human",
+      "status": "done",
+      "evidence": "localOnly exige Origin local; agent-runs.test.ts verifica 403",
+      "createdAt": "2026-11-27T14:30:00.687Z"
+    }
+  ],
+  "features": [
+    {
+      "id": "57265620-f44f-45c5-bf18-a3d6cf432511",
+      "name": "Lanzar agentes desde un requerimiento",
+      "description": "Diálogo para elegir agente, checkout, permisos, modelo e indicaciones; lista de trabajos con salida y botón Detener",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T14:38:27.051Z"
+    }
+  ]
+}

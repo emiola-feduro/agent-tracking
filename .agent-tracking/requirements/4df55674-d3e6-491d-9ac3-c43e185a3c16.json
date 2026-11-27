@@ -1,5 +1,6 @@
 {
   "id": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+  "code": "RF1",
   "title": "Wizard de creación de proyectos",
   "description": "Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con dependencias, skills, objetivo, reglas, requerimientos con DoD y carpeta .github al final.",
   "type": "functional",

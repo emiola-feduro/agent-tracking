@@ -1,9 +1,10 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx",
-  "purpose": "Requerimiento del proyecto con sus piezas editables.",
+  "purpose": "Botón Implementar con un agente",
   "createdBy": "repo:analysis",
   "featureIds": [
     "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+    "57265620-f44f-45c5-bf18-a3d6cf432511",
     "c0cb7044-3df7-4e2e-8c97-184687d1417c",
     "e20e7af5-350b-42e3-9997-73c58a0975ad"
   ],

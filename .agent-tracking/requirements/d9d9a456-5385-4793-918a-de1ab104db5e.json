@@ -1,5 +1,6 @@
 {
   "id": "d9d9a456-5385-4793-918a-de1ab104db5e",
+  "code": "RNF4",
   "title": "Seguridad de rutas y datos locales",
   "description": "Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del equipo.",
   "type": "non_functional",

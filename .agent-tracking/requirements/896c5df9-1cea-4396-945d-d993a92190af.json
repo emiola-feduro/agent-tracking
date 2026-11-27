@@ -1,5 +1,6 @@
 {
   "id": "896c5df9-1cea-4396-945d-d993a92190af",
+  "code": "RF14",
   "title": "Wizard de scaffolding: proyectos multiplataforma y monorepos",
   "description": "Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), así que no se puede describir una app multiplataforma ni un monorepo con varias piezas (por ejemplo app móvil + API + panel web + librería compartida). El wizard debe permitir describir el proyecto por piezas o apps, cada una con su tipo, plataformas, ubicación en el repo y stack, y usar esa estructura para guiar el stack, el CONTEXT.md y las convenciones, y para proponer el scaffolding inicial del repositorio.",
   "type": "functional",

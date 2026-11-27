@@ -1,0 +1,12 @@
+{
+  "path": "packages/agents/src/launch.test.ts",
+  "tests": [
+    {
+      "featureId": "57265620-f44f-45c5-bf18-a3d6cf432511",
+      "requirementId": "34551e71-2c57-40ae-9102-773ca2f7cb0a",
+      "name": "launching agents",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

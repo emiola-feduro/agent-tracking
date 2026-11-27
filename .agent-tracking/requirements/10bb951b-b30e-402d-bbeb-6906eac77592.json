@@ -1,5 +1,6 @@
 {
   "id": "10bb951b-b30e-402d-bbeb-6906eac77592",
+  "code": "RF2",
   "title": "Trazabilidad requerimiento, feature, archivo y símbolo",
   "description": "Árbol por requerimiento o por archivo, con búsqueda, símbolos y vista previa del código.",
   "type": "functional",

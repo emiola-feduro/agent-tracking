@@ -1,5 +1,6 @@
 {
   "id": "d48566db-3202-417a-a0ff-2fa359fdc596",
+  "code": "RF7",
   "title": "Integración con GitHub",
   "description": "Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.",
   "type": "functional",

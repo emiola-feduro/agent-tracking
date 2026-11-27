@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/agent-runs/launch-agent-dialog.tsx",
+  "purpose": "Diálogo Implementar con un agente",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "57265620-f44f-45c5-bf18-a3d6cf432511"
+  ],
+  "symbols": [
+    {
+      "name": "LaunchAgentDialog",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

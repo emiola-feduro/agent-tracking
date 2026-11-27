@@ -1,5 +1,6 @@
 {
   "id": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+  "code": "RF16",
   "title": "Nuevas funcionalidades del MCP",
   "description": "Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos errores y sin depender de la API local: escribir requerimientos, contexto enfocado, validación y corrección de reportes, continuidad entre sesiones, comandos listos, create_project completo y conexión por HTTP.",
   "type": "functional",
@@ -28,8 +29,8 @@
       "id": "38fea0f6-4829-420b-86a6-6ea5d07f8ca1",
       "criterion": "Conectar registra el MCP por HTTP (http://127.0.0.1:4317/mcp) sin depender de Bun ni del código fuente",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "connect.ts registra /mcp?agent=<kind>; connect.test.ts; plan verificado en navegador",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
@@ -81,5 +82,14 @@
       "createdAt": "2026-11-27T13:19:09.142Z"
     }
   ],
-  "features": []
+  "features": [
+    {
+      "id": "7dcbda15-b02e-49d2-9796-2f835dd5832c",
+      "name": "MCP por HTTP y aviso de conexión vieja",
+      "description": "Conectar registra el MCP por URL; las conexiones como proceso local se marcan y se actualizan con un clic",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T14:38:26.990Z"
+    }
+  ]
 }

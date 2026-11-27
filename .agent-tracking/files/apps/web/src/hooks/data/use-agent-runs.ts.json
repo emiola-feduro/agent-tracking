@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/hooks/data/use-agent-runs.ts",
+  "purpose": "Consultas y acciones de trabajos lanzados",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "57265620-f44f-45c5-bf18-a3d6cf432511"
+  ],
+  "symbols": []
+}

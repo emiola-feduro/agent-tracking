@@ -14,7 +14,7 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
-- **Avance global:** 66%
+- **Avance global:** 68%
 
 ## Idioma con el usuario
 
@@ -59,7 +59,7 @@ _No se seleccionaron skills._
 
 ## Requerimientos
 
-### Wizard de creación de proyectos — 100%
+### RF1 Wizard de creación de proyectos — 100%
 
 ID: `4df55674-d3e6-491d-9ac3-c43e185a3c16`
 
@@ -95,7 +95,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/plan.test.ts`: Tests de clasificación, importación y planes.
   - `packages/core/src/plan.ts`: Planes con sección de convenciones.
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
 - Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
@@ -116,12 +116,12 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `packages/git/src/index.ts`: Utilidades de git; initRepo acepta y valida la rama inicial.
   - `packages/git/src/repo.test.ts`: Tests de repositorios, incluida la rama inicial.
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
 - Tipos de tests para los agentes — _done_ (`339c5862-66c9-4283-80c0-d72c47b8a3ab`)
   - `apps/web/src/components/dynamic/new-project/new-project-test-types.tsx`: Elección de los tests que deben escribir los agentes.
   - `packages/core/src/test-policy.ts`: Tipos de tests, sugeridos por tipo de proyecto, y su Markdown.
 
-### Trazabilidad requerimiento, feature, archivo y símbolo — 100%
+### RF2 Trazabilidad requerimiento, feature, archivo y símbolo — 100%
 
 ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
 
@@ -161,7 +161,7 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `packages/server/src/traceability-routes.ts`: Ruta DELETE /projects/:id/tests/:testId
   - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 
-### Análisis del repositorio en vivo — 100%
+### RF3 Análisis del repositorio en vivo — 100%
 
 ID: `1d788405-8d51-494f-8414-ecb321666721`
 
@@ -184,7 +184,7 @@ Vigilante del repo que detecta archivos, funciones, clases y tests, y marca lo c
   - `packages/server/src/repo-watchers.ts`: El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.
   - `packages/tracking/src/inference.ts`: Análisis del repo; INFERRED_ACTOR ahora viene de core.
 
-### Servidor MCP y reporte del agente — 100%
+### RF4 Servidor MCP y reporte del agente — 100%
 
 ID: `c574c729-d420-4c48-917a-138e34dfab17`
 
@@ -204,30 +204,30 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/mcp/src/http.ts`: Transporte Streamable HTTP en /mcp
-  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
+  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
   - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
   - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
   - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
-  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
+  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
   - `packages/tracking/src/index.ts`: Exporta el paquete tracking.
 - Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
-  - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Diálogo con el diff de cada archivo antes de conectar.
+  - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Muestra la carpeta de cada comando y avisa al aplicar
   - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Selector de idioma en el paso Proyecto
-  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Sección Idioma con el usuario que guarda al cambiar
+  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Estado de MCP viejo y botón Actualizar
   - `apps/web/src/lib/line-diff.ts`: Diff por líneas para archivos de configuración.
   - `packages/agents/src/connect.test.ts`: Tests de conexión en un HOME temporal.
-  - `packages/agents/src/connect.ts`: Planes de conexión y desconexión por agente, y su aplicación con copias .bak.
-  - `packages/core/src/agent-context.ts`: El bloque de los agentes incluye la regla del idioma
+  - `packages/agents/src/connect.ts`: Plan de conexión por HTTP para Claude Code, Codex y Gemini; detecta y reemplaza la conexión de proceso local
+  - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
   - `packages/server/src/agent-files.test.ts`: Tests de los archivos de instrucciones.
   - `packages/server/src/agent-routes.test.ts`: Tests de las rutas de agentes.
-  - `packages/server/src/agent-routes.ts`: Rutas /agents: estado, planes, conectar y desconectar.
+  - `packages/server/src/agent-routes.ts`: El plan ya no usa el proceso local
   - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
   - `packages/tracking/src/repo-sync.ts`: Sincroniza la base y .agent-tracking: importa lo que llega por git con merge de 3 vías, escribe el formato v2, registra el driver y aplica el proyecto conservando lo inferido.
 
-### Actividad en vivo y turnos del agente — 100%
+### RF5 Actividad en vivo y turnos del agente — 100%
 
 ID: `b9e42b00-b7cf-4bf5-86d8-a59bf92cb3af`
 
@@ -255,7 +255,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
 - Seguimiento de Codex CLI y Gemini CLI — _done_ (`a8021746-6f16-480d-af64-7d9a91068c3e`)
@@ -267,12 +267,12 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/agents/src/gemini-cli.ts`: Adaptador de Gemini CLI: BeforeAgent, BeforeTool, AfterAgent.
   - `packages/agents/src/index.ts`: Registro de adaptadores y utilidades (adapterFor, agentForClient, agentLabel).
   - `packages/agents/src/types.ts`: withPromptContext en el adaptador
-  - `packages/mcp/src/server.ts`: MCP: turnos para agentes sin hooks.
+  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
   - `packages/server/src/agents-flow.test.ts`: Codex y Gemini a la vez: sesiones en vivo y turnos.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
   - `packages/tracking/src/agent-turns.ts`: Turnos con agente, y turnos por MCP para agentes sin hooks.
 
-### Ramas y worktrees — 100%
+### RF6 Ramas y worktrees — 100%
 
 ID: `c7ed0a4f-c79e-40e3-8390-b1aa22d3523c`
 
@@ -303,11 +303,11 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
   - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 
-### Integración con GitHub — 100%
+### RF7 Integración con GitHub — 100%
 
 ID: `d48566db-3202-417a-a0ff-2fa359fdc596`
 
@@ -343,13 +343,13 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/hooks/data/use-github-branches.ts`: Lista y borrado de ramas con doble confirmación.
   - `apps/web/src/lib/github-api.ts`: Cliente web de las rutas de GitHub.
   - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
   - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
 - CI de Agent Tracking en GitHub Actions — _done_ (`5ad82298-fbd4-4fd2-96ed-1c656f6b8e28`)
   - `.github/workflows/ci.yml`: Pipeline de CI: typecheck, check de la web, tests y build con Bun 1.4.2.
 
-### Asistente con Claude — 100%
+### RF8 Asistente con Claude — 100%
 
 ID: `765effdd-4d83-4567-90eb-483ec5c56034`
 
@@ -386,9 +386,9 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `packages/assistant/src/openai.ts`: Proveedor OpenAI con salida estructurada.
   - `packages/assistant/src/providers.test.ts`: Tests de los proveedores con fetch y spawn simulados.
   - `packages/assistant/src/spawn.ts`: Ejecución de CLIs con tiempo límite y carpeta aislada.
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/server/src/assistant.test.ts`: Tests de las rutas del asistente.
-  - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
+  - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
 - Modelo por tarea del asistente — _done_ (`4b340d32-362f-4378-bb2c-c250c397cd83`)
   - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Muestra los modelos en uso y el selector por tarea
   - `apps/web/src/components/dynamic/assistant/assistant-task-models.tsx`: Selector de modelo por tarea
@@ -400,9 +400,9 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `packages/assistant/src/stack.ts`: Usa el modelo de la tarea stack
   - `packages/db/migrations/0011_aberrant_the_twelve.sql`: Migración de app_settings
   - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
 
-### Referencias visuales y galería de vistas — 100%
+### RF9 Referencias visuales y galería de vistas — 100%
 
 ID: `f497fa5f-cde3-4420-bd49-ee7c7832680f`
 
@@ -424,7 +424,39 @@ Imágenes en requerimientos y criterios del DoD, y galería de pantallas de la a
   - `packages/server/src/attachment-routes.ts`: Subir, servir, editar y borrar imágenes
   - `packages/tracking/src/attachments.ts`: Valida y guarda imágenes, compartido por la API y el MCP
 
-### Accesible y usable en móvil — 50%
+### RF10 Requerimientos funcionales y no funcionales con filtros — 100%
+
+ID: `9ccf8f6a-06c6-4692-b38d-c0d4cb41e467`
+
+**Tipo:** Funcional, área frontend
+
+Tipo y área en cada requerimiento, agrupados y filtrables.
+
+**Definition of Done:**
+
+- [x] Se filtra por tipo, área y texto (`4753d5a2-b57f-4dbe-a73e-49f474834989`)
+- [x] Cada requerimiento tiene tipo y área editables (`800c8648-c628-4de0-b459-e6fa6c445b21`)
+
+**Features:**
+
+- Tipo, área y filtros de requerimientos — _done_ (`e20e7af5-350b-42e3-9997-73c58a0975ad`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
+  - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
+- Clasificación por parte del sistema o atributo de calidad — _done_ (`11fce3fd-7e0f-46db-ae30-20e2566cbb7b`)
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-classification.tsx`: Edición de tipo y área explicada, con sugerencia del texto.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-form.tsx`: Formulario de nuevo requerimiento.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
+  - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
+  - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
+  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
+  - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
+  - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
+  - `packages/core/src/types.ts`: Project.replyLanguage
+  - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
+
+### RNF1 Accesible y usable en móvil — 50%
 
 ID: `308a7bc8-83d9-46e1-a443-745d4fef719d`
 
@@ -450,7 +482,7 @@ Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 39
   - `apps/web/src/hooks/form/use-repo-source.ts`: Importa o clona el repo y abre el Resumen.
   - `apps/web/src/router.tsx`: Rutas; parámetro wt.
 
-### La app se recupera sola de reinicios del servidor — 100%
+### RNF2 La app se recupera sola de reinicios del servidor — 100%
 
 ID: `38a44436-a323-49d5-a1ce-248c8dc01ad8`
 
@@ -474,39 +506,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
   - `package.json`: Script dev.
   - `scripts/dev.ts`: Levanta la API con --watch, espera su health y luego Vite, con salida prefijada y cierre conjunto.
 
-### Requerimientos funcionales y no funcionales con filtros — 100%
-
-ID: `9ccf8f6a-06c6-4692-b38d-c0d4cb41e467`
-
-**Tipo:** Funcional, área frontend
-
-Tipo y área en cada requerimiento, agrupados y filtrables.
-
-**Definition of Done:**
-
-- [x] Se filtra por tipo, área y texto (`4753d5a2-b57f-4dbe-a73e-49f474834989`)
-- [x] Cada requerimiento tiene tipo y área editables (`800c8648-c628-4de0-b459-e6fa6c445b21`)
-
-**Features:**
-
-- Tipo, área y filtros de requerimientos — _done_ (`e20e7af5-350b-42e3-9997-73c58a0975ad`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento del proyecto con sus piezas editables.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
-  - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-- Clasificación por parte del sistema o atributo de calidad — _done_ (`11fce3fd-7e0f-46db-ae30-20e2566cbb7b`)
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento del proyecto con sus piezas editables.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-classification.tsx`: Edición de tipo y área explicada, con sugerencia del texto.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-form.tsx`: Formulario de nuevo requerimiento.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Pestaña de requerimientos: filtros, búsqueda con sugerencias, importar y plegado.
-  - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
-  - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
-  - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
-  - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
-  - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-  - `packages/core/src/types.ts`: Project.replyLanguage
-  - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
-
-### Apariencia — 100%
+### RNF3 Apariencia — 100%
 
 ID: `f66fb380-a480-42a5-b45f-433928f2a081`
 
@@ -531,7 +531,7 @@ Temas, fuentes y tamaño de texto como en ER Studio.
   - `apps/web/index.html`: Pantalla de carga sin espera de entrada y con fundido corto
   - `apps/web/src/main.tsx`: Retira la pantalla de carga en cuanto la app renderiza
 
-### Web multiusuario y colaboración — 0%
+### RF11 Web multiusuario y colaboración — 0%
 
 ID: `6512a2ba-bffe-4427-b835-b3740aa1fab3`
 
@@ -544,7 +544,7 @@ Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
 - [ ] La app de escritorio puede sincronizar con un servidor compartido (`37358a45-94a4-4ac6-b55b-123d61637ac1`)
 - [ ] Varias personas trabajan en el mismo proyecto con roles (`5f5fe41b-c0b7-44bf-a3dc-3a5d1fce84ee`)
 
-### Gestión de cambios y detección de conflictos — 0%
+### RF12 Gestión de cambios y detección de conflictos — 0%
 
 ID: `80d5080e-093a-4db8-8d2b-78e060067521`
 
@@ -557,7 +557,7 @@ Fase 6: solicitudes de cambio con análisis de conflictos y revisiones.
 - [ ] Un cambio a requerimientos o reglas se crea como solicitud con reporte de conflictos (`5b995b43-b991-4536-97a8-5d34bc635787`)
 - [ ] Al aprobar se guarda una revisión y los features afectados pasan a revisión (`7dff790a-a354-42a0-a94d-0d7fa28ff3c7`)
 
-### Seguridad de rutas y datos locales — 100%
+### RNF4 Seguridad de rutas y datos locales — 100%
 
 ID: `d9d9a456-5385-4793-918a-de1ab104db5e`
 
@@ -576,12 +576,12 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/server/src/repo-routes.ts`: DELETE de ramas y conteo de commits sin fusionar.
 - Solo páginas de este equipo — _done_ (`2643a8cc-df59-4ebb-a845-e574b2b3ebc7`)
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
-  - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
+  - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
   - `packages/server/src/origin.test.ts`: Tests de orígenes permitidos.
   - `packages/server/src/origin.ts`: Qué orígenes pueden llamar al servidor.
 
-### Compartir el proyecto por git — 100%
+### RF13 Compartir el proyecto por git — 100%
 
 ID: `e871c9a5-c03f-4fd2-a1e7-e2e2e6214af1`
 
@@ -609,7 +609,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
   - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
@@ -628,8 +628,8 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
   - `packages/mcp/src/mcp.test.ts`: Tests MCP adaptados al formato v2.
   - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
-  - `packages/server/src/index.ts`: Tras una importación vuelve a analizar el código y avisa a la UI.
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
+  - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
   - `packages/server/src/repo-watchers.ts`: El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.
   - `packages/tracking/src/inference.ts`: Análisis del repo; INFERRED_ACTOR ahora viene de core.
   - `packages/tracking/src/merge-driver-info.ts`: Nombre del driver y ruta del script.
@@ -637,7 +637,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/tracking/src/repo-sync.test.ts`: Tests con git real: merges en dos ramas, conflictos, importación tras pull, checkout, marcas y migración v1.
   - `packages/tracking/src/repo-sync.ts`: Sincroniza la base y .agent-tracking: importa lo que llega por git con merge de 3 vías, escribe el formato v2, registra el driver y aplica el proyecto conservando lo inferido.
 
-### Wizard de scaffolding: proyectos multiplataforma y monorepos — 0%
+### RF14 Wizard de scaffolding: proyectos multiplataforma y monorepos — 0%
 
 ID: `896c5df9-1cea-4396-945d-d993a92190af`
 
@@ -670,7 +670,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `apps/web/src/hooks/form/use-stack-defaults.ts`: Recomendación por pieza.
   - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
-  - `packages/core/src/agent-context.ts`: El bloque de los agentes incluye la regla del idioma
+  - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/parts.ts`: Modelo de piezas, herramientas de monorepo, validación, árbol propuesto, scaffolding y Markdown de estructura.
@@ -680,7 +680,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/db/migrations/0009_jazzy_banshee.sql`: Migración de estructura, piezas, herramienta y tests.
   - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
 - Árbol propuesto y scaffolding — _done_ (`51788bf5-ecb2-4f79-9da1-1b92108b75ee`)
   - `apps/web/src/components/dynamic/new-project/new-project-scaffold.tsx`: Árbol de carpetas propuesto y casilla para crearlo.
@@ -689,7 +689,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `packages/server/src/monorepo.test.ts`: Tests de proyectos monorepo: creación, scaffolding, piezas y detección.
 - Piezas por requerimiento — _done_ (`c0cb7044-3df7-4e2e-8c97-184687d1417c`)
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con sus piezas.
-  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Requerimiento del proyecto con sus piezas editables.
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
   - `apps/web/src/components/dynamic/requirement-parts/part-chips.tsx`: Selector de piezas que toca un requerimiento.
   - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
 - Detectar monorepos al importar — _done_ (`55ee76eb-d776-438f-90f8-64ac3f500bf0`)
@@ -697,7 +697,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `packages/tracking/src/detect-structure.ts`: Detecta las piezas de un monorepo existente con su tipo y stack.
   - `packages/tracking/src/index.ts`: Exporta el paquete tracking.
 
-### Idioma de las respuestas y resúmenes de los agentes — 0%
+### RF15 Idioma de las respuestas y resúmenes de los agentes — 0%
 
 ID: `3a96fb8a-6ddb-45e5-9e6e-f1895d6e86ce`
 
@@ -720,7 +720,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `apps/web/src/components/dynamic/agents/reply-language-field.tsx`: Selector del idioma reutilizado en el wizard y en la página del proyecto
   - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Selector de idioma en el paso Proyecto
   - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Idioma de los agentes en el resumen
-  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Sección Idioma con el usuario que guarda al cambiar
+  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Estado de MCP viejo y botón Actualizar
   - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
   - `apps/web/src/lib/api.ts`: Tipos y api.setAssistantModel
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
@@ -728,17 +728,17 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `packages/agents/src/codex.ts`: Codex acepta contexto por pedido
   - `packages/agents/src/describe.ts`: Respuesta de hook con additionalContext
   - `packages/agents/src/types.ts`: withPromptContext en el adaptador
-  - `packages/core/src/agent-context.ts`: El bloque de los agentes incluye la regla del idioma
+  - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
   - `packages/core/src/reply-language.ts`: Idiomas disponibles, etiquetas y la regla que reciben los agentes
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/db/migrations/0010_safe_deathbird.sql`: Migración que agrega reply_language
   - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: Lee y guarda los modelos por tarea; PUT /assistant/models
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
 
-### Nuevas funcionalidades del MCP — 0%
+### RF16 Nuevas funcionalidades del MCP — 11%
 
 ID: `0e260d37-411a-4cdf-a8d9-2b65b7ef86bb`
 
@@ -750,7 +750,7 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
 
 - [ ] submit_report avisa o rechaza rutas fuera del repositorio, ids de DoD que no existen y archivos que no cambiaron (`0a6d624b-57a6-4aaf-831f-68ef674d53fb`)
 - [ ] get_handoff dice qué hizo el último turno, con qué agente y en qué rama, qué criterios del DoD siguen pendientes y qué cambios faltan por reportar (`25dcbdd4-5864-4e45-9428-028680c7bbea`)
-- [ ] Conectar registra el MCP por HTTP (http://127.0.0.1:4317/mcp) sin depender de Bun ni del código fuente (`38fea0f6-4829-420b-86a6-6ea5d07f8ca1`)
+- [x] Conectar registra el MCP por HTTP (http://127.0.0.1:4317/mcp) sin depender de Bun ni del código fuente (`38fea0f6-4829-420b-86a6-6ea5d07f8ca1`)
 - [ ] remove_test y remove_feature permiten deshacer lo que se reportó por error (`8a2f53c1-6b13-4f70-b423-3dddd750f436`)
 - [ ] create_project admite monorepo con sus piezas, tipos de tests e idioma de las respuestas, igual que el wizard (`8c9da401-b983-48d6-9f14-456605b23518`)
 - [ ] Prompts MCP en inglés que aparecen como comandos: /agent-tracking:start <requirement> y /agent-tracking:report (`cc79f882-023c-46df-846d-b2e1479195b1`)
@@ -758,7 +758,21 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
 - [ ] El contexto y cada requerimiento se exponen como recursos MCP: agent-tracking://context y agent-tracking://requirement/<id> (`e9662a32-7b7d-454c-858b-351b2749706c`)
 - [ ] El MCP permite crear y editar requerimientos: create_requirement (con DoD, tipo, área y piezas), update_requirement y add_dod_item (`f5ca1c04-dc03-42d4-b63b-3a94bdc0e8fc`)
 
-### Códigos de requerimiento — 0%
+**Features:**
+
+- MCP por HTTP y aviso de conexión vieja — _done_ (`7dcbda15-b02e-49d2-9796-2f835dd5832c`)
+  - `apps/web/src/components/dynamic/agents/agent-connection-banner.tsx`: Aviso en todas las páginas con botón para actualizar la conexión
+  - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Muestra la carpeta de cada comando y avisa al aplicar
+  - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Estado de MCP viejo y botón Actualizar
+  - `apps/web/src/components/layout/app-shell/app-shell.tsx`: Monta el aviso
+  - `packages/agents/src/connect.ts`: Plan de conexión por HTTP para Claude Code, Codex y Gemini; detecta y reemplaza la conexión de proceso local
+  - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
+  - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
+  - `packages/server/src/agent-routes.ts`: El plan ya no usa el proceso local
+  - `packages/server/src/app.ts`: onAgentDir en los hooks
+  - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
+
+### RF17 Códigos de requerimiento — 0%
 
 ID: `315d11ab-fd02-45bd-9701-bf012f24b293`
 
@@ -773,6 +787,33 @@ Cada requerimiento tiene un código corto y secuencial dentro del proyecto segú
 - [ ] El código se puede editar desde la app y no se repite dentro del proyecto (`eeba8618-3d93-41d5-9c14-87460240eb05`)
 - [ ] Las herramientas del MCP aceptan el código donde piden un requerimiento (`0c4c4447-4b31-45a7-bd22-9dd5e100b1e6`)
 - [ ] Tests cubren la numeración, la edición, los duplicados y el uso desde el MCP (`f00198bb-6a1f-4e5d-9b46-1fc6b76a140f`)
+
+### RF18 Lanzar agentes desde Agent Tracking — 100%
+
+ID: `34551e71-2c57-40ae-9102-773ca2f7cb0a`
+
+**Tipo:** Funcional, área integraciones
+
+Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) y Agent Tracking lo arranca con esa tarea en el repositorio o en un worktree, con el nivel de permisos elegido. Su trabajo se ve en vivo, queda en una lista de trabajos lanzados con su estado y se puede detener.
+
+**Definition of Done:**
+
+- [x] Desde un requerimiento se abre «Implementar con un agente» y se elige el agente entre los instalados (`d5e7f319-7a87-462e-8e9d-9f4d6ba0eaaf`)
+- [x] Se elige dónde trabaja (checkout principal o un worktree existente) y con qué permisos, con un aviso claro del modo sin preguntas (`3cda502f-9f37-4bc7-bb56-e20ae722deda`)
+- [x] El agente arranca sin interfaz con una instrucción que nombra el requerimiento por su código, pide leer el contexto, trabajar en una rama propia y llamar a submit_report al terminar (`79861d3d-c761-4adf-9a5d-010305a3cb88`)
+- [x] Los trabajos lanzados se listan con agente, requerimiento, estado, duración y las últimas líneas de salida, y se pueden detener (`68ca55d4-9fcb-4723-a1b3-bf96579ca502`)
+- [x] Solo se lanzan agentes desde la propia app (origen local); nunca desde otra página (`e10f40e1-68b5-40cf-8e54-1b73c516aa41`)
+- [x] Tests cubren el armado del comando de cada agente, el arranque, la salida, la detención y el rechazo de orígenes ajenos (`781610f2-116b-4e38-b4b9-b668b0a110f7`)
+
+**Features:**
+
+- Lanzar agentes desde un requerimiento — _done_ (`57265620-f44f-45c5-bf18-a3d6cf432511`)
+  - `apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx`: Trabajos lanzados con estado, duración, salida y Detener
+  - `apps/web/src/components/dynamic/agent-runs/launch-agent-dialog.tsx`: Diálogo Implementar con un agente
+  - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Botón Implementar con un agente
+  - `apps/web/src/hooks/data/use-agent-runs.ts`: Consultas y acciones de trabajos lanzados
+  - `packages/agents/src/launch.ts`: Instrucción y línea de comando no interactiva de cada agente
+  - `packages/server/src/agent-run-routes.ts`: Arranca, lista y detiene agentes; solo desde orígenes locales y en checkouts del proyecto
 
 ## Ideas de tests pendientes
 

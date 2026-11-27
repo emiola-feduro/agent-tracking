@@ -1,5 +1,6 @@
 {
   "id": "80d5080e-093a-4db8-8d2b-78e060067521",
+  "code": "RF12",
   "title": "Gestión de cambios y detección de conflictos",
   "description": "Fase 6: solicitudes de cambio con análisis de conflictos y revisiones.",
   "type": "functional",

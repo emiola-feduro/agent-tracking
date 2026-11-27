@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx",
+  "purpose": "Trabajos lanzados con estado, duración, salida y Detener",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "57265620-f44f-45c5-bf18-a3d6cf432511"
+  ],
+  "symbols": [
+    {
+      "name": "AgentRunsList",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

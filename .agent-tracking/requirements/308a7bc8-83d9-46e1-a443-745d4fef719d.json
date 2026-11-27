@@ -1,5 +1,6 @@
 {
   "id": "308a7bc8-83d9-46e1-a443-745d4fef719d",
+  "code": "RNF1",
   "title": "Accesible y usable en móvil",
   "description": "Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 390 px.",
   "type": "non_functional",

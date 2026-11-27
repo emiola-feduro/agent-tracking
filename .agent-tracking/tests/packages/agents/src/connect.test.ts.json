@@ -2,6 +2,13 @@
   "path": "packages/agents/src/connect.test.ts",
   "tests": [
     {
+      "featureId": "7dcbda15-b02e-49d2-9796-2f835dd5832c",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "an MCP registered as a local process is outdated and connecting again moves it to HTTP",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
       "requirementId": "c574c729-d420-4c48-917a-138e34dfab17",
       "name": "connecting agents",

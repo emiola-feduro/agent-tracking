@@ -1,5 +1,6 @@
 {
   "id": "6512a2ba-bffe-4427-b835-b3740aa1fab3",
+  "code": "RF11",
   "title": "Web multiusuario y colaboración",
   "description": "Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.",
   "type": "functional",

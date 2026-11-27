@@ -1,5 +1,6 @@
 {
   "id": "c574c729-d420-4c48-917a-138e34dfab17",
+  "code": "RF4",
   "title": "Servidor MCP y reporte del agente",
   "description": "Herramientas MCP para leer el contexto del proyecto y reportar features, archivos, símbolos, tests, DoD y vistas.",
   "type": "functional",

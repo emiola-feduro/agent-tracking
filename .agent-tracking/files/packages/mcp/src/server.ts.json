@@ -1,9 +1,10 @@
 {
   "path": "packages/mcp/src/server.ts",
-  "purpose": "MCP: turnos para agentes sin hooks.",
+  "purpose": "Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks",
   "createdBy": "repo:analysis",
   "featureIds": [
     "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "7dcbda15-b02e-49d2-9796-2f835dd5832c",
     "a8021746-6f16-480d-af64-7d9a91068c3e",
     "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
   ],
