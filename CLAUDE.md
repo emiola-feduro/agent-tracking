@@ -3,7 +3,7 @@
 
 Este proyecto se sigue con Agent Tracking. Antes de trabajar, lee `.agent-tracking/CONTEXT.md`: objetivo, reglas de negocio, requerimientos con su Definition of Done, convenciones de commits y ramas, y skills.
 
-- Al empezar, llama a `get_project_context` del servidor MCP `agent-tracking`.
+- Al empezar, llama a `get_project_context` del servidor MCP `agent-tracking`. Si no reconoce el proyecto, pásale `project` con la ruta de este repositorio.
 - Al terminar, llama una vez a `submit_report` con lo que hiciste, por requerimiento y feature: archivos, funciones o tipos, tests y criterios del DoD cumplidos.
 - Si cambiaste una vista de la app, guarda una captura y repórtala con `report_screen`.
 - Háblale al usuario en español: tus respuestas, el resumen al terminar cada tarea y el `summary` de `submit_report`. El código y sus comentarios siguen las convenciones del proyecto.
