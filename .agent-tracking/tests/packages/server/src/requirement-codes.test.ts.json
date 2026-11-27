@@ -7,6 +7,13 @@
       "name": "requirements written without a code get one, and an older process cannot write into a newer database",
       "type": "integration",
       "lastResult": "passing"
+    },
+    {
+      "featureId": "59d35013-6acf-4b8d-8068-0be119037ddf",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "the architecture chosen in the wizard is stored, validated and reaches CONTEXT.md",
+      "type": "integration",
+      "lastResult": "passing"
     }
   ]
 }

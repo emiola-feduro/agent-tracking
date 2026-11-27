@@ -1,9 +1,10 @@
 {
   "path": "packages/tracking/src/create-project.ts",
-  "purpose": "Guarda el idioma al crear el proyecto",
+  "purpose": "Guarda la arquitectura al crear",
   "createdBy": "repo:analysis",
   "featureIds": [
     "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "59d35013-6acf-4b8d-8068-0be119037ddf",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "b8ace81c-984b-4166-979b-ffb57f50780b"
   ],

@@ -90,6 +90,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-26T16:08:47.190Z"
+    },
+    {
+      "id": "59d35013-6acf-4b8d-8068-0be119037ddf",
+      "name": "Arquitectura recomendada y elegible en el wizard",
+      "description": "También editable desde la página del proyecto con un selector compartido",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T21:22:43.632Z"
     }
   ]
 }

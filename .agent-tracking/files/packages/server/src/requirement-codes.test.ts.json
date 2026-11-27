@@ -1,0 +1,7 @@
+{
+  "path": "packages/server/src/requirement-codes.test.ts",
+  "purpose": "Tests de códigos de requerimiento y de la arquitectura del proyecto (wizard, validación, edición y CONTEXT.md)",
+  "createdBy": "repo:analysis",
+  "featureIds": [],
+  "symbols": []
+}

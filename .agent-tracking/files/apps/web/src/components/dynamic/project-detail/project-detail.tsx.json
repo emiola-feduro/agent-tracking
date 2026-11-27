@@ -1,10 +1,11 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail.tsx",
-  "purpose": "Monta la tarjeta en el resumen",
+  "purpose": "Monta la tarjeta",
   "createdBy": "repo:analysis",
   "featureIds": [
     "284215ee-a603-4def-8386-db00fa9b5a15",
     "3eb20a0d-6864-4eba-ac5a-88e24ff870b0",
+    "59d35013-6acf-4b8d-8068-0be119037ddf",
     "b667d6f3-afef-4d8c-926e-a68abe6d09bf",
     "c7404e54-2b90-49e6-89c9-401c3089661e"
   ],

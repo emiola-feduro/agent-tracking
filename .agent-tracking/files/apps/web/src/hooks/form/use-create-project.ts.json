@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/hooks/form/use-create-project.ts",
-  "purpose": "Envía el idioma al crear",
+  "purpose": "Envía la arquitectura",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "59d35013-6acf-4b8d-8068-0be119037ddf",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "8c5456a5-9aa0-46c3-9471-175fde0ba9c1",
     "b8ace81c-984b-4166-979b-ffb57f50780b",

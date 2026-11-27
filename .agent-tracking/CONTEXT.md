@@ -81,7 +81,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `apps/web/src/components/dynamic/new-project/new-project-github-files.tsx`: CI y plantilla de PR editable en Markdown en el Resumen
   - `apps/web/src/components/dynamic/new-project/new-project-source.tsx`: Paso Origen: desde cero, repo nuevo, local o clonado
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Sección del stack con botones para agregar lenguajes que abren más opciones.
-  - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado de la arquitectura y la recomendada vigente
   - `packages/core/src/github-files.ts`: Genera ci.yml según el stack y la plantilla de pull request
   - `packages/core/src/project-kind.ts`: Tipos de proyecto, con App multiplataforma.
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
@@ -90,20 +90,20 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `apps/web/src/components/dynamic/new-project/new-project-requirement-card.tsx`: Requerimiento del wizard con sus piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-requirements.tsx`: Paso de requerimientos del wizard con importación.
   - `apps/web/src/components/dynamic/requirements-import/requirements-import-dialog.tsx`: Diálogo para pegar o abrir Markdown o JSON con vista previa de lo entendido.
-  - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
-  - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
+  - `apps/web/src/hooks/form/use-create-project.ts`: Envía la arquitectura
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado de la arquitectura y la recomendada vigente
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/plan.test.ts`: Tests unitarios del plan con monorepo, tests e idioma
   - `packages/core/src/plan.ts`: Lee del plan la estructura, las piezas, la herramienta de monorepo, los tipos de tests y el idioma, y pregunta por piezas faltantes o inválidas
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
 - Convenciones de commits — _done_ (`855fbd27-5249-4b67-8a41-e7b18f0856ca`)
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
   - `apps/web/src/components/dynamic/project-detail/project-detail-conventions.tsx`: Convenciones editables en Reglas y convenciones.
-  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
+  - `packages/core/src/context.ts`: Sección Arquitectura en CONTEXT.md
   - `packages/core/src/conventions.ts`: Modelo, valores por defecto y texto para CONTEXT.md.
   - `packages/core/src/plan.ts`: Lee del plan la estructura, las piezas, la herramienta de monorepo, los tipos de tests y el idioma, y pregunta por piezas faltantes o inválidas
-  - `packages/db/src/schema.ts`: Tabla app_settings
+  - `packages/db/src/schema.ts`: Columna architecture
 - Stack guiado por lenguaje — _done_ (`86707f6b-1269-48bc-820a-3ff1d4e937a7`)
   - `apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx`: Lenguajes compartidos entre piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Sección del stack con botones para agregar lenguajes que abren más opciones.
@@ -113,13 +113,30 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
 - Rama inicial del repositorio nuevo — _done_ (`af7e04d4-633c-4100-99e2-46e3093f6834`)
   - `apps/web/src/components/dynamic/new-project/new-project-source-new.tsx`: Origen Repositorio nuevo con selector de rama principal.
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `packages/git/src/index.ts`: Exporta integrate
   - `packages/git/src/repo.test.ts`: Tests de repositorios, incluida la rama inicial.
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
 - Tipos de tests para los agentes — _done_ (`339c5862-66c9-4283-80c0-d72c47b8a3ab`)
   - `apps/web/src/components/dynamic/new-project/new-project-test-types.tsx`: Elección de los tests que deben escribir los agentes.
   - `packages/core/src/test-policy.ts`: Tipos de tests, sugeridos por tipo de proyecto, y su Markdown.
+- Arquitectura recomendada y elegible en el wizard — _done_ (`59d35013-6acf-4b8d-8068-0be119037ddf`)
+  - `apps/web/src/components/dynamic/architecture/architecture-picker.tsx`: Selector de arquitectura por capa, compartido por el wizard y la página del proyecto
+  - `apps/web/src/components/dynamic/new-project/new-project-architecture.tsx`: El wizard usa el selector compartido
+  - `apps/web/src/components/dynamic/new-project/new-project-stack.tsx`: Monta la sección
+  - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Arquitectura del resumen
+  - `apps/web/src/components/dynamic/project-detail/project-detail-architecture.tsx`: Tarjeta Arquitectura en Reglas y convenciones que guarda al elegir
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta
+  - `apps/web/src/hooks/form/use-create-project.ts`: Envía la arquitectura
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado de la arquitectura y la recomendada vigente
+  - `packages/core/src/architecture.ts`: Catálogo de arquitecturas, capas que aplican, recomendación y texto para CONTEXT.md
+  - `packages/core/src/context.ts`: Sección Arquitectura en CONTEXT.md
+  - `packages/core/src/project-file.ts`: La arquitectura viaja en project.json
+  - `packages/core/src/types.ts`: Project.architecture
+  - `packages/db/src/schema.ts`: Columna architecture
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
+  - `packages/tracking/src/create-project.ts`: Guarda la arquitectura al crear
 
 ### RF2 Trazabilidad requerimiento, feature, archivo y símbolo — 100%
 
@@ -157,7 +174,7 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `apps/web/src/components/dynamic/project-detail/project-detail-test-group.tsx`: Botón para quitar cada test
   - `apps/web/src/components/dynamic/project-detail/project-detail-tests.tsx`: Conecta el borrado con la lista
   - `apps/web/src/hooks/data/use-test-idea-actions.ts`: removeTest optimista
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `packages/server/src/traceability-routes.ts`: Ruta DELETE /projects/:id/tests/:testId
   - `packages/tracking/src/tracker.ts`: Tracker: valida el reporte completo y calcula avisos de archivos sin cambios
 
@@ -202,7 +219,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 **Features:**
 
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
-  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
+  - `packages/core/src/context.ts`: Sección Arquitectura en CONTEXT.md
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
   - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
   - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
@@ -211,7 +228,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
   - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
-  - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
+  - `packages/tracking/src/create-project.ts`: Guarda la arquitectura al crear
   - `packages/tracking/src/index.ts`: Exporta remote-sync
 - Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
   - `apps/web/src/components/dynamic/agents/agent-plan-dialog.tsx`: Muestra la carpeta de cada comando y avisa al aplicar
@@ -255,7 +272,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/git/src/worktrees.test.ts`: Tests de worktrees, diff del turno y archivos sin commit.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
   - `packages/server/src/agent-turns.ts`: Ciclo de vida de los turnos: inicio, mensajes a mitad, cierre con diff y resumen.
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
 - Seguimiento de Codex CLI y Gemini CLI — _done_ (`a8021746-6f16-480d-af64-7d9a91068c3e`)
@@ -294,28 +311,28 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
 - Menú de rama y worktree — _done_ (`3eb20a0d-6864-4eba-ac5a-88e24ff870b0`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-checkout-menu.tsx`: Menú desplegable de ramas y worktrees.
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktree-banner.tsx`: Aviso y diff del worktree que se está viendo.
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta
   - `apps/web/src/hooks/ui/use-checkout-view.ts`: Worktree que se mira, guardado en la URL.
   - `apps/web/src/router.tsx`: Acepta la pestaña collab
 - Borrar ramas locales — _done_ (`1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-worktrees.tsx`: Lista de ramas con botón de borrar y motivo cuando no se puede.
   - `apps/web/src/hooks/data/use-worktrees.ts`: Consultas y mutaciones de ramas y worktrees.
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/git/src/worktrees.ts`: Worktrees, diffs de turno y borrado de ramas.
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/delete-branch.test.ts`: Tests del borrado de ramas.
   - `packages/server/src/repo-routes.ts`: Rutas de commit, cambios por worktree y sesiones de resolución
 - Integrar una rama en main y subirla desde la app — _done_ (`c7404e54-2b90-49e6-89c9-401c3089661e`)
   - `apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx`: Usa las acciones del resultado de integrar
   - `apps/web/src/components/dynamic/project-detail/project-detail-integrate.tsx`: Aviso de cambios sin commit del checkout principal y acciones del resultado
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta
   - `apps/web/src/hooks/data/use-integrate.ts`: El resultado guarda el motivo del error de git
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `packages/git/src/index.ts`: Exporta integrate
   - `packages/git/src/integrate.ts`: Integra una rama en la principal en un worktree temporal y la sube sin forzar
   - `packages/server/src/agent-run-routes.ts`: POST /projects/:id/runs/resolve y enqueue compartido
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/repo-routes.ts`: Rutas de commit, cambios por worktree y sesiones de resolución
 - Commits y conflictos desde la app — _done_ (`5f20518a-4f44-43dd-816d-b0e80e7d870e`)
   - `apps/web/src/components/dynamic/agent-runs/agent-runs-list.tsx`: Usa las acciones del resultado de integrar
@@ -325,7 +342,7 @@ Ver el progreso de cada worktree frente a main y cambiar la rama del checkout pr
   - `apps/web/src/components/dynamic/project-detail/project-detail-integrate.tsx`: Aviso de cambios sin commit del checkout principal y acciones del resultado
   - `apps/web/src/components/ui/modal/modal.tsx`: Diálogo reutilizable
   - `apps/web/src/hooks/data/use-integrate.ts`: El resultado guarda el motivo del error de git
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `packages/agents/src/launch.ts`: Instrucción para que un agente resuelva conflictos
   - `packages/git/src/resolve.ts`: Commit de archivos elegidos y sesión de resolución de conflictos en un worktree temporal
   - `packages/server/src/agent-run-routes.ts`: POST /projects/:id/runs/resolve y enqueue compartido
@@ -356,7 +373,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/components/dynamic/github-publish/github-publish-fields.tsx`: Campos de cuenta, nombre y visibilidad.
   - `apps/web/src/components/dynamic/github-publish/github-publish-panel.tsx`: Publicar desde el Resumen del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-github-publish.tsx`: Opción del wizard para crear el repo en GitHub.
-  - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
+  - `apps/web/src/hooks/form/use-create-project.ts`: Envía la arquitectura
   - `apps/web/src/stores/use-notice-store.ts`: Avisos de una sola vez para la página del proyecto.
   - `packages/git/src/github-publish.ts`: Cuenta de GitHub y publicación del repo con gh.
   - `packages/server/src/github-publish.test.ts`: Tests con un gh simulado.
@@ -367,7 +384,7 @@ Pull requests, ramas remotas y GitHub Actions del repoUrl del proyecto.
   - `apps/web/src/hooks/data/use-github-branches.ts`: Lista y borrado de ramas con doble confirmación.
   - `apps/web/src/lib/github-api.ts`: Cliente web de las rutas de GitHub.
   - `packages/github/src/client.ts`: Cliente de GitHub; commits adelante y borrado de ramas.
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/github-delete-branch.test.ts`: Tests del borrado de ramas en GitHub con fetch simulado.
   - `packages/server/src/github-routes.ts`: Rutas de GitHub; DELETE de ramas con sus reglas y marca de agente en la lista.
 - CI de Agent Tracking en GitHub Actions — _done_ (`5ad82298-fbd4-4fd2-96ed-1c656f6b8e28`)
@@ -410,21 +427,21 @@ Sugerencias de stack, criterios del DoD y skills con Claude, con respaldo determ
   - `packages/assistant/src/openai.ts`: Proveedor OpenAI con salida estructurada.
   - `packages/assistant/src/providers.test.ts`: Tests de los proveedores con fetch y spawn simulados.
   - `packages/assistant/src/spawn.ts`: Ejecución de CLIs con tiempo límite y carpeta aislada.
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/assistant.test.ts`: Tests de las rutas del asistente.
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
 - Modelo por tarea del asistente — _done_ (`4b340d32-362f-4378-bb2c-c250c397cd83`)
   - `apps/web/src/components/dynamic/assistant/assistant-provider-picker.tsx`: Muestra los modelos en uso y el selector por tarea
   - `apps/web/src/components/dynamic/assistant/assistant-task-models.tsx`: Selector de modelo por tarea
   - `apps/web/src/hooks/data/use-assistant-providers.ts`: setModel
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `packages/assistant/src/client.ts`: Tareas del asistente, modelos sugeridos y modelFor
   - `packages/assistant/src/dod.ts`: Usa el modelo de la tarea dod
   - `packages/assistant/src/skills.ts`: Usa el modelo de la tarea skills
   - `packages/assistant/src/stack.ts`: Usa el modelo de la tarea stack
   - `packages/db/migrations/0011_aberrant_the_twelve.sql`: Migración de app_settings
-  - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/db/src/schema.ts`: Columna architecture
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
 
 ### RF9 Referencias visuales y galería de vistas — 100%
 
@@ -474,10 +491,10 @@ Tipo y área en cada requerimiento, agrupados y filtrables.
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Botón Seleccionar para implementar, barra y diálogo
   - `apps/web/src/components/dynamic/requirement-classification/classification-fields.tsx`: Tipo y área para requerimientos nuevos, deducidos por defecto.
   - `apps/web/src/hooks/data/use-project-actions.ts`: Actualizar requerimientos, incluidas sus piezas.
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `apps/web/src/lib/labels.ts`: Etiquetas en español y opciones de área por tipo.
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-  - `packages/core/src/types.ts`: Project.replyLanguage
+  - `packages/core/src/types.ts`: Project.architecture
   - `packages/server/src/features-v3.test.ts`: Tests de turnos, imágenes, worktrees e importación.
 
 ### RNF1 Accesible y usable en móvil — 50%
@@ -501,7 +518,7 @@ Navegación con teclado, roles ARIA y diseño sin desplazamiento horizontal a 39
 - Navegación con sidebar — _done_ (`b667d6f3-afef-4d8c-926e-a68abe6d09bf`)
   - `apps/web/src/components/dynamic/new-project/new-project-repo-result.tsx`: Textos del wizard que hablan de la carpeta .agent-tracking.
   - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Ícono de Colaboración
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta
   - `apps/web/src/components/dynamic/project-switcher/project-switcher.tsx`: Selector de proyectos; abre Resumen.
   - `apps/web/src/hooks/form/use-repo-source.ts`: Importa o clona el repo y abre el Resumen.
   - `apps/web/src/router.tsx`: Acepta la pestaña collab
@@ -523,7 +540,7 @@ Peticiones con tiempo límite y reintentos, y recarga al reconectar el WebSocket
 
 - Reintentos y recarga al reconectar — _done_ (`4e182ef9-9a67-474a-81f0-7b4b51e2a032`)
   - `apps/web/src/hooks/data/use-live-events.ts`: WebSocket que recarga todo al reconectar
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `apps/web/src/lib/query-client.ts`: Reintentos para errores de red y del servidor
 - Comando bun run dev — _done_ (`0adf724c-6460-4bbf-9154-c3bd491dbb35`)
   - `README.md`: Documenta el trabajo en equipo con el servidor compartido
@@ -582,7 +599,7 @@ Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
   - `packages/collab/src/store.ts`: Almacenamiento del servidor compartido en PostgreSQL o SQLite con el mismo SQL
 - Sincronización de la app de escritorio con el servidor compartido — _done_ (`9b13ab0e-44e6-43ef-95c0-e97c1f782a48`)
   - `packages/server/package.json`: Depende de collab
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/collab-routes.ts`: Rutas locales de conexión, compartir, sincronizar, miembros y presencia; el token nunca sale del servidor local
   - `packages/tracking/package.json`: Depende de collab
   - `packages/tracking/src/index.ts`: Exporta remote-sync
@@ -594,7 +611,7 @@ Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
   - `apps/web/src/components/dynamic/collab/collab-project.tsx`: Sección Colaboración: estado, compartir, sincronizar y presencia
   - `apps/web/src/components/dynamic/collab/collab-shared-projects.tsx`: Proyectos compartidos contigo que se pueden traer a esta máquina
   - `apps/web/src/components/dynamic/project-detail/project-detail-nav.tsx`: Ícono de Colaboración
-  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta en el resumen
+  - `apps/web/src/components/dynamic/project-detail/project-detail.tsx`: Monta la tarjeta
   - `apps/web/src/hooks/data/use-collab.ts`: Hooks de conexión, sincronización, miembros y presencia con latido
   - `apps/web/src/lib/collab-api.ts`: Tipos y llamadas a las rutas de colaboración
   - `apps/web/src/lib/query-keys.ts`: Claves de consulta de colaboración
@@ -634,7 +651,7 @@ Nada se lee ni se escribe fuera del repo del proyecto, y nada sensible sale del 
   - `packages/git/src/repo.ts`: Errores de git con códigos unmerged e in_use.
   - `packages/server/src/repo-routes.ts`: Rutas de commit, cambios por worktree y sesiones de resolución
 - Solo páginas de este equipo — _done_ (`2643a8cc-df59-4ebb-a845-e574b2b3ebc7`)
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
   - `packages/server/src/origin.test.ts`: Tests de orígenes permitidos.
   - `packages/server/src/origin.ts`: Qué orígenes pueden llamar al servidor.
@@ -658,16 +675,16 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
 - Imágenes y skills que viajan con el repo — _done_ (`d112f799-8c92-465e-9c42-3cb4cb8ffceb`)
   - `apps/web/src/components/dynamic/project-detail/project-detail-skills.tsx`: Pestaña Skills con estado, instalar y compartir
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `apps/web/src/lib/query-keys.ts`: Claves de consulta de colaboración
-  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
+  - `packages/core/src/context.ts`: Sección Arquitectura en CONTEXT.md
   - `packages/core/src/core.test.ts`: Tests unitarios de core, incluido el contexto compacto
-  - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
+  - `packages/core/src/project-file.ts`: La arquitectura viaja en project.json
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
-  - `packages/core/src/types.ts`: Project.replyLanguage
+  - `packages/core/src/types.ts`: Project.architecture
   - `packages/db/src/migrations.gen.ts`: Migración con plugin, marketplace y compartida en las skills
-  - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/db/src/schema.ts`: Columna architecture
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/portable.test.ts`: Test de un proyecto que pasa de un equipo a otro con imágenes y skills
   - `packages/server/src/skill-routes.ts`: Estado de las skills en este equipo e instalación
   - `packages/skills/src/index.ts`: Skills también en .agents/skills y en la carpeta de Gemini.
@@ -679,14 +696,14 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/json-merge.ts`: Merge de 3 vías de JSON: objetos por clave, entidades por id, ruta o nombre, y listas simples como conjuntos.
   - `packages/core/src/merge-layout.test.ts`: Tests del merge JSON y del formato v2.
-  - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
+  - `packages/core/src/project-file.ts`: La arquitectura viaja en project.json
   - `packages/core/src/project-tree.ts`: Formato v2 de .agent-tracking: parte y reúne el proyecto en archivos por entidad con orden estable.
-  - `packages/core/src/types.ts`: Project.replyLanguage
+  - `packages/core/src/types.ts`: Project.architecture
   - `packages/git/src/index.ts`: Exporta integrate
   - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
   - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
   - `packages/server/src/repo-watchers.ts`: El vigilante importa cambios en .agent-tracking y los pone al día al arrancar.
   - `packages/tracking/src/inference.ts`: Análisis del repo; INFERRED_ACTOR ahora viene de core.
@@ -723,26 +740,26 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `apps/web/src/components/dynamic/new-project/new-project-parts.tsx`: Editor de piezas del monorepo.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx`: Lenguajes compartidos entre piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-parts.tsx`: Pestañas de stack por pieza.
-  - `apps/web/src/components/dynamic/new-project/new-project-stack.tsx`: Paso Stack con piezas, herramienta y tests.
-  - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
+  - `apps/web/src/components/dynamic/new-project/new-project-stack.tsx`: Monta la sección
+  - `apps/web/src/hooks/form/use-create-project.ts`: Envía la arquitectura
   - `apps/web/src/hooks/form/use-stack-defaults.ts`: Recomendación por pieza.
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
-  - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado de la arquitectura y la recomendada vigente
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
-  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
+  - `packages/core/src/context.ts`: Sección Arquitectura en CONTEXT.md
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/parts.ts`: Modelo de piezas, herramientas de monorepo, validación, árbol propuesto, scaffolding y Markdown de estructura.
-  - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
+  - `packages/core/src/project-file.ts`: La arquitectura viaja en project.json
   - `packages/core/src/project-kind.ts`: Tipos de proyecto, con App multiplataforma.
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
-  - `packages/core/src/types.ts`: Project.replyLanguage
+  - `packages/core/src/types.ts`: Project.architecture
   - `packages/db/migrations/0009_jazzy_banshee.sql`: Migración de estructura, piezas, herramienta y tests.
-  - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
-  - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
+  - `packages/db/src/schema.ts`: Columna architecture
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
+  - `packages/tracking/src/create-project.ts`: Guarda la arquitectura al crear
 - Árbol propuesto y scaffolding — _done_ (`51788bf5-ecb2-4f79-9da1-1b92108b75ee`)
   - `apps/web/src/components/dynamic/new-project/new-project-scaffold.tsx`: Árbol de carpetas propuesto y casilla para crearlo.
-  - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Idioma de los agentes en el resumen
+  - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Arquitectura del resumen
   - `packages/core/src/parts.test.ts`: Tests del modelo de piezas, herramientas, árbol y scaffolding.
   - `packages/server/src/monorepo.test.ts`: Tests de proyectos monorepo: creación, scaffolding, piezas y detección.
 - Piezas por requerimiento — _done_ (`c0cb7044-3df7-4e2e-8c97-184687d1417c`)
@@ -777,24 +794,24 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
 - Idioma de las respuestas por proyecto — _done_ (`7d36f0ee-67f5-4bde-8281-4032899658b0`)
   - `apps/web/src/components/dynamic/agents/reply-language-field.tsx`: Selector del idioma reutilizado en el wizard y en la página del proyecto
   - `apps/web/src/components/dynamic/new-project/new-project-basics.tsx`: Selector de idioma en el paso Proyecto
-  - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Idioma de los agentes en el resumen
+  - `apps/web/src/components/dynamic/new-project/new-project-summary.tsx`: Fila Arquitectura del resumen
   - `apps/web/src/components/dynamic/project-detail/project-detail-agents.tsx`: Estado de MCP viejo y botón Actualizar
-  - `apps/web/src/hooks/form/use-create-project.ts`: Envía el idioma al crear
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
-  - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
+  - `apps/web/src/hooks/form/use-create-project.ts`: Envía la arquitectura
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
+  - `apps/web/src/stores/use-wizard-store.ts`: Estado de la arquitectura y la recomendada vigente
   - `packages/agents/src/claude-code.ts`: Claude Code acepta contexto por pedido
   - `packages/agents/src/codex.ts`: Codex acepta contexto por pedido
   - `packages/agents/src/describe.ts`: Respuesta de hook con additionalContext
   - `packages/agents/src/types.ts`: withPromptContext en el adaptador
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
-  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
-  - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
+  - `packages/core/src/context.ts`: Sección Arquitectura en CONTEXT.md
+  - `packages/core/src/project-file.ts`: La arquitectura viaja en project.json
   - `packages/core/src/reply-language.ts`: Idiomas disponibles, etiquetas y la regla que reciben los agentes
-  - `packages/core/src/types.ts`: Project.replyLanguage
+  - `packages/core/src/types.ts`: Project.architecture
   - `packages/db/migrations/0010_safe_deathbird.sql`: Migración que agrega reply_language
-  - `packages/db/src/schema.ts`: Tabla app_settings
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
-  - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
+  - `packages/db/src/schema.ts`: Columna architecture
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
+  - `packages/tracking/src/create-project.ts`: Guarda la arquitectura al crear
 
 ### RF16 Nuevas funcionalidades del MCP — 89%
 
@@ -827,7 +844,7 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
   - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
   - `packages/server/src/agent-routes.ts`: La lista de agentes incluye los modelos de su proveedor
-  - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
+  - `packages/server/src/app.ts`: Valida la arquitectura de cada capa
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
 - Sesiones MCP que sobreviven a reinicios — _done_ (`7558f3be-5f92-446f-bfca-98223726efac`)
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
@@ -854,7 +871,7 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
   - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
 - Contexto compacto en get_project_context — _done_ (`f8c01aea-f2c3-4315-bb02-35242b6c04ac`)
-  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
+  - `packages/core/src/context.ts`: Sección Arquitectura en CONTEXT.md
   - `packages/core/src/core.test.ts`: Tests unitarios de core, incluido el contexto compacto
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
   - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
@@ -918,7 +935,7 @@ Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) 
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirements.tsx`: Botón Seleccionar para implementar, barra y diálogo
   - `apps/web/src/hooks/data/use-agent-runs.ts`: Tipo de lanzamiento con rama
   - `apps/web/src/hooks/data/use-implement.ts`: Pasa la rama al lanzar
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `apps/web/src/stores/use-implement-store.ts`: setDods marca o desmarca varios criterios
   - `packages/agents/src/launch.ts`: Instrucción para que un agente resuelva conflictos
   - `packages/core/src/implement.ts`: Qué se puede implementar: requerimiento sin criterios cumplidos, criterio pendiente
@@ -929,7 +946,7 @@ Desde un requerimiento se elige el agente (Claude Code, Codex CLI o Gemini CLI) 
   - `apps/web/src/components/dynamic/project-detail/project-detail-requirement-card.tsx`: Implementar para los criterios pendientes y casilla que los marca todos
   - `apps/web/src/hooks/data/use-agent-runs.ts`: Tipo de lanzamiento con rama
   - `apps/web/src/hooks/data/use-implement.ts`: Pasa la rama al lanzar
-  - `apps/web/src/lib/api.ts`: Llamadas de commit, sesiones de resolución y agente resolutor
+  - `apps/web/src/lib/api.ts`: updateProject acepta architecture
   - `apps/web/src/stores/use-implement-store.ts`: setDods marca o desmarca varios criterios
   - `packages/agents/src/launch.ts`: Instrucción para que un agente resuelva conflictos
   - `packages/server/src/agent-routes.ts`: La lista de agentes incluye los modelos de su proveedor

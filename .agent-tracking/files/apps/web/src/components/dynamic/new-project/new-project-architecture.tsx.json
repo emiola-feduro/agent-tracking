@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/new-project/new-project-architecture.tsx",
+  "purpose": "El wizard usa el selector compartido",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "59d35013-6acf-4b8d-8068-0be119037ddf"
+  ],
+  "symbols": [
+    {
+      "name": "NewProjectArchitecture",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

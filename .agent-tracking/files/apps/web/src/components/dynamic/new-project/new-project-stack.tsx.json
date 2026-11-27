@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/components/dynamic/new-project/new-project-stack.tsx",
-  "purpose": "Paso Stack con piezas, herramienta y tests.",
+  "purpose": "Monta la sección",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "59d35013-6acf-4b8d-8068-0be119037ddf",
     "b8ace81c-984b-4166-979b-ffb57f50780b"
   ],
   "symbols": []

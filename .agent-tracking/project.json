@@ -37,6 +37,7 @@
     "parts": [],
     "monorepoTool": null,
     "testTypes": [],
+    "architecture": {},
     "replyLanguage": "es"
   },
   "rules": [

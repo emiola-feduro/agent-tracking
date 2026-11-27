@@ -1,0 +1,40 @@
+{
+  "path": "packages/core/src/architecture.ts",
+  "purpose": "Catálogo de arquitecturas, capas que aplican, recomendación y texto para CONTEXT.md",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "59d35013-6acf-4b8d-8068-0be119037ddf"
+  ],
+  "symbols": [
+    {
+      "name": "BACKEND_ARCHITECTURES",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "FRONTEND_ARCHITECTURES",
+      "kind": "constant",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "architectureLayers",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "architectureMarkdown",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "recommendArchitecture",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

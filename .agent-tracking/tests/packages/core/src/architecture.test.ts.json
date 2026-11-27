@@ -1,0 +1,12 @@
+{
+  "path": "packages/core/src/architecture.test.ts",
+  "tests": [
+    {
+      "featureId": "59d35013-6acf-4b8d-8068-0be119037ddf",
+      "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
+      "name": "architecture",
+      "type": "unit",
+      "lastResult": "passing"
+    }
+  ]
+}

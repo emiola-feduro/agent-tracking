@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/project-detail/project-detail-architecture.tsx",
+  "purpose": "Tarjeta Arquitectura en Reglas y convenciones que guarda al elegir",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "59d35013-6acf-4b8d-8068-0be119037ddf"
+  ],
+  "symbols": [
+    {
+      "name": "ProjectDetailArchitecture",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

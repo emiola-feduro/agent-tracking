@@ -1,9 +1,10 @@
 {
   "path": "packages/core/src/types.ts",
-  "purpose": "Project.replyLanguage",
+  "purpose": "Project.architecture",
   "createdBy": "repo:analysis",
   "featureIds": [
     "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
+    "59d35013-6acf-4b8d-8068-0be119037ddf",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
     "b8ace81c-984b-4166-979b-ffb57f50780b",

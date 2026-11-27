@@ -1,0 +1,16 @@
+{
+  "path": "apps/web/src/components/dynamic/architecture/architecture-picker.tsx",
+  "purpose": "Selector de arquitectura por capa, compartido por el wizard y la página del proyecto",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "59d35013-6acf-4b8d-8068-0be119037ddf"
+  ],
+  "symbols": [
+    {
+      "name": "ArchitecturePicker",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

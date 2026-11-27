@@ -1,9 +1,10 @@
 {
   "path": "packages/db/src/schema.ts",
-  "purpose": "Tabla app_settings",
+  "purpose": "Columna architecture",
   "createdBy": "repo:analysis",
   "featureIds": [
     "4b340d32-362f-4378-bb2c-c250c397cd83",
+    "59d35013-6acf-4b8d-8068-0be119037ddf",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "855fbd27-5249-4b67-8a41-e7b18f0856ca",
     "b8ace81c-984b-4166-979b-ffb57f50780b",

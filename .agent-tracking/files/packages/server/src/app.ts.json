@@ -1,12 +1,13 @@
 {
   "path": "packages/server/src/app.ts",
-  "purpose": "agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha",
+  "purpose": "Valida la arquitectura de cada capa",
   "createdBy": "repo:analysis",
   "featureIds": [
     "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
     "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
     "2643a8cc-df59-4ebb-a845-e574b2b3ebc7",
     "4b340d32-362f-4378-bb2c-c250c397cd83",
+    "59d35013-6acf-4b8d-8068-0be119037ddf",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "7dcbda15-b02e-49d2-9796-2f835dd5832c",
     "9b13ab0e-44e6-43ef-95c0-e97c1f782a48",
