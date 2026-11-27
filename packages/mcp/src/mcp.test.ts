@@ -269,6 +269,29 @@ describe("Streamable HTTP transport", () => {
       server.stop(true);
     }
   });
+
+  test("a session forgotten by a server restart is revived, so the agent keeps working without reconnecting", async () => {
+    const url = (port: number) => new URL(`http://127.0.0.1:${port}/mcp?project=${PROJECT}&agent=claude-code`);
+    let server = Bun.serve({ port: 0, hostname: "127.0.0.1", fetch: createMcpHttpHandler(tracker()) });
+    const port = server.port;
+    try {
+      const client = new Client({ name: "claude-code", version: "1" });
+      await client.connect(new StreamableHTTPClientTransport(url(port)));
+      expect((await call(client, "list_requirements", {})).isError).toBe(false);
+
+      // Same port, a fresh handler: every session is gone, as after an update.
+      server.stop(true);
+      server = Bun.serve({ port, hostname: "127.0.0.1", fetch: createMcpHttpHandler(tracker()) });
+      const { isError, data } = await call(client, "suggest_test_idea", { text: "Tras reiniciar", requirementId: REQ });
+      expect(isError).toBe(false);
+      expect(data.ideaId).toBeString();
+      const [last] = await createTracker(db).listEvents(PROJECT, { limit: 1 });
+      expect(last).toMatchObject({ type: "suggest_test_idea", actor: "agent:claude-code" });
+      await client.close();
+    } finally {
+      server.stop(true);
+    }
+  });
 });
 
 describe("stdio entrypoint", () => {
