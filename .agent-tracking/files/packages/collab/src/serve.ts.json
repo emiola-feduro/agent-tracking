@@ -1,0 +1,9 @@
+{
+  "path": "packages/collab/src/serve.ts",
+  "purpose": "Arranca el servidor compartido con DATABASE_URL y COLLAB_PORT",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "c84e696d-e652-49e8-9a75-2de99907962c"
+  ],
+  "symbols": []
+}

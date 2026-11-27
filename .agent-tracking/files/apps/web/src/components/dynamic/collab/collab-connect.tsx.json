@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/collab/collab-connect.tsx",
+  "purpose": "Formulario para iniciar sesión o crear cuenta en el servidor compartido",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "284215ee-a603-4def-8386-db00fa9b5a15"
+  ],
+  "symbols": []
+}

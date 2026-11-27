@@ -1,8 +1,9 @@
 {
   "path": "packages/server/src/agent-routes.ts",
-  "purpose": "El plan ya no usa el proceso local",
+  "purpose": "La lista de agentes incluye los modelos de su proveedor",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
     "7dcbda15-b02e-49d2-9796-2f835dd5832c"
   ],

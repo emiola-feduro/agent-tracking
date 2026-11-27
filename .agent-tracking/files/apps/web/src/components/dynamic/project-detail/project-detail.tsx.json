@@ -1,8 +1,9 @@
 {
   "path": "apps/web/src/components/dynamic/project-detail/project-detail.tsx",
-  "purpose": "Página del proyecto con menú, aviso y secciones.",
+  "purpose": "Agrega la pestaña Colaboración",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "284215ee-a603-4def-8386-db00fa9b5a15",
     "3eb20a0d-6864-4eba-ac5a-88e24ff870b0",
     "b667d6f3-afef-4d8c-926e-a68abe6d09bf"
   ],

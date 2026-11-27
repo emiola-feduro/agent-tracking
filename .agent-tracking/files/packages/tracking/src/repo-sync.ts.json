@@ -1,9 +1,10 @@
 {
   "path": "packages/tracking/src/repo-sync.ts",
-  "purpose": "Sincroniza la base y .agent-tracking: importa lo que llega por git con merge de 3 vías, escribe el formato v2, registra el driver y aplica el proyecto conservando lo inferido.",
+  "purpose": "Exporta withLock, mergeTrees, sameTree y notifyRepoImport para la sincronización remota",
   "createdBy": "repo:analysis",
   "featureIds": [
     "3546afd3-3da2-442b-8d2e-f32f4c7a2668",
+    "9b13ab0e-44e6-43ef-95c0-e97c1f782a48",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
     "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
   ],

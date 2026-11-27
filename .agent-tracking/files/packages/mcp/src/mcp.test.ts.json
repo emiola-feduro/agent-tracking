@@ -1,9 +1,10 @@
 {
   "path": "packages/mcp/src/mcp.test.ts",
-  "purpose": "Tests MCP adaptados al formato v2.",
+  "purpose": "Tests del MCP; el puerto del servidor reiniciado se declara como número para el CI",
   "createdBy": "repo:analysis",
   "featureIds": [
     "40490b16-9821-49bc-a246-7d81b01eb54a",
+    "7558f3be-5f92-446f-bfca-98223726efac",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3"
   ],
   "symbols": []

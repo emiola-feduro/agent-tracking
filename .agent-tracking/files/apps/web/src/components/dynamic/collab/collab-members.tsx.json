@@ -1,0 +1,9 @@
+{
+  "path": "apps/web/src/components/dynamic/collab/collab-members.tsx",
+  "purpose": "Personas del proyecto con sus roles",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "284215ee-a603-4def-8386-db00fa9b5a15"
+  ],
+  "symbols": []
+}

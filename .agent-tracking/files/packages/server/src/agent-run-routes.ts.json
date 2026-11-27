@@ -1,14 +1,21 @@
 {
   "path": "packages/server/src/agent-run-routes.ts",
-  "purpose": "Valida qué se puede implementar, cola por checkout y arranque del siguiente",
+  "purpose": "Valida nombre, existencia, main y worktree de la rama elegida",
   "createdBy": "agent:claude-code",
   "featureIds": [
+    "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "57265620-f44f-45c5-bf18-a3d6cf432511",
     "f5bacdee-1555-4f1a-8451-8f5e6a6dfc89"
   ],
   "symbols": [
     {
       "name": "agentRunRoutes",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "checkBranch",
       "kind": "function",
       "purpose": "",
       "source": "reported"

@@ -1,0 +1,16 @@
+{
+  "path": "packages/server/src/collab-routes.ts",
+  "purpose": "Rutas locales de conexión, compartir, sincronizar, miembros y presencia; el token nunca sale del servidor local",
+  "createdBy": "agent:claude-code",
+  "featureIds": [
+    "9b13ab0e-44e6-43ef-95c0-e97c1f782a48"
+  ],
+  "symbols": [
+    {
+      "name": "collabRoutes",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

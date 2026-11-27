@@ -106,6 +106,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T14:56:20.885Z"
+    },
+    {
+      "id": "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
+      "name": "Modelos por agente, rama y criterios pendientes",
+      "description": "Modelos del proveedor del agente, elección de rama validada en el servidor e Implementar para los criterios pendientes de un requerimiento",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T15:59:23.648Z"
     }
   ]
 }

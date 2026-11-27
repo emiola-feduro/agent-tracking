@@ -1,10 +1,11 @@
 {
   "path": "apps/web/src/lib/api.ts",
-  "purpose": "ImplementItem y AgentRun con tareas y cola",
+  "purpose": "LaunchBranch, modelos por agente y rama del trabajo",
   "createdBy": "repo:analysis",
   "featureIds": [
     "11fce3fd-7e0f-46db-ae30-20e2566cbb7b",
     "1d2f82f5-e0fe-45d5-aaeb-100a8d5b7351",
+    "2b3ca38c-3405-4cb5-b118-c5b88fda607d",
     "4b340d32-362f-4378-bb2c-c250c397cd83",
     "4e182ef9-9a67-474a-81f0-7b4b51e2a032",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",

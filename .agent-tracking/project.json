@@ -76,6 +76,24 @@
       "origin": "llm",
       "status": "proposed",
       "createdAt": "2026-11-25T20:53:56.597Z"
+    },
+    {
+      "id": "87a30488-3a67-41a0-9873-43d5935a4dbc",
+      "featureId": null,
+      "requirementId": "6512a2ba-bffe-4427-b835-b3740aa1fab3",
+      "text": "Correr collab.test.ts contra un PostgreSQL real (DATABASE_URL) en el CI",
+      "origin": "llm",
+      "status": "proposed",
+      "createdAt": "2026-11-27T15:39:57.106Z"
+    },
+    {
+      "id": "093934df-5582-4d0f-ab3f-c3c4a59a73c3",
+      "featureId": null,
+      "requirementId": "6512a2ba-bffe-4427-b835-b3740aa1fab3",
+      "text": "Sincronizar un proyecto con imágenes adjuntas entre dos máquinas sin repo compartido",
+      "origin": "llm",
+      "status": "proposed",
+      "createdAt": "2026-11-27T15:39:57.108Z"
     }
   ]
 }

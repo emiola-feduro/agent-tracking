@@ -1,6 +1,6 @@
 {
   "path": "packages/server/src/app.ts",
-  "purpose": "onAgentDir en los hooks",
+  "purpose": "Monta las rutas de colaboración y acepta collabFetch para tests",
   "createdBy": "repo:analysis",
   "featureIds": [
     "18cdc4ea-0b92-482d-a3d1-e082fe4c4cd1",
@@ -9,6 +9,7 @@
     "4b340d32-362f-4378-bb2c-c250c397cd83",
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "7dcbda15-b02e-49d2-9796-2f835dd5832c",
+    "9b13ab0e-44e6-43ef-95c0-e97c1f782a48",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
     "af7e04d4-633c-4100-99e2-46e3093f6834",
     "b8ace81c-984b-4166-979b-ffb57f50780b",

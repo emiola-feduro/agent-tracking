@@ -1,0 +1,22 @@
+{
+  "path": "apps/web/src/hooks/data/use-collab.ts",
+  "purpose": "Hooks de conexión, sincronización, miembros y presencia con latido",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "284215ee-a603-4def-8386-db00fa9b5a15"
+  ],
+  "symbols": [
+    {
+      "name": "useCollabPresence",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "useCollabSync",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}

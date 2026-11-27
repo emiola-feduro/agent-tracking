@@ -1,0 +1,22 @@
+{
+  "path": "packages/collab/src/client.ts",
+  "purpose": "Cliente del servidor compartido usado por la app local",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "c84e696d-e652-49e8-9a75-2de99907962c"
+  ],
+  "symbols": [
+    {
+      "name": "CollabError",
+      "kind": "class",
+      "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "createCollabClient",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
+}
