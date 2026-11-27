@@ -21,12 +21,24 @@ export type LaunchItem = {
   onlyCriteria: boolean;
 };
 
+/** Where the agent commits: a branch it names itself, one named by the person, or an existing one. */
+export type LaunchBranch = { mode: "new" } | { mode: "named"; name: string } | { mode: "existing"; name: string };
+
 export type LaunchTask = {
   project: string;
   items: LaunchItem[];
+  branch?: LaunchBranch;
   /** Extra instructions the person wrote for this run. */
   instructions?: string;
 };
+
+function branchRule(branch: LaunchBranch | undefined): string {
+  if (branch?.mode === "named") return `Antes de cambiar código, crea la rama ${branch.name} desde la actual (git switch -c ${branch.name}) y trabaja en ella.`;
+  if (branch?.mode === "existing") {
+    return `Trabaja en la rama existente ${branch.name}: si no estás en ella, cámbiate con git switch ${branch.name}. Si hay cambios sin commit que no son tuyos, no los descartes: detente y avísalo.`;
+  }
+  return "Antes de cambiar código, crea una rama feat/ o fix/ desde la actual (salvo que ya estés en una rama de trabajo).";
+}
 
 const nameOf = (r: LaunchItem["requirement"]) => (r.code ? `${r.code} «${r.title}»` : `«${r.title}»`);
 
@@ -63,7 +75,7 @@ export function launchPrompt(task: LaunchTask): string {
     "",
     "Cómo trabajar:",
     `1. Lee el contexto: llama a get_project_context y a get_requirement con ${refs} (servidor MCP agent-tracking); si no tienes ese MCP, lee .agent-tracking/CONTEXT.md.`,
-    "2. Antes de cambiar código, crea una rama feat/ o fix/ desde la actual (salvo que ya estés en una rama de trabajo). Haz al menos un commit por tarea. No hagas push ni fusiones a main.",
+    `2. ${branchRule(task.branch)} Haz al menos un commit por tarea. No hagas push ni fusiones a main.`,
     "3. Cumple los criterios indicados y escribe los tests que pide el proyecto; córrelos. No implementes criterios que no estén en la lista.",
     "4. Al terminar todo, llama una vez a submit_report con lo que hiciste, por requerimiento y feature, con archivos, tests y los ids de los criterios cumplidos.",
     task.instructions?.trim() ? `\nIndicaciones adicionales:\n${task.instructions.trim()}` : "",

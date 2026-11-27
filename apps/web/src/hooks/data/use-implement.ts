@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import useAgentRuns from "@/hooks/data/use-agent-runs";
-import { api, type ImplementItem } from "@/lib/api";
+import { api, type ImplementItem, type LaunchBranch } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import useImplementStore, { readLaunchDefaults, saveLaunchDefaults, type LaunchDefaults } from "@/stores/use-implement-store";
 
@@ -16,9 +16,9 @@ const useImplement = (projectId: string) => {
   const openDialog = useImplementStore((s) => s.openDialog);
   const installed = (agents.data ?? []).filter((a) => a.installed);
 
-  /** `instructions` go with this run only; the other options are remembered. */
-  const run = (items: ImplementItem[], options?: LaunchDefaults & { instructions?: string }, onDone?: () => void) => {
-    const { instructions, ...defaults }: LaunchDefaults & { instructions?: string } = options ?? readLaunchDefaults(projectId);
+  /** `instructions` and `branch` go with this run only; the other options are remembered. */
+  const run = (items: ImplementItem[], options?: LaunchDefaults & { instructions?: string; branch?: LaunchBranch }, onDone?: () => void) => {
+    const { instructions, branch, ...defaults }: LaunchDefaults & { instructions?: string; branch?: LaunchBranch } = options ?? readLaunchDefaults(projectId);
     const agent =
       installed.find((a) => a.kind === defaults.agent) ?? installed.find((a) => a.kind === "claude-code" && a.mcp) ?? installed.find((a) => a.mcp) ?? installed[0];
     if (!agent) return openDialog(items);
@@ -31,6 +31,7 @@ const useImplement = (projectId: string) => {
         permission: defaults.permission,
         model: defaults.model.trim() || undefined,
         instructions: instructions?.trim() || undefined,
+        branch,
       },
       {
         onSuccess: (r) => (setNotice({ run: r, agentLabel: agent.label }), onDone?.()),

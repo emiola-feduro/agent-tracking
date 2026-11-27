@@ -1,10 +1,14 @@
 import { AGENT_KINDS, AGENTS, agentStatus, applyChanges, connectPlan, disconnectPlan, isAgentKind, type AgentKind } from "@agent-tracking/agents";
+import { SUGGESTED_MODELS } from "@agent-tracking/assistant";
 import { schema as s, type Db } from "@agent-tracking/db";
 import { desc, eq } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { join } from "node:path";
 import { isLocalOrigin } from "./origin";
+
+/** The assistant provider that runs each agent's CLI, whose model list it shares. */
+const AGENT_PROVIDER = { "claude-code": "claude-code", codex: "codex-cli", "gemini-cli": "gemini-cli" } as const;
 
 const kindOf = (c: Context): AgentKind => {
   const kind = c.req.param("kind");
@@ -47,7 +51,14 @@ export function agentRoutes(db: Db) {
           .where(eq(s.agentTurns.agent, kind))
           .orderBy(desc(s.agentTurns.startedAt))
           .limit(1);
-        return { ...(await agentStatus(kind)), label: AGENTS[kind].label, contextFile: AGENTS[kind].contextFile, lastSeen: last?.at ?? null };
+        return {
+          ...(await agentStatus(kind)),
+          label: AGENTS[kind].label,
+          contextFile: AGENTS[kind].contextFile,
+          lastSeen: last?.at ?? null,
+          // The vendor's models, for the launch dialog (the agent's CLI takes the same names).
+          models: SUGGESTED_MODELS[AGENT_PROVIDER[kind]],
+        };
       }),
     );
     return c.json(list);

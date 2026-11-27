@@ -125,3 +125,38 @@ test("several requirements and criteria go to one agent; only what is not done c
   expect(agent.spawned).toHaveLength(2);
   agent.finish(0);
 });
+
+test("the person can name the agent's branch or pick an existing one, never main", async () => {
+  const repo2 = join(tmp, "repo2");
+  await git(["init", "-q", "-b", "main", repo2]);
+  await git(["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "init"], repo2);
+  await git(["branch", "feat/carrito"], repo2);
+  const agent = fakeAgent();
+  const app = createApp(openDb(":memory:"), { agentRuns: { spawn: agent.spawn, which: () => "/bin/agent" } });
+  const call = async (path: string, json: unknown) => {
+    const res = await app.request(`/api${path}`, {
+      method: "POST",
+      headers: { origin: "http://127.0.0.1:4317", "Content-Type": "application/json" },
+      body: JSON.stringify(json),
+    });
+    return { status: res.status, data: (await res.json().catch(() => null)) as any };
+  };
+  const id = (await call("/projects", { name: "Tienda", kind: "api", repoPath: repo2, requirements: [{ title: "Pagos", type: "functional" }] })).data.project.id;
+  const launch = (branch: unknown) => call(`/projects/${id}/runs`, { items: [{ requirementId: "RF1" }], agent: "claude-code", branch });
+
+  expect((await launch({ mode: "named", name: "feat/con espacio" })).status).toBe(400);
+  expect((await launch({ mode: "named", name: "feat/carrito" })).status).toBe(409);
+  expect((await launch({ mode: "existing", name: "main" })).status).toBe(400);
+  expect((await launch({ mode: "existing", name: "feat/no-existe" })).status).toBe(404);
+  expect(agent.spawned).toHaveLength(0);
+
+  const named = await launch({ mode: "named", name: "feat/rf1-pagos" });
+  expect(named.data.branch).toBe("feat/rf1-pagos");
+  expect(agent.spawned[0]!.argv.at(-1)).toContain("git switch -c feat/rf1-pagos");
+  agent.finish(0);
+  await Bun.sleep(10);
+  const existing = await launch({ mode: "existing", name: "feat/carrito" });
+  expect(existing.status).toBe(201);
+  expect(agent.spawned[1]!.argv.at(-1)).toContain("Trabaja en la rama existente feat/carrito");
+  agent.finish(0);
+});

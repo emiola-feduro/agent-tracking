@@ -2,7 +2,7 @@ import useImplement from "@/hooks/data/use-implement";
 import useImplementStore from "@/stores/use-implement-store";
 import Button from "@/components/ui/button/button";
 import PartChips from "@/components/dynamic/requirement-parts/part-chips";
-import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, requirementImplementable, requirementLabel } from "@agent-tracking/core";
+import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, dodImplementable, requirementImplementable, requirementLabel } from "@agent-tracking/core";
 import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
 import AttachmentThumbs from "@/components/dynamic/attachments/attachment-thumbs";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
@@ -33,12 +33,19 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
   const images = attachments.filter((a) => a.kind === "reference" && a.requirementId === id).length;
   const percent = progress.requirements[id] ?? 0;
   const panelId = `requirement-${id}`;
-  const implementable = requirementImplementable(items);
+  // Whole while none of its criteria is done; afterwards, what is left: its pending criteria.
+  const whole = requirementImplementable(items);
+  const pending = items.filter(dodImplementable).map((d) => d.id);
+  const implementable = whole || pending.length > 0;
+  const task = whole ? [{ requirementId: id }] : [{ requirementId: id, dodIds: pending }];
   const canLaunch = !!project.repoPath;
   const { implement, options, isLaunching } = useImplement(project.id);
   const selecting = useImplementStore((s) => s.selecting);
-  const picked = useImplementStore((s) => s.requirements.includes(id));
-  const toggle = useImplementStore((s) => s.toggleRequirement);
+  const pickedDod = useImplementStore((s) => s.dod);
+  const picked = useImplementStore((s) => s.requirements.includes(id)) || (!whole && pending.length > 0 && pending.every((d) => pickedDod[d]));
+  const toggleWhole = useImplementStore((s) => s.toggleRequirement);
+  const setDods = useImplementStore((s) => s.setDods);
+  const toggle = () => (whole ? toggleWhole(id) : setDods(pending, id, !picked));
 
   const remove = () => {
     if (confirm(`Eliminar el requerimiento "${requirementLabel(requirement)}" y su Definition of Done. No se puede deshacer.`)) deleteRequirement.mutate(id);
@@ -52,13 +59,13 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
         {selecting && (
           <label
             className={`flex items-start pt-4 pl-4 ${implementable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
-            title={implementable ? undefined : "Tiene criterios cumplidos: elige sus criterios pendientes"}
+            title={implementable ? (whole ? undefined : "Marca sus criterios pendientes") : "Todos sus criterios están cumplidos"}
           >
             <input
               type="checkbox"
               checked={picked}
               disabled={!implementable}
-              onChange={() => toggle(id)}
+              onChange={toggle}
               aria-label={`Implementar ${requirementLabel(requirement)}`}
               className="size-4 accent-brand"
             />
@@ -109,7 +116,13 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
         </button>
         <div className="flex items-start gap-1 px-2 pt-2.5">
           {implementable && canLaunch && !selecting && (
-            <Button size="sm" variant="secondary" isLoading={isLaunching} onClick={() => implement([{ requirementId: id }])}>
+            <Button
+              size="sm"
+              variant="secondary"
+              isLoading={isLaunching}
+              onClick={() => implement(task)}
+              title={whole ? undefined : `Sus ${pending.length === 1 ? "1 criterio pendiente" : `${pending.length} criterios pendientes`}`}
+            >
               Implementar
             </Button>
           )}
@@ -125,16 +138,23 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
             {canLaunch &&
               !selecting &&
               (implementable ? (
-                <span className="flex gap-2">
-                  <Button variant="ghost" onClick={() => options([{ requirementId: id }])}>
-                    Opciones
-                  </Button>
-                  <Button variant="primary" isLoading={isLaunching} onClick={() => implement([{ requirementId: id }])}>
-                    Implementar
-                  </Button>
+                <span className="flex flex-col items-end gap-1">
+                  <span className="flex gap-2">
+                    <Button variant="ghost" onClick={() => options(task)}>
+                      Opciones
+                    </Button>
+                    <Button variant="primary" isLoading={isLaunching} onClick={() => implement(task)}>
+                      Implementar
+                    </Button>
+                  </span>
+                  {!whole && (
+                    <span className="text-xs text-muted">
+                      {pending.length === 1 ? "Su criterio pendiente" : `Sus ${pending.length} criterios pendientes`}; en Opciones eliges cuáles.
+                    </span>
+                  )}
                 </span>
               ) : (
-                <p className="max-w-80 text-sm text-muted">Ya tiene criterios cumplidos: implementa sus criterios pendientes desde el Definition of Done.</p>
+                <p className="max-w-80 text-sm text-muted">Todos sus criterios están cumplidos.</p>
               ))}
           </div>
           <ProjectDetailRequirementClassification

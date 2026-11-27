@@ -60,7 +60,7 @@ const ImplementBar = ({ view }: { view: ProjectView }) => {
       ) : (
         <>
           <p className="min-w-0 flex-1 text-sm text-ink" aria-live="polite">
-            {items.length ? `${summary} para un agente, en el orden de la lista.` : "Marca los requerimientos sin criterios cumplidos y los criterios pendientes que quieras implementar."}
+            {items.length ? `${summary} para un agente, en el orden de la lista.` : "Marca los requerimientos o los criterios pendientes que quieras implementar."}
           </p>
           {items.length > 0 && (
             <Button size="sm" variant="ghost" onClick={clear}>

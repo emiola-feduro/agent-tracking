@@ -1,6 +1,6 @@
 import { AGENT_KINDS, LAUNCH_BINARIES, LAUNCH_PERMISSIONS, launchCommand, launchLabel, launchPrompt, type AgentKind, type LaunchItem, type LaunchPermission } from "@agent-tracking/agents";
 import { dodImplementable, requirementImplementable } from "@agent-tracking/core";
-import { listWorktrees } from "@agent-tracking/git";
+import { git, listWorktrees } from "@agent-tracking/git";
 import type { Tracker } from "@agent-tracking/tracking";
 import { Hono, type Context } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -21,6 +21,8 @@ export type AgentRun = {
   label: string;
   agent: AgentKind;
   cwd: string;
+  /** The branch it was told to use; null when the agent names its own. */
+  branch: string | null;
   permission: LaunchPermission;
   /** queued: waits for the agent working in the same checkout to finish. */
   status: "queued" | "running" | "done" | "failed" | "stopped";
@@ -34,6 +36,7 @@ export type AgentRun = {
 };
 
 const MAX_LINES = 200;
+const PROTECTED = ["main", "master"];
 
 const defaultSpawn: SpawnAgent = (argv, cwd) => {
   const proc = Bun.spawn(argv, { cwd, stdin: "ignore", stdout: "pipe", stderr: "pipe" });
@@ -50,6 +53,14 @@ const launchInput = z.object({
   /** The project's main checkout or one of its worktrees; the main checkout when missing. */
   cwd: z.string().optional(),
   permission: z.enum(LAUNCH_PERMISSIONS).default("safe"),
+  /** new: the agent names its branch; named: it creates this one; existing: it works on this one. */
+  branch: z
+    .discriminatedUnion("mode", [
+      z.object({ mode: z.literal("new") }),
+      z.object({ mode: z.literal("named"), name: z.string().trim().min(1).max(200) }),
+      z.object({ mode: z.literal("existing"), name: z.string().trim().min(1).max(200) }),
+    ])
+    .default({ mode: "new" }),
   model: z.string().trim().max(100).regex(/^[\w.:/@-]*$/, "Nombre de modelo no válido").optional(),
   instructions: z.string().max(10_000).optional(),
 });
@@ -154,6 +165,24 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
     return items;
   };
 
+  /**
+   * A branch the person chose: a valid name, new or existing as said, never main or master, and not
+   * checked out in another worktree (git would refuse the switch there).
+   */
+  const checkBranch = async (root: string, cwd: string, branch: z.infer<typeof launchInput>["branch"], checkouts: { path: string; branch?: string | null }[]) => {
+    if (branch.mode === "new") return;
+    const { name } = branch;
+    if (!(await git(["check-ref-format", "--branch", name], root)).ok) throw new HTTPException(400, { message: `«${name}» no es un nombre de rama válido` });
+    if (PROTECTED.includes(name)) throw new HTTPException(400, { message: `El agente no trabaja directo en ${name}: elige otra rama` });
+    const exists = (await git(["rev-parse", "--verify", "--quiet", `refs/heads/${name}`], root)).ok;
+    if (branch.mode === "named" && exists) throw new HTTPException(409, { message: `La rama ${name} ya existe: elige «Rama existente»` });
+    if (branch.mode === "existing") {
+      if (!exists) throw new HTTPException(404, { message: `No existe la rama ${name}` });
+      const elsewhere = checkouts.find((w) => w.branch === name && resolve(w.path) !== cwd);
+      if (elsewhere) throw new HTTPException(409, { message: `La rama ${name} está abierta en el worktree ${elsewhere.path}: elige ese worktree en «Dónde trabaja»` });
+    }
+  };
+
   app.get("/projects/:id/runs", async (c) => {
     const projectId = c.req.param("id");
     await tracker.projectOr404(projectId);
@@ -174,9 +203,10 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
     const checkouts = await listWorktrees(root).catch(() => [{ path: root }]);
     const cwd = input.cwd ? resolve(input.cwd) : root;
     if (!checkouts.some((w) => resolve(w.path) === cwd)) throw new HTTPException(400, { message: "Elige el checkout principal o un worktree del proyecto" });
+    await checkBranch(root, cwd, input.branch, checkouts);
     if (!which(LAUNCH_BINARIES[input.agent])) throw new HTTPException(409, { message: `${input.agent} no está instalado en este equipo` });
 
-    const prompt = launchPrompt({ project: snap.project.name, items, instructions: input.instructions });
+    const prompt = launchPrompt({ project: snap.project.name, items, branch: input.branch, instructions: input.instructions });
     const run: AgentRun = {
       id: crypto.randomUUID(),
       projectId,
@@ -189,6 +219,7 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
       label: launchLabel(items),
       agent: input.agent,
       cwd,
+      branch: input.branch.mode === "new" ? null : input.branch.name,
       permission: input.permission,
       status: "queued",
       createdAt: new Date().toISOString(),

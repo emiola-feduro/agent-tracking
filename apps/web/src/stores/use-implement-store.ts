@@ -34,6 +34,8 @@ type ImplementState = {
   setSelecting: (on: boolean) => void;
   toggleRequirement: (id: string) => void;
   toggleDod: (dodId: string, requirementId: string) => void;
+  /** Picks or drops several criteria of one requirement at once (its pending ones, from the requirement's box). */
+  setDods: (dodIds: string[], requirementId: string, on: boolean) => void;
   clear: () => void;
   openDialog: (items: ImplementItem[]) => void;
   closeDialog: () => void;
@@ -58,6 +60,15 @@ const useImplementStore = create<ImplementState>((set) => ({
     set((s) => {
       const { [dodId]: had, ...rest } = s.dod;
       return had ? { dod: rest } : { dod: { ...s.dod, [dodId]: requirementId } };
+    }),
+  setDods: (dodIds, requirementId, on) =>
+    set((s) => {
+      const dod = { ...s.dod };
+      for (const id of dodIds) {
+        if (on) dod[id] = requirementId;
+        else delete dod[id];
+      }
+      return { dod };
     }),
   clear: () => set({ requirements: [], dod: {} }),
   openDialog: (dialog) => set({ dialog }),
