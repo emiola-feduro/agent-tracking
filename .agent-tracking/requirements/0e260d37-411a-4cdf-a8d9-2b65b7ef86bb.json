@@ -61,16 +61,16 @@
       "id": "e93e33e2-92d4-4b64-a644-8fd643049e8b",
       "criterion": "get_project_context tiene un modo compacto (objetivo, reglas, convenciones, idioma y la lista de requerimientos con su avance) y el detalle se pide con get_requirement",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "buildCompactContextMarkdown en packages/core/src/context.ts y el parámetro mode de get_project_context en packages/mcp/src/server.ts; tests en core.test.ts («compact context markdown») y mcp.test.ts («get_project_context is compact by default…», que además pide el DoD con get_requirement). bun test en core (75) y mcp (37) pasa",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
       "id": "e9662a32-7b7d-454c-858b-351b2749706c",
       "criterion": "El contexto y cada requerimiento se exponen como recursos MCP: agent-tracking://context y agent-tracking://requirement/<id>",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "registerResources en packages/mcp/src/server.ts; tests 'the context and each requirement are MCP resources' y 'a requirement resource also resolves by code' en packages/mcp/src/mcp.test.ts (bun test: 36 pass); bun run typecheck sin errores",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
@@ -130,6 +130,22 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T20:42:06.271Z"
+    },
+    {
+      "id": "9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8",
+      "name": "Recursos MCP de contexto y requerimientos",
+      "description": "El servidor MCP publica agent-tracking://context y agent-tracking://requirement/<id> (id o código), con listado de requerimientos y el mismo detalle que get_requirement.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T20:52:05.744Z"
+    },
+    {
+      "id": "f8c01aea-f2c3-4315-bb02-35242b6c04ac",
+      "name": "Contexto compacto en get_project_context",
+      "description": "get_project_context devuelve por defecto un contexto compacto (objetivo, ficha técnica, idioma, convenciones, reglas, skills y lista de requerimientos con avance y DoD hecho/total); el detalle se pide con get_requirement. mode: full devuelve el CONTEXT.md completo.",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T20:54:55.091Z"
     }
   ]
 }

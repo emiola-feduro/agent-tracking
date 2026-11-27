@@ -1,13 +1,33 @@
 {
   "path": "packages/core/src/context.ts",
-  "purpose": "Sección Idioma con el usuario en CONTEXT.md",
+  "purpose": "Genera el CONTEXT.md completo y el contexto compacto para el MCP",
   "createdBy": "repo:analysis",
   "featureIds": [
     "7d36f0ee-67f5-4bde-8281-4032899658b0",
     "855fbd27-5249-4b67-8a41-e7b18f0856ca",
     "b8ace81c-984b-4166-979b-ffb57f50780b",
     "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
-    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
+    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
+    "f8c01aea-f2c3-4315-bb02-35242b6c04ac"
   ],
-  "symbols": []
+  "symbols": [
+    {
+      "name": "buildContextMarkdown",
+      "kind": "function",
+      "purpose": "CONTEXT.md completo, ahora reutiliza projectSections",
+      "source": "reported"
+    },
+    {
+      "name": "buildCompactContextMarkdown",
+      "kind": "function",
+      "purpose": "Contexto compacto: secciones del proyecto y una línea por requerimiento con su avance",
+      "source": "reported"
+    },
+    {
+      "name": "projectSections",
+      "kind": "function",
+      "purpose": "Secciones compartidas por ambos modos: del objetivo a las skills",
+      "source": "reported"
+    }
+  ]
 }

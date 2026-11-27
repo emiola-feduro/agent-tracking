@@ -14,7 +14,7 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
-- **Avance global:** 74%
+- **Avance global:** 75%
 
 ## Idioma con el usuario
 
@@ -100,7 +100,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `apps/web/src/components/dynamic/commit-conventions/commit-conventions-editor.tsx`: Editor de convenciones del wizard y del proyecto.
   - `apps/web/src/components/dynamic/new-project/new-project-goal.tsx`: Paso Objetivo y reglas con convenciones.
   - `apps/web/src/components/dynamic/project-detail/project-detail-conventions.tsx`: Convenciones editables en Reglas y convenciones.
-  - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
+  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
   - `packages/core/src/conventions.ts`: Modelo, valores por defecto y texto para CONTEXT.md.
   - `packages/core/src/plan.ts`: Lee del plan la estructura, las piezas, la herramienta de monorepo, los tipos de tests y el idioma, y pregunta por piezas faltantes o inválidas
   - `packages/db/src/schema.ts`: Tabla app_settings
@@ -108,7 +108,7 @@ Origen (desde cero, repo nuevo, local o clonado), tipo de proyecto, stack con de
   - `apps/web/src/components/dynamic/new-project/new-project-stack-groups.tsx`: Lenguajes compartidos entre piezas.
   - `apps/web/src/components/dynamic/new-project/new-project-stack-section.tsx`: Sección del stack con botones para agregar lenguajes que abren más opciones.
   - `apps/web/src/hooks/form/use-stack-sections.ts`: Secciones del paso Stack: lenguajes aparte y opciones filtradas por lenguaje con los lenguajes que abren más.
-  - `packages/core/src/core.test.ts`: Tests del catálogo y del stack guiado por lenguaje.
+  - `packages/core/src/core.test.ts`: Tests unitarios de core, incluido el contexto compacto
   - `packages/core/src/project-kind.ts`: Tipos de proyecto, con App multiplataforma.
   - `packages/core/src/stack.ts`: Catálogo y recomendación del stack, con App multiplataforma (Flutter).
 - Rama inicial del repositorio nuevo — _done_ (`af7e04d4-633c-4100-99e2-46e3093f6834`)
@@ -202,15 +202,15 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 **Features:**
 
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
-  - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
+  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
   - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
   - `packages/tracking/src/tracker.ts`: Busca un test por ruta y nombre y borra un feature devolviendo los tests que quedan sin feature
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
-  - `packages/mcp/src/mcp.test.ts`: Test de integración de create_project con un monorepo por un cliente MCP
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
   - `packages/tracking/src/index.ts`: Exporta remote-sync
 - Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
@@ -267,7 +267,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/agents/src/gemini-cli.ts`: Adaptador de Gemini CLI: BeforeAgent, BeforeTool, AfterAgent.
   - `packages/agents/src/index.ts`: Registro de adaptadores y utilidades (adapterFor, agentForClient, agentLabel).
   - `packages/agents/src/types.ts`: withPromptContext en el adaptador
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
   - `packages/server/src/agents-flow.test.ts`: Codex y Gemini a la vez: sesiones en vivo y turnos.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
   - `packages/tracking/src/agent-turns.ts`: Turnos con agente, y turnos por MCP para agentes sin hooks.
@@ -647,8 +647,8 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `apps/web/src/hooks/data/use-skill-status.ts`: Consulta el estado y lanza instalar o compartir
   - `apps/web/src/lib/api.ts`: workBranch en AgentRun
   - `apps/web/src/lib/query-keys.ts`: Claves de consulta de colaboración
-  - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
-  - `packages/core/src/core.test.ts`: Tests del catálogo y del stack guiado por lenguaje.
+  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
+  - `packages/core/src/core.test.ts`: Tests unitarios de core, incluido el contexto compacto
   - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
   - `packages/core/src/requirements.ts`: Etiquetas y clasificación de requerimientos.
   - `packages/core/src/types.ts`: Project.replyLanguage
@@ -671,7 +671,7 @@ Quien clona el repo importa el mismo proyecto, con sus imágenes y sus skills.
   - `packages/core/src/types.ts`: Project.replyLanguage
   - `packages/git/src/index.ts`: Exporta integrate
   - `packages/git/src/merge-driver.ts`: Registra un driver de merge en la config local y hace el merge de líneas de respaldo.
-  - `packages/mcp/src/mcp.test.ts`: Test de integración de create_project con un monorepo por un cliente MCP
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
   - `packages/server/src/app.test.ts`: Tests del API adaptados al formato v2.
   - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
@@ -716,7 +716,7 @@ Hoy el paso Proyecto obliga a elegir un solo tipo (app móvil, API, web...), as�
   - `apps/web/src/lib/api.ts`: workBranch en AgentRun
   - `apps/web/src/stores/use-wizard-store.ts`: Estado replyLanguage del wizard, español por defecto
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
-  - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
+  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
   - `packages/core/src/index.ts`: Exporta los módulos de core.
   - `packages/core/src/parts.ts`: Modelo de piezas, herramientas de monorepo, validación, árbol propuesto, scaffolding y Markdown de estructura.
   - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
@@ -774,7 +774,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `packages/agents/src/describe.ts`: Respuesta de hook con additionalContext
   - `packages/agents/src/types.ts`: withPromptContext en el adaptador
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
-  - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
+  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
   - `packages/core/src/project-file.ts`: replyLanguage viaja en project.json; los archivos anteriores toman español
   - `packages/core/src/reply-language.ts`: Idiomas disponibles, etiquetas y la regla que reciben los agentes
   - `packages/core/src/types.ts`: Project.replyLanguage
@@ -783,7 +783,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
 
-### RF16 Nuevas funcionalidades del MCP — 56%
+### RF16 Nuevas funcionalidades del MCP — 78%
 
 ID: `0e260d37-411a-4cdf-a8d9-2b65b7ef86bb`
 
@@ -799,8 +799,8 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
 - [x] remove_test y remove_feature permiten deshacer lo que se reportó por error (`8a2f53c1-6b13-4f70-b423-3dddd750f436`)
 - [x] create_project admite monorepo con sus piezas, tipos de tests e idioma de las respuestas, igual que el wizard (`8c9da401-b983-48d6-9f14-456605b23518`)
 - [x] Prompts MCP en inglés que aparecen como comandos: /agent-tracking:start <requirement> y /agent-tracking:report (`cc79f882-023c-46df-846d-b2e1479195b1`)
-- [ ] get_project_context tiene un modo compacto (objetivo, reglas, convenciones, idioma y la lista de requerimientos con su avance) y el detalle se pide con get_requirement (`e93e33e2-92d4-4b64-a644-8fd643049e8b`)
-- [ ] El contexto y cada requerimiento se exponen como recursos MCP: agent-tracking://context y agent-tracking://requirement/<id> (`e9662a32-7b7d-454c-858b-351b2749706c`)
+- [x] get_project_context tiene un modo compacto (objetivo, reglas, convenciones, idioma y la lista de requerimientos con su avance) y el detalle se pide con get_requirement (`e93e33e2-92d4-4b64-a644-8fd643049e8b`)
+- [x] El contexto y cada requerimiento se exponen como recursos MCP: agent-tracking://context y agent-tracking://requirement/<id> (`e9662a32-7b7d-454c-858b-351b2749706c`)
 - [ ] El MCP permite crear y editar requerimientos: create_requirement (con DoD, tipo, área y piezas), update_requirement y add_dod_item (`f5ca1c04-dc03-42d4-b63b-3a94bdc0e8fc`)
 
 **Features:**
@@ -812,31 +812,39 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
   - `apps/web/src/components/layout/app-shell/app-shell.tsx`: Monta el aviso
   - `packages/agents/src/connect.ts`: Plan de conexión por HTTP para Claude Code, Codex y Gemini; detecta y reemplaza la conexión de proceso local
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
   - `packages/server/src/agent-routes.ts`: La lista de agentes incluye los modelos de su proveedor
   - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
 - Sesiones MCP que sobreviven a reinicios — _done_ (`7558f3be-5f92-446f-bfca-98223726efac`)
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
-  - `packages/mcp/src/mcp.test.ts`: Test de integración de create_project con un monorepo por un cliente MCP
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
   - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
 - get_handoff para retomar el trabajo — _done_ (`0c5a9934-dd37-4f9b-8254-2155628b2392`)
   - `packages/mcp/src/handoff.test.ts`: Tests de buildHandoff
   - `packages/mcp/src/handoff.ts`: Arma el traspaso: último turno terminado, criterios pendientes y cambios sin reportar
-  - `packages/mcp/src/mcp.test.ts`: Test de integración de create_project con un monorepo por un cliente MCP
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
 - Prompts MCP start y report — _done_ (`e8d4ca0d-5780-4790-be9d-4ce1a74dd936`)
-  - `packages/mcp/src/mcp.test.ts`: Test de integración de create_project con un monorepo por un cliente MCP
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
 - remove_test y remove_feature — _done_ (`44200e9c-c40d-44b4-a37d-9128ba6ada5b`)
-  - `packages/mcp/src/mcp.test.ts`: Test de integración de create_project con un monorepo por un cliente MCP
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
   - `packages/tracking/src/tracker.ts`: Busca un test por ruta y nombre y borra un feature devolviendo los tests que quedan sin feature
 - create_project completo como el wizard — _done_ (`3dc3a513-d922-422a-adf7-ed9242831357`)
   - `packages/core/src/plan.test.ts`: Tests unitarios del plan con monorepo, tests e idioma
   - `packages/core/src/plan.ts`: Lee del plan la estructura, las piezas, la herramienta de monorepo, los tipos de tests y el idioma, y pregunta por piezas faltantes o inválidas
-  - `packages/mcp/src/mcp.test.ts`: Test de integración de create_project con un monorepo por un cliente MCP
-  - `packages/mcp/src/server.ts`: get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+- Recursos MCP de contexto y requerimientos — _done_ (`9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8`)
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+- Contexto compacto en get_project_context — _done_ (`f8c01aea-f2c3-4315-bb02-35242b6c04ac`)
+  - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
+  - `packages/core/src/core.test.ts`: Tests unitarios de core, incluido el contexto compacto
+  - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
+  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
 
 ### RF17 Códigos de requerimiento — 0%
 

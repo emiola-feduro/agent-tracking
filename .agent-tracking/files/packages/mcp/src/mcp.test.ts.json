@@ -1,6 +1,6 @@
 {
   "path": "packages/mcp/src/mcp.test.ts",
-  "purpose": "Test de integración de create_project con un monorepo por un cliente MCP",
+  "purpose": "Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto",
   "createdBy": "repo:analysis",
   "featureIds": [
     "0c5a9934-dd37-4f9b-8254-2155628b2392",
@@ -8,8 +8,17 @@
     "40490b16-9821-49bc-a246-7d81b01eb54a",
     "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
     "7558f3be-5f92-446f-bfca-98223726efac",
+    "9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8",
     "aae78170-f499-46db-bd20-2b6ad56c5cc3",
-    "e8d4ca0d-5780-4790-be9d-4ce1a74dd936"
+    "e8d4ca0d-5780-4790-be9d-4ce1a74dd936",
+    "f8c01aea-f2c3-4315-bb02-35242b6c04ac"
   ],
-  "symbols": []
+  "symbols": [
+    {
+      "name": "resourceText",
+      "kind": "function",
+      "purpose": "Lee el texto del primer contenido de un recurso",
+      "source": "reported"
+    }
+  ]
 }

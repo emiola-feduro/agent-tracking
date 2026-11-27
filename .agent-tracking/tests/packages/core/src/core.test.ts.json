@@ -2,6 +2,27 @@
   "path": "packages/core/src/core.test.ts",
   "tests": [
     {
+      "featureId": "f8c01aea-f2c3-4315-bb02-35242b6c04ac",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "compact context markdown > is shorter than the full context",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "f8c01aea-f2c3-4315-bb02-35242b6c04ac",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "compact context markdown > keeps goal, rules, conventions and reply language",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "f8c01aea-f2c3-4315-bb02-35242b6c04ac",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "compact context markdown > lists each requirement with its progress and DoD count, without the detail",
+      "type": "unit",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "4ee5653d-ad1a-4033-ac57-3f5dad3c08e1",
       "requirementId": "4df55674-d3e6-491d-9ac3-c43e185a3c16",
       "name": "recommendStack y toggleStackOption",

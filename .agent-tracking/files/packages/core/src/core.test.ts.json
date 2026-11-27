@@ -1,10 +1,11 @@
 {
   "path": "packages/core/src/core.test.ts",
-  "purpose": "Tests del catálogo y del stack guiado por lenguaje.",
+  "purpose": "Tests unitarios de core, incluido el contexto compacto",
   "createdBy": "repo:analysis",
   "featureIds": [
     "86707f6b-1269-48bc-820a-3ff1d4e937a7",
-    "d112f799-8c92-465e-9c42-3cb4cb8ffceb"
+    "d112f799-8c92-465e-9c42-3cb4cb8ffceb",
+    "f8c01aea-f2c3-4315-bb02-35242b6c04ac"
   ],
   "symbols": []
 }

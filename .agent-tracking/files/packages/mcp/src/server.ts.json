@@ -1,6 +1,6 @@
 {
   "path": "packages/mcp/src/server.ts",
-  "purpose": "get_plan_format explica monorepo, tests e idioma; create_project pasa estructura, piezas, herramienta, tipos de tests e idioma a createProject con los valores por defecto del wizard",
+  "purpose": "Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement",
   "createdBy": "repo:analysis",
   "featureIds": [
     "0c5a9934-dd37-4f9b-8254-2155628b2392",
@@ -8,9 +8,11 @@
     "40490b16-9821-49bc-a246-7d81b01eb54a",
     "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
     "7dcbda15-b02e-49d2-9796-2f835dd5832c",
+    "9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8",
     "a8021746-6f16-480d-af64-7d9a91068c3e",
     "e8d4ca0d-5780-4790-be9d-4ce1a74dd936",
-    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
+    "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4",
+    "f8c01aea-f2c3-4315-bb02-35242b6c04ac"
   ],
   "symbols": [
     {
@@ -20,9 +22,21 @@
       "source": "reported"
     },
     {
+      "name": "requirementDetail",
+      "kind": "function",
+      "purpose": "Arma el requerimiento con DoD, features, archivos, símbolos, tests e ideas de tests",
+      "source": "reported"
+    },
+    {
       "name": "createMcpServer",
       "kind": "function",
       "purpose": "create_project y get_plan_format ampliados",
+      "source": "reported"
+    },
+    {
+      "name": "get_project_context",
+      "kind": "variable",
+      "purpose": "Herramienta MCP con modo compacto y completo",
       "source": "reported"
     },
     {
@@ -47,6 +61,24 @@
       "name": "registerPrompts",
       "kind": "function",
       "purpose": "Registra los prompts start y report en el servidor MCP",
+      "source": "reported"
+    },
+    {
+      "name": "CONTEXT_URI",
+      "kind": "constant",
+      "purpose": "URI del recurso de contexto",
+      "source": "reported"
+    },
+    {
+      "name": "requirementUri",
+      "kind": "function",
+      "purpose": "URI del recurso de un requerimiento",
+      "source": "reported"
+    },
+    {
+      "name": "registerResources",
+      "kind": "function",
+      "purpose": "Registra el recurso de contexto y la plantilla de requerimiento con su listado",
       "source": "reported"
     }
   ]

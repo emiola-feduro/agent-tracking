@@ -2,6 +2,27 @@
   "path": "packages/mcp/src/mcp.test.ts",
   "tests": [
     {
+      "featureId": "f8c01aea-f2c3-4315-bb02-35242b6c04ac",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "MCP tools over an SDK client > get_project_context in full mode returns the whole CONTEXT.md",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "f8c01aea-f2c3-4315-bb02-35242b6c04ac",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "MCP tools over an SDK client > get_project_context is compact by default, resolved from the repo path",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "a requirement resource also resolves by code",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
       "featureId": "7558f3be-5f92-446f-bfca-98223726efac",
       "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
       "name": "a session forgotten by a server restart is revived, so the agent keeps working without reconnecting",
@@ -68,6 +89,13 @@
       "featureId": "e7d7a963-cd1a-43a3-995d-b5ab4e76cca4",
       "requirementId": "f497fa5f-cde3-4420-bd49-ee7c7832680f",
       "name": "report_screen",
+      "type": "integration",
+      "lastResult": "passing"
+    },
+    {
+      "featureId": "9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "the context and each requirement are MCP resources",
       "type": "integration",
       "lastResult": "passing"
     }
