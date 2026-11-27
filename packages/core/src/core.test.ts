@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildCompactContextMarkdown,
   buildContextMarkdown,
   parseProjectFile,
   projectProgress,
@@ -123,6 +124,34 @@ describe("context markdown", () => {
   test("renders DoD checkboxes with ids", () => {
     expect(md).toContain("- [x] Paga con tarjeta (`d1`)");
     expect(md).toContain("- [ ] Envía email (`d2`)");
+  });
+});
+
+describe("compact context markdown", () => {
+  const s = base();
+  s.project.replyLanguage = "es";
+  const md = buildCompactContextMarkdown(s);
+
+  test("keeps goal, rules, conventions and reply language", () => {
+    expect(md).toContain("## Objetivo");
+    expect(md).toContain("Vender en línea");
+    expect(md).toContain("## Reglas de negocio");
+    expect(md.indexOf("requiere login")).toBeLessThan(md.indexOf("Precios con IVA"));
+    expect(md).toContain("## Convenciones de commits y ramas");
+    expect(md).toContain("## Idioma con el usuario");
+  });
+
+  test("lists each requirement with its progress and DoD count, without the detail", () => {
+    expect(md).toContain("- Checkout — 50%, DoD 1/2 (`r1`)");
+    expect(md).toContain("- Catálogo — 50% (`r2`)");
+    expect(md).not.toContain("Paga con tarjeta");
+    expect(md).not.toContain("Listado");
+    expect(md).not.toContain("**Definition of Done:**");
+    expect(md).toContain("get_requirement");
+  });
+
+  test("is shorter than the full context", () => {
+    expect(md.length).toBeLessThan(buildContextMarkdown(s).length);
   });
 });
 

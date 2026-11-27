@@ -25,49 +25,8 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
     `> La fuente de verdad es \`.agent-tracking/project.json\`; este archivo se regenera a partir de él.`,
     "",
   );
-
-  out.push("## Objetivo", "", p.goal.trim() || "_Sin definir._", "");
-
-  out.push("## Ficha técnica", "");
-  out.push(`- **Tipo de proyecto:** ${PROJECT_KIND_INFO[p.kind ?? "fullstack"].label}`);
-  if (p.platforms.length) out.push(`- **Plataformas:** ${p.platforms.map((x) => PLATFORM_LABEL[x]).join(", ")}`);
-  out.push(`- **Stack:** ${p.stack.length ? p.stack.join(", ") : "_Sin definir_"}`);
-  out.push(`- **Bases de datos:** ${p.databases.length ? p.databases.join(", ") : "_Sin definir_"}`);
-  if (p.repoUrl) out.push(`- **Repositorio:** ${p.repoUrl}`);
-  out.push(`- **Avance global:** ${toPercent(projectProgress(s))}%`, "");
-
+  out.push(...projectSections(s));
   const parts = p.parts ?? [];
-  out.push(...partsMarkdown(p.structure ?? "single", parts, p.monorepoTool ?? null));
-
-  const tests = testPolicyMarkdown(p.testTypes);
-  if (tests.length) out.push("## Tests", "", ...tests, "");
-
-  const language = replyLanguageRule(p.replyLanguage);
-  if (language) out.push("## Idioma con el usuario", "", language, "");
-
-  out.push("## Convenciones de commits y ramas", "");
-  out.push(...conventionsMarkdown(p.commitConventions), "");
-
-  out.push("## Reglas de negocio", "");
-  if (s.rules.length === 0) out.push("_No hay reglas definidas._");
-  [...s.rules]
-    .sort((a, b) => a.priority - b.priority)
-    .forEach((r, i) => out.push(`${i + 1}. ${r.text}`));
-  out.push("");
-
-  const skills = s.skills.filter((k) => k.enabled);
-  out.push("## Skills a usar", "");
-  if (skills.length === 0) out.push("_No se seleccionaron skills._");
-  for (const k of skills) {
-    // Where to read it: the copy in the repo when it was shared, the plugin otherwise.
-    const where = k.shared
-      ? ` Léela en \`${sharedSkillPath(k.name)}/SKILL.md\`.`
-      : k.plugin
-        ? ` Viene del plugin \`${k.plugin}${k.marketplace ? `@${k.marketplace}` : ""}\`.`
-        : "";
-    out.push(`- **${k.name}** (${k.source}) — ${k.description}${where}`);
-  }
-  out.push("");
 
   out.push("## Requerimientos", "");
   if (s.requirements.length === 0) out.push("_No hay requerimientos definidos._", "");
@@ -127,4 +86,80 @@ export function buildContextMarkdown(s: ProjectSnapshot): string {
     "",
   );
   return out.join("\n");
+}
+
+/**
+ * Compact context for the MCP: goal, project sheet, reply language, conventions, rules and skills,
+ * plus one line per requirement with its progress. The detail of a requirement (DoD, features,
+ * files) is fetched with get_requirement, so the agent only pays for what it works on.
+ */
+export function buildCompactContextMarkdown(s: ProjectSnapshot): string {
+  const out: string[] = [];
+  out.push(`# ${s.project.name}`, "");
+  out.push(
+    "> Contexto compacto de Agent Tracking. Pide el detalle de un requerimiento (Definition of Done con sus ids, features, archivos y tests) con `get_requirement` y su código o id.",
+    "",
+  );
+  out.push(...projectSections(s));
+
+  out.push("## Requerimientos", "");
+  if (s.requirements.length === 0) out.push("_No hay requerimientos definidos._");
+  for (const r of s.requirements) {
+    const dod = s.dod.filter((d) => d.requirementId === r.id);
+    const done = dod.filter((d) => d.status === "done").length;
+    const criteria = dod.length ? `, DoD ${done}/${dod.length}` : "";
+    out.push(`- ${requirementLabel(r)} — ${toPercent(requirementProgress(s, r.id))}%${criteria} (\`${r.id}\`)`);
+  }
+  out.push("");
+  return out.join("\n");
+}
+
+/** Sections shared by the full and the compact context: from the goal to the skills. */
+function projectSections(s: ProjectSnapshot): string[] {
+  const { project: p } = s;
+  const out: string[] = [];
+  out.push("## Objetivo", "", p.goal.trim() || "_Sin definir._", "");
+
+  out.push("## Ficha técnica", "");
+  out.push(`- **Tipo de proyecto:** ${PROJECT_KIND_INFO[p.kind ?? "fullstack"].label}`);
+  if (p.platforms.length) out.push(`- **Plataformas:** ${p.platforms.map((x) => PLATFORM_LABEL[x]).join(", ")}`);
+  out.push(`- **Stack:** ${p.stack.length ? p.stack.join(", ") : "_Sin definir_"}`);
+  out.push(`- **Bases de datos:** ${p.databases.length ? p.databases.join(", ") : "_Sin definir_"}`);
+  if (p.repoUrl) out.push(`- **Repositorio:** ${p.repoUrl}`);
+  out.push(`- **Avance global:** ${toPercent(projectProgress(s))}%`, "");
+
+  const parts = p.parts ?? [];
+  out.push(...partsMarkdown(p.structure ?? "single", parts, p.monorepoTool ?? null));
+
+  const tests = testPolicyMarkdown(p.testTypes);
+  if (tests.length) out.push("## Tests", "", ...tests, "");
+
+  const language = replyLanguageRule(p.replyLanguage);
+  if (language) out.push("## Idioma con el usuario", "", language, "");
+
+  out.push("## Convenciones de commits y ramas", "");
+  out.push(...conventionsMarkdown(p.commitConventions), "");
+
+  out.push("## Reglas de negocio", "");
+  if (s.rules.length === 0) out.push("_No hay reglas definidas._");
+  [...s.rules]
+    .sort((a, b) => a.priority - b.priority)
+    .forEach((r, i) => out.push(`${i + 1}. ${r.text}`));
+  out.push("");
+
+  const skills = s.skills.filter((k) => k.enabled);
+  out.push("## Skills a usar", "");
+  if (skills.length === 0) out.push("_No se seleccionaron skills._");
+  for (const k of skills) {
+    // Where to read it: the copy in the repo when it was shared, the plugin otherwise.
+    const where = k.shared
+      ? ` Léela en \`${sharedSkillPath(k.name)}/SKILL.md\`.`
+      : k.plugin
+        ? ` Viene del plugin \`${k.plugin}${k.marketplace ? `@${k.marketplace}` : ""}\`.`
+        : "";
+    out.push(`- **${k.name}** (${k.source}) — ${k.description}${where}`);
+  }
+  out.push("");
+
+  return out;
 }

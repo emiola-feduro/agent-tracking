@@ -1,4 +1,5 @@
 import {
+  buildCompactContextMarkdown,
   buildContextMarkdown,
   DEFAULT_COMMIT_CONVENTIONS,
   DEFAULT_REPLY_LANGUAGE,
@@ -41,7 +42,7 @@ export const SERVER_INFO = { name: "agent-tracking", version: "0.2.0" };
 
 export const SERVER_INSTRUCTIONS = [
   "Agent Tracking muestra al equipo lo que construyes, ordenado por requerimiento, feature y archivo.",
-  "Al empezar una tarea, llama a get_project_context para leer reglas de negocio, skills, requerimientos y criterios del DoD.",
+  "Al empezar una tarea, llama a get_project_context para leer reglas de negocio, convenciones, skills y la lista de requerimientos con su avance; pide el DoD y el detalle del requerimiento en que trabajas con get_requirement.",
   "Mientras trabajas no reportes nada: Agent Tracking ve los archivos que cambias por su cuenta.",
   "Al terminar, antes de tu respuesta final, llama UNA vez a submit_report con todo lo que hiciste:",
   "por cada feature, su requerimiento, sus archivos con propósito y sus funciones, clases o tipos relevantes,",
@@ -221,15 +222,21 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     {
       title: "Contexto del proyecto",
       description:
-        "Devuelve el CONTEXT.md del proyecto: objetivo, ficha técnica, reglas de negocio, skills, requerimientos con su DoD y features. Llámala al empezar.",
-      inputSchema: {},
+        "Devuelve el contexto del proyecto. Llámala al empezar. En modo compact (por defecto): objetivo, ficha técnica, reglas de negocio, convenciones, idioma, skills y la lista de requerimientos con su avance; el detalle de cada uno (DoD con ids, features, archivos y tests) se pide con get_requirement. En modo full devuelve el CONTEXT.md completo.",
+      inputSchema: {
+        mode: z
+          .enum(["compact", "full"])
+          .optional()
+          .describe("compact (por defecto): sin el detalle de los requerimientos. full: el CONTEXT.md completo"),
+      },
       annotations: readOnly,
     },
-    async (projectId) => {
+    async (projectId, _actor, { mode }) => {
       const snap = await tracker.snapshot(projectId);
       const checkout = await checkoutOf(projectId);
       if (checkout) await turns.startFromMcp(projectId, { sessionId: mcpSession, agent: agentKind(), checkout }).catch(() => false);
-      return { result: `<!-- projectId: ${projectId} -->\n${buildContextMarkdown(snap)}` };
+      const body = mode === "full" ? buildContextMarkdown(snap) : buildCompactContextMarkdown(snap);
+      return { result: `<!-- projectId: ${projectId} -->\n${body}` };
     },
   );
 

@@ -146,12 +146,25 @@ describe("MCP tools over an SDK client", () => {
     expect((await call(client, "report_screen", { title: "x", imagePath: "notes.txt" })).data).toContain("Solo se aceptan");
   });
 
-  test("get_project_context returns CONTEXT.md resolved from the repo path", async () => {
+  test("get_project_context is compact by default, resolved from the repo path", async () => {
     const { data, isError } = await call(client, "get_project_context");
     expect(isError).toBe(false);
     expect(data).toContain("# Tienda");
     expect(data).toContain("Todo pedido requiere login");
-    expect(data).toContain(`(\`${DOD}\`)`);
+    expect(data).toContain("## Convenciones de commits y ramas");
+    expect(data).toContain(`- RF1 Checkout — 0%, DoD 0/1 (\`${REQ}\`)`);
+    expect(data).toContain("get_requirement");
+    // The DoD detail is asked for with get_requirement.
+    expect(data).not.toContain("Paga con tarjeta");
+    const detail = await call(client, "get_requirement", { requirementId: REQ });
+    expect(JSON.stringify(detail.data)).toContain(DOD);
+  });
+
+  test("get_project_context in full mode returns the whole CONTEXT.md", async () => {
+    const { data, isError } = await call(client, "get_project_context", { mode: "full" });
+    expect(isError).toBe(false);
+    expect(data).toContain("Todo pedido requiere login");
+    expect(data).toContain(`- [ ] Paga con tarjeta (\`${DOD}\`)`);
   });
 
   test("get_project_skills returns only enabled skills", async () => {
