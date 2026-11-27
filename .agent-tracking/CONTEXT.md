@@ -205,7 +205,7 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
   - `packages/core/src/context.ts`: Sección Idioma con el usuario en CONTEXT.md
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
   - `packages/mcp/src/server.ts`: Sin carpeta local, el proyecto sale de los roots del agente o de la carpeta de sus hooks
-  - `packages/mcp/src/stdio.ts`: Transporte stdio para clientes locales
+  - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
   - `packages/tracking/src/tracker.ts`: deleteTest quita un test del proyecto
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
@@ -550,6 +550,7 @@ Fases 7 y 8: PostgreSQL, autenticación, equipos, roles y presencia.
   - `README.md`: Documenta el trabajo en equipo con el servidor compartido
   - `packages/collab/package.json`: Paquete del servidor compartido con su binario
   - `packages/collab/src/client.ts`: Cliente del servidor compartido usado por la app local
+  - `packages/collab/src/collab.test.ts`: Tests del servidor compartido: cuentas, roles y presencia
   - `packages/collab/src/index.ts`: Exporta el paquete collab
   - `packages/collab/src/roles.ts`: Roles por proyecto y qué acciones permite cada uno
   - `packages/collab/src/serve.ts`: Arranca el servidor compartido con DATABASE_URL y COLLAB_PORT
@@ -807,6 +808,7 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
 - Sesiones MCP que sobreviven a reinicios — _done_ (`7558f3be-5f92-446f-bfca-98223726efac`)
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
   - `packages/mcp/src/mcp.test.ts`: Tests del MCP; el puerto del servidor reiniciado se declara como número para el CI
+  - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
 
 ### RF17 Códigos de requerimiento — 0%
 

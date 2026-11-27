@@ -7,6 +7,13 @@
       "name": "roles, storage, accounts, a project shared with roles, presence (14 tests)",
       "type": "integration",
       "lastResult": "passing"
+    },
+    {
+      "featureId": "c84e696d-e652-49e8-9a75-2de99907962c",
+      "requirementId": "6512a2ba-bffe-4427-b835-b3740aa1fab3",
+      "name": "servidor compartido de colaboración",
+      "type": "integration",
+      "lastResult": "passing"
     }
   ]
 }

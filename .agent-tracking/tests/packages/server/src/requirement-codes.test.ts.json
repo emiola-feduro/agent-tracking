@@ -1,0 +1,12 @@
+{
+  "path": "packages/server/src/requirement-codes.test.ts",
+  "tests": [
+    {
+      "featureId": "7558f3be-5f92-446f-bfca-98223726efac",
+      "requirementId": "0e260d37-411a-4cdf-a8d9-2b65b7ef86bb",
+      "name": "requirements written without a code get one, and an older process cannot write into a newer database",
+      "type": "integration",
+      "lastResult": "passing"
+    }
+  ]
+}

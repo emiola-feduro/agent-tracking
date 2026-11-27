@@ -1,9 +1,17 @@
 {
   "path": "packages/mcp/src/stdio.ts",
-  "purpose": "Transporte stdio para clientes locales",
+  "purpose": "En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "7558f3be-5f92-446f-bfca-98223726efac",
     "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
   ],
-  "symbols": []
+  "symbols": [
+    {
+      "name": "runLocal",
+      "kind": "function",
+      "purpose": "",
+      "source": "reported"
+    }
+  ]
 }

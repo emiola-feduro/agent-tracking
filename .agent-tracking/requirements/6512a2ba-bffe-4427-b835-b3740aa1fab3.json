@@ -30,7 +30,7 @@
     {
       "id": "c84e696d-e652-49e8-9a75-2de99907962c",
       "name": "Servidor compartido con cuentas, roles y presencia",
-      "description": "Paquete collab: servidor Hono con almacenamiento en PostgreSQL (Bun.SQL) o SQLite, cuentas con contraseña y tokens guardados con hash, proyectos compartidos con versión y bloqueo optimista, miembros con roles owner/editor/viewer y presencia por latidos.",
+      "description": "Fusionado en main desde la rama del agente de RF11",
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T15:39:56.904Z"

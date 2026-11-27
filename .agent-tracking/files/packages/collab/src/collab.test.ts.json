@@ -1,0 +1,9 @@
+{
+  "path": "packages/collab/src/collab.test.ts",
+  "purpose": "Tests del servidor compartido: cuentas, roles y presencia",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "c84e696d-e652-49e8-9a75-2de99907962c"
+  ],
+  "symbols": []
+}
