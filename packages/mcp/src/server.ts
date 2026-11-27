@@ -668,5 +668,88 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     }) as never,
   );
 
+  registerPrompts(server, async (requirement) => {
+    // Best effort: the prompt still works when the project or the requirement cannot be resolved.
+    try {
+      const projectId = await resolve(undefined);
+      const snap = await tracker.snapshot(projectId);
+      const { id } = await tracker.resolveRequirement(projectId, requirement);
+      const r = snap.requirements.find((x) => x.id === id);
+      if (!r) return null;
+      const pending = snap.dod.filter((d) => d.requirementId === id && d.status !== "done");
+      return { code: r.code, title: r.title, pending: pending.map(({ id, criterion }) => ({ id, criterion })) };
+    } catch {
+      return null;
+    }
+  });
+
   return server;
+}
+
+/** What the start prompt knows about a requirement when it can be resolved. */
+export type PromptRequirement = { code: string | null; title: string; pending: { id: string; criterion: string }[] };
+
+/** Text of the start prompt: the workflow to implement a requirement, with its pending DoD when known. */
+export function startPromptText(requirement: string, found: PromptRequirement | null): string {
+  const name = found ? `${found.code ?? requirement} "${found.title}"` : requirement;
+  const lines = [
+    `Work on requirement ${name} of this project, which is tracked with Agent Tracking.`,
+    "",
+    "1. Call get_project_context (agent-tracking MCP server) and read the goal, business rules, conventions and the reply language.",
+    `   If it does not recognize the project, pass \`project\` with the absolute path of this repository.`,
+    `2. Call get_requirement with "${requirement}" to read its description, Definition of Done, features and tests.`,
+    "3. Before changing code, create a branch from the current one with `git switch -c feat/<topic>` (or fix/), unless you are already on a work branch. Never push or merge into main.",
+    "4. Meet the pending Definition of Done criteria, write the tests the project asks for and run them. Commit with the project's conventions.",
+    "5. When everything is done, run the report prompt (/agent-tracking:report) or call submit_report once.",
+  ];
+  if (found) {
+    lines.push("", "Pending Definition of Done criteria:");
+    if (found.pending.length) lines.push(...found.pending.map((d) => `- ${d.criterion} (id ${d.id})`));
+    else lines.push("- None: every criterion is done. Ask the user what is left before changing code.");
+  }
+  lines.push("", "Talk to the user in the reply language set in the project context.");
+  return lines.join("\n");
+}
+
+/** Text of the report prompt: how to close a task with a single, complete submit_report. */
+export const REPORT_PROMPT_TEXT = [
+  "Report the work of this task to Agent Tracking.",
+  "",
+  "1. Call pending_changes (agent-tracking MCP server) to list the changed files that no report covers yet.",
+  "2. Make sure the work is committed with the project's conventions.",
+  "3. Call submit_report ONCE with everything you did, grouped by requirement and feature:",
+  "   - each feature with its requirement (id or code such as RF3), description and status;",
+  "   - its files with their purpose and the relevant functions, classes or types (with lines);",
+  "   - its tests with their type and last result;",
+  "   - the Definition of Done criteria you met, by id, with their evidence (test, file or command).",
+  "   Include every file pending_changes listed.",
+  "4. If you changed a view of the app, save a screenshot in the repository and report it with report_screen.",
+  "",
+  "Write the summary of submit_report and your reply in the reply language set in the project context.",
+].join("\n");
+
+/**
+ * MCP prompts, shown by agents as commands: /agent-tracking:start <requirement> and /agent-tracking:report.
+ * `lookup` resolves the requirement in the session's project to list its pending criteria.
+ */
+function registerPrompts(server: McpServer, lookup: (requirement: string) => Promise<PromptRequirement | null>) {
+  server.registerPrompt(
+    "start",
+    {
+      title: "Start a requirement",
+      description: "Read the project context and the requirement, create a work branch and implement its pending Definition of Done",
+      argsSchema: { requirement: z.string().describe("Requirement id or code, for example RF3") },
+    },
+    async ({ requirement }) => ({
+      messages: [{ role: "user", content: { type: "text", text: startPromptText(requirement, await lookup(requirement)) } }],
+    }),
+  );
+  server.registerPrompt(
+    "report",
+    {
+      title: "Report the work",
+      description: "Send Agent Tracking a single submit_report with features, files, tests and the Definition of Done criteria met",
+    },
+    async () => ({ messages: [{ role: "user", content: { type: "text", text: REPORT_PROMPT_TEXT } }] }),
+  );
 }

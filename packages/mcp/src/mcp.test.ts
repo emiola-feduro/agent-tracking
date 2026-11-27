@@ -92,6 +92,33 @@ describe("MCP tools over an SDK client", () => {
     expect(tools.find((t) => t.name === "report_symbol")!.inputSchema.properties).toHaveProperty("project");
   });
 
+  test("prompts show up as /agent-tracking:start <requirement> and /agent-tracking:report", async () => {
+    const { prompts } = await client.listPrompts();
+    expect(prompts.map((p) => p.name).sort()).toEqual(["report", "start"]);
+    expect(prompts.find((p) => p.name === "start")!.arguments).toEqual([
+      expect.objectContaining({ name: "requirement", required: true }),
+    ]);
+
+    // Run before mark_dod_item, so the criterion is still pending.
+    const start = await client.getPrompt({ name: "start", arguments: { requirement: REQ } });
+    const startText = (start.messages[0]!.content as { text: string }).text;
+    expect(startText).toContain('"Checkout"');
+    expect(startText).toContain(`get_requirement with "${REQ}"`);
+    expect(startText).toContain(`- Paga con tarjeta (id ${DOD})`);
+    expect(startText).toContain("git switch -c");
+
+    // An unknown requirement still gives the workflow, without inventing criteria.
+    const unknown = await client.getPrompt({ name: "start", arguments: { requirement: "RF99" } });
+    const unknownText = (unknown.messages[0]!.content as { text: string }).text;
+    expect(unknownText).toContain("Work on requirement RF99");
+    expect(unknownText).not.toContain("Pending Definition of Done");
+
+    const report = await client.getPrompt({ name: "report" });
+    const reportText = (report.messages[0]!.content as { text: string }).text;
+    expect(reportText).toContain("pending_changes");
+    expect(reportText).toContain("submit_report ONCE");
+  });
+
   test("report_screen adds a capture from the repo to the gallery and exports it for agents", async () => {
     const png = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]);
     await Bun.write(join(repo, "shots/lista.png"), png);
