@@ -120,7 +120,7 @@ test("several requirements and criteria go to one agent; only what is not done c
   agent.finish(0);
   await Bun.sleep(20);
   const runs = (await call("GET", `/projects/${id}/runs`)).data;
-  expect(runs.find((r: any) => r.id === run.data.id).status).toBe("done");
+  expect(runs.find((r: any) => r.id === run.data.id)).toMatchObject({ status: "done", workBranch: "main" });
   expect(runs.find((r: any) => r.id === next.data.id).status).toBe("running");
   expect(agent.spawned).toHaveLength(2);
   agent.finish(0);

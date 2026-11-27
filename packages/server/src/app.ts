@@ -922,7 +922,8 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.route("/", attachmentRoutes(db, tracker));
   app.route("/", agentRoutes(db));
-  app.route("/", agentRunRoutes(tracker, opts.agentRuns));
+  const agentRuns = agentRunRoutes(tracker, opts.agentRuns);
+  app.route("/", agentRuns.app);
   app.route("/", skillRoutes(db, tracker, { claudeHome }));
   app.route("/", collabRoutes(db, { emit, fetch: opts.collabFetch }));
 
@@ -939,12 +940,28 @@ export function createApp(db: Db, opts: AppOptions = {}) {
    * is active (a step in the last minutes) or the turn began less than half an hour ago.
    */
   agentOnBranch = async (projectId: string, branch: string) => {
-    const open = await db
-      .select({ startedAt: s.agentTurns.startedAt })
-      .from(s.agentTurns)
-      .where(and(eq(s.agentTurns.projectId, projectId), eq(s.agentTurns.branch, branch), isNull(s.agentTurns.endedAt)));
-    if (open.length === 0) return false;
-    return live.get(projectId).status === "working" || open.some((t) => Date.now() - Date.parse(t.startedAt) < 30 * 60_000);
+    // Where agents are working right now: sessions whose hooks show them working, and agents
+    // started from the app that are still running. Old turns never closed do not count.
+    const working = new Set(live.get(projectId).sessions.filter((x) => x.status === "working").map((x) => x.sessionId));
+    const cwds = new Set(agentRuns.runningCwds(projectId));
+    if (working.size) {
+      const open = await db
+        .select({ sessionId: s.agentTurns.sessionId, cwd: s.agentTurns.cwd, branch: s.agentTurns.branch })
+        .from(s.agentTurns)
+        .where(and(eq(s.agentTurns.projectId, projectId), isNull(s.agentTurns.endedAt)));
+      for (const t of open) {
+        if (!t.sessionId || !working.has(t.sessionId)) continue;
+        // The branch its turn began on counts too, even if the checkout moved since.
+        if (t.branch === branch) return true;
+        if (t.cwd) cwds.add(t.cwd);
+      }
+    }
+    // The branch each of those checkouts is on now (an agent may have switched since its turn began).
+    for (const cwd of cwds) {
+      const current = await git(["symbolic-ref", "--short", "-q", "HEAD"], cwd, 3000);
+      if (current.ok && current.stdout === branch) return true;
+    }
+    return false;
   };
   app.route("/", repoRoutes(db, { emit, agentOnBranch }));
 

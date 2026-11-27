@@ -31,6 +31,8 @@ export type AgentRun = {
   startedAt: string | null;
   endedAt: string | null;
   exitCode: number | null;
+  /** The branch its checkout was on when it ended (where its commits are), to integrate it. */
+  workBranch: string | null;
   /** The last lines the agent printed (stdout and stderr). */
   output: string[];
 };
@@ -128,6 +130,8 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
       processes.delete(run.id);
       run.exitCode = code;
       run.endedAt = new Date().toISOString();
+      const current = await git(["symbolic-ref", "--short", "-q", "HEAD"], run.cwd);
+      run.workBranch = current.ok && current.stdout ? current.stdout : null;
       if (run.status === "running") run.status = code === 0 ? "done" : "failed";
       startNext(run.cwd);
     });
@@ -226,6 +230,7 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
       startedAt: null,
       endedAt: null,
       exitCode: null,
+      workBranch: null,
       output: [],
     };
     runs.set(run.id, run);
@@ -254,5 +259,8 @@ export function agentRunRoutes(tracker: Tracker, opts: { spawn?: SpawnAgent; whi
     return c.json(run);
   });
 
-  return app;
+  /** Checkouts where a launched agent is working right now. */
+  const runningCwds = (projectId: string) => [...runs.values()].filter((r) => r.projectId === projectId && r.status === "running").map((r) => r.cwd);
+
+  return { app, runningCwds };
 }

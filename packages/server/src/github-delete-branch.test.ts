@@ -3,11 +3,13 @@ import { GithubClient, staticAuthProvider } from "@agent-tracking/github";
 import { acmeRoutes, fakeFetch } from "@agent-tracking/github/src/fixtures";
 import { beforeEach, describe, expect, test } from "bun:test";
 import { createApp } from "./app";
+import { createLiveActivity } from "./live-activity";
 
 const R = "/repos/acme/tienda";
 let call: (method: string, path: string) => Promise<{ status: number; data: any }>;
 let deleted: string[];
 let db: ReturnType<typeof openDb>;
+let live: ReturnType<typeof createLiveActivity>;
 
 beforeEach(() => {
   deleted = [];
@@ -21,7 +23,8 @@ beforeEach(() => {
     [`DELETE ${R}/git/refs/heads/feature-1`]: () => (deleted.push("feature-1"), { status: 204 }),
   };
   const client = new GithubClient({ auth: staticAuthProvider({ kind: "token", source: "env", token: "t" }), fetch: fakeFetch(routes) });
-  const app = createApp(db, { github: { client } });
+  live = createLiveActivity();
+  const app = createApp(db, { github: { client }, live });
   call = async (method, path) => {
     const res = await app.request(`/api${path}`, { method });
     const text = await res.text();
@@ -52,7 +55,10 @@ describe("deleting branches on GitHub", () => {
   });
 
   test("a branch an agent is working on is kept, here too", async () => {
-    db.insert(s.agentTurns).values({ id: "t1", projectId: "p1", branch: "old", startedAt: new Date().toISOString() }).run();
+    db.insert(s.agentTurns).values({ id: "t1", projectId: "p1", sessionId: "s1", branch: "old", startedAt: new Date().toISOString() }).run();
+    // A turn left open by a session that is no longer working does not hold the branch.
+    expect((await call("GET", "/projects/p1/github/branches")).data.find((b: any) => b.name === "old").agent).toBe(false);
+    live.record("p1", { agent: "claude-code", hook_event_name: "UserPromptSubmit", session_id: "s1", cwd: "/w/tienda", prompt: "trabaja" });
     const listed = (await call("GET", "/projects/p1/github/branches")).data.find((b: any) => b.name === "old");
     expect(listed.agent).toBe(true);
     expect((await call("DELETE", "/projects/p1/github/branches/old")).data.code).toBe("agent");

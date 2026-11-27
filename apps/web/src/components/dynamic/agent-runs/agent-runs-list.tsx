@@ -1,5 +1,10 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { queryKeys } from "@/lib/query-keys";
+import Alert from "@/components/ui/alert/alert";
 import Button from "@/components/ui/button/button";
+import useIntegrate from "@/hooks/data/use-integrate";
+import { useLocalBranches, useWorktrees } from "@/hooks/data/use-worktrees";
 import StatusPill from "@/components/ui/status-pill/status-pill";
 import useAgentRuns from "@/hooks/data/use-agent-runs";
 import type { AgentRun } from "@/lib/api";
@@ -21,8 +26,18 @@ const duration = (from: string, to: string | null, now: number) => {
 /** Agents started from the app: status, how long, the last lines they printed, and a way to stop them. */
 const AgentRunsList = ({ projectId }: { projectId: string }) => {
   const { runs, stop } = useAgentRuns(projectId);
+  const branches = useLocalBranches(projectId);
+  const worktrees = useWorktrees(projectId);
+  const base = worktrees.data?.base ?? "main";
+  const { integrate, outcome, clearOutcome, busyBranch, isPending } = useIntegrate(projectId, base);
+  /** Commits the branch has that the base does not (0: nothing left to integrate). */
+  const pendingOn = (branch: string | null) => (branch && branch !== base ? (branches.data?.branches.find((b) => b.name === branch)?.unmerged ?? 0) : 0);
   const [now, setNow] = useState(Date.now());
   const running = runs.data?.some((r) => r.status === "running");
+  // A run that just ended may have left commits: the branches list is read again.
+  const finished = runs.data?.filter((r) => r.endedAt).length ?? 0;
+  const queryClient = useQueryClient();
+  useEffect(() => void queryClient.invalidateQueries({ queryKey: queryKeys.branches(projectId) }), [finished, projectId, queryClient]);
   useEffect(() => {
     if (!running) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -36,6 +51,14 @@ const AgentRunsList = ({ projectId }: { projectId: string }) => {
         <p className="text-sm text-muted">Agentes que arrancaste con «Implementar». Si ya hay uno trabajando en la misma carpeta, el siguiente espera en cola. Se borran al reiniciar el servidor.</p>
       </div>
       {runs.data?.length === 0 && <p className="text-sm text-muted">Todavía no lanzaste ninguno.</p>}
+      {outcome && (
+        <div className="flex items-start justify-between gap-3" aria-live="polite">
+          <Alert tone={outcome.tone}>{outcome.text}</Alert>
+          <Button size="sm" variant="ghost" onClick={clearOutcome}>
+            Cerrar
+          </Button>
+        </div>
+      )}
       <ul className="flex flex-col gap-3">
         {runs.data?.map((r) => (
           <li key={r.id} className="flex flex-col gap-2 rounded-md border border-line p-3">
@@ -69,6 +92,19 @@ const AgentRunsList = ({ projectId }: { projectId: string }) => {
               <code className="font-mono">{r.cwd}</code>
               {r.exitCode !== null && r.status !== "stopped" ? `, terminó con código ${r.exitCode}` : ""}
             </p>
+            {(r.status === "done" || r.status === "failed") && pendingOn(r.workBranch) > 0 && (
+              <div className="flex flex-wrap items-center gap-2 rounded-md bg-brand-soft px-3 py-2 text-sm">
+                <span className="min-w-0 flex-1 text-ink">
+                  Dejó {pendingOn(r.workBranch) === 1 ? "1 commit" : `${pendingOn(r.workBranch)} commits`} en <code className="font-mono">{r.workBranch}</code> que {base} todavía no tiene.
+                </span>
+                <Button size="sm" variant="ghost" disabled={isPending} onClick={() => integrate(r.workBranch!, false, pendingOn(r.workBranch))}>
+                  Solo integrar
+                </Button>
+                <Button size="sm" variant="primary" disabled={isPending} isLoading={busyBranch === r.workBranch} onClick={() => integrate(r.workBranch!, true, pendingOn(r.workBranch))}>
+                  Integrar y subir
+                </Button>
+              </div>
+            )}
             {r.output.length > 0 && (
               <pre className="max-h-48 overflow-auto rounded-md bg-subtle p-3 font-mono text-xs whitespace-pre-wrap text-ink-soft">{r.output.slice(-20).join("\n")}</pre>
             )}

@@ -110,6 +110,8 @@ export type AgentRun = {
   status: "queued" | "running" | "done" | "failed" | "stopped";
   createdAt: string;
   startedAt: string | null;
+  /** The branch its checkout was on when it ended (where its commits are). */
+  workBranch: string | null;
   endedAt: string | null;
   exitCode: number | null;
   output: string[];
