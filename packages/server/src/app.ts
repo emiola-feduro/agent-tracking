@@ -66,6 +66,7 @@ import { adapterFor, AGENT_KINDS, gitGuard } from "@agent-tracking/agents";
 import { blockMessage } from "@agent-tracking/mcp";
 import { createAgentTurns, type TurnHookPayload } from "@agent-tracking/tracking";
 import { agentRoutes } from "./agent-routes";
+import { agentRunRoutes, type SpawnAgent } from "./agent-run-routes";
 import { isAllowedOrigin } from "./origin";
 import { attachmentRoutes } from "./attachment-routes";
 import { originFor, sharedPatch, skillRoutes } from "./skill-routes";
@@ -211,6 +212,8 @@ export interface AppOptions {
   assistantProviders?: AssistantConfig[];
   /** What agents are doing right now, fed by Claude Code hooks (see live-activity.ts). */
   live?: LiveActivity;
+  /** Starting agents on a requirement (see agent-run-routes.ts); tests pass a fake spawn. */
+  agentRuns?: { spawn?: SpawnAgent; which?: (bin: string) => string | null };
   /** Each hook event reports the folder its agent works in (the MCP over HTTP uses it to find the project). */
   onAgentDir?: (agent: string, dir: string) => void;
 }
@@ -916,6 +919,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
 
   app.route("/", attachmentRoutes(db, tracker));
   app.route("/", agentRoutes(db));
+  app.route("/", agentRunRoutes(tracker, opts.agentRuns));
   app.route("/", skillRoutes(db, tracker, { claudeHome }));
 
   app.get("/projects/:id/live", async (c) => {

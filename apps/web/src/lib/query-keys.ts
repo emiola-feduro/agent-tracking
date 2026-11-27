@@ -8,6 +8,7 @@ export const queryKeys = {
   branch: (id: string) => ["projects", id, "branch"] as const,
   branches: (id: string) => ["projects", id, "branches"] as const,
   worktrees: (id: string) => ["projects", id, "worktrees"] as const,
+  runs: (id: string) => ["projects", id, "runs"] as const,
   worktreeDiff: (id: string, worktree: string) => ["projects", id, "worktree-diff", worktree] as const,
   file: (id: string, path: string, worktree = "") => ["projects", id, "file", worktree, path] as const,
   turns: (id: string) => ["projects", id, "turns"] as const,

@@ -1,3 +1,6 @@
+import { useState } from "react";
+import LaunchAgentDialog from "@/components/dynamic/agent-runs/launch-agent-dialog";
+import Button from "@/components/ui/button/button";
 import PartChips from "@/components/dynamic/requirement-parts/part-chips";
 import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, requirementLabel } from "@agent-tracking/core";
 import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
@@ -30,6 +33,7 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
   const images = attachments.filter((a) => a.kind === "reference" && a.requirementId === id).length;
   const percent = progress.requirements[id] ?? 0;
   const panelId = `requirement-${id}`;
+  const [launching, setLaunching] = useState(false);
 
   const remove = () => {
     if (confirm(`Eliminar el requerimiento "${requirementLabel(requirement)}" y su Definition of Done. No se puede deshacer.`)) deleteRequirement.mutate(id);
@@ -91,7 +95,13 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
       {open && (
         <div id={panelId} className="flex animate-enter flex-col gap-5 border-t border-line px-4 py-4 sm:px-5">
           {description && <p className="max-w-[70ch] text-ink-soft">{description}</p>}
-          <ProjectDetailRequirementCode requirement={requirement} view={view} />
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <ProjectDetailRequirementCode requirement={requirement} view={view} />
+            <Button variant="primary" onClick={() => setLaunching(true)} disabled={!project.repoPath}>
+              Implementar con un agente
+            </Button>
+          </div>
+          <LaunchAgentDialog projectId={project.id} requirement={launching ? requirement : null} onClose={() => setLaunching(false)} />
           <ProjectDetailRequirementClassification
             requirement={requirement}
             kind={project.kind ?? "fullstack"}

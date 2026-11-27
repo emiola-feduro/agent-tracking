@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import AgentPlanDialog from "@/components/dynamic/agents/agent-plan-dialog";
+import AgentRunsList from "@/components/dynamic/agent-runs/agent-runs-list";
 import ReplyLanguageField from "@/components/dynamic/agents/reply-language-field";
 import Button from "@/components/ui/button/button";
 import CheckOption from "@/components/ui/check-option/check-option";
@@ -140,6 +141,8 @@ const ProjectDetailAgents = ({ view }: { view: ProjectView }) => {
         <ReplyLanguageField value={language} onChange={(v) => saveLanguage.mutate(v)} />
         {saveLanguage.isError && <p className="text-sm text-danger">{(saveLanguage.error as Error).message}</p>}
       </section>
+
+      <AgentRunsList projectId={project.id} />
 
       <AgentPlanDialog agent={dialog?.agent ?? null} action={dialog?.action ?? "connect"} onClose={() => setDialog(null)} />
     </div>

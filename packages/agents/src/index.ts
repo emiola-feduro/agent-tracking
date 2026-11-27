@@ -23,3 +23,4 @@ export const agentForClient = (clientName: string | undefined | null): AgentKind
 export const agentLabel = (agent: string | null | undefined) => (agent && isAgentKind(agent) ? AGENTS[agent].label : agent || "Agente");
 export * from "./connect";
 export * from "./git-guard";
+export * from "./launch";

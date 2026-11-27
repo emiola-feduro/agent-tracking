@@ -91,6 +91,22 @@ export type AgentInfo = {
   contextFile: string;
   lastSeen: string | null;
 };
+export type LaunchPermission = "safe" | "full";
+export type AgentRun = {
+  id: string;
+  projectId: string;
+  requirementId: string;
+  requirementCode: string | null;
+  requirementTitle: string;
+  agent: AgentKind;
+  cwd: string;
+  permission: LaunchPermission;
+  status: "running" | "done" | "failed" | "stopped";
+  startedAt: string;
+  endedAt: string | null;
+  exitCode: number | null;
+  output: string[];
+};
 export type ConfigChange =
   | { type: "file"; path: string; description: string; before: string | null; after: string }
   | { type: "command"; argv: string[]; description: string; cwd?: string };
@@ -312,6 +328,10 @@ export const api = {
   deleteBranch: (id: string, branch: string, force = false) =>
     request<{ branch: string; sha: string }>("DELETE", `${p(id)}/repo/branches/${encodeURIComponent(branch)}${force ? "?force=1" : ""}`),
   checkout: (id: string, branch: string) => request<{ branch: string; previous: string | null }>("POST", `${p(id)}/repo/checkout`, { branch }),
+  runs: (id: string) => request<AgentRun[]>("GET", `${p(id)}/runs`),
+  launchRun: (id: string, data: { requirementId: string; agent: AgentKind; cwd?: string; permission: LaunchPermission; model?: string; instructions?: string }) =>
+    request<AgentRun>("POST", `${p(id)}/runs`, data),
+  stopRun: (id: string, runId: string) => request<AgentRun>("POST", `${p(id)}/runs/${runId}/stop`),
   worktrees: (id: string) => request<{ base: string | null; worktrees: Worktree[] }>("GET", `${p(id)}/repo/worktrees`),
   worktreeDiff: (id: string, worktree: string) => request<Diff>("GET", `${p(id)}/repo/worktree-diff?worktree=${encodeURIComponent(worktree)}`),
   repoFile: (id: string, path: string, worktree?: string) =>
