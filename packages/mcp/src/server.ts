@@ -677,7 +677,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
       const r = snap.requirements.find((x) => x.id === id);
       if (!r) return null;
       const pending = snap.dod.filter((d) => d.requirementId === id && d.status !== "done");
-      return { code: r.code, title: r.title, pending: pending.map(({ id, criterion }) => ({ id, criterion })) };
+      return { code: r.code ?? null, title: r.title, pending: pending.map(({ id, criterion }) => ({ id, criterion })) };
     } catch {
       return null;
     }
