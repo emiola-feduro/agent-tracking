@@ -1,8 +1,9 @@
 {
   "path": "packages/tracking/src/tracker.ts",
-  "purpose": "Busca un test por ruta y nombre y borra un feature devolviendo los tests que quedan sin feature",
+  "purpose": "Tracker: valida el reporte completo y calcula avisos de archivos sin cambios",
   "createdBy": "repo:analysis",
   "featureIds": [
+    "42102d33-41a4-4cd0-843c-6e2c583630f2",
     "44200e9c-c40d-44b4-a37d-9128ba6ada5b",
     "e6efc11f-d764-4277-b6d7-54fc78371946",
     "f5c9cab0-f08a-4342-aaf2-b175b3b74ee4"
@@ -30,6 +31,18 @@
       "name": "createTracker",
       "kind": "function",
       "purpose": "Servicio compartido por la API y el MCP",
+      "source": "reported"
+    },
+    {
+      "name": "unchangedFiles",
+      "kind": "function",
+      "purpose": "Lista archivos reportados que no existen o no cambiaron (pendientes, git status y mtime contra el último reporte)",
+      "source": "reported"
+    },
+    {
+      "name": "submitReport",
+      "kind": "function",
+      "purpose": "Junta todos los problemas y rechaza una vez; devuelve warnings",
       "source": "reported"
     }
   ]

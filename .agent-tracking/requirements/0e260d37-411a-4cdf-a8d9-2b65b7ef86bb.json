@@ -13,8 +13,8 @@
       "id": "0a6d624b-57a6-4aaf-831f-68ef674d53fb",
       "criterion": "submit_report avisa o rechaza rutas fuera del repositorio, ids de DoD que no existen y archivos que no cambiaron",
       "origin": "human",
-      "status": "pending",
-      "evidence": null,
+      "status": "done",
+      "evidence": "submitReport/unchangedFiles en packages/tracking/src/tracker.ts y submit_report en packages/mcp/src/server.ts; tests en packages/server/src/repo-inference.test.ts; bun test: 423 pass; bun run typecheck limpio; commit 8a316d4",
       "createdAt": "2026-11-27T13:19:09.142Z"
     },
     {
@@ -146,6 +146,14 @@
       "status": "done",
       "agent": "claude-code",
       "createdAt": "2026-11-27T20:54:55.091Z"
+    },
+    {
+      "id": "42102d33-41a4-4cd0-843c-6e2c583630f2",
+      "name": "Validación de submit_report",
+      "description": "Rechaza en bloque rutas fuera del repo e ids de DoD inexistentes; avisa de archivos inexistentes o sin cambios",
+      "status": "done",
+      "agent": "claude-code",
+      "createdAt": "2026-11-27T20:58:21.275Z"
     }
   ]
 }

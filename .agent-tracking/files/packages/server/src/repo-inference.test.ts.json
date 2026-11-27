@@ -1,0 +1,9 @@
+{
+  "path": "packages/server/src/repo-inference.test.ts",
+  "purpose": "Tests de rechazo en bloque y de avisos de archivos sin cambios",
+  "createdBy": "repo:analysis",
+  "featureIds": [
+    "42102d33-41a4-4cd0-843c-6e2c583630f2"
+  ],
+  "symbols": []
+}

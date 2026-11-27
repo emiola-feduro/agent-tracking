@@ -14,7 +14,7 @@ Ver en tiempo real qué construyen los agentes de IA: proyectos con requerimient
 - **Stack:** TypeScript, Bun, Hono, React, Tailwind CSS, Tauri, Rust, Drizzle ORM, Bun test, TanStack Query, TanStack Router, Zustand, Vite, Zod
 - **Bases de datos:** SQLite
 - **Repositorio:** https://github.com/emiola-feduro/agent-tracking
-- **Avance global:** 75%
+- **Avance global:** 76%
 
 ## Idioma con el usuario
 
@@ -159,7 +159,7 @@ ID: `10bb951b-b30e-402d-bbeb-6906eac77592`
   - `apps/web/src/hooks/data/use-test-idea-actions.ts`: removeTest optimista
   - `apps/web/src/lib/api.ts`: workBranch en AgentRun
   - `packages/server/src/traceability-routes.ts`: Ruta DELETE /projects/:id/tests/:testId
-  - `packages/tracking/src/tracker.ts`: Busca un test por ruta y nombre y borra un feature devolviendo los tests que quedan sin feature
+  - `packages/tracking/src/tracker.ts`: Tracker: valida el reporte completo y calcula avisos de archivos sin cambios
 
 ### RF3 Análisis del repositorio en vivo — 100%
 
@@ -204,13 +204,13 @@ Herramientas MCP para leer el contexto del proyecto y reportar features, archivo
 - Servidor MCP con reporte final — _done_ (`f5c9cab0-f08a-4342-aaf2-b175b3b74ee4`)
   - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
   - `packages/mcp/src/http.ts`: Revive sesiones MCP desconocidas haciendo el saludo en nombre del agente
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
   - `packages/mcp/src/stdio.ts`: En modo local, el MCP se niega a escribir si la base tiene migraciones que su código no conoce
   - `packages/mcp/src/stop-hook.ts`: Hook Stop que recuerda enviar el reporte
-  - `packages/tracking/src/tracker.ts`: Busca un test por ruta y nombre y borra un feature devolviendo los tests que quedan sin feature
+  - `packages/tracking/src/tracker.ts`: Tracker: valida el reporte completo y calcula avisos de archivos sin cambios
 - Crear proyecto desde un plan por MCP — _done_ (`40490b16-9821-49bc-a246-7d81b01eb54a`)
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
   - `packages/tracking/src/index.ts`: Exporta remote-sync
 - Conectar agentes y sus instrucciones — _done_ (`3546afd3-3da2-442b-8d2e-f32f4c7a2668`)
@@ -267,7 +267,7 @@ Hooks de Claude Code sin costo de tokens: pasos en vivo y resumen de cada turno 
   - `packages/agents/src/gemini-cli.ts`: Adaptador de Gemini CLI: BeforeAgent, BeforeTool, AfterAgent.
   - `packages/agents/src/index.ts`: Registro de adaptadores y utilidades (adapterFor, agentForClient, agentLabel).
   - `packages/agents/src/types.ts`: withPromptContext en el adaptador
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
   - `packages/server/src/agents-flow.test.ts`: Codex y Gemini a la vez: sesiones en vivo y turnos.
   - `packages/server/src/live-activity.ts`: Actividad en vivo por sesión y agente.
   - `packages/tracking/src/agent-turns.ts`: Turnos con agente, y turnos por MCP para agentes sin hooks.
@@ -783,7 +783,7 @@ Cada proyecto define en qué idioma le hablan los agentes al usuario: respuestas
   - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
   - `packages/tracking/src/create-project.ts`: Guarda el idioma al crear el proyecto
 
-### RF16 Nuevas funcionalidades del MCP — 78%
+### RF16 Nuevas funcionalidades del MCP — 89%
 
 ID: `0e260d37-411a-4cdf-a8d9-2b65b7ef86bb`
 
@@ -793,7 +793,7 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
 
 **Definition of Done:**
 
-- [ ] submit_report avisa o rechaza rutas fuera del repositorio, ids de DoD que no existen y archivos que no cambiaron (`0a6d624b-57a6-4aaf-831f-68ef674d53fb`)
+- [x] submit_report avisa o rechaza rutas fuera del repositorio, ids de DoD que no existen y archivos que no cambiaron (`0a6d624b-57a6-4aaf-831f-68ef674d53fb`)
 - [x] get_handoff dice qué hizo el último turno, con qué agente y en qué rama, qué criterios del DoD siguen pendientes y qué cambios faltan por reportar (`25dcbdd4-5864-4e45-9428-028680c7bbea`)
 - [x] Conectar registra el MCP por HTTP (http://127.0.0.1:4317/mcp) sin depender de Bun ni del código fuente (`38fea0f6-4829-420b-86a6-6ea5d07f8ca1`)
 - [x] remove_test y remove_feature permiten deshacer lo que se reportó por error (`8a2f53c1-6b13-4f70-b423-3dddd750f436`)
@@ -812,7 +812,7 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
   - `apps/web/src/components/layout/app-shell/app-shell.tsx`: Monta el aviso
   - `packages/agents/src/connect.ts`: Plan de conexión por HTTP para Claude Code, Codex y Gemini; detecta y reemplaza la conexión de proceso local
   - `packages/core/src/agent-context.ts`: Pide pasar project si el MCP no reconoce el proyecto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
   - `packages/server/src/agent-routes.ts`: La lista de agentes incluye los modelos de su proveedor
   - `packages/server/src/app.ts`: agentOnBranch: solo sesiones trabajando ahora o agentes lanzados en marcha
   - `packages/server/src/index.ts`: Recuerda la carpeta de cada agente según sus hooks para el MCP por HTTP
@@ -824,27 +824,31 @@ Mejoras del servidor MCP para que los agentes trabajen con menos tokens, menos e
   - `packages/mcp/src/handoff.test.ts`: Tests de buildHandoff
   - `packages/mcp/src/handoff.ts`: Arma el traspaso: último turno terminado, criterios pendientes y cambios sin reportar
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
 - Prompts MCP start y report — _done_ (`e8d4ca0d-5780-4790-be9d-4ce1a74dd936`)
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
 - remove_test y remove_feature — _done_ (`44200e9c-c40d-44b4-a37d-9128ba6ada5b`)
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
-  - `packages/tracking/src/tracker.ts`: Busca un test por ruta y nombre y borra un feature devolviendo los tests que quedan sin feature
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
+  - `packages/tracking/src/tracker.ts`: Tracker: valida el reporte completo y calcula avisos de archivos sin cambios
 - create_project completo como el wizard — _done_ (`3dc3a513-d922-422a-adf7-ed9242831357`)
   - `packages/core/src/plan.test.ts`: Tests unitarios del plan con monorepo, tests e idioma
   - `packages/core/src/plan.ts`: Lee del plan la estructura, las piezas, la herramienta de monorepo, los tipos de tests y el idioma, y pregunta por piezas faltantes o inválidas
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
 - Recursos MCP de contexto y requerimientos — _done_ (`9bd02ca8-2c72-4cfc-aafc-3e43679d9bb8`)
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
 - Contexto compacto en get_project_context — _done_ (`f8c01aea-f2c3-4315-bb02-35242b6c04ac`)
   - `packages/core/src/context.ts`: Genera el CONTEXT.md completo y el contexto compacto para el MCP
   - `packages/core/src/core.test.ts`: Tests unitarios de core, incluido el contexto compacto
   - `packages/mcp/src/mcp.test.ts`: Tests de integración del MCP con un cliente del SDK, incluidos los modos compacto y completo del contexto
-  - `packages/mcp/src/server.ts`: Servidor MCP: get_project_context con parámetro mode (compact por defecto o full) e instrucciones que remiten a get_requirement
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
+- Validación de submit_report — _done_ (`42102d33-41a4-4cd0-843c-6e2c583630f2`)
+  - `packages/mcp/src/server.ts`: Herramienta submit_report: pasa el checkout del agente y documenta rechazos y avisos
+  - `packages/server/src/repo-inference.test.ts`: Tests de rechazo en bloque y de avisos de archivos sin cambios
+  - `packages/tracking/src/tracker.ts`: Tracker: valida el reporte completo y calcula avisos de archivos sin cambios
 
 ### RF17 Códigos de requerimiento — 0%
 
