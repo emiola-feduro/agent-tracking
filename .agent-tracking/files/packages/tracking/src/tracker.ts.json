@@ -9,15 +9,15 @@
   ],
   "symbols": [
     {
-      "name": "deleteTest",
+      "name": "deleteFeature",
       "kind": "function",
-      "purpose": "",
+      "purpose": "Quita un feature y sus enlaces; devuelve sus tests",
       "source": "reported"
     },
     {
-      "name": "createTracker",
+      "name": "deleteTest",
       "kind": "function",
-      "purpose": "Servicio compartido por la API y el MCP",
+      "purpose": "",
       "source": "reported"
     },
     {
@@ -27,9 +27,9 @@
       "source": "reported"
     },
     {
-      "name": "deleteFeature",
+      "name": "createTracker",
       "kind": "function",
-      "purpose": "Quita un feature y sus enlaces; devuelve sus tests",
+      "purpose": "Servicio compartido por la API y el MCP",
       "source": "reported"
     }
   ]

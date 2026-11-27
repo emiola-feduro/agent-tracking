@@ -14,15 +14,15 @@
   ],
   "symbols": [
     {
-      "name": "createMcpServer",
-      "kind": "function",
-      "purpose": "create_project y get_plan_format ampliados",
-      "source": "reported"
-    },
-    {
       "name": "SERVER_INSTRUCTIONS",
       "kind": "constant",
       "purpose": "",
+      "source": "reported"
+    },
+    {
+      "name": "createMcpServer",
+      "kind": "function",
+      "purpose": "create_project y get_plan_format ampliados",
       "source": "reported"
     },
     {
