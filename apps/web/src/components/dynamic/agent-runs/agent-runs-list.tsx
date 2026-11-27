@@ -5,7 +5,8 @@ import useAgentRuns from "@/hooks/data/use-agent-runs";
 import type { AgentRun } from "@/lib/api";
 
 const LABEL: Record<AgentRun["agent"], string> = { "claude-code": "Claude Code", codex: "Codex CLI", "gemini-cli": "Gemini CLI" };
-const STATUS: Record<AgentRun["status"], { text: string; tone: "brand" | "ok" | "danger" | "neutral" }> = {
+const STATUS: Record<AgentRun["status"], { text: string; tone: "brand" | "ok" | "danger" | "neutral" | "warn" }> = {
+  queued: { text: "En cola", tone: "warn" },
   running: { text: "Trabajando", tone: "brand" },
   done: { text: "Terminó", tone: "ok" },
   failed: { text: "Falló", tone: "danger" },
@@ -32,7 +33,7 @@ const AgentRunsList = ({ projectId }: { projectId: string }) => {
     <section className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4">
       <div>
         <h2 className="font-semibold text-ink">Trabajos lanzados</h2>
-        <p className="text-sm text-muted">Agentes que arrancaste desde un requerimiento con «Implementar con un agente». Se borran al reiniciar el servidor.</p>
+        <p className="text-sm text-muted">Agentes que arrancaste con «Implementar». Si ya hay uno trabajando en la misma carpeta, el siguiente espera en cola. Se borran al reiniciar el servidor.</p>
       </div>
       {runs.data?.length === 0 && <p className="text-sm text-muted">Todavía no lanzaste ninguno.</p>}
       <ul className="flex flex-col gap-3">
@@ -40,21 +41,32 @@ const AgentRunsList = ({ projectId }: { projectId: string }) => {
           <li key={r.id} className="flex flex-col gap-2 rounded-md border border-line p-3">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="font-medium text-ink">
-                {LABEL[r.agent]} en {r.requirementCode ? <span className="font-mono text-brand">{r.requirementCode}</span> : null} {r.requirementTitle}
+                {LABEL[r.agent]}: {r.label}
               </span>
               <StatusPill tone={STATUS[r.status].tone}>{STATUS[r.status].text}</StatusPill>
-              <span className="text-sm text-muted tabular-nums">{duration(r.startedAt, r.endedAt, now)}</span>
+              {r.startedAt && <span className="text-sm text-muted tabular-nums">{duration(r.startedAt, r.endedAt, now)}</span>}
               {r.permission === "full" && <StatusPill tone="warn">Sin preguntas</StatusPill>}
-              {r.status === "running" && (
+              {(r.status === "running" || r.status === "queued") && (
                 <span className="ml-auto">
                   <Button size="sm" variant="danger" isLoading={stop.isPending && stop.variables === r.id} onClick={() => stop.mutate(r.id)}>
-                    Detener
+                    {r.status === "queued" ? "Quitar de la cola" : "Detener"}
                   </Button>
                 </span>
               )}
             </div>
+            {r.tasks.length > 1 && (
+              <ol className="list-decimal pl-5 text-sm text-ink-soft">
+                {r.tasks.map((t) => (
+                  <li key={t.requirementId}>
+                    {t.code && <span className="font-mono text-brand">{t.code}</span>} {t.title}
+                    {t.criteria !== null && <span className="text-muted"> ({t.criteria === 1 ? "1 criterio" : `${t.criteria} criterios`})</span>}
+                  </li>
+                ))}
+              </ol>
+            )}
             <p className="text-xs text-muted">
-              En <code className="font-mono">{r.cwd}</code>
+              {r.status === "queued" ? "Espera a que termine el agente que trabaja en " : "En "}
+              <code className="font-mono">{r.cwd}</code>
               {r.exitCode !== null && r.status !== "stopped" ? `, terminó con código ${r.exitCode}` : ""}
             </p>
             {r.output.length > 0 && (

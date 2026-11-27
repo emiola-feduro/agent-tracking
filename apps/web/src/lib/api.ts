@@ -92,17 +92,19 @@ export type AgentInfo = {
   lastSeen: string | null;
 };
 export type LaunchPermission = "safe" | "full";
+/** A requirement to implement whole (no dodIds), or only some of its pending criteria. */
+export type ImplementItem = { requirementId: string; dodIds?: string[] };
 export type AgentRun = {
   id: string;
   projectId: string;
-  requirementId: string;
-  requirementCode: string | null;
-  requirementTitle: string;
+  tasks: { requirementId: string; code: string | null; title: string; criteria: number | null }[];
+  label: string;
   agent: AgentKind;
   cwd: string;
   permission: LaunchPermission;
-  status: "running" | "done" | "failed" | "stopped";
-  startedAt: string;
+  status: "queued" | "running" | "done" | "failed" | "stopped";
+  createdAt: string;
+  startedAt: string | null;
   endedAt: string | null;
   exitCode: number | null;
   output: string[];
@@ -329,7 +331,7 @@ export const api = {
     request<{ branch: string; sha: string }>("DELETE", `${p(id)}/repo/branches/${encodeURIComponent(branch)}${force ? "?force=1" : ""}`),
   checkout: (id: string, branch: string) => request<{ branch: string; previous: string | null }>("POST", `${p(id)}/repo/checkout`, { branch }),
   runs: (id: string) => request<AgentRun[]>("GET", `${p(id)}/runs`),
-  launchRun: (id: string, data: { requirementId: string; agent: AgentKind; cwd?: string; permission: LaunchPermission; model?: string; instructions?: string }) =>
+  launchRun: (id: string, data: { items: ImplementItem[]; agent: AgentKind; cwd?: string; permission: LaunchPermission; model?: string; instructions?: string }) =>
     request<AgentRun>("POST", `${p(id)}/runs`, data),
   stopRun: (id: string, runId: string) => request<AgentRun>("POST", `${p(id)}/runs/${runId}/stop`),
   worktrees: (id: string) => request<{ base: string | null; worktrees: Worktree[] }>("GET", `${p(id)}/repo/worktrees`),

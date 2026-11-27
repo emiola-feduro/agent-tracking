@@ -1,5 +1,8 @@
 import { classifyRequirement, FUNCTIONAL_AREAS, QUALITY_AREAS, REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_HINT } from "@agent-tracking/core";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import ImplementBar from "@/components/dynamic/agent-runs/implement-bar";
+import LaunchAgentDialog from "@/components/dynamic/agent-runs/launch-agent-dialog";
+import useImplementStore from "@/stores/use-implement-store";
 import AssistantSetupNote from "@/components/dynamic/assistant/assistant-setup-note";
 import RequirementsImportDialog from "@/components/dynamic/requirements-import/requirements-import-dialog";
 import Button from "@/components/ui/button/button";
@@ -26,6 +29,10 @@ const ProjectDetailRequirements = ({ view }: { view: ProjectView }) => {
   const [query, setQuery] = useState("");
   const [importing, setImporting] = useState(false);
   const expanded = useExpanded();
+  const selecting = useImplementStore((s) => s.selecting);
+  const setSelecting = useImplementStore((s) => s.setSelecting);
+  // Leaving the page ends the selection.
+  useEffect(() => () => setSelecting(false), [setSelecting]);
 
   const criteriaOf = (id: string) => dod.filter((d) => d.requirementId === id);
   const q = normalize(query.trim());
@@ -139,6 +146,11 @@ const ProjectDetailRequirements = ({ view }: { view: ProjectView }) => {
           </div>
         )}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-3">
+          {project.repoPath && (
+            <Button size="sm" variant={selecting ? "primary" : "secondary"} aria-pressed={selecting} onClick={() => setSelecting(!selecting)}>
+              {selecting ? "Seleccionando para implementar" : "Seleccionar para implementar"}
+            </Button>
+          )}
           <Button size="sm" variant="ghost" disabled={shown.length === 0} onClick={() => expanded.setAll(allOpen ? [] : shown.map((r) => r.id))}>
             {allOpen ? "Contraer todo" : "Expandir todo"}
           </Button>
@@ -181,6 +193,8 @@ const ProjectDetailRequirements = ({ view }: { view: ProjectView }) => {
           ))}
         </section>
       ))}
+      <ImplementBar view={view} />
+      <LaunchAgentDialog view={view} />
       <ProjectDetailRequirementForm projectId={project.id} kind={kind} />
       <RequirementsImportDialog
         open={importing}

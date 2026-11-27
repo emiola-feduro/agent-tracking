@@ -12,30 +12,65 @@ export type LaunchPermission = (typeof LAUNCH_PERMISSIONS)[number];
 
 export const LAUNCH_BINARIES: Record<AgentKind, string> = { "claude-code": "claude", codex: "codex", "gemini-cli": "gemini" };
 
+/** One thing to implement: a whole requirement, or only some of its Definition of Done criteria. */
+export type LaunchItem = {
+  requirement: { code?: string | null; title: string; description?: string };
+  /** The requirement's criteria still pending (all of them for a whole requirement). */
+  criteria: { id: string; criterion: string }[];
+  /** True when only these criteria were chosen, not the whole requirement. */
+  onlyCriteria: boolean;
+};
+
 export type LaunchTask = {
   project: string;
-  requirement: { code?: string | null; title: string; description?: string };
+  items: LaunchItem[];
   /** Extra instructions the person wrote for this run. */
   instructions?: string;
 };
 
-/** What the agent is asked to do; the requirement goes by its code so the MCP tools can find it. */
+const nameOf = (r: LaunchItem["requirement"]) => (r.code ? `${r.code} «${r.title}»` : `«${r.title}»`);
+
+/** Short label of what a run works on: "RF3", "RF3 y RF5", "2 criterios de RF7". */
+export function launchLabel(items: LaunchItem[]): string {
+  const parts = items.map((i) => {
+    const ref = i.requirement.code ?? i.requirement.title;
+    return i.onlyCriteria ? `${i.criteria.length === 1 ? "1 criterio" : `${i.criteria.length} criterios`} de ${ref}` : ref;
+  });
+  return parts.length <= 1 ? (parts[0] ?? "") : `${parts.slice(0, -1).join(", ")} y ${parts.at(-1)}`;
+}
+
+/**
+ * What the agent is asked to do: the tasks in order, each requirement by its code (the MCP tools
+ * take it) with the criteria to meet and their ids (for submit_report), then the usual rules.
+ */
 export function launchPrompt(task: LaunchTask): string {
-  const { code, title, description } = task.requirement;
-  const name = code ? `${code} «${title}»` : `«${title}»`;
-  const ref = code ?? title;
+  const many = task.items.length > 1;
+  const blocks = task.items.map((item, i) => {
+    const head = item.onlyCriteria
+      ? `Del requerimiento ${nameOf(item.requirement)}, solo estos criterios del Definition of Done:`
+      : `El requerimiento ${nameOf(item.requirement)} completo.${item.criteria.length ? " Sus criterios del Definition of Done:" : ""}`;
+    const description = !item.onlyCriteria && item.requirement.description?.trim() ? `\n   Descripción: ${item.requirement.description.trim()}` : "";
+    const criteria = item.criteria.map((c) => `\n   - ${c.criterion} (id ${c.id})`).join("");
+    return `${many ? `${i + 1}. ` : ""}${head}${description}${criteria}`;
+  });
+  const refs = task.items.map((i) => `"${i.requirement.code ?? i.requirement.title}"`).join(", ");
   return [
-    `Implementa el requerimiento ${name} del proyecto ${task.project}, que se sigue con Agent Tracking.`,
-    description?.trim() ? `\nDescripción del requerimiento:\n${description.trim()}\n` : "",
-    "Pasos:",
-    `1. Lee el contexto: llama a get_project_context y a get_requirement con "${ref}" (servidor MCP agent-tracking); si no tienes ese MCP, lee .agent-tracking/CONTEXT.md.`,
-    "2. Antes de cambiar código, crea una rama feat/ o fix/ desde la actual (salvo que ya estés en una rama de trabajo) y haz commits pequeños mientras avanzas. No hagas push ni fusiones a main.",
-    "3. Cumple los criterios del Definition of Done y escribe los tests que pide el proyecto; córrelos.",
-    "4. Al terminar, llama una vez a submit_report con lo que hiciste, por feature, con archivos, tests y criterios del DoD cumplidos.",
+    many
+      ? `En el proyecto ${task.project}, que se sigue con Agent Tracking, implementa estas tareas en orden, una por una:`
+      : `En el proyecto ${task.project}, que se sigue con Agent Tracking, implementa:`,
+    "",
+    ...blocks,
+    "",
+    "Cómo trabajar:",
+    `1. Lee el contexto: llama a get_project_context y a get_requirement con ${refs} (servidor MCP agent-tracking); si no tienes ese MCP, lee .agent-tracking/CONTEXT.md.`,
+    "2. Antes de cambiar código, crea una rama feat/ o fix/ desde la actual (salvo que ya estés en una rama de trabajo). Haz al menos un commit por tarea. No hagas push ni fusiones a main.",
+    "3. Cumple los criterios indicados y escribe los tests que pide el proyecto; córrelos. No implementes criterios que no estén en la lista.",
+    "4. Al terminar todo, llama una vez a submit_report con lo que hiciste, por requerimiento y feature, con archivos, tests y los ids de los criterios cumplidos.",
     task.instructions?.trim() ? `\nIndicaciones adicionales:\n${task.instructions.trim()}` : "",
   ]
-    .filter(Boolean)
-    .join("\n");
+    .filter((l, i, all) => l !== "" || all[i - 1] !== "")
+    .join("\n")
+    .trim();
 }
 
 /** argv to start `agent` on `prompt` in its non-interactive mode (run with the checkout as cwd). */

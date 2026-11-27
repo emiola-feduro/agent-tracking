@@ -1,4 +1,7 @@
+import { dodImplementable } from "@agent-tracking/core";
 import TokenButton from "@/components/ui/token-button/token-button";
+import useImplement from "@/hooks/data/use-implement";
+import useImplementStore from "@/stores/use-implement-store";
 import { useState, type FormEvent } from "react";
 import AssistantCriteriaSuggestions from "@/components/dynamic/assistant/assistant-criteria-suggestions";
 import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
@@ -18,9 +21,16 @@ type ProjectDetailDodProps = {
   items: DodItem[];
   /** Reference images attached to criteria (any of this project; filtered per item). */
   images: Attachment[];
+  /** The project has a local repository an agent can work in. */
+  canLaunch?: boolean;
 };
 
-const ProjectDetailDod = ({ projectId, requirementId, items, images }: ProjectDetailDodProps) => {
+const ProjectDetailDod = ({ projectId, requirementId, items, images, canLaunch = false }: ProjectDetailDodProps) => {
+  const { implement, isLaunching } = useImplement(projectId);
+  const selecting = useImplementStore((s) => s.selecting && canLaunch);
+  const wholePicked = useImplementStore((s) => s.requirements.includes(requirementId));
+  const pickedDod = useImplementStore((s) => s.dod);
+  const toggleDod = useImplementStore((s) => s.toggleDod);
   const [draft, setDraft] = useState("");
   const { setDodStatus, deleteDod, addDod, addLlmDod, uploadImages, deleteImage } = useProjectActions(projectId);
   const { configured } = useAssistantStatus();
@@ -52,12 +62,24 @@ const ProjectDetailDod = ({ projectId, requirementId, items, images }: ProjectDe
           <li key={id} className="group flex flex-col">
             <div className="flex items-start gap-1">
               <label className="flex min-h-9 flex-1 cursor-pointer items-start gap-3 rounded-md px-2 py-1.5 transition-colors duration-150 hover:bg-subtle">
-                <input
-                  type="checkbox"
-                  checked={status === "done"}
-                  onChange={() => setDodStatus.mutate({ reqId: requirementId, dodId: id, status: nextDodStatus(status) })}
-                  className="mt-1 size-4 shrink-0 accent-ok"
-                />
+                {selecting ? (
+                  // Choosing what to implement: the box picks the criterion (done ones cannot be picked).
+                  <input
+                    type="checkbox"
+                    checked={status !== "done" && (wholePicked || !!pickedDod[id])}
+                    disabled={status === "done" || wholePicked}
+                    onChange={() => toggleDod(id, requirementId)}
+                    aria-label={`Implementar el criterio ${criterion}`}
+                    className="mt-1 size-4 shrink-0 accent-brand"
+                  />
+                ) : (
+                  <input
+                    type="checkbox"
+                    checked={status === "done"}
+                    onChange={() => setDodStatus.mutate({ reqId: requirementId, dodId: id, status: nextDodStatus(status) })}
+                    className="mt-1 size-4 shrink-0 accent-ok"
+                  />
+                )}
                 <span className={`transition-colors duration-200 ${status === "done" ? "text-muted line-through" : "text-ink"}`}>
                   {criterion}
                 </span>
@@ -68,6 +90,11 @@ const ProjectDetailDod = ({ projectId, requirementId, items, images }: ProjectDe
             <div className="-mt-1 flex flex-col gap-1.5 pb-1 pl-9">
               <AttachmentThumbs size="sm" images={images.filter((a) => a.dodItemId === id)} onDelete={(a) => deleteImage.mutate(a.id)} />
               <div className="flex flex-wrap gap-2 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:hover)]:opacity-0">
+                {canLaunch && !selecting && dodImplementable({ status }) && (
+                  <Button size="sm" variant="secondary" isLoading={isLaunching} onClick={() => implement([{ requirementId, dodIds: [id] }])}>
+                    Implementar
+                  </Button>
+                )}
                 <AttachmentDrop
                   compact
                   label="Adjuntar imagen"

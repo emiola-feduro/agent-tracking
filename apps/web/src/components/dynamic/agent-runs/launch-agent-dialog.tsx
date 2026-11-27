@@ -5,65 +5,78 @@ import ChoiceCard from "@/components/ui/choice-card/choice-card";
 import SelectField from "@/components/ui/select-field/select-field";
 import TextAreaField from "@/components/ui/text-area-field/text-area-field";
 import TextField from "@/components/ui/text-field/text-field";
-import useAgentRuns from "@/hooks/data/use-agent-runs";
-import { api, type AgentKind, type LaunchPermission, type Requirement } from "@/lib/api";
+import useImplement from "@/hooks/data/use-implement";
+import { api, type AgentKind, type LaunchPermission, type ProjectView } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
-
-type Props = { projectId: string; requirement: Requirement | null; onClose: () => void; onLaunched?: () => void };
+import useImplementStore, { readLaunchDefaults } from "@/stores/use-implement-store";
 
 /**
- * Starts a coding agent on one requirement: which agent (only the installed ones), where it works
- * (the main checkout or a worktree), with what permissions, and optional extra instructions.
+ * The options behind "Implementar": which agent (only the installed ones), where it works (the main
+ * checkout or a worktree), with what permissions, an optional model and extra instructions. The
+ * choices are remembered for the next one-click launch on this project.
  */
-const LaunchAgentDialog = ({ projectId, requirement, onClose, onLaunched }: Props) => {
+const LaunchAgentDialog = ({ view, onLaunched }: { view: ProjectView; onLaunched?: () => void }) => {
+  const projectId = view.project.id;
+  const items = useImplementStore((s) => s.dialog);
+  const close = useImplementStore((s) => s.closeDialog);
   const ref = useRef<HTMLDialogElement>(null);
-  const agents = useQuery({ queryKey: queryKeys.agents, queryFn: api.agents, enabled: !!requirement });
-  const worktrees = useQuery({ queryKey: queryKeys.worktrees(projectId), queryFn: () => api.worktrees(projectId), enabled: !!requirement });
-  const { launch } = useAgentRuns(projectId);
+  const agents = useQuery({ queryKey: queryKeys.agents, queryFn: api.agents, enabled: !!items });
+  const worktrees = useQuery({ queryKey: queryKeys.worktrees(projectId), queryFn: () => api.worktrees(projectId), enabled: !!items });
+  const { implement, isLaunching } = useImplement(projectId);
   const installed = (agents.data ?? []).filter((a) => a.installed);
   const [agent, setAgent] = useState<AgentKind | null>(null);
   const [cwd, setCwd] = useState("");
   const [permission, setPermission] = useState<LaunchPermission>("safe");
   const [model, setModel] = useState("");
   const [instructions, setInstructions] = useState("");
-  const chosen = agent ?? installed[0]?.kind ?? null;
+  const chosen = agent && installed.some((a) => a.kind === agent) ? agent : (installed.find((a) => a.kind === "claude-code") ?? installed[0])?.kind ?? null;
   const checkouts = worktrees.data?.worktrees ?? [];
 
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
-    if (requirement && !d.open) {
-      launch.reset();
+    if (items && !d.open) {
+      const saved = readLaunchDefaults(projectId);
+      setAgent(saved.agent);
+      setCwd(saved.cwd);
+      setPermission(saved.permission);
+      setModel(saved.model);
+      setInstructions("");
       d.showModal();
     }
-    if (!requirement && d.open) d.close();
-  }, [requirement]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!items && d.open) d.close();
+  }, [items, projectId]);
+
+  const label = (items ?? [])
+    .map((i) => {
+      const r = view.requirements.find((x) => x.id === i.requirementId);
+      const ref = r?.code ?? r?.title ?? "";
+      return i.dodIds?.length ? `${i.dodIds.length === 1 ? "1 criterio" : `${i.dodIds.length} criterios`} de ${ref}` : ref;
+    })
+    .join(", ");
 
   const submit = () => {
-    if (!requirement || !chosen) return;
-    launch.mutate(
-      { requirementId: requirement.id, agent: chosen, cwd: cwd || undefined, permission, model: model.trim() || undefined, instructions: instructions.trim() || undefined },
-      { onSuccess: () => (onLaunched?.(), onClose()) },
-    );
+    if (!items || !chosen) return;
+    implement(items, { agent: chosen, cwd, permission, model, instructions }, () => (onLaunched?.(), close()));
   };
 
   return (
     <dialog
       ref={ref}
-      onClose={onClose}
-      onClick={(e) => e.target === ref.current && onClose()}
+      onClose={close}
+      onClick={(e) => e.target === ref.current && close()}
       aria-labelledby="launch-agent-title"
       className="m-auto max-h-[90dvh] w-[min(calc(100vw-2rem),720px)] overflow-hidden rounded-lg border border-line bg-surface p-0 text-ink backdrop:bg-black/40"
     >
-      {requirement && (
+      {items && (
         <div className="flex max-h-[90dvh] flex-col">
           <header className="border-b border-line px-5 py-3">
             <h2 id="launch-agent-title" className="text-lg font-semibold">
-              Implementar {requirement.code ? `${requirement.code} ` : ""}con un agente
+              Implementar {label}
             </h2>
             <p className="text-sm text-muted">
-              El agente arranca sin su interfaz con este requerimiento, lee el contexto, trabaja en una rama propia y reporta al terminar. Lo ves en
-              vivo en el resumen del proyecto.
+              El agente arranca sin su interfaz con {items.length > 1 ? "estas tareas, en este orden" : "esta tarea"}, lee el contexto, trabaja en una
+              rama propia y reporta al terminar. Lo ves en vivo en el resumen del proyecto. Estas opciones quedan para el próximo «Implementar».
             </p>
           </header>
           <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
@@ -121,11 +134,10 @@ const LaunchAgentDialog = ({ projectId, requirement, onClose, onLaunched }: Prop
             <TextAreaField label="Indicaciones adicionales (opcional)" value={instructions} onChange={setInstructions} rows={3} />
           </div>
           <footer className="flex flex-wrap items-center justify-end gap-3 border-t border-line px-5 py-3">
-            {launch.isError && <p className="mr-auto text-sm text-danger">{(launch.error as Error).message}</p>}
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant="ghost" onClick={close}>
               Cancelar
             </Button>
-            <Button variant="primary" disabled={!chosen} isLoading={launch.isPending} onClick={submit}>
+            <Button variant="primary" disabled={!chosen} isLoading={isLaunching} onClick={submit}>
               Lanzar agente
             </Button>
           </footer>

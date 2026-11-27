@@ -1,8 +1,8 @@
-import { useState } from "react";
-import LaunchAgentDialog from "@/components/dynamic/agent-runs/launch-agent-dialog";
+import useImplement from "@/hooks/data/use-implement";
+import useImplementStore from "@/stores/use-implement-store";
 import Button from "@/components/ui/button/button";
 import PartChips from "@/components/dynamic/requirement-parts/part-chips";
-import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, requirementLabel } from "@agent-tracking/core";
+import { REQUIREMENT_AREA_LABEL, REQUIREMENT_TYPE_LABEL, requirementImplementable, requirementLabel } from "@agent-tracking/core";
 import AttachmentDrop from "@/components/dynamic/attachments/attachment-drop";
 import AttachmentThumbs from "@/components/dynamic/attachments/attachment-thumbs";
 import ProgressBar from "@/components/ui/progress-bar/progress-bar";
@@ -33,7 +33,12 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
   const images = attachments.filter((a) => a.kind === "reference" && a.requirementId === id).length;
   const percent = progress.requirements[id] ?? 0;
   const panelId = `requirement-${id}`;
-  const [launching, setLaunching] = useState(false);
+  const implementable = requirementImplementable(items);
+  const canLaunch = !!project.repoPath;
+  const { implement, options, isLaunching } = useImplement(project.id);
+  const selecting = useImplementStore((s) => s.selecting);
+  const picked = useImplementStore((s) => s.requirements.includes(id));
+  const toggle = useImplementStore((s) => s.toggleRequirement);
 
   const remove = () => {
     if (confirm(`Eliminar el requerimiento "${requirementLabel(requirement)}" y su Definition of Done. No se puede deshacer.`)) deleteRequirement.mutate(id);
@@ -44,6 +49,21 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
       className={`animate-enter overflow-hidden rounded-lg border bg-surface transition-colors duration-150 ${open ? "border-line-strong" : "border-line"}`}
     >
       <div className="flex items-stretch">
+        {selecting && (
+          <label
+            className={`flex items-start pt-4 pl-4 ${implementable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+            title={implementable ? undefined : "Tiene criterios cumplidos: elige sus criterios pendientes"}
+          >
+            <input
+              type="checkbox"
+              checked={picked}
+              disabled={!implementable}
+              onChange={() => toggle(id)}
+              aria-label={`Implementar ${requirementLabel(requirement)}`}
+              className="size-4 accent-brand"
+            />
+          </label>
+        )}
         <button
           type="button"
           aria-expanded={open}
@@ -87,7 +107,12 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
             <ProgressBar value={percent} label={`Avance de ${title}`} />
           </span>
         </button>
-        <div className="flex items-start px-2 pt-2.5">
+        <div className="flex items-start gap-1 px-2 pt-2.5">
+          {implementable && canLaunch && !selecting && (
+            <Button size="sm" variant="secondary" isLoading={isLaunching} onClick={() => implement([{ requirementId: id }])}>
+              Implementar
+            </Button>
+          )}
           <RemoveButton label={`Eliminar ${title}`} onClick={remove} />
         </div>
       </div>
@@ -97,11 +122,21 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
           {description && <p className="max-w-[70ch] text-ink-soft">{description}</p>}
           <div className="flex flex-wrap items-end justify-between gap-3">
             <ProjectDetailRequirementCode requirement={requirement} view={view} />
-            <Button variant="primary" onClick={() => setLaunching(true)} disabled={!project.repoPath}>
-              Implementar con un agente
-            </Button>
+            {canLaunch &&
+              !selecting &&
+              (implementable ? (
+                <span className="flex gap-2">
+                  <Button variant="ghost" onClick={() => options([{ requirementId: id }])}>
+                    Opciones
+                  </Button>
+                  <Button variant="primary" isLoading={isLaunching} onClick={() => implement([{ requirementId: id }])}>
+                    Implementar
+                  </Button>
+                </span>
+              ) : (
+                <p className="max-w-80 text-sm text-muted">Ya tiene criterios cumplidos: implementa sus criterios pendientes desde el Definition of Done.</p>
+              ))}
           </div>
-          <LaunchAgentDialog projectId={project.id} requirement={launching ? requirement : null} onClose={() => setLaunching(false)} />
           <ProjectDetailRequirementClassification
             requirement={requirement}
             kind={project.kind ?? "fullstack"}
@@ -132,6 +167,7 @@ const ProjectDetailRequirementCard = ({ requirement, view, open, onToggle }: Pro
               projectId={project.id}
               requirementId={id}
               items={items}
+              canLaunch={canLaunch}
               images={attachments.filter((a) => a.kind === "reference" && a.dodItemId)}
             />
             <ProjectDetailFeatures features={own} progress={progress.features} />
