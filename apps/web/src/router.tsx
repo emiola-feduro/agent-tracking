@@ -23,6 +23,7 @@ const TABS: ProjectTab[] = [
   "skills",
   "context",
   "agents",
+  "collab",
 ];
 
 const rootRoute = createRootRoute({ component: AppShell });

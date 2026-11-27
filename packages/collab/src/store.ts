@@ -55,11 +55,18 @@ const now = () => new Date().toISOString();
 const sha256 = (text: string) => new Bun.CryptoHasher("sha256").update(text).digest("hex");
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
+/**
+ * Bun.SQL reads a bare path as a PostgreSQL address; anything that is not postgres:// is a SQLite
+ * file here (or ":memory:").
+ */
+export const storeUrl = (url: string) =>
+  /^(postgres(ql)?|sqlite|file):/i.test(url) || url === ":memory:" ? url : `sqlite://${url}`;
+
 export type CollabStore = Awaited<ReturnType<typeof openCollabStore>>;
 
 /** Opens the store at `url` (postgres://..., or a SQLite path / ":memory:") and creates its tables. */
 export async function openCollabStore(url = process.env.DATABASE_URL ?? ":memory:") {
-  const sql = new SQL(url);
+  const sql = new SQL(storeUrl(url));
   if ((sql.options as { adapter?: string }).adapter === "sqlite") await sql.unsafe("PRAGMA foreign_keys = ON");
   for (const stmt of SCHEMA) await sql.unsafe(stmt);
 

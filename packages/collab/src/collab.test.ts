@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { tmpdir } from "node:os";
 import { createCollabClient, type CollabClient } from "./client";
 import { can, isRole } from "./roles";
 import { createCollabServer } from "./server";
-import { openCollabStore, PRESENCE_TTL_MS, type CollabStore } from "./store";
+import { openCollabStore, PRESENCE_TTL_MS, storeUrl, type CollabStore } from "./store";
 
 let store: CollabStore;
 let app: ReturnType<typeof createCollabServer>;
@@ -39,6 +40,26 @@ describe("roles", () => {
     expect(can(null, "read")).toBe(false);
     expect(isRole("editor")).toBe(true);
     expect(isRole("admin")).toBe(false);
+  });
+});
+
+describe("storage", () => {
+  test("PostgreSQL addresses stay as they are and file paths open SQLite", () => {
+    expect(storeUrl("postgres://u:p@db/collab")).toBe("postgres://u:p@db/collab");
+    expect(storeUrl(":memory:")).toBe(":memory:");
+    expect(storeUrl("/srv/collab.db")).toBe("sqlite:///srv/collab.db");
+    expect(storeUrl("collab.db")).toBe("sqlite://collab.db");
+  });
+
+  test("a SQLite file keeps the data between restarts", async () => {
+    const path = `${tmpdir()}/collab-${crypto.randomUUID()}.db`;
+    const first = await openCollabStore(path);
+    await first.register("persiste@equipo.test", "Persiste", "secreto-persiste");
+    first.close();
+    const second = await openCollabStore(path);
+    expect(await second.login("persiste@equipo.test", "secreto-persiste")).not.toBeNull();
+    second.close();
+    await Bun.file(path).delete();
   });
 });
 

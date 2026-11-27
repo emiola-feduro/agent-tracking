@@ -16,6 +16,7 @@ archivos → funciones, con su Definition of Done, tests, PRs y pipelines. Deskt
 | `packages/analyzer` | Análisis con tree-sitter (WASM): símbolos y tests por archivo, incremental por hash — ver [su README](packages/analyzer/README.md) |
 | `packages/github` | Cliente de GitHub (Octokit) con caché por ETag: PRs, ramas remotas y GitHub Actions |
 | `packages/assistant` | Asistente con Claude, OpenAI o Gemini (por API o con su CLI): stack, criterios de DoD y skills, con salidas validadas con zod |
+| `packages/collab` | Servidor compartido para equipos (PostgreSQL o SQLite): cuentas, proyectos con roles, versiones y presencia |
 | `packages/server` | API Hono + WebSocket de eventos (`/ws`); importación de repos; sirve la SPA compilada |
 | `apps/web` | UI React 19 + TanStack Router/Query + Tailwind 4 + Zustand (SPA con Vite) |
 | `apps/desktop` | Tauri 2; ejecuta el servidor como sidecar compilado con `bun build --compile` |
@@ -144,6 +145,36 @@ Además:
   y se reescribe con el formato nuevo.
 
 "Actualizar desde el repo" sigue disponible para releer los archivos a mano.
+
+## Trabajo en equipo con un servidor compartido
+
+Varias personas trabajan en el mismo proyecto a través de un servidor compartido
+(`packages/collab`). Cada app (escritorio o web local) sigue usando su base SQLite y se sincroniza
+con el servidor cuando la persona pulsa Sincronizar en la sección Colaboración del proyecto.
+
+```sh
+# PostgreSQL en producción; sin DATABASE_URL guarda los datos en collab.db (SQLite)
+DATABASE_URL=postgres://usuario:clave@host/agent_tracking COLLAB_PORT=4400 bun packages/collab/src/serve.ts
+# COLLAB_SIGNUP=0 cierra el registro de cuentas nuevas
+```
+
+- **Cuentas:** cada persona se registra con correo y contraseña; el servidor guarda solo el hash
+  de la contraseña y de los tokens de sesión. El token queda en la base local de la app y nunca se
+  devuelve a la interfaz.
+- **Roles por proyecto:** `owner` (Responsable: edita y administra personas), `editor` (Edición:
+  envía sus cambios) y `viewer` (Lectura: solo recibe). El proyecto siempre conserva un responsable.
+- **Sincronización:** el servidor guarda el árbol de `.agent-tracking` con un número de versión.
+  Cada máquina mezcla en 3 vías su copia, la del servidor y la última que sincronizó, aplica el
+  resultado y lo envía con la versión de la que partió; si otra persona envió antes (409), vuelve a
+  mezclar y reintenta.
+- **Presencia:** la sección Colaboración envía un latido cada 25 s y muestra quién tiene el proyecto
+  abierto en el último minuto.
+- **Sumarse:** en Proyectos aparece «Compartidos contigo»; se elige la copia local del repositorio y
+  el proyecto se trae a esta máquina (si el repo ya tiene `.agent-tracking`, se sincroniza).
+
+Endpoints locales: `GET/DELETE /api/collab`, `POST /api/collab/connect`, `GET /api/collab/projects`,
+`POST /api/collab/join` y, por proyecto, `/api/projects/:id/collab` (`/share`, `/sync`, `/members`,
+`/presence`).
 
 ## Conectar agentes
 
