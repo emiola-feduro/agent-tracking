@@ -8,7 +8,7 @@
  * its `/mcp` endpoint, so the UI updates live. Without it, `--db` (or AGENT_TRACKING_DB) writes
  * straight to the database; the UI then catches up the next time it loads.
  */
-import { openDb } from "@agent-tracking/db";
+import { assertCurrentSchema, openDb } from "@agent-tracking/db";
 import { createRepoInference, createTracker } from "@agent-tracking/tracking";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
@@ -70,7 +70,11 @@ async function runLocal() {
   const server = createMcpServer(
     tracker,
     { project: projectRef, actor: flags.agent ? `agent:${flags.agent}` : undefined },
-    { syncRepo: (id, scope) => (scope === "all" ? inference.syncAll(id) : inference.syncWorkingTree(id)) },
+    {
+      syncRepo: (id, scope) => (scope === "all" ? inference.syncAll(id) : inference.syncWorkingTree(id)),
+      // This process may outlive an update: never write into a database a newer version migrated.
+      beforeTool: () => assertCurrentSchema(db),
+    },
   );
   await server.connect(new StdioServerTransport());
 }

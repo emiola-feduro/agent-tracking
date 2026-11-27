@@ -42,3 +42,24 @@ test("requirements get sequential codes by type, editable and unique, and the tr
   expect(feature.requirementId).toBe(rf1.id);
   await expect(tracker.resolveRequirement(id, "RF99")).rejects.toThrow("RF99");
 });
+
+test("requirements written without a code get one, and an older process cannot write into a newer database", async () => {
+  const { fillRequirementCodes } = await import("@agent-tracking/tracking");
+  const { assertCurrentSchema, schema: s } = await import("@agent-tracking/db");
+  const db = openDb(":memory:");
+  await db.insert(s.projects).values({ id: "p", name: "P", platforms: ["web"] });
+  // As an MCP running code from before codes would leave them.
+  await db.insert(s.requirements).values([
+    { id: "a", projectId: "p", title: "Uno", createdAt: "2026-01-01T00:00:00.000Z" },
+    { id: "b", projectId: "p", title: "Dos", type: "non_functional", createdAt: "2026-01-02T00:00:00.000Z" },
+    { id: "c", projectId: "p", title: "Tres", code: "RF1", createdAt: "2026-01-03T00:00:00.000Z" },
+  ]);
+  expect(fillRequirementCodes(db, "p")).toBe(2);
+  const codes = Object.fromEntries((await db.select().from(s.requirements)).map((r) => [r.id, r.code]));
+  expect(codes).toEqual({ a: "RF2", b: "RNF1", c: "RF1" });
+  expect(fillRequirementCodes(db, "p")).toBe(0);
+
+  expect(() => assertCurrentSchema(db)).not.toThrow();
+  db.$client.run("INSERT INTO __migrations (tag, applied_at) VALUES ('9999_from_the_future', '2027-01-01')");
+  expect(() => assertCurrentSchema(db)).toThrow("versión más nueva");
+});

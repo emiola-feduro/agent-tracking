@@ -1,8 +1,8 @@
 import { PROVIDER_INFO, providerOf, resolveAssistantProviders } from "@agent-tracking/assistant";
-import { openDb } from "@agent-tracking/db";
+import { openDb, schema } from "@agent-tracking/db";
 import { isAllowedOrigin } from "./origin";
 import { createMcpHttpHandler } from "@agent-tracking/mcp";
-import { createRepoInference, createTracker, onRepoImport } from "@agent-tracking/tracking";
+import { createRepoInference, createTracker, fillRequirementCodes, onRepoImport } from "@agent-tracking/tracking";
 import { join, normalize } from "node:path";
 import { createApp, type AppEvent } from "./app";
 import { createRepoWatchers, type RepoWatchers } from "./repo-watchers";
@@ -20,6 +20,11 @@ const emit = (e: AppEvent) => {
   if (e.type === "project.deleted") repoWatchers?.stop(e.projectId);
 };
 const tracker = createTracker(db, { emit });
+// Requirements written by older code (another process that outlived an update) may lack a code.
+for (const p of await db.select({ id: schema.projects.id }).from(schema.projects)) {
+  const filled = fillRequirementCodes(db, p.id);
+  if (filled) console.log(`Se asignaron ${filled} códigos de requerimiento que faltaban`);
+}
 // Repository analysis: files, symbols and tests show up even when an agent does not report them
 // (AGENT_TRACKING_WATCH=0 disables the watchers; sync_repo and the API still work on demand).
 const inference = createRepoInference(db, tracker);

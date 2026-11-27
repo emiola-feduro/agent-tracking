@@ -29,6 +29,28 @@ function migrate(sqlite: Database) {
   }
 }
 
+/** Migration tags this build knows, current and legacy. */
+const KNOWN_TAGS = new Set([...MIGRATIONS.map((m) => m.tag), ...LEGACY_UPGRADES.flatMap((l) => [l.tag, l.replacedBy])]);
+
+export class DatabaseTooNewError extends Error {
+  constructor() {
+    super(
+      "La base de datos de Agent Tracking es de una versión más nueva que este proceso. Reinícialo (por ejemplo, reinicia el agente o su servidor MCP) para no perder datos que esta versión no conoce.",
+    );
+    this.name = "DatabaseTooNewError";
+  }
+}
+
+/**
+ * Throws when the database has migrations this build does not know: a newer Agent Tracking migrated
+ * it. A long-running process with older code (an agent's MCP started before an update) would
+ * otherwise write rows without the new columns and erase what they hold.
+ */
+export function assertCurrentSchema(db: Db) {
+  const tags = (db.$client as Database).query<{ tag: string }, []>("SELECT tag FROM __migrations").all();
+  if (tags.some((r) => !KNOWN_TAGS.has(r.tag))) throw new DatabaseTooNewError();
+}
+
 /** Abre (o crea) la base SQLite y aplica migraciones. Usa ":memory:" en tests. */
 export function openDb(path = process.env.AGENT_TRACKING_DB ?? "agent-tracking.db") {
   const sqlite = new Database(path, { create: true });

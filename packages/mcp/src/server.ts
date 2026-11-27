@@ -45,6 +45,8 @@ export const SERVER_INSTRUCTIONS = [
 /** Optional services the host provides (the HTTP server has a repository watcher, for example). */
 export type McpDeps = {
   syncRepo?: (projectId: string, scope: "changes" | "all") => Promise<unknown>;
+  /** Runs before every tool; throwing stops it with that message (e.g. a database newer than this code). */
+  beforeTool?: () => void;
 };
 
 const TEST_TYPES = ["unit", "integration", "e2e", "component", "contract", "performance", "other"] as const;
@@ -128,6 +130,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
   ) => {
     const run = async ({ project, ...args }: { project?: string } & z.infer<z.ZodObject<S>>): Promise<CallToolResult> => {
       try {
+        deps.beforeTool?.();
         const projectId = await resolve(project);
         const who = actor();
         const { result, event } = await handler(projectId, who, args as z.infer<z.ZodObject<S>>);

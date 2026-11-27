@@ -31,7 +31,7 @@ import { loadSnapshot, schema as s, type Db } from "@agent-tracking/db";
 import { shareSkill } from "@agent-tracking/skills";
 import { sniffImage } from "./attachments";
 import { ensureMergeDriver } from "@agent-tracking/git";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { mkdir, readdir, readFile, rm, rmdir, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, sep } from "node:path";
 import { MERGE_DRIVER_NAME, MERGE_DRIVER_SCRIPT } from "./merge-driver-info";
@@ -155,7 +155,32 @@ async function importLocked(db: Db, projectId: string, root: string): Promise<Re
   return { status: "imported" };
 }
 
+/**
+ * Gives a code to requirements that have none (rows written by code from before codes existed),
+ * numbered by type in creation order after the codes already taken. Returns how many it filled.
+ */
+export function fillRequirementCodes(db: Db, projectId: string): number {
+  const rows = db
+    .select({ id: s.requirements.id, type: s.requirements.type, code: s.requirements.code })
+    .from(s.requirements)
+    .where(eq(s.requirements.projectId, projectId))
+    .orderBy(asc(s.requirements.createdAt), asc(s.requirements.id))
+    .all();
+  if (rows.every((r) => r.code)) return 0;
+  const coded = assignRequirementCodes(rows);
+  let filled = 0;
+  db.transaction((tx) => {
+    coded.forEach((r, i) => {
+      if (rows[i]!.code === r.code) return;
+      tx.update(s.requirements).set({ code: r.code }).where(eq(s.requirements.id, r.id)).run();
+      filled++;
+    });
+  });
+  return filled;
+}
+
 async function writeLocked(db: Db, projectId: string): Promise<string | null> {
+  fillRequirementCodes(db, projectId);
   const snap = await loadSnapshot(db, projectId);
   if (!snap?.project.repoPath) return null;
   const root = snap.project.repoPath;
