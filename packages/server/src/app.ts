@@ -70,6 +70,7 @@ import { agentRunRoutes, type SpawnAgent } from "./agent-run-routes";
 import { isAllowedOrigin } from "./origin";
 import { attachmentRoutes } from "./attachment-routes";
 import { originFor, sharedPatch, skillRoutes } from "./skill-routes";
+import { collabRoutes } from "./collab-routes";
 import { createLiveActivity, type LiveActivity } from "./live-activity";
 
 export type { AppEvent, Emit } from "@agent-tracking/tracking";
@@ -216,6 +217,8 @@ export interface AppOptions {
   agentRuns?: { spawn?: SpawnAgent; which?: (bin: string) => string | null };
   /** Each hook event reports the folder its agent works in (the MCP over HTTP uses it to find the project). */
   onAgentDir?: (agent: string, dir: string) => void;
+  /** Fetch used to reach the shared server (see collab-routes.ts); tests pass an in-process one. */
+  collabFetch?: typeof fetch;
 }
 
 /** app_settings key of the assistant's model per task and provider. */
@@ -921,6 +924,7 @@ export function createApp(db: Db, opts: AppOptions = {}) {
   app.route("/", agentRoutes(db));
   app.route("/", agentRunRoutes(tracker, opts.agentRuns));
   app.route("/", skillRoutes(db, tracker, { claudeHome }));
+  app.route("/", collabRoutes(db, { emit, fetch: opts.collabFetch }));
 
   app.get("/projects/:id/live", async (c) => {
     const id = c.req.param("id");

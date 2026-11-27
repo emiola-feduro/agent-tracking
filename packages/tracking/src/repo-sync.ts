@@ -77,7 +77,7 @@ const written = new Map<string, Map<string, string>>();
 
 /** One sync at a time per project: imports and writes never interleave. */
 const locks = new Map<string, Promise<unknown>>();
-const withLock = <T>(key: string, task: () => Promise<T>): Promise<T> => {
+export const withLock = <T>(key: string, task: () => Promise<T>): Promise<T> => {
   const next = (locks.get(key) ?? Promise.resolve()).catch(() => {}).then(task);
   locks.set(key, next);
   return next;
@@ -90,6 +90,11 @@ const importListeners = new Set<ImportListener>();
 export function onRepoImport(listener: ImportListener) {
   importListeners.add(listener);
   return () => void importListeners.delete(listener);
+}
+
+/** Tells the listeners that the project's data changed from outside (git or the shared server). */
+export function notifyRepoImport(projectId: string) {
+  for (const listener of importListeners) listener(projectId);
 }
 
 /** Reads the data files of `.agent-tracking` (repo-relative path → content). Empty without project.json. */
@@ -110,7 +115,7 @@ export async function readTrackingTree(root: string): Promise<Map<string, string
   return out;
 }
 
-const sameTree = (a: Map<string, string>, b: Map<string, string>) => a.size === b.size && [...a].every(([k, v]) => b.get(k) === v);
+export const sameTree = (a: Map<string, string>, b: Map<string, string>) => a.size === b.size && [...a].every(([k, v]) => b.get(k) === v);
 
 const asObject = (tree: Map<string, string>) => Object.fromEntries([...tree].map(([path, text]) => [path, JSON.parse(text) as JsonValue]));
 
@@ -119,7 +124,7 @@ const asObject = (tree: Map<string, string>) => Object.fromEntries([...tree].map
  * `theirs` what is on disk. Where both changed the same value, the disk wins: it is what the team
  * agreed on in git.
  */
-function mergeTrees(base: Map<string, string>, ours: Map<string, string>, theirs: Map<string, string>) {
+export function mergeTrees(base: Map<string, string>, ours: Map<string, string>, theirs: Map<string, string>) {
   const merged = mergeJson(asObject(base), asObject(ours), asObject(theirs), { prefer: "theirs" });
   if (!merged.ok || !merged.value || typeof merged.value !== "object") return theirs;
   return new Map(Object.entries(merged.value).map(([path, value]) => [path, stableJson(value)]));
@@ -236,7 +241,7 @@ export async function syncRepoFiles(db: Db, projectId: string): Promise<RepoSync
     // Never write over files someone has to fix by hand (a merge conflict, for instance).
     if (result.status === "invalid") return { ...result, path: null };
     const path = await writeLocked(db, projectId);
-    if (result.status === "imported") for (const listener of importListeners) listener(projectId);
+    if (result.status === "imported") notifyRepoImport(projectId);
     return { ...result, path };
   });
 }

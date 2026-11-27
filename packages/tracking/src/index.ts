@@ -5,3 +5,4 @@ export * from "./attachments";
 export * from "./create-project";
 export * from "./agent-turns";
 export * from "./detect-structure";
+export * from "./remote-sync";
