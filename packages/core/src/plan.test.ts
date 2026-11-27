@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifyRequirement, missingPlanFields, parseProjectPlan, parseRequirements, PLAN_TEMPLATE, REQUIREMENTS_TEMPLATE, settleClassification } from "./index";
+import { classifyRequirement, missingPlanFields, parseProjectPlan, parseRequirements, PLAN_MONOREPO_EXAMPLE, PLAN_TEMPLATE, REQUIREMENTS_TEMPLATE, settleClassification } from "./index";
 
 describe("classifyRequirement", () => {
   test("quality words make it non functional, the rest is placed in the system", () => {
@@ -104,6 +104,79 @@ describe("parseProjectPlan", () => {
     expect(missingPlanFields(r.value).map((m) => m.field)).toEqual(["kind", "goal", "dod"]);
     const full = parseProjectPlan("# App\nTipo: aplicación completa\n\n## Objetivo\nx\n## Requerimientos\n### A\n- [ ] b\n");
     expect(full.ok && missingPlanFields(full.value).map((m) => m.field)).toEqual(["platforms"]);
+  });
+});
+
+describe("monorepo, test types and reply language in a plan", () => {
+  test("the monorepo example has its pieces, tool, tests and language, and the project adds up its pieces", () => {
+    const r = parseProjectPlan(PLAN_MONOREPO_EXAMPLE);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.warnings).toEqual([]);
+    expect(r.value).toMatchObject({
+      structure: "monorepo",
+      monorepoTool: "pnpm-workspaces",
+      testTypes: ["unit", "integration", "e2e"],
+      replyLanguage: "es",
+      kind: "fullstack",
+      platforms: ["mobile"],
+      stack: ["TypeScript", "Hono", "Flutter", "Dart"],
+    });
+    expect(r.value.parts).toEqual([
+      { id: "api", name: "API", kind: "api", path: "apps/api", platforms: [], stack: ["TypeScript", "Hono"] },
+      { id: "movil", name: "Móvil", kind: "mobile", path: "apps/mobile", platforms: ["mobile"], stack: ["Flutter", "Dart"] },
+    ]);
+    expect(r.value.requirements[0]!.parts).toEqual(["api", "movil"]);
+    expect(missingPlanFields(r.value)).toEqual([]);
+  });
+
+  test("json works too, with default folders and pieces referenced by folder", () => {
+    const r = parseProjectPlan(
+      JSON.stringify({
+        nombre: "Tienda",
+        objetivo: "Vender",
+        estructura: "monorepo",
+        piezas: [{ nombre: "Web", tipo: "frontend" }, { name: "Shared", kind: "library", stack: "TypeScript" }],
+        tests: ["unit", "componentes"],
+        idioma: "English",
+        requerimientos: [{ titulo: "Catálogo", piezas: ["apps/web"], criterios: ["Lista productos"] }],
+      }),
+    );
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value.parts.map((p) => [p.id, p.path])).toEqual([
+      ["web", "apps/web"],
+      ["shared", "packages/shared"],
+    ]);
+    expect(r.value).toMatchObject({ kind: "frontend", testTypes: ["unit", "component"], replyLanguage: "en", monorepoTool: null });
+    expect(r.value.requirements[0]!.parts).toEqual(["web"]);
+  });
+
+  test("no language is a choice; unknown values and pieces become warnings", () => {
+    const r = parseProjectPlan(
+      "# X\nTipo: cli\nIdioma: ninguno\nTests: unitarios, humo\n## Objetivo\ny\n## Requerimientos\n### Z\nPiezas: core\n- [ ] w\n",
+    );
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value).toMatchObject({ structure: "single", replyLanguage: null, testTypes: ["unit"], parts: [] });
+    expect(r.value.requirements[0]!.parts).toBeUndefined();
+    expect(r.warnings.some((w) => w.includes('"humo"'))).toBe(true);
+    const unset = parseProjectPlan("# X\nTipo: cli\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n");
+    expect(unset.ok && [unset.value.replyLanguage, unset.value.testTypes]).toEqual([undefined, null]);
+  });
+
+  test("a monorepo without pieces, or with pieces the wizard would reject, asks for them", () => {
+    const empty = parseProjectPlan("# X\nEstructura: monorepo\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n");
+    expect(empty.ok && missingPlanFields(empty.value).map((m) => m.field)).toEqual(["parts"]);
+    const untyped = parseProjectPlan("# X\n## Objetivo\ny\n## Piezas\n### Api\nCarpeta: apps/api\n## Requerimientos\n### Z\n- [ ] w\n");
+    expect(untyped.ok && untyped.value.structure).toBe("monorepo");
+    expect(untyped.ok && missingPlanFields(untyped.value)[0]!.question).toContain("Api");
+    const overlap = parseProjectPlan(
+      "# X\n## Objetivo\ny\n## Piezas\n### A\nTipo: api\nCarpeta: apps\n### B\nTipo: fullstack\nCarpeta: apps/b\n## Requerimientos\n### Z\n- [ ] w\n",
+    );
+    const q = overlap.ok ? missingPlanFields(overlap.value).find((m) => m.field === "parts")!.question : "";
+    expect(q).toContain("se cruza");
+    expect(q).toContain("plataforma");
   });
 });
 

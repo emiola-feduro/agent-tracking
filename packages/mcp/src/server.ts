@@ -1,7 +1,15 @@
 import {
   buildContextMarkdown,
   DEFAULT_COMMIT_CONVENTIONS,
+  DEFAULT_REPLY_LANGUAGE,
+  defaultTestTypes,
+  MONOREPO_TOOLS,
   missingPlanFields,
+  PLAN_MONOREPO_EXAMPLE,
+  recommendMonorepoTool,
+  REPLY_LANGUAGES,
+  TEST_POLICY_TYPES,
+  type ProjectPart,
   parseProjectPlan,
   PLAN_TEMPLATE,
   PLATFORMS,
@@ -665,6 +673,12 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
           "Un plan es Markdown como este (también se acepta JSON con los mismos campos):",
           "",
           PLAN_TEMPLATE,
+          "Monorepo: pon `Estructura: monorepo` y describe cada pieza bajo ## Piezas (### Nombre con Tipo, Carpeta, Plataformas si su tipo las pide, y Stack). Cada requerimiento puede decir qué piezas toca con `Piezas: A, B`. El tipo, las plataformas y el stack del proyecto salen de sus piezas, como en el wizard. Por ejemplo:",
+          "",
+          PLAN_MONOREPO_EXAMPLE,
+          `Herramienta de monorepo (opcional, por defecto la recomendada para sus piezas): ${MONOREPO_TOOLS.map((t) => t.id).join(", ")}.`,
+          `Tests (opcional): los tipos de tests que escriben los agentes, de ${TEST_POLICY_TYPES.map((t) => `${t.type} (${t.label})`).join(", ")}; sin la línea se usan los habituales para el tipo de proyecto.`,
+          `Idioma (opcional): el idioma de las respuestas de los agentes, ${REPLY_LANGUAGES.join(", ")} o ninguno; por defecto ${DEFAULT_REPLY_LANGUAGE}.`,
           "Opcional: una sección ## Convenciones de commits con las reglas del equipo, una por línea; sin ella se usan Conventional Commits (feat, fix, docs...) y ramas tipo/tema.",
           "Obligatorio: nombre (# Título), Tipo, Objetivo y al menos un requerimiento. Plataformas solo si el tipo es aplicación completa o app multiplataforma.",
           "Cada requerimiento debería tener criterios del Definition of Done (lista o checklist debajo de su título).",
@@ -683,7 +697,7 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
     {
       title: "Crear proyecto desde un plan",
       description:
-        "Crea un proyecto en Agent Tracking a partir de un plan (Markdown o JSON, ver get_plan_format). Si falta algo que el wizard pide sí o sí, no crea nada y devuelve `questions`: házselas al usuario (por ejemplo con AskUserQuestion), agrega las respuestas al plan y vuelve a llamarla.",
+        "Crea un proyecto en Agent Tracking a partir de un plan (Markdown o JSON, ver get_plan_format), con lo mismo que el wizard: monorepo con sus piezas, tipos de tests e idioma de las respuestas. Si falta algo que el wizard pide sí o sí, no crea nada y devuelve `questions`: házselas al usuario (por ejemplo con AskUserQuestion), agrega las respuestas al plan y vuelve a llamarla.",
       inputSchema: {
         plan: z.string().min(1).describe("El plan en Markdown o JSON"),
         repoPath: z.string().optional().describe("Ruta absoluta del repositorio git del proyecto (normalmente tu directorio de trabajo). Opcional."),
@@ -705,20 +719,29 @@ export function createMcpServer(tracker: Tracker, session: McpSession = {}, deps
             created: false,
             message: "Faltan datos que el usuario debe dar. Pregúntaselos y vuelve a llamar a create_project con el plan completo.",
             questions: missing,
-            understood: { ...value, requirements: value.requirements.map((r) => ({ title: r.title, type: r.type, area: r.area, criteria: r.dod.length })) },
+            understood: { ...value, requirements: value.requirements.map((r) => ({ title: r.title, type: r.type, area: r.area, parts: r.parts, criteria: r.dod.length })) },
             warnings: parsed.warnings,
           });
         }
+        const kind = value.kind!;
+        const monorepo = value.structure === "monorepo";
+        // parseProjectPlan only leaves a monorepo without missing fields when every piece has a kind.
+        const parts = monorepo ? (value.parts as ProjectPart[]) : [];
         const projectId = await createProject(
           tracker.db,
           tracker.emit,
           {
             name: value.name,
             goal: value.goal,
-            kind: value.kind!,
+            kind,
             platforms: value.platforms,
             stack: value.stack,
             databases: value.databases,
+            structure: value.structure,
+            parts,
+            monorepoTool: monorepo ? (value.monorepoTool ?? recommendMonorepoTool(parts)) : null,
+            testTypes: value.testTypes ?? defaultTestTypes(kind),
+            replyLanguage: value.replyLanguage === undefined ? DEFAULT_REPLY_LANGUAGE : value.replyLanguage,
             repoPath: repoPath ?? null,
             rules: value.rules,
             commitConventions: value.conventions ? { ...DEFAULT_COMMIT_CONVENTIONS, custom: value.conventions } : null,

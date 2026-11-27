@@ -1,3 +1,4 @@
+import { PLAN_MONOREPO_EXAMPLE } from "@agent-tracking/core";
 import { loadSnapshot, openDb, type Db } from "@agent-tracking/db";
 import { schema as s } from "@agent-tracking/db";
 import { git } from "@agent-tracking/git";
@@ -406,6 +407,45 @@ describe("creating a project from a plan", () => {
     ]);
     expect(snap!.dod.map((d) => d.criterion)).toEqual(["Lista ordenada por hora"]);
     expect((await call(client, "create_project", { repoPath: fresh, plan: "# X\nTipo: cli\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n" })).isError).toBe(true);
+  });
+});
+
+describe("creating a monorepo from a plan", () => {
+  test("create_project takes the pieces, test types and reply language like the wizard", async () => {
+    const client = await connect({});
+    const fresh = join(tmp, "turnos");
+    await git(["init", "-q", "-b", "main", fresh]);
+    const format = await call(client, "get_plan_format");
+    expect(format.data).toContain("## Piezas");
+    expect(format.data).toContain("Idioma");
+
+    const missing = await call(client, "create_project", { plan: "# Turnos\nEstructura: monorepo\n## Objetivo\nx\n## Requerimientos\n### A\n- [ ] b\n" });
+    expect(missing.data.created).toBe(false);
+    expect(missing.data.questions.map((q: { field: string }) => q.field)).toEqual(["parts"]);
+
+    const done = await call(client, "create_project", { repoPath: fresh, plan: PLAN_MONOREPO_EXAMPLE.replace("Idioma: español", "Idioma: inglés") });
+    expect(done.data.created).toBe(true);
+    const snap = await loadSnapshot(db, done.data.projectId);
+    expect(snap!.project).toMatchObject({
+      kind: "fullstack",
+      platforms: ["mobile"],
+      structure: "monorepo",
+      monorepoTool: "pnpm-workspaces",
+      testTypes: ["unit", "integration", "e2e"],
+      replyLanguage: "en",
+    });
+    expect(snap!.project.parts!.map((p) => [p.id, p.kind, p.path])).toEqual([
+      ["api", "api", "apps/api"],
+      ["movil", "mobile", "apps/mobile"],
+    ]);
+    expect(snap!.requirements[0]!.parts).toEqual(["api", "movil"]);
+
+    // Without the lines, the wizard's defaults: tests for the kind of project and Spanish answers.
+    const plain = join(tmp, "plano");
+    await git(["init", "-q", "-b", "main", plain]);
+    const single = await call(client, "create_project", { repoPath: plain, plan: "# Cli\nTipo: cli\n## Objetivo\ny\n## Requerimientos\n### Z\n- [ ] w\n" });
+    const s2 = await loadSnapshot(db, single.data.projectId);
+    expect(s2!.project).toMatchObject({ structure: "single", parts: [], testTypes: ["unit"], replyLanguage: "es" });
   });
 });
 
